@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maths Interactives</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            
+            /* Strand colours */
+            --number-color: #4ECDC4;
+            --addition-color: #3498DB;
+            --multiplication-color: #9B5DE5;
+            --fractions-color: #FF6B6B;
+            --measurement-color: #F4C430;
+            --statistics-color: #27AE60;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--bg-cream);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--number-color);
+            top: -100px;
+            right: -80px;
+        }
+
+        .bg-shape-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--fractions-color);
+            bottom: 15%;
+            left: -60px;
+        }
+
+        .bg-shape-3 {
+            width: 150px;
+            height: 150px;
+            background: var(--multiplication-color);
+            top: 40%;
+            right: 10%;
+        }
+
+        .bg-shape-4 {
+            width: 120px;
+            height: 120px;
+            background: var(--measurement-color);
+            bottom: 30%;
+            right: 25%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        header h1 span {
+            background: linear-gradient(135deg, var(--number-color), var(--multiplication-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            font-size: 1.15rem;
+            color: var(--text-light);
+        }
+
+        .strand-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .strand-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .strand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .strand-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Strand colours */
+        .strand-number .strand-icon { background: var(--number-color); }
+        .strand-addition .strand-icon { background: var(--addition-color); }
+        .strand-multiplication .strand-icon { background: var(--multiplication-color); }
+        .strand-fractions .strand-icon { background: var(--fractions-color); }
+        .strand-measurement .strand-icon { background: var(--measurement-color); }
+        .strand-statistics .strand-icon { background: var(--statistics-color); }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--card-shadow);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .strand-number .activity-card::before { background: var(--number-color); }
+        .strand-addition .activity-card::before { background: var(--addition-color); }
+        .strand-multiplication .activity-card::before { background: var(--multiplication-color); }
+        .strand-fractions .activity-card::before { background: var(--fractions-color); }
+        .strand-measurement .activity-card::before { background: var(--measurement-color); }
+        .strand-statistics .activity-card::before { background: var(--statistics-color); }
+
+        .activity-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .activity-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .activity-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        .activity-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .coming-soon {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .coming-soon::after {
+            content: "Coming Soon";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            background: var(--text-dark);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 2rem;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 1.25rem; }
+            header h1 { font-size: 2rem; }
+            .activity-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shapes">
+        <div class="bg-shape bg-shape-1"></div>
+        <div class="bg-shape bg-shape-2"></div>
+        <div class="bg-shape bg-shape-3"></div>
+        <div class="bg-shape bg-shape-4"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Maths <span>Interactives</span></h1>
+            <p>Year 5 • Interactive practice activities</p>
+        </header>
+
+        <!-- NUMBER & PLACE VALUE -->
+        <section class="strand-section strand-number">
+            <div class="strand-header">
+                <div class="strand-icon">🔢</div>
+                <h2 class="strand-title">Number & Place Value</h2>
+            </div>
+            <div class="activity-grid">
+                <a href="number/place-value-explorer.html" class="activity-card">
+                    <h3>Place Value Explorer</h3>
+                    <p>Compare digits across place values — how many times bigger is one digit than another?</p>
+                    <div class="activity-meta">
+                        <span>3 levels</span>
+                        <span>30 questions</span>
+                    </div>
+                </a>
+                <!-- Add more activities here as you create them -->
+            </div>
+        </section>
+
+        <!-- ADDITION & SUBTRACTION -->
+        <section class="strand-section strand-addition">
+            <div class="strand-header">
+                <div class="strand-icon">➕</div>
+                <h2 class="strand-title">Addition & Subtraction</h2>
+            </div>
+            <div class="activity-grid">
+                <div class="activity-card coming-soon">
+                    <h3>Addition Strategies</h3>
+                    <p>Practice mental addition strategies with multi-digit numbers.</p>
+                    <div class="activity-meta">
+                        <span>—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MULTIPLICATION & DIVISION -->
+        <section class="strand-section strand-multiplication">
+            <div class="strand-header">
+                <div class="strand-icon">✖️</div>
+                <h2 class="strand-title">Multiplication & Division</h2>
+            </div>
+            <div class="activity-grid">
+                <div class="activity-card coming-soon">
+                    <h3>Multiplication Patterns</h3>
+                    <p>Explore patterns in multiplication and division.</p>
+                    <div class="activity-meta">
+                        <span>—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FRACTIONS & DECIMALS -->
+        <section class="strand-section strand-fractions">
+            <div class="strand-header">
+                <div class="strand-icon">🥧</div>
+                <h2 class="strand-title">Fractions & Decimals</h2>
+            </div>
+            <div class="activity-grid">
+                <div class="activity-card coming-soon">
+                    <h3>Fraction Foundations</h3>
+                    <p>Build understanding of fractions and their relationships.</p>
+                    <div class="activity-meta">
+                        <span>—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MEASUREMENT -->
+        <section class="strand-section strand-measurement">
+            <div class="strand-header">
+                <div class="strand-icon">📏</div>
+                <h2 class="strand-title">Measurement</h2>
+            </div>
+            <div class="activity-grid">
+                <div class="activity-card coming-soon">
+                    <h3>Measurement Conversions</h3>
+                    <p>Convert between units of measurement.</p>
+                    <div class="activity-meta">
+                        <span>—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATISTICS & PROBABILITY -->
+        <section class="strand-section strand-statistics">
+            <div class="strand-header">
+                <div class="strand-icon">📊</div>
+                <h2 class="strand-title">Statistics & Probability</h2>
+            </div>
+            <div class="activity-grid">
+                <div class="activity-card coming-soon">
+                    <h3>Data Detectives</h3>
+                    <p>Interpret and analyse data displays.</p>
+                    <div class="activity-meta">
+                        <span>—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Built for Year 5 students</p>
+        </footer>
+    </div>
+</body>
+</html>
