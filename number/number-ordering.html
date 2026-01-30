@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Ordering Detective</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --ascending-color: #27AE60;
+            --descending-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--ascending-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--descending-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .learning-card h2::before {
+            content: "🕵️";
+            font-size: 1.3rem;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .strategy-steps {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--ascending-color);
+        }
+
+        .strategy-steps h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .strategy-steps h3::before {
+            content: "🔍";
+        }
+
+        .strategy-steps ol {
+            padding-left: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .strategy-steps li {
+            color: var(--text-light);
+            padding: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+
+        .strategy-steps strong {
+            color: var(--text-dark);
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+        }
+
+        .example-box .example-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .example-box .step {
+            padding: 0.2rem 0;
+            padding-left: 1rem;
+        }
+
+        .example-box .result {
+            margin-top: 0.5rem;
+            font-weight: 700;
+            color: var(--ascending-color);
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .mode-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .mode-card.ascending::before { background: var(--ascending-color); }
+        .mode-card.descending::before { background: var(--descending-color); }
+
+        .mode-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .mode-card h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .mode-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .mode-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: #4ECDC4; }
+        .level-btn.level-2::before { background: #FF6B6B; }
+        .level-btn.level-3::before { background: #9B5DE5; }
+        .level-btn.level-4::before { background: #F4C430; }
+        .level-btn.level-5::before { background: #E74C3C; }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .place-value-chart {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .pv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .pv-table th {
+            background: var(--primary-accent);
+            color: white;
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .pv-table td {
+            border: 1px solid #E0E0E0;
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 600px) {
+            .pv-table {
+                font-size: 0.65rem;
+            }
+            .pv-table th, .pv-table td {
+                padding: 0.4rem 0.2rem;
+            }
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.ascending { border-top-color: var(--ascending-color); }
+        .question-card.descending { border-top-color: var(--descending-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .numbers-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+
+        .answer-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .answer-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .answer-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .answer-box h4::before {
+            content: "✓";
+            color: #27AE60;
+            font-size: 1.1rem;
+        }
+
+        .answer-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+            line-height: 1.6;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div class="landing-header">
+                    <h1>Number Ordering <span>Detective</span></h1>
+                    <p class="subtitle">Master ascending and descending order</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2>The Detective Strategy</h2>
+                    <p>To order large numbers correctly, you must be a place value detective. Follow these three steps:</p>
+                    
+                    <div class="strategy-steps">
+                        <h3>The Three Steps</h3>
+                        <ol>
+                            <li><strong>The Digit Count:</strong> Check how many digits are in the number. More digits always means a larger value.</li>
+                            <li><strong>Left-to-Right:</strong> If two numbers have the same amount of digits, start at the far left and compare.</li>
+                            <li><strong>The Tie-Breaker:</strong> Move one column to the right until you find a digit that is different.</li>
+                        </ol>
+                        
+                        <div class="example-box">
+                            <div class="example-title">Detective Example: Which is larger: 4,567,800 or 4,562,999?</div>
+                            <div class="step">1. Both have 7 digits.</div>
+                            <div class="step">2. Millions: Both are 4.</div>
+                            <div class="step">3. Hundred Thousands: Both are 5.</div>
+                            <div class="step">4. Ten Thousands: Both are 6.</div>
+                            <div class="step">5. Thousands: One has 7, the other has 2.</div>
+                            <div class="result">Result: 4,567,800 is larger because 7,000 > 2,000.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose Your Challenge</h2>
+                <div class="mode-selection">
+                    <button class="mode-card ascending" onclick="selectMode('ascending')">
+                        <div class="mode-icon">📈</div>
+                        <h3>Ascending Order</h3>
+                        <p>Arrange numbers from smallest to largest</p>
+                    </button>
+                    <button class="mode-card descending" onclick="selectMode('descending')">
+                        <div class="mode-icon">📉</div>
+                        <h3>Descending Order</h3>
+                        <p>Arrange numbers from largest to smallest</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODE SELECTION PAGE -->
+            <div id="mode-page" class="page">
+                <button class="back-btn" onclick="showPage('landing-page')">← Back to Home</button>
+                
+                <div class="landing-header">
+                    <h1 id="mode-title"></h1>
+                    <p class="subtitle" id="mode-subtitle"></p>
+                </div>
+
+                <h2 class="level-section-title">Select a Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Hundreds and Thousands</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Thousands and Ten Thousands</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Millions (The Detective Phase)</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-4" onclick="startLevel(4)">
+                        <h3>Level 4</h3>
+                        <p>Billions</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-5" onclick="startLevel(5)">
+                        <h3>Level 5</h3>
+                        <p>Trillions (Grandmaster)</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <button class="back-btn" onclick="backToLevels()">← Back to Levels</button>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">7</span>
+                    </div>
+                </div>
+
+                <div class="place-value-chart">
+                    <table class="pv-table">
+                        <thead>
+                            <tr>
+                                <th>Trillions</th>
+                                <th>H-Billions</th>
+                                <th>T-Billions</th>
+                                <th>Billions</th>
+                                <th>H-Millions</th>
+                                <th>T-Millions</th>
+                                <th>Millions</th>
+                                <th>H-Thous</th>
+                                <th>T-Thous</th>
+                                <th>Thous</th>
+                                <th>Hund</th>
+                                <th>Tens</th>
+                                <th>Ones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1,000,000,000,000</td>
+                                <td>100,000,000,000</td>
+                                <td>10,000,000,000</td>
+                                <td>1,000,000,000</td>
+                                <td>100,000,000</td>
+                                <td>10,000,000</td>
+                                <td>1,000,000</td>
+                                <td>100,000</td>
+                                <td>10,000</td>
+                                <td>1,000</td>
+                                <td>100</td>
+                                <td>10</td>
+                                <td>1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text" id="question-text">Order these numbers:</div>
+                    <div class="numbers-display" id="numbers-display"></div>
+                    
+                    <div class="answer-box" id="answer-box">
+                        <h4>Correct Order</h4>
+                        <p id="answer-text"></p>
+                    </div>
+                    
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="answer-btn" onclick="showAnswer()">Show Answer</button>
+                        <button class="btn btn-primary" onclick="nextQuestion()">Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <p>You've mastered this level!</p>
+                <div class="button-row" style="max-width: 400px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLevels()">Choose Another Level</button>
+                    <button class="btn btn-primary" onclick="showPage('landing-page')">Back to Home</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            ascending: {
+                1: [
+                    { numbers: [450, 3200, 120, 8900, 1050, 75, 2300], answer: "75; 120; 450; 1,050; 2,300; 3,200; 8,900" },
+                    { numbers: [990, 9900, 99, 9090, 909, 9990, 9009], answer: "99; 909; 990; 9,009; 9,090; 9,900; 9,990" },
+                    { numbers: [1250, 850, 1520, 520, 2150, 250, 1205], answer: "250; 520; 850; 1,205; 1,250; 1,520; 2,150" },
+                    { numbers: [6700, 670, 6070, 7600, 760, 6007, 7060], answer: "670; 760; 6,007; 6,070; 6,700; 7,060; 7,600" },
+                    { numbers: [3440, 4330, 340, 4300, 3400, 430, 3040], answer: "340; 430; 3,040; 3,400; 3,440; 4,300; 4,330" },
+                    { numbers: [5120, 512, 5210, 1520, 2510, 5012, 152], answer: "152; 512; 1,520; 2,510; 5,012; 5,120; 5,210" },
+                    { numbers: [8800, 808, 8080, 880, 8008, 8880, 8088], answer: "808; 880; 8,008; 8,080; 8,088; 8,800; 8,880" }
+                ],
+                2: [
+                    { numbers: [24500, 2450, 24050, 25400, 4250, 24550, 24005], answer: "2,450; 4,250; 24,005; 24,050; 24,500; 24,550; 25,400" },
+                    { numbers: [10100, 1010, 11000, 10010, 1100, 11100, 10001], answer: "1,010; 1,100; 10,001; 10,010; 10,100; 11,000; 11,100" },
+                    { numbers: [56780, 5678, 56078, 65780, 56870, 5786, 56708], answer: "5,678; 5,786; 56,078; 56,708; 56,780; 56,870; 65,780" },
+                    { numbers: [88200, 8820, 82800, 88020, 8280, 88220, 82008], answer: "8,280; 8,820; 82,008; 82,800; 88,020; 88,200; 88,220" },
+                    { numbers: [13456, 31456, 13546, 3145, 13465, 31546, 13046], answer: "3,145; 13,046; 13,456; 13,465; 13,546; 31,456; 31,546" },
+                    { numbers: [77070, 7707, 70770, 77700, 7077, 77007, 70077], answer: "7,077; 7,707; 70,077; 70,770; 77,007; 77,070; 77,700" },
+                    { numbers: [45600, 54600, 4560, 45066, 54066, 45660, 54660], answer: "4,560; 45,066; 45,600; 45,660; 54,066; 54,600; 54,660" }
+                ],
+                3: [
+                    { numbers: [4560230, 456999, 4506800, 4560099, 4561000, 45600, 4056000], answer: "45,600; 456,999; 4,056,000; 4,506,800; 4,560,099; 4,560,230; 4,561,000" },
+                    { numbers: [1200500, 120500, 1020500, 1200050, 1220000, 1200550, 12000], answer: "12,000; 120,500; 1,020,500; 1,200,050; 1,200,500; 1,200,550; 1,220,000" },
+                    { numbers: [7890000, 7089000, 789000, 7890900, 7809000, 7899000, 7900000], answer: "789,000; 7,089,000; 7,809,000; 7,890,000; 7,890,900; 7,899,000; 7,900,000" },
+                    { numbers: [3303300, 330300, 3033300, 3330000, 3303030, 33300, 3300333], answer: "33,300; 330,300; 3,033,300; 3,300,333; 3,303,030; 3,303,300; 3,330,000" },
+                    { numbers: [6000600, 6600000, 606000, 6060600, 6006000, 6606000, 66000], answer: "66,000; 606,000; 6,006,000; 6,060,600; 6,600,000; 6,606,000; 6,000,600" },
+                    { numbers: [9123456, 912345, 9123000, 9213456, 9103456, 9123465, 9000123], answer: "912,345; 9,000,123; 9,103,456; 9,123,000; 9,123,456; 9,123,465; 9,213,456" },
+                    { numbers: [2442442, 244244, 2244244, 2442000, 2424442, 24442, 2444222], answer: "24,442; 244,244; 2,244,244; 2,424,442; 2,442,000; 2,442,442; 2,444,222" }
+                ],
+                4: [
+                    { numbers: [12450600000, 9800750000, 12450099000, 12500000000, 12450600100, 1245000000, 12045000000], answer: "1,245,000,000; 9,800,750,000; 12,045,000,000; 12,450,099,000; 12,450,600,000; 12,450,600,100; 12,500,000,000" },
+                    { numbers: [50000000000, 5000000000, 50500000000, 50050000000, 500000000, 50000500000, 55000000000], answer: "500,000,000; 5,000,000,000; 50,000,000,000; 50,000,500,000; 50,050,000,000; 50,500,000,000; 55,000,000,000" },
+                    { numbers: [23456000000, 23456700000, 2345600000, 23045600000, 23456000700, 23465000000, 23456070000], answer: "2,345,600,000; 23,045,600,000; 23,456,000,000; 23,456,000,700; 23,456,070,000; 23,456,700,000; 23,465,000,000" },
+                    { numbers: [81000200000, 8100020000, 81200000000, 81000000200, 81002000000, 810000000, 81000002000], answer: "810,000,000; 8,100,020,000; 81,000,000,200; 81,000,002,000; 81,000,200,000; 81,002,000,000; 81,200,000,000" },
+                    { numbers: [67677000000, 6767700000, 67767000000, 67677677000, 67000677000, 67670000000, 67677000677], answer: "6,767,700,000; 67,000,677,000; 67,670,000,000; 67,677,000,000; 67,677,000,677; 67,677,677,000; 67,767,000,000" },
+                    { numbers: [10010100000, 1010100000, 10101000000, 10010010000, 10010100100, 10001000000, 101000000], answer: "101,000,000; 1,010,100,000; 10,001,000,000; 10,010,010,000; 10,010,100,000; 10,010,100,100; 10,101,000,000" },
+                    { numbers: [44404444000, 4440444400, 44044444000, 44444444000, 44404044000, 44404444444, 44404440000], answer: "4,440,444,400; 44,044,444,000; 44,404,044,000; 44,404,440,000; 44,404,444,000; 44,404,444,444; 44,444,444,000" }
+                ],
+                5: [
+                    { numbers: [3450000000000, 345900000000, 3450080000000, 3045000000000, 3450000000500, 34500000000, 3450000050000], answer: "34,500,000,000; 345,900,000,000; 3,045,000,000,000; 3,450,000,000,000; 3,450,000,000,500; 3,450,000,050,000; 3,450,080,000,000" },
+                    { numbers: [9000000000000, 900000000000, 9000000000900, 9000900000000, 9090000000000, 9000000090000, 9900000000000], answer: "900,000,000,000; 9,000,000,000,000; 9,000,000,000,900; 9,000,000,090,000; 9,000,900,000,000; 9,090,000,000,000; 9,900,000,000,000" },
+                    { numbers: [1111000000000, 111111000000, 1111111000000, 1011000000000, 1111000000111, 1101000000000, 11111000000], answer: "11,111,000,000; 111,111,000,000; 1,011,000,000,000; 1,101,000,000,000; 1,111,000,000,000; 1,111,000,000,111; 1,111,111,000,000" },
+                    { numbers: [5600560000000, 560056000000, 5600000560000, 5656000000000, 5000560000000, 5600560560000, 5600500000000], answer: "560,056,000,000; 5,000,560,000,000; 5,600,000,560,000; 5,600,500,000,000; 5,600,560,000,000; 5,600,560,560,000; 5,656,000,000,000" },
+                    { numbers: [7777777000000, 777777777000, 7777000777000, 7000777777000, 7777777777777, 7777777000777, 7707777000000], answer: "777,777,777,000; 7,000,777,777,000; 7,707,777,000,000; 7,777,000,777,000; 7,777,777,000,000; 7,777,777,000,777; 7,777,777,777,777" },
+                    { numbers: [2000000002000, 200000002000, 2002000000000, 2000002000000, 2000000000002, 2200000000000, 22000000000], answer: "22,000,000,000; 200,000,002,000; 2,000,000,000,002; 2,000,000,002,000; 2,000,002,000,000; 2,002,000,000,000; 2,200,000,000,000" },
+                    { numbers: [8123456789000, 812345678900, 8123456000000, 8132456789000, 8123000789000, 8123456789999, 8100456789000], answer: "812,345,678,900; 8,100,456,789,000; 8,123,000,789,000; 8,123,456,000,000; 8,123,456,789,000; 8,123,456,789,999; 8,132,456,789,000" }
+                ]
+            },
+            descending: {
+                1: [
+                    { numbers: [3405, 345, 3450, 4001, 999, 410, 3045], answer: "4,001; 3,450; 3,405; 3,045; 999; 410; 345" },
+                    { numbers: [7800, 8700, 780, 870, 7080, 8070, 7008], answer: "8,700; 8,070; 7,800; 7,080; 7,008; 870; 780" },
+                    { numbers: [2100, 1200, 210, 120, 2010, 1020, 2111], answer: "2,111; 2,100; 2,010; 1,200; 1,020; 210; 120" },
+                    { numbers: [5505, 505, 5550, 5005, 55, 5555, 5055], answer: "5,555; 5,550; 5,505; 5,055; 5,005; 505; 55" },
+                    { numbers: [9100, 1900, 9010, 1090, 9110, 1990, 910], answer: "9,110; 9,100; 9,010; 1,990; 1,900; 1,090; 910" },
+                    { numbers: [6300, 3600, 630, 360, 6030, 3060, 6330], answer: "6,330; 6,300; 6,030; 3,600; 3,060; 630; 360" },
+                    { numbers: [4400, 440, 4040, 4004, 44, 4440, 4044], answer: "4,440; 4,400; 4,044; 4,040; 4,004; 440; 44" }
+                ],
+                2: [
+                    { numbers: [67800, 6780, 67088, 67880, 7001, 60780, 7680], answer: "67,880; 67,800; 67,088; 60,780; 7,680; 7,001; 6,780" },
+                    { numbers: [15150, 51510, 1515, 15510, 51150, 15015, 5151], answer: "51,510; 51,150; 15,510; 15,150; 15,015; 5,151; 1,515" },
+                    { numbers: [90900, 9900, 90090, 99000, 9090, 90909, 9999], answer: "99,000; 90,909; 90,900; 90,090; 9,999; 9,900; 9,090" },
+                    { numbers: [32320, 23230, 3232, 32032, 23023, 33220, 2323], answer: "33,220; 32,320; 32,032; 23,230; 23,023; 3,232; 2,323" },
+                    { numbers: [84000, 48000, 8400, 84400, 48800, 80400, 4800], answer: "84,400; 84,000; 80,400; 48,800; 48,000; 8,400; 4,800" },
+                    { numbers: [11011, 1101, 11110, 10111, 1011, 11100, 1111], answer: "11,110; 11,100; 11,011; 10,111; 1,111; 1,101; 1,011" },
+                    { numbers: [50505, 5505, 50050, 55000, 5050, 50555, 5555], answer: "55,000; 50,555; 50,505; 50,050; 5,555; 5,505; 5,050" }
+                ],
+                3: [
+                    { numbers: [8122300, 812999, 8200100, 8122099, 8122305, 81223, 8000999], answer: "8,200,100; 8,122,305; 8,122,300; 8,122,099; 8,000,999; 812,999; 81,223" },
+                    { numbers: [5500500, 550500, 5050500, 5550000, 5505050, 5500055, 55500], answer: "5,550,000; 5,505,050; 5,500,500; 5,500,055; 5,050,500; 550,500; 55,500" },
+                    { numbers: [2002002, 202202, 2200200, 2020202, 2222000, 22202, 2000222], answer: "2,222,000; 2,200,200; 2,020,202; 2,002,002; 2,000,222; 202,202; 22,202" },
+                    { numbers: [9876543, 987654, 9876000, 9876555, 9786543, 9870000, 98765], answer: "9,876,555; 9,876,543; 9,876,000; 9,870,000; 9,786,543; 987,654; 98,765" },
+                    { numbers: [1001001, 110110, 1101101, 1011011, 1111111, 101001, 1000111], answer: "1,111,111; 1,101,101; 1,011,011; 1,001,001; 1,000,111; 110,110; 101,001" },
+                    { numbers: [4321000, 432100, 4321432, 4312000, 4321001, 4000321, 43210], answer: "4,321,432; 4,321,001; 4,321,000; 4,312,000; 4,000,321; 432,100; 43,210" },
+                    { numbers: [7650000, 765000, 7650765, 7560000, 7605000, 7655000, 76500], answer: "7,655,000; 7,650,765; 7,650,000; 7,605,000; 7,560,000; 765,000; 76,500" }
+                ],
+                4: [
+                    { numbers: [56780000000, 5678000000, 56780900000, 56099000000, 56780000400, 567800000, 56870000000], answer: "56,870,000,000; 56,780,900,000; 56,780,000,400; 56,780,000,000; 56,099,000,000; 5,678,000,000; 567,800,000" },
+                    { numbers: [10000100000, 1000000000, 10100000000, 10001000000, 100000000, 10000000100, 11000000000], answer: "11,000,000,000; 10,100,000,000; 10,001,000,000; 10,000,100,000; 10,000,000,100; 1,000,000,000; 100,000,000" },
+                    { numbers: [42000420000, 4200000000, 42420000000, 42000000420, 42042000000, 420000000, 42000420420], answer: "42,420,000,000; 42,042,000,000; 42,000,420,420; 42,000,420,000; 42,000,000,420; 4,200,000,000; 420,000,000" },
+                    { numbers: [88808000000, 8880800000, 88880000000, 88088000000, 88808808000, 888000000, 88808000088], answer: "88,880,000,000; 88,808,808,000; 88,808,000,088; 88,808,000,000; 88,088,000,000; 8,880,800,000; 888,000,000" },
+                    { numbers: [25250000000, 2525000000, 25250250000, 25520000000, 25205000000, 252500000, 25250000025], answer: "25,520,000,000; 25,250,250,000; 25,250,000,025; 25,250,000,000; 25,205,000,000; 2,525,000,000; 252,500,000" },
+                    { numbers: [70000700000, 7000000000, 70700000000, 70007000000, 700000000, 70000000700, 77000000000], answer: "77,000,000,000; 70,700,000,000; 70,007,000,000; 70,000,700,000; 70,000,000,700; 7,000,000,000; 700,000,000" },
+                    { numbers: [31311000000, 3131100000, 31311311000, 31113000000, 31311000311, 313110000, 31000311000], answer: "31,311,311,000; 31,311,000,311; 31,311,000,000; 31,113,000,000; 31,000,311,000; 3,131,100,000; 313,110,000" }
+                ],
+                5: [
+                    { numbers: [9012000000000, 90120000000, 9012500000000, 9012000600000, 9012000000070, 901200000000, 9120000000000], answer: "9,120,000,000,000; 9,012,500,000,000; 9,012,000,600,000; 9,012,000,000,070; 9,012,000,000,000; 901,200,000,000; 90,120,000,000" },
+                    { numbers: [4444000000000, 444400000000, 4444444000000, 4440000000000, 4444000000444, 44440000000, 4044000000000], answer: "4,444,444,000,000; 4,444,000,000,444; 4,444,000,000,000; 4,440,000,000,000; 4,044,000,000,000; 444,400,000,000; 44,440,000,000" },
+                    { numbers: [6000000600000, 600000600000, 6000600000000, 6600000000000, 6000000000006, 60000000000, 6060000000000], answer: "6,600,000,000,000; 6,060,000,000,000; 6,000,600,000,000; 6,000,000,600,000; 6,000,000,000,006; 600,000,600,000; 60,000,000,000" },
+                    { numbers: [1234567000000, 123456700000, 1234567890000, 1324567000000, 1234000000000, 1234567000567, 12345670000], answer: "1,324,567,000,000; 1,234,567,890,000; 1,234,567,000,567; 1,234,567,000,000; 1,234,000,000,000; 123,456,700,000; 12,345,670,000" },
+                    { numbers: [8808808000000, 880880800000, 8888888000000, 8088808000000, 8808808808808, 88088000000, 8800000000000], answer: "8,888,888,000,000; 8,808,808,808,808; 8,808,808,000,000; 8,800,000,000,000; 8,088,808,000,000; 880,880,800,000; 88,088,000,000" },
+                    { numbers: [2500000000000, 250000000000, 2500250000000, 2050000000000, 2500000000250, 25000000000, 2550000000000], answer: "2,550,000,000,000; 2,500,250,000,000; 2,500,000,000,250; 2,500,000,000,000; 2,050,000,000,000; 250,000,000,000; 25,000,000,000" },
+                    { numbers: [5000000000001, 500000000001, 5000001000000, 5001000000000, 5000000001000, 50000000000, 5100000000000], answer: "5,100,000,000,000; 5,001,000,000,000; 5,000,001,000,000; 5,000,000,001,000; 5,000,000,000,001; 500,000,000,001; 50,000,000,000" }
+                ]
+            }
+        };
+
+        const levelNames = {
+            1: "Hundreds and Thousands",
+            2: "Thousands and Ten Thousands",
+            3: "Millions (The Detective Phase)",
+            4: "Billions",
+            5: "Trillions (Grandmaster)"
+        };
+
+        let currentMode = 'ascending';
+        let currentLevel = 1;
+        let currentQuestion = 0;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function selectMode(mode) {
+            currentMode = mode;
+            const modeTitle = mode === 'ascending' ? '📈 Ascending Order' : '📉 Descending Order';
+            const modeSubtitle = mode === 'ascending' ? 'Smallest to Largest' : 'Largest to Smallest';
+            
+            document.getElementById('mode-title').textContent = modeTitle;
+            document.getElementById('mode-subtitle').textContent = modeSubtitle;
+            
+            showPage('mode-page');
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function backToLevels() {
+            showPage('mode-page');
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentMode][currentLevel][currentQuestion];
+            const card = document.getElementById('question-card');
+            
+            card.className = `question-card ${currentMode}`;
+            
+            const questionPrefix = currentMode === 'ascending' 
+                ? 'Order these numbers from smallest to largest:' 
+                : 'Order these numbers from largest to smallest:';
+            
+            const numbersFormatted = q.numbers.map(formatNumber).join('; ');
+            
+            document.getElementById('question-label').textContent = 
+                `${levelNames[currentLevel]} - Question ${currentQuestion + 1}`;
+            document.getElementById('question-text').textContent = questionPrefix;
+            document.getElementById('numbers-display').textContent = numbersFormatted;
+            document.getElementById('answer-text').textContent = q.answer;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = questions[currentMode][currentLevel].length;
+            
+            document.getElementById('answer-box').classList.remove('visible');
+            document.getElementById('answer-btn').disabled = false;
+        }
+
+        function showAnswer() {
+            document.getElementById('answer-box').classList.add('visible');
+            document.getElementById('answer-btn').disabled = true;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= questions[currentMode][currentLevel].length) {
+                const modeText = currentMode === 'ascending' ? 'Ascending Order' : 'Descending Order';
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed Level ${currentLevel}: ${levelNames[currentLevel]} (${modeText})`;
+                showPage('completion-page');
+            } else {
+                loadQuestion();
+            }
+        }
+    </script>
+</body>
+</html>
