@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Value Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--level2-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--level3-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .learning-card h2::before {
+            content: "🎯";
+            font-size: 1.3rem;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #FFF8E7, #FFF3D6);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid #F4C430;
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .key-concept h3::before {
+            content: "💡";
+        }
+
+        .key-concept ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-concept li {
+            color: var(--text-light);
+            padding: 0.3rem 0;
+            padding-left: 1.3rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .key-concept li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.15);
+        }
+
+        .level-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+        }
+
+        .level-btn.level-1 .level-number { color: var(--level1-color); }
+        .level-btn.level-2 .level-number { color: var(--level2-color); }
+        .level-btn.level-3 .level-number { color: var(--level3-color); }
+
+        .level-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-desc {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .level-questions {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed #E0E0E0;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--text-dark);
+            color: white;
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .progress-indicator {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            background: white;
+            padding: 0.4rem 0.9rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .progress-indicator span {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+        }
+
+        .question-card.level-1::before { background: var(--level1-color); }
+        .question-card.level-2::before { background: var(--level2-color); }
+        .question-card.level-3::before { background: var(--level3-color); }
+
+        .question-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+        }
+
+        .question-card.level-1 .question-label { color: var(--level1-color); }
+        .question-card.level-2 .question-label { color: var(--level2-color); }
+        .question-card.level-3 .question-label { color: var(--level3-color); }
+
+        .question-text {
+            font-size: 1.35rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            line-height: 1.5;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.75rem;
+        }
+
+        .reveal-box {
+            margin-top: 1.25rem;
+            border-radius: 12px;
+            padding: 1rem;
+            display: none;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .reveal-box.visible {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint-box {
+            background: linear-gradient(135deg, #E8F5FF, #D6EEFF);
+            border-left: 4px solid #3498DB;
+        }
+
+        .answer-box {
+            background: linear-gradient(135deg, #E8FFE8, #D6FFD6);
+            border-left: 4px solid #27AE60;
+        }
+
+        .reveal-box-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+        }
+
+        .hint-box .reveal-box-label { color: #2980B9; }
+        .answer-box .reveal-box-label { color: #219A52; }
+
+        .reveal-box-text {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 0.85rem 1.5rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .hint-btn {
+            background: #3498DB;
+            color: white;
+        }
+
+        .hint-btn:hover { background: #2980B9; transform: scale(1.02); }
+
+        .answer-btn {
+            background: #27AE60;
+            color: white;
+        }
+
+        .answer-btn:hover { background: #219A52; transform: scale(1.02); }
+
+        .next-btn {
+            background: var(--text-dark);
+            color: white;
+        }
+
+        .next-btn:hover { background: #1a1a2e; transform: scale(1.02); }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .completion-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .completion-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 0.75rem;
+            animation: bounce 0.6s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        .completion-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .completion-message {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .restart-btn {
+            background: var(--primary-accent);
+            border: none;
+            border-radius: 12px;
+            padding: 0.85rem 1.75rem;
+            color: white;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 1rem; }
+            .landing-header h1 { font-size: 1.9rem; }
+            .question-text { font-size: 1.15rem; }
+            .action-buttons { flex-direction: column; }
+            .action-btn { width: 100%; justify-content: center; }
+            .level-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- Landing Page -->
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="../index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <header class="landing-header">
+                    <h1>Place Value <span>Explorer</span></h1>
+                    <p class="subtitle">Year 5 • Comparing Numbers Across Place Values</p>
+                </header>
+
+                <div class="learning-card">
+                    <h2>Learning Intention</h2>
+                    <p>Apply the base-ten system to compare numbers across place values. You'll work out how many times bigger (or smaller) one digit is compared to another based on where it sits in a number.</p>
+                    
+                    <div class="key-concept">
+                        <h3>Key Concepts</h3>
+                        <ul>
+                            <li>Each place value is <strong>10 times</strong> the place to its right</li>
+                            <li>Moving <strong>1 place left</strong> = ×10 larger</li>
+                            <li>Moving <strong>2 places left</strong> = ×100 larger</li>
+                            <li>Moving <strong>3 places left</strong> = ×1,000 larger</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose a Level</h2>
+                
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <div class="level-number">Level 1</div>
+                        <div class="level-title">Ones to Hundreds</div>
+                        <div class="level-desc">Compare digits in numbers up to the hundreds place</div>
+                        <div class="level-questions">10 questions</div>
+                    </button>
+
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <div class="level-number">Level 2</div>
+                        <div class="level-title">Up to Ten-Thousands</div>
+                        <div class="level-desc">Work with larger numbers including thousands</div>
+                        <div class="level-questions">10 questions</div>
+                    </button>
+
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <div class="level-number">Level 3</div>
+                        <div class="level-title">Up to Hundred-Thousands</div>
+                        <div class="level-desc">Master comparisons with very large numbers</div>
+                        <div class="level-questions">10 questions</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Page -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="goToLanding()">← Back</button>
+                        <a href="../index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="progress-indicator">
+                        Question <span id="current-q">1</span> of <span id="total-q">10</span>
+                    </div>
+                </div>
+
+                <div id="question-card" class="question-card level-1">
+                    <div class="question-label" id="question-label">Question 1.1</div>
+                    <div class="question-text" id="question-text">Loading...</div>
+                    
+                    <div id="hint-box" class="reveal-box hint-box">
+                        <div class="reveal-box-label">💡 Hint</div>
+                        <div class="reveal-box-text" id="hint-text"></div>
+                    </div>
+
+                    <div id="answer-box" class="reveal-box answer-box">
+                        <div class="reveal-box-label">✓ Answer</div>
+                        <div class="reveal-box-text" id="answer-text"></div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn hint-btn" id="hint-btn" onclick="showHint()">💡 Show Hint</button>
+                    <button class="action-btn answer-btn" id="answer-btn" onclick="showAnswer()">✓ Show Answer</button>
+                    <button class="action-btn next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+
+            <!-- Completion Page -->
+            <div id="completion-page" class="page">
+                <div class="completion-card">
+                    <div class="completion-emoji">🎉</div>
+                    <h2 class="completion-title">Level Complete!</h2>
+                    <p class="completion-message" id="completion-message">Well done!</p>
+                    <div style="display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem;">
+                        <button class="restart-btn" onclick="goToLanding()">Choose Another Level</button>
+                        <a href="../index.html" class="home-btn">🏠 All Activities</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            1: [
+                {
+                    id: "1.1",
+                    question: "Which is larger: the 4 in 40 or the 4 in 400? By how much?",
+                    hint: "How many jumps on the chart from Tens to Hundreds?",
+                    answer: "400 is 10 times larger"
+                },
+                {
+                    id: "1.2",
+                    question: "Compare the 8 in 800 and the 8 in 80. Which is larger?",
+                    hint: "One jump to the left makes a number 10 times bigger.",
+                    answer: "800 is 10 times larger"
+                },
+                {
+                    id: "1.3",
+                    question: "Which is larger: the 1 in 10 or the 1 in 1,000? By how much?",
+                    hint: "Count the jumps: Tens → Hundreds → Thousands.",
+                    answer: "1,000 is 100 times larger"
+                },
+                {
+                    id: "1.4",
+                    question: "In 2,200, how many times larger is the left-hand 2 than the right-hand 2?",
+                    hint: "Neighbours are always 10 times apart.",
+                    answer: "10 times larger"
+                },
+                {
+                    id: "1.5",
+                    question: "Compare the 5 in 500 and the 5 in 5. Which is larger and by how much?",
+                    hint: "Count the jumps: Ones → Tens → Hundreds.",
+                    answer: "500 is 100 times larger"
+                },
+                {
+                    id: "1.6",
+                    question: "Is the 3 in 300 ten times or one hundred times larger than the 3 in 30?",
+                    hint: "Look at the columns. Are they side-by-side?",
+                    answer: "10 times larger"
+                },
+                {
+                    id: "1.7",
+                    question: "Which 6 has more value: the one in 600 or the one in 6? By how much?",
+                    hint: "Two jumps equals ×100.",
+                    answer: "600 is 100 times larger"
+                },
+                {
+                    id: "1.8",
+                    question: "In 770, how many times bigger is the first 7 than the second 7?",
+                    hint: "They are side-by-side.",
+                    answer: "10 times larger"
+                },
+                {
+                    id: "1.9",
+                    question: "Compare the 9 in 900 and the 9 in 9. How many times larger is the first one?",
+                    hint: "Ones → Tens → Hundreds.",
+                    answer: "100 times larger"
+                },
+                {
+                    id: "1.10",
+                    question: "Does moving a digit two places to the left make it 20 times or 100 times larger?",
+                    hint: "10 × 10 = ?",
+                    answer: "100 times larger"
+                }
+            ],
+            2: [
+                {
+                    id: "2.1",
+                    question: "Which is larger: the 3 in 3,450 or the 3 in 350? By how much?",
+                    hint: "Thousands vs. Hundreds.",
+                    answer: "3,450 is 10 times larger"
+                },
+                {
+                    id: "2.2",
+                    question: "Compare the 6 in 6,200 and the 6 in 620. Which is larger?",
+                    hint: "One 6 is in the Thousands, one is in the Hundreds.",
+                    answer: "6,200 is 10 times larger"
+                },
+                {
+                    id: "2.3",
+                    question: "In 8,502, how many times larger is the 8 than the 5?",
+                    hint: "Thousands vs. Hundreds.",
+                    answer: "10 times larger (not 16 times!)"
+                },
+                {
+                    id: "2.4",
+                    question: "Which 4 is bigger: the one in 40,000 or the one in 4,000? By how much?",
+                    hint: "Ten-Thousands vs. Thousands.",
+                    answer: "40,000 is 10 times larger"
+                },
+                {
+                    id: "2.5",
+                    question: "How many times larger is the 7 in 7,000 than the 7 in 70?",
+                    hint: "Tens → Hundreds → Thousands.",
+                    answer: "100 times larger"
+                },
+                {
+                    id: "2.6",
+                    question: "Compare the 2 in 25,000 and the 2 in 250. Which is larger?",
+                    hint: "Ten-Thousands vs. Hundreds.",
+                    answer: "25,000 is 100 times larger"
+                },
+                {
+                    id: "2.7",
+                    question: "In 1,150, how many times larger is the first 1 than the second 1?",
+                    hint: "Thousands vs. Hundreds.",
+                    answer: "10 times larger"
+                },
+                {
+                    id: "2.8",
+                    question: "Which is larger: the 9 in 90,000 or the 9 in 900? By how much?",
+                    hint: "Two jumps: Hundreds → Thousands → Ten-Thousands.",
+                    answer: "90,000 is 100 times larger"
+                },
+                {
+                    id: "2.9",
+                    question: "Look at the 5 in 50,000 and the 5 in 5,000. How many times larger?",
+                    hint: "These are side-by-side neighbours.",
+                    answer: "10 times larger"
+                },
+                {
+                    id: "2.10",
+                    question: "If a digit moves from the Hundreds to the Ten-Thousands, how many times larger is it?",
+                    hint: "Count: Hundreds → Thousands → Ten-Thousands.",
+                    answer: "100 times larger"
+                }
+            ],
+            3: [
+                {
+                    id: "3.1",
+                    question: "Compare the 4 in 400,000 and the 4 in 4,000. Which is larger?",
+                    hint: "Thousands → Ten-Th → Hundred-Th.",
+                    answer: "400,000 is 100 times larger"
+                },
+                {
+                    id: "3.2",
+                    question: "How many times larger is the 1 in 100,000 than the 1 in 10?",
+                    hint: "Count the 4 jumps: Tens → H → Th → T-Th → H-Th.",
+                    answer: "10,000 times larger"
+                },
+                {
+                    id: "3.3",
+                    question: "In 220,500, how many times larger is the first 2 than the second 2?",
+                    hint: "Hundred-Thousands vs. Ten-Thousands.",
+                    answer: "10 times larger"
+                },
+                {
+                    id: "3.4",
+                    question: "Which is larger: the 8 in 800,000 or the 8 in 800? By how much?",
+                    hint: "Count: Hundreds → Th → T-Th → H-Th.",
+                    answer: "1,000 times larger"
+                },
+                {
+                    id: "3.5",
+                    question: "Compare the 7 in 7,000 and the 7 in 700,000. Which is larger?",
+                    hint: "Thousands vs. Hundred-Thousands.",
+                    answer: "700,000 is 100 times larger"
+                },
+                {
+                    id: "3.6",
+                    question: "Is the 3 in 300,000 ten times larger than the 3 in 30,000?",
+                    hint: "Are Ten-Thousands and Hundred-Thousands neighbours?",
+                    answer: "Yes"
+                },
+                {
+                    id: "3.7",
+                    question: "Which 5 has more value: the one in 50,000 or 500? By how much?",
+                    hint: "Two jumps.",
+                    answer: "50,000 is 100 times larger"
+                },
+                {
+                    id: "3.8",
+                    question: "In 1,208,988 and 424, how many times larger is the first 2 than the second?",
+                    hint: "Hundred-Th vs. Tens.",
+                    answer: "10,000 times larger"
+                },
+                {
+                    id: "3.9",
+                    question: "Compare the 6 in 600,000 and the 6 in 60. How many times larger?",
+                    hint: "Count the 4 jumps!",
+                    answer: "10,000 times larger"
+                },
+                {
+                    id: "3.10",
+                    question: "Does moving a digit three places to the left make it 1,000 times larger?",
+                    hint: "10 × 10 × 10 = ?",
+                    answer: "Yes"
+                }
+            ]
+        };
+
+        const levelNames = {
+            1: "Ones to Hundreds",
+            2: "Up to Ten-Thousands",
+            3: "Up to Hundred-Thousands"
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function goToLanding() {
+            showPage('landing-page');
+        }
+
+        function loadQuestion() {
+            const q = questions[currentLevel][currentQuestion];
+            const card = document.getElementById('question-card');
+            
+            card.className = `question-card level-${currentLevel}`;
+            
+            document.getElementById('question-label').textContent = `Question ${q.id}`;
+            document.getElementById('question-text').textContent = q.question;
+            document.getElementById('hint-text').textContent = q.hint;
+            document.getElementById('answer-text').textContent = q.answer;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = questions[currentLevel].length;
+            
+            document.getElementById('hint-box').classList.remove('visible');
+            document.getElementById('answer-box').classList.remove('visible');
+            
+            document.getElementById('hint-btn').disabled = false;
+            document.getElementById('answer-btn').disabled = false;
+        }
+
+        function showHint() {
+            document.getElementById('hint-box').classList.add('visible');
+            document.getElementById('hint-btn').disabled = true;
+        }
+
+        function showAnswer() {
+            document.getElementById('answer-box').classList.add('visible');
+            document.getElementById('answer-btn').disabled = true;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= questions[currentLevel].length) {
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed Level ${currentLevel}: ${levelNames[currentLevel]}`;
+                showPage('completion-page');
+            } else {
+                loadQuestion();
+            }
+        }
+    </script>
+</body>
+</html>
