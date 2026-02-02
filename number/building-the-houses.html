@@ -583,10 +583,10 @@
                         <h3>Break It Apart</h3>
                         <p>Convert standard numbers to expanded form (in order)</p>
                     </button>
-                    <button class="mode-card mode1" onclick="selectMode('standard-to-expanded-scrambled')">
+                    <button class="mode-card mode1" onclick="selectMode('words-to-expanded')">
                         <div class="mode-icon">🔀</div>
-                        <h3>Break It Apart - Scrambled</h3>
-                        <p>Convert standard to expanded form (any order)</p>
+                        <h3>Scrambled Word Order</h3>
+                        <p>Sort scrambled word values into expanded form</p>
                     </button>
                     <button class="mode-card mode2" onclick="selectMode('expanded-to-standard')">
                         <div class="mode-icon">🔼</div>
@@ -667,17 +667,17 @@
                 { problem: "9,000,000,000,200", answer: "9,000,000,000,000 + 200" },
                 { problem: "12,000,000,000,001", answer: "12,000,000,000,000 + 1" }
             ],
-            'standard-to-expanded-scrambled': [
-                { problem: "3,452", answer: "50 + 3,000 + 2 + 400" },
-                { problem: "12,804", answer: "4 + 10,000 + 800 + 2,000" },
-                { problem: "405,670", answer: "70 + 5,000 + 400,000 + 600" },
-                { problem: "2,300,050", answer: "50 + 2,000,000 + 300,000" },
-                { problem: "15,040,003", answer: "3 + 40,000 + 10,000,000 + 5,000,000" },
-                { problem: "600,000,400", answer: "400 + 600,000,000" },
-                { problem: "1,200,500,000", answer: "500,000 + 200,000,000 + 1,000,000,000" },
-                { problem: "50,000,060,000", answer: "60,000 + 50,000,000,000" },
-                { problem: "9,000,000,000,200", answer: "200 + 9,000,000,000,000" },
-                { problem: "12,000,000,000,001", answer: "1 + 12,000,000,000,000" }
+            'words-to-expanded': [
+                { problem: "fifty, four hundred, three thousand, two", answer: "3,000 + 400 + 50 + 2" },
+                { problem: "four, eight hundred, two thousand, ten thousand", answer: "10,000 + 2,000 + 800 + 4" },
+                { problem: "seventy, six hundred, five thousand, four hundred thousand", answer: "400,000 + 5,000 + 600 + 70" },
+                { problem: "fifty, three hundred thousand, two million", answer: "2,000,000 + 300,000 + 50" },
+                { problem: "three, forty thousand, five million, ten million", answer: "10,000,000 + 5,000,000 + 40,000 + 3" },
+                { problem: "four hundred, six hundred million", answer: "600,000,000 + 400" },
+                { problem: "five hundred thousand, two hundred million, one billion", answer: "1,000,000,000 + 200,000,000 + 500,000" },
+                { problem: "sixty thousand, fifty billion", answer: "50,000,000,000 + 60,000" },
+                { problem: "two hundred, nine trillion", answer: "9,000,000,000,000 + 200" },
+                { problem: "one, twelve trillion", answer: "12,000,000,000,000 + 1" }
             ],
             'expanded-to-standard': [
                 { problem: "5,000 + 600 + 20 + 1", answer: "5,621" },
@@ -707,7 +707,7 @@
 
         const modeNames = {
             'standard-to-expanded': 'Break It Apart',
-            'standard-to-expanded-scrambled': 'Break It Apart - Scrambled',
+            'words-to-expanded': 'Scrambled Word Order',
             'expanded-to-standard': 'Put It Together',
             'expanded-to-standard-scrambled': 'Put It Together - Scrambled'
         };
@@ -734,16 +734,16 @@
             showPage('landing-page');
         }
 
-        function normalizeAnswer(answer, isExpanded) {
+        function normalizeAnswer(answer, requireOrder) {
             // Remove all spaces and commas
             let normalized = answer.replace(/\s+/g, '').replace(/,/g, '').toLowerCase();
             
-            if (isExpanded) {
-                // For expanded notation, split by + and sort the numbers
+            if (!requireOrder && normalized.includes('+')) {
+                // For scrambled modes, split by + and sort the numbers
                 const parts = normalized.split('+').map(p => parseInt(p)).filter(n => !isNaN(n)).sort((a, b) => b - a);
                 return parts.join('+');
             } else {
-                // For standard numbers, just return the number
+                // For ordered modes or standard numbers, keep as is (just remove spaces/commas)
                 return normalized;
             }
         }
@@ -752,11 +752,19 @@
             const q = questions[currentMode][currentQuestion];
             const card = document.getElementById('question-card');
             
-            const isStandardToExpanded = currentMode.includes('standard-to-expanded');
+            const isStandardToExpanded = currentMode === 'standard-to-expanded';
+            const isWordsToExpanded = currentMode === 'words-to-expanded';
+            const isScrambled = currentMode.includes('scrambled');
+            
             if (isStandardToExpanded) {
                 card.className = 'question-card mode1';
                 document.getElementById('question-text').textContent = 'Convert to expanded form:';
-                document.getElementById('answer-label').textContent = 'Your Answer (use + signs):';
+                document.getElementById('answer-label').textContent = 'Your Answer (largest to smallest):';
+                document.getElementById('answer-input').placeholder = 'e.g., 3,000 + 400 + 50 + 2';
+            } else if (isWordsToExpanded) {
+                card.className = 'question-card mode1';
+                document.getElementById('question-text').textContent = 'Sort these scrambled words into expanded form:';
+                document.getElementById('answer-label').textContent = 'Your Answer (largest to smallest):';
                 document.getElementById('answer-input').placeholder = 'e.g., 3,000 + 400 + 50 + 2';
             } else {
                 card.className = 'question-card mode2';
@@ -768,6 +776,12 @@
             document.getElementById('question-label').textContent = 
                 `${modeNames[currentMode]} - Question ${currentQuestion + 1}`;
             
+            // Format the problem display
+            if (isWordsToExpanded) {
+                document.getElementById('problem-display').style.fontStyle = 'italic';
+            } else {
+                document.getElementById('problem-display').style.fontStyle = 'normal';
+            }
             document.getElementById('problem-display').textContent = q.problem;
             
             document.getElementById('current-q').textContent = currentQuestion + 1;
@@ -795,9 +809,15 @@
             const q = questions[currentMode][currentQuestion];
             const input = document.getElementById('answer-input');
             
-            const isStandardToExpanded = currentMode.includes('standard-to-expanded');
-            const userAnswer = normalizeAnswer(input.value, isStandardToExpanded);
-            const correctAnswer = normalizeAnswer(q.answer, isStandardToExpanded);
+            const isScrambled = currentMode === 'expanded-to-standard-scrambled';
+            const isExpanded = currentMode === 'standard-to-expanded' || currentMode === 'words-to-expanded';
+            
+            // For scrambled "put it together", allow any order
+            // For ordered expanded notation or words, require exact order
+            const requireOrder = !isScrambled && isExpanded;
+            
+            const userAnswer = normalizeAnswer(input.value, isScrambled);
+            const correctAnswer = normalizeAnswer(q.answer, isScrambled);
             const correct = userAnswer === correctAnswer;
             
             const feedbackBox = document.getElementById('feedback-box');
@@ -816,7 +836,19 @@
                 input.className = 'answer-input incorrect';
                 feedbackBox.classList.add('incorrect');
                 feedbackBox.classList.remove('correct');
-                feedbackText.textContent = `Not quite. The correct answer is ${q.answer}`;
+                
+                if (requireOrder && isExpanded) {
+                    // Check if they have the right numbers but wrong order
+                    const userNormalized = normalizeAnswer(input.value, true);
+                    const correctNormalized = normalizeAnswer(q.answer, true);
+                    if (userNormalized === correctNormalized) {
+                        feedbackText.textContent = `You have the right numbers, but they need to be in order from largest to smallest: ${q.answer}`;
+                    } else {
+                        feedbackText.textContent = `Not quite. The correct answer is ${q.answer}`;
+                    }
+                } else {
+                    feedbackText.textContent = `Not quite. The correct answer is ${q.answer}`;
+                }
             }
             
             input.disabled = true;
