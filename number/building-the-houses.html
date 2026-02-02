@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building the Houses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --mode1-color: #27AE60;
+            --mode2-color: #E74C3C;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--mode1-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--mode2-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .learning-card h2::before {
+            content: "🏗️";
+            font-size: 1.3rem;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .key-concept h3::before {
+            content: "💡";
+        }
+
+        .key-concept p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 700px) {
+            .mode-selection {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mode-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .mode-card.mode1::before { background: var(--mode1-color); }
+        .mode-card.mode2::before { background: var(--mode2-color); }
+
+        .mode-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .mode-card h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .mode-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .mode-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.mode1 { border-top-color: var(--mode1-color); }
+        .question-card.mode2 { border-top-color: var(--mode2-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .problem-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+
+        .answer-input-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-input-wrapper label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .problem-display {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="../index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Building the <span>Houses</span></h1>
+                    <p class="subtitle">Expanded Notation Practice</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2>What is Expanded Notation?</h2>
+                    <p>Expanded notation shows the value of each digit in a number. It's like taking apart a house to see all its pieces!</p>
+                    
+                    <div class="key-concept">
+                        <h3>How It Works</h3>
+                        <p>Every number can be broken into the value of each digit, added together.</p>
+                        
+                        <div class="example-box">
+                            <strong>Standard:</strong> 3,452<br>
+                            <strong>Expanded:</strong> 3,000 + 400 + 50 + 2
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose Your Challenge</h2>
+                <div class="mode-selection">
+                    <button class="mode-card mode1" onclick="selectMode('standard-to-expanded')">
+                        <div class="mode-icon">🔽</div>
+                        <h3>Break It Apart</h3>
+                        <p>Convert standard numbers to expanded form (in order)</p>
+                    </button>
+                    <button class="mode-card mode1" onclick="selectMode('standard-to-expanded-scrambled')">
+                        <div class="mode-icon">🔀</div>
+                        <h3>Break It Apart - Scrambled</h3>
+                        <p>Convert standard to expanded form (any order)</p>
+                    </button>
+                    <button class="mode-card mode2" onclick="selectMode('expanded-to-standard')">
+                        <div class="mode-icon">🔼</div>
+                        <h3>Put It Together</h3>
+                        <p>Convert expanded form to standard numbers (in order)</p>
+                    </button>
+                    <button class="mode-card mode2" onclick="selectMode('expanded-to-standard-scrambled')">
+                        <div class="mode-icon">🔀</div>
+                        <h3>Put It Together - Scrambled</h3>
+                        <p>Convert scrambled expanded to standard numbers</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="backToLanding()">← Back</button>
+                        <a href="../index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">10</span>
+                    </div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text" id="question-text">Convert to expanded form:</div>
+                    
+                    <div class="problem-display" id="problem-display"></div>
+                    
+                    <div class="answer-input-wrapper">
+                        <label for="answer-input" id="answer-label">Your Answer:</label>
+                        <input type="text" id="answer-input" class="answer-input" placeholder="" autocomplete="off">
+                    </div>
+                    
+                    <div class="feedback-box" id="feedback-box">
+                        <h4 id="feedback-title">Feedback</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+                    
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/10</div>
+                    <div class="score-label">Correct Answers</div>
+                </div>
+                <p>You've mastered this mode!</p>
+                <div class="button-row" style="max-width: 500px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLanding()">Choose Another Mode</button>
+                    <a href="../index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            'standard-to-expanded': [
+                { problem: "3,452", answer: "3,000 + 400 + 50 + 2" },
+                { problem: "12,804", answer: "10,000 + 2,000 + 800 + 4" },
+                { problem: "405,670", answer: "400,000 + 5,000 + 600 + 70" },
+                { problem: "2,300,050", answer: "2,000,000 + 300,000 + 50" },
+                { problem: "15,040,003", answer: "10,000,000 + 5,000,000 + 40,000 + 3" },
+                { problem: "600,000,400", answer: "600,000,000 + 400" },
+                { problem: "1,200,500,000", answer: "1,000,000,000 + 200,000,000 + 500,000" },
+                { problem: "50,000,060,000", answer: "50,000,000,000 + 60,000" },
+                { problem: "9,000,000,000,200", answer: "9,000,000,000,000 + 200" },
+                { problem: "12,000,000,000,001", answer: "12,000,000,000,000 + 1" }
+            ],
+            'standard-to-expanded-scrambled': [
+                { problem: "3,452", answer: "50 + 3,000 + 2 + 400" },
+                { problem: "12,804", answer: "4 + 10,000 + 800 + 2,000" },
+                { problem: "405,670", answer: "70 + 5,000 + 400,000 + 600" },
+                { problem: "2,300,050", answer: "50 + 2,000,000 + 300,000" },
+                { problem: "15,040,003", answer: "3 + 40,000 + 10,000,000 + 5,000,000" },
+                { problem: "600,000,400", answer: "400 + 600,000,000" },
+                { problem: "1,200,500,000", answer: "500,000 + 200,000,000 + 1,000,000,000" },
+                { problem: "50,000,060,000", answer: "60,000 + 50,000,000,000" },
+                { problem: "9,000,000,000,200", answer: "200 + 9,000,000,000,000" },
+                { problem: "12,000,000,000,001", answer: "1 + 12,000,000,000,000" }
+            ],
+            'expanded-to-standard': [
+                { problem: "5,000 + 600 + 20 + 1", answer: "5,621" },
+                { problem: "40,000 + 2,000 + 9", answer: "42,009" },
+                { problem: "100,000 + 50,000 + 400", answer: "150,400" },
+                { problem: "6,000,000 + 40,000 + 500", answer: "6,040,500" },
+                { problem: "20,000,000 + 8,000 + 2", answer: "20,008,002" },
+                { problem: "900,000,000 + 10,000,000", answer: "910,000,000" },
+                { problem: "5,000,000,000 + 400,000", answer: "5,000,400,000" },
+                { problem: "12,000,000,000 + 3,000", answer: "12,000,003,000" },
+                { problem: "1,000,000,000,000 + 7,000,000", answer: "1,000,007,000,000" },
+                { problem: "80,000,000,000,000 + 50,000", answer: "80,000,000,050,000" }
+            ],
+            'expanded-to-standard-scrambled': [
+                { problem: "1 + 20 + 5,000 + 600", answer: "5,621" },
+                { problem: "9 + 40,000 + 2,000", answer: "42,009" },
+                { problem: "400 + 100,000 + 50,000", answer: "150,400" },
+                { problem: "500 + 6,000,000 + 40,000", answer: "6,040,500" },
+                { problem: "2 + 20,000,000 + 8,000", answer: "20,008,002" },
+                { problem: "10,000,000 + 900,000,000", answer: "910,000,000" },
+                { problem: "400,000 + 5,000,000,000", answer: "5,000,400,000" },
+                { problem: "3,000 + 12,000,000,000", answer: "12,000,003,000" },
+                { problem: "7,000,000 + 1,000,000,000,000", answer: "1,000,007,000,000" },
+                { problem: "50,000 + 80,000,000,000,000", answer: "80,000,000,050,000" }
+            ]
+        };
+
+        const modeNames = {
+            'standard-to-expanded': 'Break It Apart',
+            'standard-to-expanded-scrambled': 'Break It Apart - Scrambled',
+            'expanded-to-standard': 'Put It Together',
+            'expanded-to-standard-scrambled': 'Put It Together - Scrambled'
+        };
+
+        let currentMode = 'standard-to-expanded';
+        let currentQuestion = 0;
+        let score = 0;
+        let hasChecked = false;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function selectMode(mode) {
+            currentMode = mode;
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function backToLanding() {
+            showPage('landing-page');
+        }
+
+        function normalizeAnswer(answer, isExpanded) {
+            // Remove all spaces and commas
+            let normalized = answer.replace(/\s+/g, '').replace(/,/g, '').toLowerCase();
+            
+            if (isExpanded) {
+                // For expanded notation, split by + and sort the numbers
+                const parts = normalized.split('+').map(p => parseInt(p)).filter(n => !isNaN(n)).sort((a, b) => b - a);
+                return parts.join('+');
+            } else {
+                // For standard numbers, just return the number
+                return normalized;
+            }
+        }
+
+        function loadQuestion() {
+            const q = questions[currentMode][currentQuestion];
+            const card = document.getElementById('question-card');
+            
+            const isStandardToExpanded = currentMode.includes('standard-to-expanded');
+            if (isStandardToExpanded) {
+                card.className = 'question-card mode1';
+                document.getElementById('question-text').textContent = 'Convert to expanded form:';
+                document.getElementById('answer-label').textContent = 'Your Answer (use + signs):';
+                document.getElementById('answer-input').placeholder = 'e.g., 3,000 + 400 + 50 + 2';
+            } else {
+                card.className = 'question-card mode2';
+                document.getElementById('question-text').textContent = 'Convert to standard form:';
+                document.getElementById('answer-label').textContent = 'Your Answer (with commas):';
+                document.getElementById('answer-input').placeholder = 'e.g., 3,452';
+            }
+            
+            document.getElementById('question-label').textContent = 
+                `${modeNames[currentMode]} - Question ${currentQuestion + 1}`;
+            
+            document.getElementById('problem-display').textContent = q.problem;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = questions[currentMode].length;
+            
+            // Reset state
+            const input = document.getElementById('answer-input');
+            input.value = '';
+            input.className = 'answer-input';
+            input.disabled = false;
+            
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('next-btn').disabled = true;
+            
+            hasChecked = false;
+            
+            // Focus input
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function checkAnswer() {
+            if (hasChecked) return;
+            
+            const q = questions[currentMode][currentQuestion];
+            const input = document.getElementById('answer-input');
+            
+            const isStandardToExpanded = currentMode.includes('standard-to-expanded');
+            const userAnswer = normalizeAnswer(input.value, isStandardToExpanded);
+            const correctAnswer = normalizeAnswer(q.answer, isStandardToExpanded);
+            const correct = userAnswer === correctAnswer;
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedbackBox.classList.add('visible');
+            hasChecked = true;
+            
+            if (correct) {
+                score++;
+                input.className = 'answer-input correct';
+                feedbackBox.classList.add('correct');
+                feedbackBox.classList.remove('incorrect');
+                feedbackText.textContent = `Perfect! The answer is ${q.answer}`;
+            } else {
+                input.className = 'answer-input incorrect';
+                feedbackBox.classList.add('incorrect');
+                feedbackBox.classList.remove('correct');
+                feedbackText.textContent = `Not quite. The correct answer is ${q.answer}`;
+            }
+            
+            input.disabled = true;
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= questions[currentMode].length) {
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed ${modeNames[currentMode]}!`;
+                document.getElementById('final-score').textContent = 
+                    `${score}/${questions[currentMode].length}`;
+                showPage('completion-page');
+            } else {
+                loadQuestion();
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('answer-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !hasChecked) {
+                    checkAnswer();
+                } else if (e.key === 'Enter' && hasChecked) {
+                    nextQuestion();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
