@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Guests Lost</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--level2-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--level3-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .learning-card h2::before {
+            content: "🏠";
+            font-size: 1.3rem;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .key-concept p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+        }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .guests-pool {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+        }
+
+        .pool-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .guests-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .guest-tile {
+            background: white;
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: move;
+            transition: all 0.2s;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .guest-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .guest-tile.dragging {
+            opacity: 0.5;
+        }
+
+        .houses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .house {
+            background: white;
+            border: 3px dashed #DDD;
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 120px;
+        }
+
+        .house.drag-over {
+            background: #E3F2FD;
+            border-color: var(--primary-accent);
+        }
+
+        .house-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .house-contents {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 60px;
+        }
+
+        .answer-section {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .houses-grid {
+                grid-template-columns: 1fr;
+            }
+            .guest-tile {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="../index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <div class="landing-header">
+                    <h1>House Guests <span>Lost!</span></h1>
+                    <p class="subtitle">Sort scrambled place values into their houses</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2>The Place Value Houses</h2>
+                    <p>These house guests are lost! Each number part belongs in a specific "house" based on its place value. Your job is to sort them into the correct houses and find the secret number!</p>
+                    
+                    <div class="key-concept">
+                        <h3>How It Works</h3>
+                        <p>Numbers are organized into "houses" like apartments in a building. The Millions House, the Thousands House, and the Ones House. Each house has three rooms for hundreds, tens, and ones.</p>
+                        
+                        <div class="example-box">
+                            <strong>Example:</strong> If you see "6 hundred thousand" and "23 thousand", they both go in the Thousands House!<br>
+                            600 + 23 = 623 (in the Thousands House)
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose a Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>The Basic Jumble</p>
+                        <div class="level-meta">
+                            <span>Millions & Thousands</span>
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>The Zero Trap</p>
+                        <div class="level-meta">
+                            <span>Billions & Millions</span>
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>The Grandmaster Jumble</p>
+                        <div class="level-meta">
+                            <span>Trillions to Ones</span>
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="backToLanding()">← Back</button>
+                        <a href="../index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">20</span>
+                    </div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text">Drag the lost house guests to their correct houses!</div>
+                    
+                    <div class="guests-pool">
+                        <div class="pool-label">🏃 Lost House Guests:</div>
+                        <div class="guests-container" id="guests-pool"></div>
+                    </div>
+
+                    <div class="houses-grid" id="houses-grid"></div>
+                    
+                    <div class="answer-section">
+                        <div class="answer-label">What's the secret number?</div>
+                        <input type="text" id="answer-input" class="answer-input" placeholder="Enter the number with commas..." autocomplete="off">
+                    </div>
+                    
+                    <div class="feedback-box" id="feedback-box">
+                        <h4 id="feedback-title">Feedback</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+                    
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="reset-btn" onclick="resetQuestion()">Reset</button>
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/20</div>
+                    <div class="score-label">Correct Answers</div>
+                </div>
+                <p>You've mastered this level!</p>
+                <div class="button-row" style="max-width: 500px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLanding()">Choose Another Level</button>
+                    <a href="../index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            1: [ // Level 1: Millions & Thousands
+                { guests: ["6 hundred thousand", "2 million", "1 hundred", "23 thousand", "28"], answer: "2,623,128", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["4 million", "50 thousand", "8 hundred", "3", "7 thousand"], answer: "4,057,803", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["15 thousand", "1 million", "90", "5 hundred", "6"], answer: "1,015,596", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred thousand", "8 million", "45", "12 thousand", "7 hundred"], answer: "8,312,745", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["9 thousand", "5 hundred", "2 million", "80", "1 thousand"], answer: "2,010,580", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["7 million", "4 hundred thousand", "66", "8 hundred", "30 thousand"], answer: "7,430,866", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["50 thousand", "6 million", "2 hundred", "9", "4 thousand"], answer: "6,054,209", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["3 million", "8 hundred", "70 thousand", "5", "1 hundred thousand"], answer: "3,170,805", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["90 thousand", "4 hundred", "5 million", "20", "6 thousand"], answer: "5,096,420", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred thousand", "7", "9 million", "40 thousand", "3 hundred"], answer: "9,140,307", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred thousand", "50", "6 million", "8 thousand", "9 hundred"], answer: "6,208,950", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["4 million", "25 thousand", "3 hundred", "80", "7 hundred thousand"], answer: "4,725,380", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["8 hundred thousand", "12", "5 million", "6 hundred", "30 thousand"], answer: "5,830,612", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["1 million", "60 thousand", "4 hundred", "9", "5 thousand"], answer: "1,065,409", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred thousand", "70", "7 million", "8 hundred", "11 thousand"], answer: "7,311,870", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["6 thousand", "2 hundred", "9 million", "40", "5 hundred thousand"], answer: "9,506,240", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred", "80 thousand", "3 million", "6", "9 hundred thousand"], answer: "3,980,406", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["5 hundred thousand", "15 thousand", "8", "2 million", "70"], answer: "2,515,078", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["7 hundred", "20 thousand", "4 million", "90", "6 hundred thousand"], answer: "4,620,790", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred", "45 thousand", "8 million", "3 hundred thousand", "5"], answer: "8,345,105", houses: ["Millions", "Thousands", "Ones"] }
+            ],
+            2: [ // Level 2: Billions & Millions (with zeros)
+                { guests: ["40 million", "5 billion", "9 hundred", "2 thousand", "7"], answer: "5,040,002,907", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 billion", "8 hundred thousand", "50", "6 million", "4 thousand"], answer: "3,006,804,050", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["70 million", "2 billion", "9", "1 thousand", "5 hundred"], answer: "2,070,001,509", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred million", "8 billion", "12", "30 thousand", "6"], answer: "8,400,030,018", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 billion", "5 hundred", "90 million", "7 thousand", "20"], answer: "6,090,007,520", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred million", "9 billion", "8", "40 thousand", "3 hundred"], answer: "9,100,040,308", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["20 million", "7 billion", "6 hundred", "5 thousand", "90"], answer: "7,020,005,690", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred million", "4 billion", "70", "8 thousand", "1"], answer: "4,300,008,071", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["50 million", "1 billion", "4 hundred", "9 thousand", "25"], answer: "1,050,009,425", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 hundred million", "5 billion", "3", "12 thousand", "80"], answer: "5,600,012,083", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred million", "8 billion", "60", "7 thousand", "4 hundred"], answer: "8,200,007,460", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["90 million", "3 billion", "5 hundred", "1 thousand", "18"], answer: "3,090,001,518", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred million", "6 billion", "9", "25 thousand", "70"], answer: "6,400,025,079", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["80 million", "2 billion", "3 hundred", "50 thousand", "6"], answer: "2,080,050,306", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["5 hundred million", "9 billion", "40", "8 thousand", "2 hundred"], answer: "9,500,008,240", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["10 million", "7 billion", "7 hundred", "3 thousand", "55"], answer: "7,010,003,755", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["7 hundred million", "4 billion", "20", "6 thousand", "1 hundred"], answer: "4,700,006,120", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["30 million", "1 billion", "8 hundred", "90 thousand", "4"], answer: "1,030,090,804", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 hundred million", "5 billion", "6", "15 thousand", "30"], answer: "5,900,015,036", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["60 million", "8 billion", "4 hundred", "2 thousand", "77"], answer: "8,060,002,477", houses: ["Billions", "Millions", "Thousands", "Ones"] }
+            ],
+            3: [ // Level 3: Trillions to Ones (Grandmaster)
+                { guests: ["15 thousand", "8 hundred billion", "4 trillion", "6 hundred", "2 million", "90"], answer: "4,800,002,015,690", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 trillion", "50 billion", "7 million", "4 hundred thousand", "80", "9 hundred"], answer: "3,050,007,400,980", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 hundred billion", "2 trillion", "30 thousand", "1 million", "5 hundred", "12"], answer: "2,600,001,030,512", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 trillion", "20 billion", "8 hundred thousand", "5", "3 hundred", "60 million"], answer: "9,020,060,800,305", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred billion", "5 trillion", "4 million", "70 thousand", "9 hundred", "25"], answer: "5,100,004,070,925", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["7 trillion", "40 billion", "2 hundred million", "6 thousand", "80", "1 hundred"], answer: "7,040,200,006,180", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred billion", "8 trillion", "90 million", "5 hundred thousand", "7", "40"], answer: "8,300,090,500,047", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 trillion", "70 billion", "1 million", "8 hundred thousand", "30", "4 hundred"], answer: "6,070,001,800,430", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred billion", "4 trillion", "50 million", "9 thousand", "6 hundred", "18"], answer: "4,200,050,009,618", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 trillion", "10 billion", "3 hundred million", "20 thousand", "7 hundred", "5"], answer: "9,010,300,020,705", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["5 hundred billion", "1 trillion", "60 million", "7 hundred thousand", "90", "2 hundred"], answer: "1,500,060,700,290", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["8 trillion", "80 billion", "4 million", "30 thousand", "1 hundred", "66"], answer: "8,080,004,030,166", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 trillion", "90 billion", "5 hundred million", "12 thousand", "8 hundred", "3"], answer: "3,090,500,012,803", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["7 hundred billion", "2 trillion", "10 million", "60 thousand", "4 hundred", "50"], answer: "2,700,010,060,450", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 trillion", "30 billion", "8 hundred million", "5 hundred thousand", "9", "70"], answer: "6,030,800,500,079", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred billion", "9 trillion", "20 million", "40 thousand", "6 hundred", "11"], answer: "9,400,020,040,611", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred billion", "5 trillion", "70 million", "8 hundred thousand", "25", "3 hundred"], answer: "5,100,070,800,325", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["8 trillion", "60 billion", "3 hundred million", "90 thousand", "7 hundred", "4"], answer: "8,060,300,090,704", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred billion", "7 trillion", "40 million", "15 thousand", "2 hundred", "88"], answer: "7,200,040,015,288", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 trillion", "50 billion", "6 hundred million", "70 thousand", "1 hundred", "9"], answer: "9,050,600,070,109", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] }
+            ]
+        };
+
+        const levelNames = {
+            1: "The Basic Jumble",
+            2: "The Zero Trap",
+            3: "The Grandmaster Jumble"
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let score = 0;
+        let hasChecked = false;
+        let draggedElement = null;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function backToLanding() {
+            showPage('landing-page');
+        }
+
+        function loadQuestion() {
+            const q = questions[currentLevel][currentQuestion];
+            const card = document.getElementById('question-card');
+            
+            card.className = `question-card level-${currentLevel}`;
+            
+            document.getElementById('question-label').textContent = 
+                `${levelNames[currentLevel]} - Question ${currentQuestion + 1}`;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = questions[currentLevel].length;
+            
+            // Reset state
+            const input = document.getElementById('answer-input');
+            input.value = '';
+            input.className = 'answer-input';
+            input.disabled = false;
+            
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('next-btn').disabled = true;
+            
+            hasChecked = false;
+            
+            // Create guest tiles
+            const guestsPool = document.getElementById('guests-pool');
+            guestsPool.innerHTML = '';
+            
+            // Shuffle guests
+            const shuffledGuests = [...q.guests].sort(() => Math.random() - 0.5);
+            
+            shuffledGuests.forEach(guest => {
+                const tile = document.createElement('div');
+                tile.className = 'guest-tile';
+                tile.textContent = guest;
+                tile.draggable = true;
+                tile.dataset.guest = guest;
+                
+                tile.addEventListener('dragstart', handleDragStart);
+                tile.addEventListener('dragend', handleDragEnd);
+                
+                guestsPool.appendChild(tile);
+            });
+            
+            // Create house boxes
+            const housesGrid = document.getElementById('houses-grid');
+            housesGrid.innerHTML = '';
+            
+            q.houses.forEach(houseName => {
+                const house = document.createElement('div');
+                house.className = 'house';
+                house.dataset.house = houseName;
+                
+                const label = document.createElement('div');
+                label.className = 'house-label';
+                label.textContent = `🏠 ${houseName}`;
+                
+                const contents = document.createElement('div');
+                contents.className = 'house-contents';
+                
+                house.appendChild(label);
+                house.appendChild(contents);
+                
+                house.addEventListener('dragover', handleDragOver);
+                house.addEventListener('drop', handleDrop);
+                house.addEventListener('dragleave', handleDragLeave);
+                
+                housesGrid.appendChild(house);
+            });
+            
+            // Focus input
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            const house = e.currentTarget.closest('.house');
+            if (house) {
+                house.classList.add('drag-over');
+            }
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            const house = e.currentTarget.closest('.house');
+            if (house) {
+                house.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            const house = e.currentTarget.closest('.house');
+            if (house) {
+                house.classList.remove('drag-over');
+                
+                if (draggedElement) {
+                    const contents = house.querySelector('.house-contents');
+                    contents.appendChild(draggedElement);
+                }
+            }
+            
+            return false;
+        }
+
+        function resetQuestion() {
+            loadQuestion();
+        }
+
+        function checkAnswer() {
+            if (hasChecked) return;
+            
+            const q = questions[currentLevel][currentQuestion];
+            const input = document.getElementById('answer-input');
+            const userAnswer = input.value.replace(/,/g, '').trim();
+            const correctAnswer = q.answer.replace(/,/g, '');
+            const correct = userAnswer === correctAnswer;
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedbackBox.classList.add('visible');
+            hasChecked = true;
+            
+            if (correct) {
+                score++;
+                input.className = 'answer-input correct';
+                feedbackBox.classList.add('correct');
+                feedbackBox.classList.remove('incorrect');
+                feedbackText.textContent = `Perfect! The secret number is ${q.answer}`;
+            } else {
+                input.className = 'answer-input incorrect';
+                feedbackBox.classList.add('incorrect');
+                feedbackBox.classList.remove('correct');
+                feedbackText.textContent = `Not quite. The correct secret number is ${q.answer}`;
+            }
+            
+            input.disabled = true;
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= questions[currentLevel].length) {
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed ${levelNames[currentLevel]}!`;
+                document.getElementById('final-score').textContent = 
+                    `${score}/${questions[currentLevel].length}`;
+                showPage('completion-page');
+            } else {
+                loadQuestion();
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('answer-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !hasChecked) {
+                    checkAnswer();
+                } else if (e.key === 'Enter' && hasChecked) {
+                    nextQuestion();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
