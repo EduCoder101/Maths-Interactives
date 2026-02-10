@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rounding Ranger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #3498DB;
+            --level3-color: #F4C430;
+            --level4-color: #FF6B6B;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--level4-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--level3-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .learning-card h2::before {
+            content: "🎯";
+            font-size: 1.3rem;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #FFF8E7, #FFF3D6);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--level3-color);
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .key-concept h3::before {
+            content: "💡";
+        }
+
+        .key-concept ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.75rem;
+        }
+
+        .key-concept li {
+            color: var(--text-light);
+            padding: 0.3rem 0;
+            padding-left: 1.3rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .key-concept li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+        .level-btn.level-4::before { background: var(--level4-color); }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .progress-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .progress-circle.current {
+            border-color: var(--primary-accent);
+            border-width: 4px;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .progress-circle.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .progress-circle.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .progress-circle.correct::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--correct-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.incorrect::after {
+            content: "✗";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--incorrect-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+        .question-card.level-4 { border-top-color: var(--level4-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        /* Number Line for Level 1 */
+        .number-line-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+            padding: 1rem;
+        }
+
+        .number-line {
+            position: relative;
+            width: 80px;
+            height: 300px;
+            background: linear-gradient(to bottom, #E8F5E9 0%, #FFF3E0 50%, #FFEBEE 100%);
+            border-radius: 40px;
+            border: 3px solid var(--text-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+
+        .number-line-marker {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+        }
+
+        .number-line-marker::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--text-dark);
+        }
+
+        .number-line-value {
+            position: absolute;
+            right: calc(100% + 15px);
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            background: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+
+        .number-line-marker.top .number-line-value {
+            color: var(--correct-color);
+        }
+
+        .number-line-marker.mid .number-line-value {
+            color: var(--level3-color);
+            font-size: 1.2rem;
+        }
+
+        .number-line-marker.bottom .number-line-value {
+            color: var(--incorrect-color);
+        }
+
+        .target-number {
+            position: absolute;
+            left: calc(100% + 15px);
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: 3px solid var(--primary-accent);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .number-line-label {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .benchmark-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .benchmark-btn {
+            background: white;
+            border: 3px solid var(--text-light);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+
+        .benchmark-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-accent);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .benchmark-btn.selected {
+            background: var(--primary-accent);
+            border-color: var(--primary-accent);
+            color: white;
+        }
+
+        .benchmark-btn.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .benchmark-btn.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .benchmark-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Input fields for Levels 2, 3, 4 */
+        .answer-input-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-input-wrapper label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        /* Level 3 multi-input grid */
+        .multi-input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .multi-input-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .multi-input-item label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+        }
+
+        .multi-input-item input {
+            padding: 0.7rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.95rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .multi-input-item input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin: 2rem auto;
+            max-width: 400px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .score-label {
+            color: var(--text-light);
+        }
+
+        .score-value {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 1.25rem; }
+            .landing-header h1 { font-size: 2rem; }
+            .level-grid { grid-template-columns: 1fr; }
+            .number-line {
+                width: 60px;
+                height: 250px;
+            }
+            .multi-input-grid {
+                grid-template-columns: 1fr;
+            }
+            .progress-circle {
+                width: 36px;
+                height: 36px;
+                font-size: 0.75rem;
+            }
+            .progress-tracker {
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div class="landing-header">
+                    <h1>Rounding <span>Ranger</span></h1>
+                    <p class="subtitle">Master the art of rounding numbers</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2>What is Rounding?</h2>
+                    <p>Rounding is a way to simplify numbers by replacing them with nearby 'benchmark' numbers that are easier to work with. We use rounding when we need a quick estimate rather than an exact answer.</p>
+                    <p><strong>Example:</strong> If you have $24.75 and want to know roughly how much that is, you could round to $25 — it's close enough for quick thinking!</p>
+                    
+                    <div class="key-concept">
+                        <h3>The Midpoint Rule</h3>
+                        <ul>
+                            <li>If a number is <strong>below the midpoint</strong>, round down to the lower benchmark</li>
+                            <li>If a number is <strong>at or above the midpoint</strong>, round up to the higher benchmark</li>
+                            <li>Example: Rounding 24 to tens → midpoint is 25, so 24 rounds <strong>down</strong> to 20</li>
+                            <li>Example: Rounding 57 to tens → midpoint is 55, so 57 rounds <strong>up</strong> to 60</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="level-section-title">Choose Your Level</h3>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>🟢 Level 1: Support</h3>
+                        <p>Use number lines to visualise rounding to the nearest 10</p>
+                        <div class="level-meta">
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>🔵 Level 2: Core</h3>
+                        <p>Place value shifts with larger numbers</p>
+                        <div class="level-meta">
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>🟡 Level 3: Mid-Core</h3>
+                        <p>Applied estimation with calculations</p>
+                        <div class="level-meta">
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-4" onclick="startLevel(4)">
+                        <h3>🔴 Level 4: Extension</h3>
+                        <p>Logic, analysis and mystery numbers</p>
+                        <div class="level-meta">
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div style="margin-top: 2rem; text-align: center;">
+                    <a href="../index.html" class="home-btn">← Back to Maths Hub</a>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <button class="back-btn" onclick="goToLanding()">← Back</button>
+                    <div class="question-progress">
+                        Question <span id="current-q">1</span> / <span id="total-q">20</span>
+                    </div>
+                </div>
+
+                <!-- Progress Tracker -->
+                <div class="progress-tracker">
+                    <div class="progress-grid" id="progress-grid">
+                        <!-- Circles will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text" id="question-text"></div>
+                    
+                    <!-- Level 1: Number Line -->
+                    <div id="number-line-display" style="display: none;">
+                        <div class="number-line-container">
+                            <div class="number-line">
+                                <div class="number-line-marker top">
+                                    <div class="number-line-value" id="top-value">30</div>
+                                </div>
+                                <div class="number-line-marker mid">
+                                    <div class="number-line-value" id="mid-value">25</div>
+                                    <div class="target-number" id="target-value">24</div>
+                                </div>
+                                <div class="number-line-marker bottom">
+                                    <div class="number-line-value" id="bottom-value">20</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="number-line-label">Which benchmark is closer?</div>
+                        <div class="benchmark-buttons">
+                            <button class="benchmark-btn" id="bottom-btn" onclick="selectBenchmark('bottom')">20</button>
+                            <button class="benchmark-btn" id="top-btn" onclick="selectBenchmark('top')">30</button>
+                        </div>
+                    </div>
+
+                    <!-- Level 2: Single Input -->
+                    <div id="single-input-display" style="display: none;">
+                        <div class="answer-input-wrapper">
+                            <label for="answer-input">Your Answer:</label>
+                            <input type="text" id="answer-input" class="answer-input" placeholder="Enter your answer">
+                        </div>
+                    </div>
+
+                    <!-- Level 3: Multi Input -->
+                    <div id="multi-input-display" style="display: none;">
+                        <div class="multi-input-grid">
+                            <div class="multi-input-item">
+                                <label>Rounded Val 1</label>
+                                <input type="text" id="multi-input-1" placeholder="e.g. 13">
+                            </div>
+                            <div class="multi-input-item">
+                                <label>Rounded Val 2</label>
+                                <input type="text" id="multi-input-2" placeholder="e.g. 4">
+                            </div>
+                            <div class="multi-input-item">
+                                <label>Result</label>
+                                <input type="text" id="multi-input-3" placeholder="e.g. 17">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Level 4: Text Input -->
+                    <div id="text-input-display" style="display: none;">
+                        <div class="answer-input-wrapper">
+                            <label for="text-answer-input">Your Answer:</label>
+                            <input type="text" id="text-answer-input" class="answer-input" placeholder="Enter your answer">
+                        </div>
+                    </div>
+
+                    <div id="feedback-box" class="feedback-box">
+                        <h4 id="feedback-title">Correct!</h4>
+                        <p id="feedback-text">Well done!</p>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-secondary" id="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2>Fantastic Work!</h2>
+                <p id="completion-message">You've completed this level!</p>
+                
+                <div class="score-display">
+                    <div class="score-row">
+                        <span class="score-label">Questions Answered:</span>
+                        <span class="score-value" id="score-total">20</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Correct:</span>
+                        <span class="score-value" id="score-correct" style="color: var(--correct-color);">0</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Success Rate:</span>
+                        <span class="score-value" id="score-percentage">0%</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="goToLanding()" style="max-width: 300px; margin: 0 auto; display: block;">Choose Another Level</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            1: [
+                { q: "Round 24 to tens", bottom: 20, mid: 25, top: 30, target: 24, answer: "20", explanation: "24 is below the midpoint of 25, so it's closer to 20. Round down." },
+                { q: "Round 57 to tens", bottom: 50, mid: 55, top: 60, target: 57, answer: "60", explanation: "57 is above the midpoint of 55, so it's closer to 60. Round up." },
+                { q: "Round $3.20 to $1", bottom: "$3.00", mid: "$3.50", top: "$4.00", target: "$3.20", answer: "$3.00", explanation: "$3.20 is below the midpoint of $3.50, so it's closer to $3.00. Round down." },
+                { q: "Round $8.85 to $1", bottom: "$8.00", mid: "$8.50", top: "$9.00", target: "$8.85", answer: "$9.00", explanation: "$8.85 is above the midpoint of $8.50, so it's closer to $9.00. Round up." },
+                { q: "Round 12 to tens", bottom: 10, mid: 15, top: 20, target: 12, answer: "10", explanation: "12 is below the midpoint of 15, so it's closer to 10. Round down." },
+                { q: "Round 46 to tens", bottom: 40, mid: 45, top: 50, target: 46, answer: "50", explanation: "46 is above the midpoint of 45, so it's closer to 50. Round up." },
+                { q: "Round 81 to tens", bottom: 80, mid: 85, top: 90, target: 81, answer: "80", explanation: "81 is below the midpoint of 85, so it's closer to 80. Round down." },
+                { q: "Round 35 to tens", bottom: 30, mid: 35, top: 40, target: 35, answer: "40", explanation: "35 is exactly at the midpoint, so we round up to 40." },
+                { q: "Round $5.10 to $1", bottom: "$5.00", mid: "$5.50", top: "$6.00", target: "$5.10", answer: "$5.00", explanation: "$5.10 is below the midpoint of $5.50, so it's closer to $5.00. Round down." },
+                { q: "Round $0.95 to $1", bottom: "$0.00", mid: "$0.50", top: "$1.00", target: "$0.95", answer: "$1.00", explanation: "$0.95 is above the midpoint of $0.50, so it's closer to $1.00. Round up." },
+                { q: "Round 94 to tens", bottom: 90, mid: 95, top: 100, target: 94, answer: "90", explanation: "94 is below the midpoint of 95, so it's closer to 90. Round down." },
+                { q: "Round 68 to tens", bottom: 60, mid: 65, top: 70, target: 68, answer: "70", explanation: "68 is above the midpoint of 65, so it's closer to 70. Round up." },
+                { q: "Round $14.25 to $1", bottom: "$14.00", mid: "$14.50", top: "$15.00", target: "$14.25", answer: "$14.00", explanation: "$14.25 is below the midpoint of $14.50, so it's closer to $14.00. Round down." },
+                { q: "Round $19.99 to $1", bottom: "$19.00", mid: "$19.50", top: "$20.00", target: "$19.99", answer: "$20.00", explanation: "$19.99 is above the midpoint of $19.50, so it's closer to $20.00. Round up." },
+                { q: "Round 25 to tens", bottom: 20, mid: 25, top: 30, target: 25, answer: "30", explanation: "25 is exactly at the midpoint, so we round up to 30." },
+                { q: "Round 73 to tens", bottom: 70, mid: 75, top: 80, target: 73, answer: "70", explanation: "73 is below the midpoint of 75, so it's closer to 70. Round down." },
+                { q: "Round 4 to tens", bottom: 0, mid: 5, top: 10, target: 4, answer: "0", explanation: "4 is below the midpoint of 5, so it's closer to 0. Round down." },
+                { q: "Round $6.50 to $1", bottom: "$6.00", mid: "$6.50", top: "$7.00", target: "$6.50", answer: "$7.00", explanation: "$6.50 is exactly at the midpoint, so we round up to $7.00." },
+                { q: "Round 55 to tens", bottom: 50, mid: 55, top: 60, target: 55, answer: "60", explanation: "55 is exactly at the midpoint, so we round up to 60." },
+                { q: "Round $1.05 to $1", bottom: "$1.00", mid: "$1.50", top: "$2.00", target: "$1.05", answer: "$1.00", explanation: "$1.05 is below the midpoint of $1.50, so it's closer to $1.00. Round down." }
+            ],
+            2: [
+                { q: "Round 142 to tens", answer: "140", explanation: "142 is closer to 140 than 150 (only 2 away vs 8 away)." },
+                { q: "Round 142 to hundreds", answer: "100", explanation: "142 is closer to 100 than 200 (42 away vs 58 away)." },
+                { q: "Round $12.45 to $1", answer: "$12.00", explanation: "$12.45 is below $12.50 (the midpoint), so round down to $12.00." },
+                { q: "Round $25.50 to $1", answer: "$26.00", explanation: "$25.50 is exactly at the midpoint, so we round up to $26.00." },
+                { q: "Round 876 to tens", answer: "880", explanation: "876 is closer to 880 than 870 (4 away vs 6 away)." },
+                { q: "Round 876 to hundreds", answer: "900", explanation: "876 is closer to 900 than 800 (24 away vs 76 away)." },
+                { q: "Round 1,230 to hundreds", answer: "1200", explanation: "1,230 is closer to 1,200 than 1,300 (30 away vs 70 away)." },
+                { q: "Round 4,500 to thousands", answer: "5000", explanation: "4,500 is exactly at the midpoint, so we round up to 5,000." },
+                { q: "Round $104.15 to $1", answer: "$104.00", explanation: "$104.15 is below $104.50 (the midpoint), so round down to $104.00." },
+                { q: "Round 65 to hundreds", answer: "100", explanation: "65 is closer to 100 than 0 (35 away vs 65 away)." },
+                { q: "Round 3,981 to tens", answer: "3980", explanation: "3,981 is closer to 3,980 than 3,990 (1 away vs 9 away)." },
+                { q: "Round 3,981 to hundreds", answer: "4000", explanation: "3,981 is closer to 4,000 than 3,900 (19 away vs 81 away)." },
+                { q: "Round 7,499 to thousands", answer: "7000", explanation: "7,499 is closer to 7,000 than 8,000 (499 away vs 501 away)." },
+                { q: "Round $0.49 to $1", answer: "$0.00", explanation: "$0.49 is below $0.50 (the midpoint), so round down to $0.00." },
+                { q: "Round 995 to tens", answer: "1000", explanation: "995 is closer to 1,000 than 990 (5 away vs 5 away, so round up)." },
+                { q: "Round 2,550 to hundreds", answer: "2600", explanation: "2,550 is exactly at the midpoint, so we round up to 2,600." },
+                { q: "Round 15,400 to thousands", answer: "15000", explanation: "15,400 is closer to 15,000 than 16,000 (400 away vs 600 away)." },
+                { q: "Round $88.88 to $1", answer: "$89.00", explanation: "$88.88 is above $88.50 (the midpoint), so round up to $89.00." },
+                { q: "Round 42 to tens", answer: "40", explanation: "42 is closer to 40 than 50 (2 away vs 8 away)." },
+                { q: "Round 5,001 to thousands", answer: "5000", explanation: "5,001 is closer to 5,000 than 6,000 (1 away vs 999 away)." }
+            ],
+            3: [
+                { q: "Estimate: $12.95 + $4.15", answer1: "13", answer2: "4", result: "17", explanation: "$12.95 rounds to $13, $4.15 rounds to $4. Adding: 13 + 4 = 17" },
+                { q: "Estimate: 865m - 212m (to 100s)", answer1: "900", answer2: "200", result: "700", explanation: "865 rounds to 900, 212 rounds to 200. Subtracting: 900 - 200 = 700m" },
+                { q: "Estimate: $20.00 - ($3.85 + $7.10)", answer1: "4", answer2: "7", result: "9", explanation: "$3.85 rounds to $4, $7.10 rounds to $7. First add: 4 + 7 = 11, then: 20 - 11 = 9" },
+                { q: "Estimate: 58 students + 31 students", answer1: "60", answer2: "30", result: "90", explanation: "58 rounds to 60, 31 rounds to 30. Adding: 60 + 30 = 90 students" },
+                { q: "Estimate: $15.20 - $9.95", answer1: "15", answer2: "10", result: "5", explanation: "$15.20 rounds to $15, $9.95 rounds to $10. Subtracting: 15 - 10 = $5" },
+                { q: "Estimate: 492km + 108km (to 100s)", answer1: "500", answer2: "100", result: "600", explanation: "492 rounds to 500, 108 rounds to 100. Adding: 500 + 100 = 600km" },
+                { q: "Estimate: 3 packs of juice ($2.90 each)", answer1: "3", answer2: "3", result: "9", explanation: "$2.90 rounds to $3. Multiply: 3 packs × $3 = $9" },
+                { q: "Estimate: 1,210 - 790 (to 100s)", answer1: "1200", answer2: "800", result: "400", explanation: "1,210 rounds to 1,200, 790 rounds to 800. Subtracting: 1,200 - 800 = 400" },
+                { q: "Estimate: $5.50 + $5.50", answer1: "6", answer2: "6", result: "12", explanation: "$5.50 rounds to $6 (midpoint rounds up). Adding: 6 + 6 = $12" },
+                { q: "Estimate: 87 + 14", answer1: "90", answer2: "10", result: "100", explanation: "87 rounds to 90, 14 rounds to 10. Adding: 90 + 10 = 100" },
+                { q: "Estimate: $50 - $24.95", answer1: "50", answer2: "25", result: "25", explanation: "$50 stays as $50, $24.95 rounds to $25. Subtracting: 50 - 25 = $25" },
+                { q: "Estimate: 214g + 386g (to 100s)", answer1: "200", answer2: "400", result: "600", explanation: "214 rounds to 200, 386 rounds to 400. Adding: 200 + 400 = 600g" },
+                { q: "Estimate: 11 items @ $1.95 each", answer1: "11", answer2: "2", result: "22", explanation: "$1.95 rounds to $2. Multiply: 11 items × $2 = $22" },
+                { q: "Estimate: 9,800 - 4,200 (to 1000s)", answer1: "10000", answer2: "4000", result: "6000", explanation: "9,800 rounds to 10,000, 4,200 rounds to 4,000. Subtracting: 10,000 - 4,000 = 6,000" },
+                { q: "Estimate: $6.15 + $2.85 + $1.10", answer1: "6", answer2: "3", result: "10", hasThree: true, answer3: "1", explanation: "$6.15 rounds to $6, $2.85 rounds to $3, $1.10 rounds to $1. Adding: 6 + 3 + 1 = $10" },
+                { q: "Estimate: 75 minutes - 19 minutes (to 10s)", answer1: "80", answer2: "20", result: "60", explanation: "75 rounds to 80, 19 rounds to 20. Subtracting: 80 - 20 = 60 minutes" },
+                { q: "Estimate: 4 boxes @ 98 per box", answer1: "4", answer2: "100", result: "400", explanation: "98 rounds to 100. Multiply: 4 boxes × 100 = 400" },
+                { q: "Estimate: $10.00 - $3.45", answer1: "10", answer2: "3", result: "7", explanation: "$10.00 stays as $10, $3.45 rounds to $3. Subtracting: 10 - 3 = $7" },
+                { q: "Estimate: 444 + 555 (to 100s)", answer1: "400", answer2: "600", result: "1000", explanation: "444 rounds to 400, 555 rounds to 600. Adding: 400 + 600 = 1,000" },
+                { q: "Estimate: $1.99 + $0.99 + $4.99", answer1: "2", answer2: "1", result: "8", hasThree: true, answer3: "5", explanation: "$1.99 rounds to $2, $0.99 rounds to $1, $4.99 rounds to $5. Adding: 2 + 1 + 5 = $8" }
+            ],
+            4: [
+                { q: "Mystery: Round to nearest 10 is 80. Smallest?", answer: "75", explanation: "Numbers from 75-84 all round to 80. The smallest is 75 (exactly at the midpoint)." },
+                { q: "Mystery: Round to nearest 10 is 80. Largest?", answer: "84", explanation: "Numbers from 75-84 all round to 80. The largest is 84 (just before the next midpoint at 85)." },
+                { q: "Mystery: Round to nearest 100 is 1000. Smallest?", answer: "950", explanation: "Numbers from 950-1,049 all round to 1,000. The smallest is 950 (exactly at the midpoint)." },
+                { q: "Precision: Is rounding 45 to 100 or 50 more accurate?", answer: "50", explanation: "45 is only 5 away from 50, but 55 away from 100. Rounding to 50 is more accurate." },
+                { q: "Range: What whole numbers round to 10?", answer: "5 to 14", explanation: "5 is the midpoint (rounds up to 10), and 14 rounds up to 10. 15 would round to 20." },
+                { q: "Comparison: Exact $2.50 + $2.50 vs Rounded to $1. Difference?", answer: "1.00", explanation: "Exact: $2.50 + $2.50 = $5.00. Rounded: $3 + $3 = $6. Difference: $6 - $5 = $1.00" },
+                { q: "Money: Round $19.49 to nearest $10.", answer: "$20", explanation: "$19.49 is closer to $20 than $10 (only $0.51 away vs $9.49 away)." },
+                { q: "Logic: If you round $4.50 up, but the shop rounds $4.50 down, who has more money?", answer: "The Shop", explanation: "You round $4.50 to $5 and pay more. The shop rounds to $4, so they keep more profit." },
+                { q: "Distance: 4,501km rounded to nearest 1,000.", answer: "5,000", explanation: "4,501 is closer to 5,000 than 4,000 (only 499 away vs 501 away)." },
+                { q: "Mystery: Round to nearest 100 is 0. Largest whole number?", answer: "49", explanation: "Numbers from 0-49 round to 0. At 50, we'd round up to 100. So the largest is 49." },
+                { q: "Error: Why is rounding 1.49 to the nearest whole number 1, but rounding 1.50 is 2?", answer: "1.50 is the midpoint", explanation: "1.49 is below the midpoint (1.50), so rounds down. 1.50 is exactly at the midpoint, so rounds up." },
+                { q: "Multi-step: Round 145 to nearest 10, then round that result to nearest 100.", answer: "200", explanation: "Step 1: 145 rounds to 150. Step 2: 150 rounds to 200 (exactly at midpoint)." },
+                { q: "Reverse: A price rounded to $5. It was actually $0.40 cheaper. Real price?", answer: "$4.60 or $5.40", explanation: "If rounded to $5, real price could be $4.50-$5.49. Subtracting $0.40 gives $4.60 or $5.40." },
+                { q: "Truth: True or False: Rounding always makes a number bigger.", answer: "False", explanation: "Rounding can make numbers bigger OR smaller. 24 rounds down to 20 (smaller)." },
+                { q: "Context: You have $10. Items are $4.50 and $5.50. Should you round up or down to be safe?", answer: "Up", explanation: "Round up to be safe: $5 + $6 = $11. This ensures you know you don't have enough money." },
+                { q: "Pattern: Round 5, 15, 25, 35 to nearest 10.", answer: "10, 20, 30, 40", explanation: "All are at midpoints: 5→10, 15→20, 25→30, 35→40. Midpoints always round up." },
+                { q: "Large: 999,999 rounded to nearest 10.", answer: "1,000,000", explanation: "999,999 rounds to 1,000,000 (just 1 away from the next million)." },
+                { q: "Small: 0.51 rounded to nearest whole.", answer: "1", explanation: "0.51 is above the midpoint of 0.50, so it rounds up to 1." },
+                { q: "Difference: Difference between 44 rounded to 10 and 46 rounded to 10?", answer: "10", explanation: "44 rounds to 40. 46 rounds to 50. Difference: 50 - 40 = 10" },
+                { q: "Challenge: Round 1,234,567 to the nearest million.", answer: "1,000,000", explanation: "1,234,567 is closer to 1,000,000 than 2,000,000 (only 234,567 away vs 765,433 away)." }
+            ]
+        };
+
+        const levelNames = {
+            1: "Support - Visualising with Number Lines",
+            2: "Core - Place Value Shifts",
+            3: "Mid-Core - Applied Estimation",
+            4: "Extension - Logic & Analysis"
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let correctCount = 0;
+        let attemptedCount = 0;
+        let answered = false;
+        let selectedBenchmark = null;
+        let questionStatus = []; // Track status of each question: null, 'correct', 'incorrect'
+
+        function selectBenchmark(which) {
+            if (answered) return;
+            
+            selectedBenchmark = which;
+            
+            // Update button styling
+            document.getElementById('bottom-btn').classList.remove('selected');
+            document.getElementById('top-btn').classList.remove('selected');
+            
+            if (which === 'bottom') {
+                document.getElementById('bottom-btn').classList.add('selected');
+            } else {
+                document.getElementById('top-btn').classList.add('selected');
+            }
+            
+            // Enable check button
+            document.getElementById('check-btn').disabled = false;
+        }
+
+        function createProgressTracker() {
+            const progressGrid = document.getElementById('progress-grid');
+            progressGrid.innerHTML = '';
+            
+            const totalQuestions = questions[currentLevel].length;
+            questionStatus = new Array(totalQuestions).fill(null);
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = `progress-${i}`;
+                circle.onclick = () => jumpToQuestion(i);
+                progressGrid.appendChild(circle);
+            }
+            
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            const totalQuestions = questions[currentLevel].length;
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                const circle = document.getElementById(`progress-${i}`);
+                if (!circle) continue;
+                
+                // Remove all status classes
+                circle.classList.remove('current', 'correct', 'incorrect');
+                
+                // Add current question highlight
+                if (i === currentQuestion) {
+                    circle.classList.add('current');
+                }
+                
+                // Add status
+                if (questionStatus[i] === 'correct') {
+                    circle.classList.add('correct');
+                } else if (questionStatus[i] === 'incorrect') {
+                    circle.classList.add('incorrect');
+                }
+            }
+        }
+
+        function jumpToQuestion(questionIndex) {
+            // Save current question state if answered
+            if (answered && questionStatus[currentQuestion] === null) {
+                // This shouldn't happen, but just in case
+                questionStatus[currentQuestion] = 'incorrect';
+            }
+            
+            currentQuestion = questionIndex;
+            answered = questionStatus[currentQuestion] !== null;
+            loadQuestion();
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            correctCount = 0;
+            attemptedCount = 0;
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function goToLanding() {
+            showPage('landing-page');
+        }
+
+        function loadQuestion() {
+            const wasAnswered = answered;
+            answered = questionStatus[currentQuestion] !== null;
+            const q = questions[currentLevel][currentQuestion];
+            const card = document.getElementById('question-card');
+            
+            card.className = `question-card level-${currentLevel}`;
+            
+            document.getElementById('question-label').textContent = `Question ${currentQuestion + 1}`;
+            document.getElementById('question-text').textContent = q.q;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = questions[currentLevel].length;
+            
+            // Hide all input displays
+            document.getElementById('number-line-display').style.display = 'none';
+            document.getElementById('single-input-display').style.display = 'none';
+            document.getElementById('multi-input-display').style.display = 'none';
+            document.getElementById('text-input-display').style.display = 'none';
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            
+            // Show appropriate input for level
+            if (currentLevel === 1) {
+                document.getElementById('number-line-display').style.display = 'block';
+                document.getElementById('top-value').textContent = q.top;
+                document.getElementById('mid-value').textContent = q.mid;
+                document.getElementById('bottom-value').textContent = q.bottom;
+                document.getElementById('target-value').textContent = q.target;
+                
+                // Update button text and reset styling
+                document.getElementById('bottom-btn').textContent = q.bottom;
+                document.getElementById('top-btn').textContent = q.top;
+                document.getElementById('bottom-btn').classList.remove('selected', 'correct', 'incorrect');
+                document.getElementById('top-btn').classList.remove('selected', 'correct', 'incorrect');
+                
+                // If already answered, show the result
+                if (answered) {
+                    const correctAnswer = normaliseAnswer(q.answer);
+                    const bottomAnswer = normaliseAnswer(q.bottom.toString());
+                    
+                    if (correctAnswer === bottomAnswer) {
+                        document.getElementById('bottom-btn').classList.add('correct');
+                    } else {
+                        document.getElementById('top-btn').classList.add('correct');
+                    }
+                    document.getElementById('bottom-btn').disabled = true;
+                    document.getElementById('top-btn').disabled = true;
+                } else {
+                    document.getElementById('bottom-btn').disabled = false;
+                    document.getElementById('top-btn').disabled = false;
+                    selectedBenchmark = null;
+                }
+            } else if (currentLevel === 2) {
+                document.getElementById('single-input-display').style.display = 'block';
+                if (answered) {
+                    document.getElementById('answer-input').value = q.answer;
+                    document.getElementById('answer-input').className = questionStatus[currentQuestion] === 'correct' ? 'answer-input correct' : 'answer-input incorrect';
+                } else {
+                    document.getElementById('answer-input').value = '';
+                    document.getElementById('answer-input').className = 'answer-input';
+                }
+            } else if (currentLevel === 3) {
+                document.getElementById('multi-input-display').style.display = 'block';
+                if (answered) {
+                    document.getElementById('multi-input-1').value = q.answer1;
+                    document.getElementById('multi-input-2').value = q.hasThree ? q.answer3 : q.answer2;
+                    document.getElementById('multi-input-3').value = q.result;
+                } else {
+                    document.getElementById('multi-input-1').value = '';
+                    document.getElementById('multi-input-2').value = '';
+                    document.getElementById('multi-input-3').value = '';
+                }
+            } else if (currentLevel === 4) {
+                document.getElementById('text-input-display').style.display = 'block';
+                if (answered) {
+                    document.getElementById('text-answer-input').value = q.answer;
+                    document.getElementById('text-answer-input').className = questionStatus[currentQuestion] === 'correct' ? 'answer-input correct' : 'answer-input incorrect';
+                } else {
+                    document.getElementById('text-answer-input').value = '';
+                    document.getElementById('text-answer-input').className = 'answer-input';
+                }
+            }
+            
+            // Show feedback if already answered
+            if (answered) {
+                showFeedback(questionStatus[currentQuestion] === 'correct');
+            }
+            
+            document.getElementById('check-btn').disabled = answered || (currentLevel === 1);
+            document.getElementById('reveal-btn').disabled = answered;
+            document.getElementById('next-btn').disabled = !answered;
+            
+            updateProgressTracker();
+        }
+
+        function normaliseAnswer(str) {
+            return str.toLowerCase().trim().replace(/[\s,]/g, '');
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+            
+            const q = questions[currentLevel][currentQuestion];
+            let userAnswer;
+            let isCorrect = false;
+            
+            if (currentLevel === 1) {
+                if (!selectedBenchmark) return;
+                
+                // Determine correct answer
+                const correctAnswer = normaliseAnswer(q.answer);
+                const bottomAnswer = normaliseAnswer(q.bottom.toString());
+                const topAnswer = normaliseAnswer(q.top.toString());
+                
+                if (selectedBenchmark === 'bottom') {
+                    isCorrect = correctAnswer === bottomAnswer;
+                } else {
+                    isCorrect = correctAnswer === topAnswer;
+                }
+                
+                // Update button styling
+                const bottomBtn = document.getElementById('bottom-btn');
+                const topBtn = document.getElementById('top-btn');
+                
+                bottomBtn.classList.remove('selected');
+                topBtn.classList.remove('selected');
+                
+                if (correctAnswer === bottomAnswer) {
+                    bottomBtn.classList.add('correct');
+                } else {
+                    topBtn.classList.add('correct');
+                }
+                
+                if (!isCorrect) {
+                    if (selectedBenchmark === 'bottom') {
+                        bottomBtn.classList.add('incorrect');
+                    } else {
+                        topBtn.classList.add('incorrect');
+                    }
+                }
+                
+                bottomBtn.disabled = true;
+                topBtn.disabled = true;
+                
+            } else if (currentLevel === 2) {
+                userAnswer = document.getElementById('answer-input').value.trim();
+                isCorrect = normaliseAnswer(userAnswer) === normaliseAnswer(q.answer);
+                
+                document.getElementById('answer-input').className = isCorrect ? 'answer-input correct' : 'answer-input incorrect';
+            } else if (currentLevel === 3) {
+                const input1 = document.getElementById('multi-input-1').value.trim();
+                const input2 = document.getElementById('multi-input-2').value.trim();
+                const input3 = document.getElementById('multi-input-3').value.trim();
+                
+                if (q.hasThree) {
+                    // For questions with 3 values like $6.15 + $2.85 + $1.10
+                    const answer3 = document.getElementById('multi-input-2').value.trim();
+                    isCorrect = normaliseAnswer(input1) === normaliseAnswer(q.answer1) &&
+                               normaliseAnswer(input2) === normaliseAnswer(q.answer3) &&
+                               normaliseAnswer(input3) === normaliseAnswer(q.result);
+                } else {
+                    isCorrect = normaliseAnswer(input1) === normaliseAnswer(q.answer1) &&
+                               normaliseAnswer(input2) === normaliseAnswer(q.answer2) &&
+                               normaliseAnswer(input3) === normaliseAnswer(q.result);
+                }
+            } else if (currentLevel === 4) {
+                userAnswer = document.getElementById('text-answer-input').value.trim();
+                // For level 4, accept various formats
+                const normalUser = normaliseAnswer(userAnswer);
+                const normalAns = normaliseAnswer(q.answer);
+                
+                // Also accept alternate answers or partial matches
+                isCorrect = normalUser === normalAns || 
+                           userAnswer.toLowerCase().includes(normalAns.substring(0, 3));
+                
+                document.getElementById('text-answer-input').className = isCorrect ? 'answer-input correct' : 'answer-input incorrect';
+            }
+            
+            if (isCorrect) {
+                correctCount++;
+            }
+            attemptedCount++;
+            answered = true;
+            
+            // Record status
+            questionStatus[currentQuestion] = isCorrect ? 'correct' : 'incorrect';
+            
+            showFeedback(isCorrect);
+            updateProgressTracker();
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function revealAnswer() {
+            if (answered) return;
+            
+            const q = questions[currentLevel][currentQuestion];
+            let answerText = '';
+            
+            if (currentLevel === 1) {
+                answerText = `The correct answer is ${q.answer}`;
+                
+                // Highlight correct button
+                const correctAnswer = normaliseAnswer(q.answer);
+                const bottomAnswer = normaliseAnswer(q.bottom.toString());
+                
+                if (correctAnswer === bottomAnswer) {
+                    document.getElementById('bottom-btn').classList.add('correct');
+                } else {
+                    document.getElementById('top-btn').classList.add('correct');
+                }
+                
+                document.getElementById('bottom-btn').disabled = true;
+                document.getElementById('top-btn').disabled = true;
+                
+            } else if (currentLevel === 2) {
+                answerText = `The correct answer is ${q.answer}`;
+                document.getElementById('answer-input').value = q.answer;
+            } else if (currentLevel === 3) {
+                if (q.hasThree) {
+                    answerText = `${q.answer1} + ${q.answer3} + ${q.answer2} = ${q.result}`;
+                } else {
+                    answerText = `${q.answer1} ${q.q.includes('-') ? '-' : q.q.includes('×') || q.q.includes('@') ? '×' : '+'} ${q.answer2} = ${q.result}`;
+                }
+                document.getElementById('multi-input-1').value = q.answer1;
+                document.getElementById('multi-input-2').value = q.hasThree ? q.answer3 : q.answer2;
+                document.getElementById('multi-input-3').value = q.result;
+            } else if (currentLevel === 4) {
+                answerText = `The correct answer is: ${q.answer}`;
+                document.getElementById('text-answer-input').value = q.answer;
+            }
+            
+            answered = true;
+            attemptedCount++;
+            
+            // Record as incorrect when revealed (not answered correctly by student)
+            if (questionStatus[currentQuestion] === null) {
+                questionStatus[currentQuestion] = 'incorrect';
+            }
+            
+            showFeedback(false, answerText);
+            updateProgressTracker();
+            document.getElementById('reveal-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function showFeedback(isCorrect, customText = null) {
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackText = document.getElementById('feedback-text');
+            const q = questions[currentLevel][currentQuestion];
+            
+            feedbackBox.classList.remove('correct', 'incorrect');
+            
+            if (isCorrect) {
+                feedbackBox.classList.add('correct');
+                feedbackTitle.textContent = 'Correct!';
+                feedbackText.textContent = q.explanation || 'Well done!';
+            } else {
+                feedbackBox.classList.add('incorrect');
+                feedbackTitle.textContent = customText ? 'Answer' : 'Not quite';
+                feedbackText.textContent = q.explanation || customText || 'Have another look';
+            }
+            
+            feedbackBox.classList.add('visible');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= questions[currentLevel].length) {
+                showCompletionPage();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function showCompletionPage() {
+            const percentage = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
+            
+            document.getElementById('completion-message').textContent = 
+                `You've completed Level ${currentLevel}: ${levelNames[currentLevel]}`;
+            document.getElementById('score-total').textContent = attemptedCount;
+            document.getElementById('score-correct').textContent = correctCount;
+            document.getElementById('score-percentage').textContent = percentage + '%';
+            
+            showPage('completion-page');
+        }
+
+        // Add enter key support for inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['answer-input', 'text-answer-input', 'multi-input-1', 'multi-input-2', 'multi-input-3'];
+            inputs.forEach(id => {
+                const elem = document.getElementById(id);
+                if (elem) {
+                    elem.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter' && !document.getElementById('check-btn').disabled) {
+                            checkAnswer();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
