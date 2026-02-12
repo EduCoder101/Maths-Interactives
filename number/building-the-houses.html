@@ -645,7 +645,7 @@
             <!-- LANDING PAGE -->
             <div id="landing-page" class="page active">
                 <div style="text-align: right; margin-bottom: 1rem;">
-                    <a href="../index.html" class="home-btn">🏠 All Activities</a>
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
                 </div>
                 <div class="landing-header">
                     <h1>Building the <span>Houses</span></h1>
@@ -697,7 +697,7 @@
                 <div class="question-header">
                     <div style="display: flex; gap: 0.5rem;">
                         <button class="back-btn" onclick="backToLanding()">← Back</button>
-                        <a href="../index.html" class="home-btn">🏠 Home</a>
+                        <a href="index.html" class="home-btn">🏠 Home</a>
                     </div>
                     <div class="question-progress">
                         <span id="current-q">1</span> / <span id="total-q">10</span>
@@ -746,7 +746,7 @@
                 <p>You've mastered this mode!</p>
                 <div class="button-row" style="max-width: 500px; margin: 0 auto;">
                     <button class="btn btn-secondary" onclick="backToLanding()">Choose Another Mode</button>
-                    <a href="../index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                    <a href="index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
                 </div>
             </div>
         </div>
@@ -816,6 +816,8 @@
         let questionStatus = []; // Track: null, "correct", "incorrect"
         let score = 0;
         let hasChecked = false;
+        let isRevisionRound = false;
+        let revisionIndices = [];
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -826,10 +828,11 @@
             const grid = document.getElementById('progress-grid');
             if (!grid) return;
             grid.innerHTML = '';
-            
-            const total = questions[currentLevel] ? questions[currentLevel].length : 20;
-            questionStatus = new Array(total).fill(null);
-            
+            if (!isRevisionRound) {
+                const total = questions[currentMode] ? questions[currentMode].length : 10;
+                questionStatus = new Array(total).fill(null);
+            }
+            const total = isRevisionRound ? revisionIndices.length : (questions[currentMode] ? questions[currentMode].length : 10);
             for (let i = 0; i < total; i++) {
                 const circle = document.createElement('div');
                 circle.className = 'progress-circle';
@@ -842,23 +845,16 @@
         }
 
         function updateProgressTracker() {
-            if (!questionStatus.length) return;
-            
-            for (let i = 0; i < questionStatus.length; i++) {
+            const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
                 const circle = document.getElementById(`progress-${i}`);
                 if (!circle) continue;
-                
+                const actualIndex = isRevisionRound ? revisionIndices[i] : i;
                 circle.classList.remove('current', 'correct', 'incorrect');
-                
-                if (i === currentQuestion) {
-                    circle.classList.add('current');
-                }
-                
-                if (questionStatus[i] === 'correct') {
-                    circle.classList.add('correct');
-                } else if (questionStatus[i] === 'incorrect') {
-                    circle.classList.add('incorrect');
-                }
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
             }
         }
 
@@ -872,6 +868,9 @@
             currentMode = mode;
             currentQuestion = 0;
             score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            createProgressTracker();
             loadQuestion();
             showPage('question-page');
         }
@@ -895,7 +894,8 @@
         }
 
         function loadQuestion() {
-            const q = questions[currentMode][currentQuestion];
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentMode][actualIndex];
             const card = document.getElementById('question-card');
             
             const isStandardToExpanded = currentMode === 'standard-to-expanded';
@@ -919,8 +919,10 @@
                 document.getElementById('answer-input').placeholder = 'e.g., 3,452';
             }
             
-            document.getElementById('question-label').textContent = 
-                `${modeNames[currentMode]} - Question ${currentQuestion + 1}`;
+            const totalInRound = isRevisionRound ? revisionIndices.length : questions[currentMode].length;
+            document.getElementById('question-label').textContent = isRevisionRound 
+                ? `Revision – Question ${currentQuestion + 1} of ${totalInRound}` 
+                : `${modeNames[currentMode]} - Question ${currentQuestion + 1}`;
             
             // Format the problem display
             if (isWordsToExpanded) {
@@ -931,7 +933,7 @@
             document.getElementById('problem-display').textContent = q.problem;
             
             document.getElementById('current-q').textContent = currentQuestion + 1;
-            document.getElementById('total-q').textContent = questions[currentMode].length;
+            document.getElementById('total-q').textContent = totalInRound;
             
             // Reset state
             const input = document.getElementById('answer-input');
@@ -945,14 +947,15 @@
             
             hasChecked = false;
             
+            updateProgressTracker();
             // Focus input
             setTimeout(() => input.focus(), 100);
         }
 
         function checkAnswer() {
             if (hasChecked) return;
-            
-            const q = questions[currentMode][currentQuestion];
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentMode][actualIndex];
             const input = document.getElementById('answer-input');
             
             const isScrambled = currentMode === 'expanded-to-standard-scrambled';
@@ -974,11 +977,13 @@
             
             if (correct) {
                 score++;
+                questionStatus[actualIndex] = 'correct';
                 input.className = 'answer-input correct';
                 feedbackBox.classList.add('correct');
                 feedbackBox.classList.remove('incorrect');
                 feedbackText.textContent = `Perfect! The answer is ${q.answer}`;
             } else {
+                questionStatus[actualIndex] = 'incorrect';
                 input.className = 'answer-input incorrect';
                 feedbackBox.classList.add('incorrect');
                 feedbackBox.classList.remove('correct');
@@ -997,6 +1002,7 @@
                 }
             }
             
+            updateProgressTracker();
             input.disabled = true;
             document.getElementById('check-btn').disabled = true;
             document.getElementById('next-btn').disabled = false;
@@ -1004,15 +1010,40 @@
 
         function nextQuestion() {
             currentQuestion++;
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) {
+                    document.getElementById('completion-message').textContent = 
+                        `Awesome work! You've completed ${modeNames[currentMode]}!`;
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${questions[currentMode].length}`;
+                    showPage('completion-page');
+                } else {
+                    loadQuestion();
+                }
+                return;
+            }
             if (currentQuestion >= questions[currentMode].length) {
-                document.getElementById('completion-message').textContent = 
-                    `Awesome work! You've completed ${modeNames[currentMode]}!`;
-                document.getElementById('final-score').textContent = 
-                    `${score}/${questions[currentMode].length}`;
-                showPage('completion-page');
+                const incorrectIndices = questions[currentMode].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
+                if (incorrectIndices.length === 0) {
+                    document.getElementById('completion-message').textContent = 
+                        `Awesome work! You've completed ${modeNames[currentMode]}!`;
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${questions[currentMode].length}`;
+                    showPage('completion-page');
+                } else {
+                    startRevisionRound(incorrectIndices);
+                }
             } else {
                 loadQuestion();
             }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            createProgressTracker();
+            loadQuestion();
         }
 
         // Allow Enter key to submit

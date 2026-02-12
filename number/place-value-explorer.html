@@ -829,6 +829,8 @@
         let questionStatus = [];
         let selectedPartA = null;
         let selectedPartB = null;
+        let isRevisionRound = false;
+        let revisionIndices = [];
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -840,6 +842,8 @@
             currentQuestion = 0;
             correctCount = 0;
             attemptedCount = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
             createProgressTracker();
             loadQuestion();
             showPage('question-page');
@@ -852,10 +856,10 @@
         function createProgressTracker() {
             const grid = document.getElementById('progress-grid');
             grid.innerHTML = '';
-            
-            const total = questions[currentLevel].length;
-            questionStatus = new Array(total).fill(null);
-            
+            if (!isRevisionRound) {
+                questionStatus = new Array(questions[currentLevel].length).fill(null);
+            }
+            const total = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
             for (let i = 0; i < total; i++) {
                 const circle = document.createElement('div');
                 circle.className = 'progress-circle';
@@ -868,23 +872,16 @@
         }
 
         function updateProgressTracker() {
-            if (!questionStatus.length) return;
-            
-            for (let i = 0; i < questionStatus.length; i++) {
+            const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
                 const circle = document.getElementById(`progress-${i}`);
                 if (!circle) continue;
-                
+                const actualIndex = isRevisionRound ? revisionIndices[i] : i;
                 circle.classList.remove('current', 'correct', 'incorrect');
-                
-                if (i === currentQuestion) {
-                    circle.classList.add('current');
-                }
-                
-                if (questionStatus[i] === 'correct') {
-                    circle.classList.add('correct');
-                } else if (questionStatus[i] === 'incorrect') {
-                    circle.classList.add('incorrect');
-                }
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
             }
         }
 
@@ -894,17 +891,19 @@
         }
 
         function loadQuestion() {
-            answered = questionStatus[currentQuestion] !== null;
-            const q = questions[currentLevel][currentQuestion];
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            answered = !isRevisionRound && questionStatus[actualIndex] !== null;
+            const q = questions[currentLevel][actualIndex];
             const card = document.getElementById('question-card');
             
             card.className = `question-card level-${currentLevel}`;
             
-            document.getElementById('question-label').textContent = `Question ${currentQuestion + 1}`;
+            const totalInRound = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
+            document.getElementById('question-label').textContent = isRevisionRound ? `Revision – Question ${currentQuestion + 1} of ${totalInRound}` : `Question ${currentQuestion + 1}`;
             document.getElementById('question-text').textContent = q.q;
             
             document.getElementById('current-q').textContent = currentQuestion + 1;
-            document.getElementById('total-q').textContent = questions[currentLevel].length;
+            document.getElementById('total-q').textContent = totalInRound;
             
             // Set Part A title based on question type
             const partATitle = document.getElementById('part-a-title');
@@ -984,8 +983,8 @@
 
         function checkAnswer() {
             if (answered || !selectedPartA || !selectedPartB) return;
-            
-            const q = questions[currentLevel][currentQuestion];
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentLevel][actualIndex];
             const correctAnswer = q.questionType === 'smaller' ? q.smaller : q.larger;
             const partACorrect = selectedPartA.trim() === correctAnswer.trim();
             const partBCorrect = selectedPartB.trim() === q.factor.trim();
@@ -1016,7 +1015,7 @@
             attemptedCount++;
             answered = true;
             
-            questionStatus[currentQuestion] = isCorrect ? 'correct' : 'incorrect';
+            questionStatus[actualIndex] = isCorrect ? 'correct' : 'incorrect';
             
             showFeedback(isCorrect);
             updateProgressTracker();
@@ -1046,11 +1045,33 @@
 
         function nextQuestion() {
             currentQuestion++;
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) {
+                    showCompletionPage();
+                } else {
+                    loadQuestion();
+                }
+                return;
+            }
             if (currentQuestion >= questions[currentLevel].length) {
-                showCompletionPage();
+                const incorrectIndices = questions[currentLevel].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
+                if (incorrectIndices.length === 0) {
+                    showCompletionPage();
+                } else {
+                    startRevisionRound(incorrectIndices);
+                }
             } else {
                 loadQuestion();
             }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            document.getElementById('question-label').textContent = `Revision – Question 1 of ${revisionIndices.length}`;
+            createProgressTracker();
+            loadQuestion();
         }
 
         function showCompletionPage() {
