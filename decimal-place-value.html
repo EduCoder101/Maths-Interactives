@@ -95,6 +95,9 @@
         .thousandths-bar .seg:nth-child(10n) { border-right: 1px solid rgba(0,0,0,0.05); }
         .thousandths-bar .seg:nth-child(100n) { border-right: 4px solid rgba(0,0,0,0.2); }
 
+        /* Thousandths use one fill segment (like whole bar) so the fill is visible when adding 0.001 at a time */
+        .thousandths-bar .seg.thousandths-fill.active { min-width: 12px; }
+
         .math-display { 
             font-family: 'Space Mono', monospace; 
             font-size: 3.5rem; 
@@ -207,13 +210,26 @@
     function initBar(id, count) {
         const bar = document.getElementById(id);
         bar.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        for(let i=0; i<count; i++) {
-            const s = document.createElement('div');
-            s.className = 'seg';
-            frag.appendChild(s);
+        if (id === 'b1000') {
+            // Thousandths: one fill segment (like whole bar) so the fill is visible when adding 0.001
+            const fill = document.createElement('div');
+            fill.className = 'seg thousandths-fill';
+            fill.id = 's1000';
+            fill.style.flex = '0';
+            const spacer = document.createElement('div');
+            spacer.className = 'seg';
+            spacer.style.flex = '1000';
+            bar.appendChild(fill);
+            bar.appendChild(spacer);
+        } else {
+            const frag = document.createDocumentFragment();
+            for(let i=0; i<count; i++) {
+                const s = document.createElement('div');
+                s.className = 'seg';
+                frag.appendChild(s);
+            }
+            bar.appendChild(frag);
         }
-        bar.appendChild(frag);
     }
 
     function handleAdd() {
@@ -240,7 +256,16 @@
         // Sub-layers
         if (currentStep >= 2) fillBar('b10', Math.floor(internalVal / 100), 'l10', 10);
         if (currentStep >= 3) fillBar('b100', Math.floor(internalVal / 10), 'l100', 100);
-        if (currentStep >= 4) fillBar('b1000', internalVal, 'l1000', 1000);
+        if (currentStep >= 4) {
+            const fill = document.getElementById('s1000');
+            const spacer = document.getElementById('b1000').querySelector('.seg:not(.thousandths-fill)');
+            if (fill && spacer) {
+                fill.style.flex = String(internalVal);
+                spacer.style.flex = String(1000 - internalVal);
+                fill.classList.toggle('active', internalVal > 0);
+            }
+            document.getElementById('l1000').innerText = `${internalVal} / 1000`;
+        }
     }
 
     function fillBar(id, count, labelId, max) {
