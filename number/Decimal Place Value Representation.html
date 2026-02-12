@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building the Decimals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            /* Gradient Pallette from previous version */
+            --grad-whole: linear-gradient(135deg, #FFD93D, #FF8400);
+            --grad-tenths: linear-gradient(135deg, #FF008E, #FF67E7);
+            --grad-hundreds: linear-gradient(135deg, #00D2FF, #3a7bd5);
+            --grad-thousands: linear-gradient(135deg, #AD1DEB, #6E3AFF);
+        }
+
+        body { 
+            font-family: 'Fredoka', sans-serif; 
+            background: var(--bg-cream); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 2rem; 
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .container { 
+            max-width: 800px; 
+            width: 100%; 
+            background: white; 
+            padding: 2.5rem; 
+            border-radius: 24px; 
+            box-shadow: var(--card-shadow); 
+            text-align: center; 
+        }
+
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+        h1 span { color: var(--primary-accent); }
+        .subtitle { color: var(--text-light); margin-bottom: 2rem; font-weight: 500; }
+
+        .tier { 
+            margin-bottom: 1.5rem; 
+            padding: 1.2rem; 
+            border-radius: 16px; 
+            background: #ffffff; 
+            border: 2px solid #f1f5f9; 
+            display: none; 
+            transition: all 0.4s ease;
+        }
+        .tier.visible { display: block; animation: slideDown 0.4s ease-out; }
+        .tier.goal { display: block; border-color: #FFD93D; background: #fffdf5; }
+        .tier.active-layer { border: 3px solid var(--primary-accent); transform: scale(1.02); }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .label { 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            color: var(--text-light); 
+            text-transform: uppercase; 
+            margin-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+        }
+
+        .bar { 
+            width: 100%; 
+            height: 48px; 
+            background: #f8fafc; 
+            border-radius: 12px; 
+            display: flex; 
+            overflow: hidden; 
+            border: 2px solid #e2e8f0; 
+        }
+
+        .seg { flex: 1; transition: background 0.1s; border-right: 1px solid rgba(0,0,0,0.05); }
+        
+        /* Bar Gradients */
+        .whole-bar .seg.active { background: var(--grad-whole); }
+        .tenths-bar .seg.active { background: var(--grad-tenths); }
+        .hundredths-bar .seg.active { background: var(--grad-hundreds); }
+        .thousandths-bar .seg.active { background: var(--grad-thousands); }
+
+        /* Structural markers */
+        .hundredths-bar .seg:nth-child(10n) { border-right: 3px solid rgba(0,0,0,0.15); }
+        .thousandths-bar .seg:nth-child(10n) { border-right: 1px solid rgba(0,0,0,0.05); }
+        .thousandths-bar .seg:nth-child(100n) { border-right: 4px solid rgba(0,0,0,0.2); }
+
+        .math-display { 
+            font-family: 'Space Mono', monospace; 
+            font-size: 3.5rem; 
+            margin: 1.5rem 0; 
+            font-weight: 700; 
+            color: var(--text-dark);
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 16px;
+        }
+
+        .arrow-text { font-weight: 700; color: #E74C3C; font-size: 0.8rem; letter-spacing: 1px; margin: 10px 0; display: none; }
+        .arrow-text.visible { display: block; }
+
+        .controls { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
+
+        .btn {
+            padding: 1rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-add { background: var(--primary-accent); color: white; }
+        .btn-next { background: #E74C3C; color: white; }
+        .btn-reset { background: #f1f5f9; color: var(--text-light); }
+
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .btn:active { transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="title">Building <span>Decimals</span></h1>
+    <p class="subtitle">Partition the whole into smaller pieces!</p>
+    
+    <div class="tier goal">
+        <div class="label"><span>Master Whole</span> <span id="l1">0.000 / 1.000</span></div>
+        <div class="bar whole-bar"><div id="s-whole" class="seg" style="flex: 0;"></div></div>
+    </div>
+
+    <div id="a1" class="arrow-text">↓ DIVIDE BY 10 ↓</div>
+
+    <div id="t-tenths" class="tier">
+        <div class="label"><span>Tenths (0.1)</span> <span id="l10">0 / 10</span></div>
+        <div class="bar tenths-bar" id="b10"></div>
+    </div>
+
+    <div id="a2" class="arrow-text">↓ DIVIDE BY 10 ↓</div>
+
+    <div id="t-hundreds" class="tier">
+        <div class="label"><span>Hundredths (0.01)</span> <span id="l100">0 / 100</span></div>
+        <div class="bar hundredths-bar" id="b100"></div>
+    </div>
+
+    <div id="a3" class="arrow-text">↓ DIVIDE BY 10 ↓</div>
+
+    <div id="t-thousands" class="tier">
+        <div class="label"><span>Thousandths (0.001)</span> <span id="l1000">0 / 1000</span></div>
+        <div class="bar thousandths-bar" id="b1000"></div>
+    </div>
+
+    <div class="math-display" id="m-total">0.000</div>
+
+    <div class="controls">
+        <button id="btn-add" class="btn btn-add" onclick="handleAdd()">+1 Whole</button>
+        <button id="btn-next" class="btn btn-next" onclick="nextStep()">Divide by 10</button>
+        <button class="btn btn-reset" onclick="location.reload()">Reset</button>
+    </div>
+</div>
+
+<script>
+    // Scale: 1000 = 1 Whole
+    let currentStep = 1;
+    let internalVal = 0;
+
+    function nextStep() {
+        internalVal = 0; // Explicit reset for the "Aha!" moment
+        updateUI();
+
+        if (currentStep === 1) {
+            document.getElementById('a1').classList.add('visible');
+            document.getElementById('t-tenths').classList.add('visible', 'active-layer');
+            document.getElementById('btn-add').innerText = '+1 Tenth (0.1)';
+            currentStep = 2;
+            initBar('b10', 10);
+        } else if (currentStep === 2) {
+            document.getElementById('t-tenths').classList.remove('active-layer');
+            document.getElementById('a2').classList.add('visible');
+            document.getElementById('t-hundreds').classList.add('visible', 'active-layer');
+            document.getElementById('btn-add').innerText = '+1 Hundredth (0.01)';
+            currentStep = 3;
+            initBar('b100', 100);
+        } else if (currentStep === 3) {
+            document.getElementById('t-hundreds').classList.remove('active-layer');
+            document.getElementById('a3').classList.add('visible');
+            document.getElementById('t-thousands').classList.add('visible', 'active-layer');
+            document.getElementById('btn-add').innerText = '+1 Thousandth (0.001)';
+            document.getElementById('btn-next').style.display = 'none';
+            currentStep = 4;
+            initBar('b1000', 1000);
+        }
+    }
+
+    function initBar(id, count) {
+        const bar = document.getElementById(id);
+        bar.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        for(let i=0; i<count; i++) {
+            const s = document.createElement('div');
+            s.className = 'seg';
+            frag.appendChild(s);
+        }
+        bar.appendChild(frag);
+    }
+
+    function handleAdd() {
+        if (internalVal >= 1000) return;
+
+        if (currentStep === 1) internalVal = 1000;
+        else if (currentStep === 2) internalVal += 100;
+        else if (currentStep === 3) internalVal += 10;
+        else if (currentStep === 4) internalVal += 1;
+
+        if (internalVal > 1000) internalVal = 1000;
+        updateUI();
+    }
+
+    function updateUI() {
+        const dec = internalVal / 1000;
+        
+        // Master Whole
+        document.getElementById('s-whole').style.flex = dec;
+        document.getElementById('s-whole').classList.toggle('active', dec > 0);
+        document.getElementById('l1').innerText = `${dec.toFixed(3)} / 1.000`;
+        document.getElementById('m-total').innerText = dec.toFixed(3);
+
+        // Sub-layers
+        if (currentStep >= 2) fillBar('b10', Math.floor(internalVal / 100), 'l10', 10);
+        if (currentStep >= 3) fillBar('b100', Math.floor(internalVal / 10), 'l100', 100);
+        if (currentStep >= 4) fillBar('b1000', internalVal, 'l1000', 1000);
+    }
+
+    function fillBar(id, count, labelId, max) {
+        const segs = document.getElementById(id).children;
+        for(let i=0; i<segs.length; i++) {
+            segs[i].classList.toggle('active', i < count);
+        }
+        document.getElementById(labelId).innerText = `${count} / ${max}`;
+    }
+</script>
+</body>
+</html>
