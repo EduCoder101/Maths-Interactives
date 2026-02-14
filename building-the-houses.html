@@ -624,7 +624,114 @@
             border: 2px solid white;
         }
 
+        /* Worded questions: level colours */
+        .level1-color { --level-accent: #4ECDC4; }
+        .level2-color { --level-accent: #FF6B6B; }
+        .level3-color { --level-accent: #9B5DE5; }
+        .question-card.worded-level-1 { border-top-color: #4ECDC4; }
+        .question-card.worded-level-2 { border-top-color: #FF6B6B; }
+        .question-card.worded-level-3 { border-top-color: #9B5DE5; }
 
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: #4ECDC4; }
+        .level-btn.level-2::before { background: #FF6B6B; }
+        .level-btn.level-3::before { background: #9B5DE5; }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 { font-size: 1.05rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .level-btn p { font-size: 0.85rem; color: var(--text-light); line-height: 1.3; }
+
+        .story-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .step-block {
+            margin-bottom: 1.25rem;
+        }
+
+        .step-block label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .hint-btn {
+            background: #FFF3E0;
+            border: 2px solid #FFB74D;
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .hint-btn:hover { background: #FFE0B2; transform: translateY(-1px); }
+        .hint-btn.revealed { opacity: 0.7; cursor: default; }
+
+        .hint-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .hint-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+        .hint-box strong { display: block; margin-bottom: 0.4rem; color: var(--text-dark); }
+        .hint-box p { margin: 0; font-size: 0.95rem; color: var(--text-dark); }
+
+        .answer-input.step-a { margin-bottom: 0.5rem; }
+        .answer-input.step-b { margin-bottom: 0; }
 
         @media (max-width: 600px) {
             .problem-display {
@@ -689,6 +796,38 @@
                         <h3>Put It Together - Scrambled</h3>
                         <p>Convert scrambled expanded to standard numbers</p>
                     </button>
+                    <button class="mode-card mode1" onclick="showLevelSelect()" style="grid-column: 1 / -1;">
+                        <div class="mode-icon">📝</div>
+                        <h3>Worded Questions</h3>
+                        <p>Two-step word problems across three levels (Working Toward, Working At, Working Beyond)</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- LEVEL SELECT (Worded Questions) -->
+            <div id="level-select-page" class="page">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <button class="back-btn" onclick="backToLanding()">← Back</button>
+                    <a href="index.html" class="home-btn">🏠 Home</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Worded <span>Questions</span></h1>
+                    <p class="subtitle">Choose your level</p>
+                </div>
+                <h2 class="level-section-title">Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="selectWordedLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Working Toward – Hundreds of Thousands</p>
+                    </button>
+                    <button class="level-btn level-2" onclick="selectWordedLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Working At – Millions</p>
+                    </button>
+                    <button class="level-btn level-3" onclick="selectWordedLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Working Beyond – Billions, Trillions &amp; Scrambled</p>
+                    </button>
                 </div>
             </div>
 
@@ -716,11 +855,31 @@
                     <div class="question-label" id="question-label">Question 1</div>
                     <div class="question-text" id="question-text">Convert to expanded form:</div>
                     
-                    <div class="problem-display" id="problem-display"></div>
+                    <!-- Standard (non-worded) question -->
+                    <div id="standard-question-wrap">
+                        <div class="problem-display" id="problem-display"></div>
+                        <div class="answer-input-wrapper">
+                            <label for="answer-input" id="answer-label">Your Answer:</label>
+                            <input type="text" id="answer-input" class="answer-input" placeholder="" autocomplete="off">
+                        </div>
+                    </div>
                     
-                    <div class="answer-input-wrapper">
-                        <label for="answer-input" id="answer-label">Your Answer:</label>
-                        <input type="text" id="answer-input" class="answer-input" placeholder="" autocomplete="off">
+                    <!-- Worded question (two steps + hint) -->
+                    <div id="worded-question-wrap" style="display: none;">
+                        <div class="story-display" id="story-display"></div>
+                        <div class="step-block">
+                            <label id="step-a-label">Step A:</label>
+                            <input type="text" id="answer-step-a" class="answer-input step-a" placeholder="" autocomplete="off">
+                        </div>
+                        <div class="step-block">
+                            <label id="step-b-label">Step B:</label>
+                            <input type="text" id="answer-step-b" class="answer-input step-b" placeholder="" autocomplete="off">
+                        </div>
+                        <button type="button" class="hint-btn" id="hint-btn" onclick="toggleHint()">💡 Hint</button>
+                        <div class="hint-box" id="hint-box">
+                            <strong>Hint</strong>
+                            <p id="hint-text"></p>
+                        </div>
                     </div>
                     
                     <div class="feedback-box" id="feedback-box">
@@ -752,6 +911,7 @@
         </div>
     </div>
 
+    <script src="results-to-sheet.js"></script>
     <script>
         const questions = {
             'standard-to-expanded': [
@@ -804,6 +964,47 @@
             ]
         };
 
+        const wordedQuestions = {
+            1: [
+                { story: "The Great Migration: A swarm of Monarch butterflies travels across North America. Scientists count 304,502 butterflies in one cluster.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Rounding): Round the number of butterflies to the nearest ten-thousand.", answerA: "300,000 + 4,000 + 500 + 2", answerB: "300,000", hint: "For Step B, look at the digit to the right of the ten-thousands place (the 4 in the thousands). Does 4 tell the ten-thousands to \"stay\" or \"round up\"?" },
+                { story: "The Saharan Silver Ant: These ants have tiny hairs to reflect heat. A large colony contains 780,015 ants.", stepA: "Step A: What is the value of the digit in the ten-thousands place?", stepB: "Step B (Renaming): How many hundreds are there in total in the number 780,015? (Ignore the remainder).", answerA: "80000", answerB: "7800", hint: "To find how many hundreds, imagine \"cutting off\" the last two digits (tens and ones). The remaining number is your total hundreds." },
+                { story: "Ancient Bristlecone Pines: One forest contains trees that have survived for a combined 409,008 years.", stepA: "Step A: Write this number in word form.", stepB: "Step B (Powers of 10): If the forest were 10 times larger, how many combined years of tree life would there be?", answerA: "four hundred and nine thousand and eight", answerB: "4090080", hint: "To find 10 times larger, shift every digit one place to the left and add a zero as a placeholder." },
+                { story: "Marine Ecosystems: A local reef has 125,640 individual polyps building the coral structure.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Additive Thinking): How many more polyps are needed to reach exactly 130,000?", answerA: "100,000 + 20,000 + 5,000 + 600 + 40", answerB: "4360", hint: "Subtract your total from 130,000. Use a vertical algorithm to keep your columns aligned!" },
+                { story: "The Amazon Canopy: It is estimated that a single hectare of rainforest contains 562,300 different insects.", stepA: "Step A: Identify the digit in the hundred-thousands place.", stepB: "Step B (Rounding): Round this number to the nearest hundred-thousand.", answerA: "5", answerB: "600000", hint: "Look at the ten-thousands digit (6). Since it is 5 or greater, the hundred-thousands digit rounds up." },
+                { story: "Polar Bear Insulation: A polar bear's coat has roughly 109,204 specialised hollow hairs that trap heat.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Rounding): Round the number of hairs to the nearest hundred.", answerA: "100,000 + 9,000 + 200 + 4", answerB: "109200", hint: "Look at the tens digit. Since it's 0, the hundreds digit stays the same." },
+                { story: "Desert Survival: A large camel can drink enough water to sustain its body for weeks. A conservation group tracks a herd that consumes 113,560 litres over a season.", stepA: "Step A: Write this number in word form.", stepB: "Step B (Renaming): How many tens are there in the total number 113,560?", answerA: "one hundred and thirteen thousand five hundred and sixty", answerB: "11356", hint: "Think about how many tens are in a thousand. If you \"cover\" the ones digit, what number do you see?" },
+                { story: "Penguin Huddling: To adapt to Antarctic cold, thousands of penguins huddle. One massive colony is recorded at 450,089 penguins.", stepA: "Step A: What is the value of the digit 5?", stepB: "Step B (Powers of 10): If the colony split into 10 smaller groups of equal size, how many penguins would be in each group?", answerA: "50000", answerB: "45008", hint: "Dividing by 10 is the opposite of multiplying—shift every digit one place to the right!" },
+                { story: "Dandelion Seed Dispersal: A single field of dandelions can release 200,705 seeds into the wind.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Additive): How many more seeds are needed to reach exactly 210,000?", answerA: "200,000 + 700 + 5", answerB: "9295", hint: "Try counting on from 200,705. How many to reach 201,000? Then how many more to 210,000?" },
+                { story: "Woodpecker Adaptations: A woodpecker's skull is adapted to absorb shock. Over its lifetime, a single bird might peck a tree 682,030 times.", stepA: "Step A: Write this number in standard form.", stepB: "Step B (Rounding): Round this number to the nearest hundred-thousand.", answerA: "682030", answerB: "700000", hint: "The hundred-thousands place is 6. The digit to its right is 8. Should the 6 stay or go up?" }
+            ],
+            2: [
+                { story: "Krill Populations: In the Southern Ocean, a single \"super-swarm\" of krill contains 4,208,090 individuals.", stepA: "Step A: Write the total number of krill in standard form.", stepB: "Step B (Renaming): How many thousands are in this entire number?", answerA: "4208090", answerB: "4208", hint: "Thousands have three zeros. Hide the \"ones period\" (the last three digits) to see how many whole thousands you have." },
+                { story: "Bison on the Plains: Before the 1800s, approximately six million, fifty thousand, and four bison roamed North America.", stepA: "Step A: Write this number in standard form.", stepB: "Step B (Multiplicative Thinking): If a drought caused the population to become one-tenth of its original size, what would the new population be?", answerA: "6050004", answerB: "605000", hint: "Moving a digit one place to the right makes it 10 times smaller." },
+                { story: "The Giant Sequoia: A mature forest of these giants is estimated to have 9,245,100 cones across all trees.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Rounding): Round the number of cones to the nearest million.", answerA: "9,000,000 + 200,000 + 40,000 + 5,000 + 100", answerB: "9000000", hint: "Look at the hundred-thousands place (2). Does 2 round the millions up or stay?" },
+                { story: "Bacterial Adaptation: In one gram of healthy soil, there are roughly 7,030,500 bacteria working to decompose organic matter.", stepA: "Step A: What is the place value of the digit 3?", stepB: "Step B (Renaming): Rename this number as a combination of millions and thousands (e.g., ___ millions and ___ thousands).", answerA: "ten-thousands", answerB: "7 millions and 30 thousands", hint: "Break the number at the comma. What is the value on the left? What is the value in the middle?" },
+                { story: "Plankton Bloom: A satellite captures a plankton bloom covering a massive area. They estimate there are 15,000,000 organisms per square kilometre.", stepA: "Step A: Write this number in word form.", stepB: "Step B (Powers of 10): How many organisms would be in an area 100 times larger?", answerA: "fifteen million", answerB: "1500000000", hint: "100 times larger means shifting two places to the left. Add two zeros!" },
+                { story: "Red Crab Migration: On Christmas Island, millions of crabs migrate to the sea. One season, the count is 54,000,200.", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Renaming): How many ten-thousands are in this entire number?", answerA: "54000200", answerB: "5400", hint: "A ten-thousand has four zeros. Cover the last four digits of your number to find the answer." },
+                { story: "Elephant Communication: In a vast sanctuary, researchers estimate there are 38,050,600 distinct calls recorded in a year.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Powers of 10): If the number of calls decreased by 1/10th, how many calls would be expected?", answerA: "30,000,000 + 8,000,000 + 50,000 + 600", answerB: "3805060", hint: "When digits move one place to the right (1/10th), the zero placeholders shift too." },
+                { story: "Deep Sea Pressure: The total biomass of a deep-sea trench is estimated at one hundred and two million, five thousand, and forty kilograms.", stepA: "Step A: Write this in standard form.", stepB: "Step B (Rounding): Round the biomass to the nearest ten-million.", answerA: "102005040", answerB: "100000000", hint: "Rounding to the ten-millions? Look at the millions place (2)." },
+                { story: "Bat Colony Appetite: A colony of bats eats 25,600,000 insects per night.", stepA: "Step A: What is the place value of the digit 5?", stepB: "Step B (Renaming): How many hundreds are in 25,600,000?", answerA: "millions", answerB: "256000", hint: "There are 100 hundreds in ten-thousand. Try hiding the last two zeros of the total." },
+                { story: "Whale Migration Routes: Scientists track a total of 12,000,000 collective kilometres for a specific pod over a decade.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Powers of 10): If there were 100 times as many whales in the pod, how many kilometres would they travel in total?", answerA: "10,000,000 + 2,000,000", answerB: "1200000000", hint: "To multiply by 100, the \"12\" moves from the Millions period into the Billions period." }
+            ],
+            3: [
+                { story: "Human Microbiome: A scientist counts 60,000,000 + 5,000,000,000,000 + 200 bacteria (scrambled expanded form).", stepA: "Step A (Scrambled): Write the total number of bacteria in standard form.", stepB: "Step B (Renaming): How many billions are in this number?", answerA: "5000060000200", answerB: "5000", hint: "Be careful with the \"empty\" places! If there are no millions or thousands mentioned, use zeros as placeholders." },
+                { story: "The Global Seed Vault: The count is 900,000 (temperate seeds) and 4,000,000,000 (tropical seeds).", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Rounding): Round this total to the nearest ten-million.", answerA: "4000900000", answerB: "4000000000", hint: "The ten-millions place is 0. The digit to its right is 0. Everything stays small!" },
+                { story: "Deep Sea Life: In the \"Midnight Zone\" of the ocean, researchers estimate there are 800,000,000,000 (800 billion) organisms.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Powers of 10): If there are 1,000 times fewer organisms than thought, what is the corrected number?", answerA: "800,000,000,000", answerB: "800000000", hint: "1,000 times smaller means shifting three places to the right (or removing three zeros)." },
+                { story: "Insect Biomass: A subset: 500,000 (Beetles) + 20,000,000,000,000 (Ants) + 7,000 (Spiders). Write this scrambled total in standard form.", stepA: "Step A: Write this scrambled total in standard form.", stepB: "Step B (Renaming): How many millions are in this total?", answerA: "20000000507000", answerB: "20000000", hint: "Align these vertically before adding: 20,000,000,000,000 + 500,000 + 7,000." },
+                { story: "Evolutionary Timeline: Imagine a timeline representing 4,500,600,050 years.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Additive Thinking): How many more years would need to pass to reach exactly 5 billion?", answerA: "4,000,000,000 + 500,000,000 + 600,000 + 50", answerB: "499399950", hint: "Subtracting from a \"clean\" number like 5 billion requires renaming (regrouping). Try subtracting from 4,999,999,999 and adding 1 back at the end!" },
+                { story: "Rainforest Canopy: The \"messy\" count of leaves is: 45 hundreds, 12 millions, and 6 trillions.", stepA: "Step A: Write this total in standard form.", stepB: "Step B (Rounding): Round this number to the nearest billion.", answerA: "6000012004500", answerB: "6000000000000", hint: "\"45 hundreds\" is 4,500. Write that first, then fill in the millions and trillions." },
+                { story: "Genetic Adaptations: A tissue sample might have 300 million + 27 tens + 5 trillions (scrambled).", stepA: "Step A: Write this scrambled total in standard form.", stepB: "Step B (Renaming): How many millions are contained within this total number?", answerA: "5000300000270", answerB: "5000300", hint: "\"27 tens\" is 270. Millions start at the 7th digit from the right." },
+                { story: "The Observable Universe: There are roughly 200 billion + 15 thousands + 80 trillions stars in the observable range.", stepA: "Step A: Write this total in standard form.", stepB: "Step B (Powers of 10): What is 1/100th of this number?", answerA: "80200000015000", answerB: "802000000150", hint: "\"15 thousands\" is 15,000. When dividing by 100, every digit moves two places to the right." },
+                { story: "Global Fish Populations: A global estimate is 35 hundred-thousands + 12 billions + 4 ones.", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Additive): How much more is needed to reach the next trillion?", answerA: "12003500004", answerB: "987996499996", hint: "\"35 hundred-thousands\" is 35 × 100,000 = 3,500,000." },
+                { story: "Oceanic Microbes: A sample contains 150 thousands + 90 trillions + 400 millions.", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Rounding): Round this number to the nearest trillion.", answerA: "90000400150000", answerB: "90000000000000", hint: "Standard form first! 90,000,000,000,000 + 400,000,000 + 150,000. The 4 in the hundred-millions is too small to round the trillion up." }
+            ]
+        };
+
+        const wordedLevelNames = { 1: 'Level 1 – Working Toward', 2: 'Level 2 – Working At', 3: 'Level 3 – Working Beyond' };
+
         const modeNames = {
             'standard-to-expanded': 'Break It Apart',
             'words-to-expanded': 'Scrambled Word Order',
@@ -818,21 +1019,43 @@
         let hasChecked = false;
         let isRevisionRound = false;
         let revisionIndices = [];
+        let wordedLevel = 0; // 1, 2, or 3 when in worded mode
+
+        function isWordedMode() {
+            return currentMode === 'worded-1' || currentMode === 'worded-2' || currentMode === 'worded-3';
+        }
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
         }
 
+        function showLevelSelect() {
+            showPage('level-select-page');
+        }
+
+        function selectWordedLevel(level) {
+            wordedLevel = level;
+            currentMode = 'worded-' + level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
         function createProgressTracker() {
             const grid = document.getElementById('progress-grid');
             if (!grid) return;
             grid.innerHTML = '';
+            const total = isWordedMode()
+                ? (wordedQuestions[wordedLevel] ? wordedQuestions[wordedLevel].length : 10)
+                : (isRevisionRound ? revisionIndices.length : (questions[currentMode] ? questions[currentMode].length : 10));
             if (!isRevisionRound) {
-                const total = questions[currentMode] ? questions[currentMode].length : 10;
                 questionStatus = new Array(total).fill(null);
             }
-            const total = isRevisionRound ? revisionIndices.length : (questions[currentMode] ? questions[currentMode].length : 10);
             for (let i = 0; i < total; i++) {
                 const circle = document.createElement('div');
                 circle.className = 'progress-circle';
@@ -893,10 +1116,75 @@
             }
         }
 
+        function normalizeWordedAnswer(s) {
+            if (typeof s !== 'string') return '';
+            return s.replace(/\s+/g, ' ').trim().toLowerCase().replace(/,/g, '').replace(/\s+/g, ' ');
+        }
+
+        function wordedAnswerMatch(user, correct) {
+            const u = normalizeWordedAnswer(user);
+            const c = normalizeWordedAnswer(correct);
+            if (u === c) return true;
+            // Also match if numeric and same when compared as numbers (e.g. 300000 vs 300,000)
+            const un = u.replace(/\s/g, '');
+            const cn = c.replace(/\s/g, '');
+            if (un === cn) return true;
+            const numU = parseFloat(un);
+            const numC = parseFloat(cn);
+            if (!isNaN(numU) && !isNaN(numC) && numU === numC) return true;
+            return false;
+        }
+
+        function toggleHint() {
+            const box = document.getElementById('hint-box');
+            const btn = document.getElementById('hint-btn');
+            box.classList.toggle('visible');
+            btn.classList.add('revealed');
+            btn.textContent = '💡 Hint (shown)';
+        }
+
         function loadQuestion() {
             const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
-            const q = questions[currentMode][actualIndex];
             const card = document.getElementById('question-card');
+            
+            if (isWordedMode()) {
+                const list = wordedQuestions[wordedLevel];
+                const q = list[actualIndex];
+                document.getElementById('standard-question-wrap').style.display = 'none';
+                document.getElementById('worded-question-wrap').style.display = 'block';
+                card.className = 'question-card worded-level-' + wordedLevel;
+                document.getElementById('question-text').style.display = 'none';
+                document.getElementById('question-label').textContent = wordedLevelNames[wordedLevel] + ' – Question ' + (currentQuestion + 1) + ' of ' + list.length;
+                document.getElementById('story-display').textContent = q.story;
+                document.getElementById('step-a-label').textContent = q.stepA;
+                document.getElementById('step-b-label').textContent = q.stepB;
+                document.getElementById('hint-text').textContent = q.hint;
+                document.getElementById('current-q').textContent = currentQuestion + 1;
+                document.getElementById('total-q').textContent = list.length;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.value = '';
+                inputB.value = '';
+                inputA.className = 'answer-input step-a';
+                inputB.className = 'answer-input step-b';
+                inputA.disabled = false;
+                inputB.disabled = false;
+                document.getElementById('hint-box').classList.remove('visible');
+                document.getElementById('hint-btn').classList.remove('revealed');
+                document.getElementById('hint-btn').textContent = '💡 Hint';
+                document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+                document.getElementById('check-btn').disabled = false;
+                document.getElementById('next-btn').disabled = true;
+                hasChecked = false;
+                updateProgressTracker();
+                setTimeout(() => inputA.focus(), 100);
+                return;
+            }
+            
+            const q = questions[currentMode][actualIndex];
+            document.getElementById('standard-question-wrap').style.display = 'block';
+            document.getElementById('worded-question-wrap').style.display = 'none';
+            document.getElementById('question-text').style.display = 'block';
             
             const isStandardToExpanded = currentMode === 'standard-to-expanded';
             const isWordsToExpanded = currentMode === 'words-to-expanded';
@@ -955,6 +1243,45 @@
         function checkAnswer() {
             if (hasChecked) return;
             const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            
+            if (isWordedMode()) {
+                const q = wordedQuestions[wordedLevel][actualIndex];
+                const userA = (document.getElementById('answer-step-a').value || '').trim();
+                const userB = (document.getElementById('answer-step-b').value || '').trim();
+                const correctA = wordedAnswerMatch(userA, q.answerA);
+                const correctB = wordedAnswerMatch(userB, q.answerB);
+                const bothCorrect = correctA && correctB;
+                hasChecked = true;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.className = 'answer-input step-a ' + (correctA ? 'correct' : 'incorrect');
+                inputB.className = 'answer-input step-b ' + (correctB ? 'correct' : 'incorrect');
+                inputA.disabled = true;
+                inputB.disabled = true;
+                const feedbackBox = document.getElementById('feedback-box');
+                const feedbackText = document.getElementById('feedback-text');
+                feedbackBox.classList.add('visible');
+                if (bothCorrect) {
+                    score++;
+                    questionStatus[actualIndex] = 'correct';
+                    feedbackBox.classList.add('correct');
+                    feedbackBox.classList.remove('incorrect');
+                    feedbackText.textContent = 'Both steps correct! Well done.';
+                } else {
+                    questionStatus[actualIndex] = 'incorrect';
+                    feedbackBox.classList.add('incorrect');
+                    feedbackBox.classList.remove('correct');
+                    const parts = [];
+                    if (!correctA) parts.push('Step A: ' + q.answerA);
+                    if (!correctB) parts.push('Step B: ' + q.answerB);
+                    feedbackText.textContent = 'Not quite. Correct answers: ' + parts.join(' | ');
+                }
+                updateProgressTracker();
+                document.getElementById('check-btn').disabled = true;
+                document.getElementById('next-btn').disabled = false;
+                return;
+            }
+            
             const q = questions[currentMode][actualIndex];
             const input = document.getElementById('answer-input');
             
@@ -1016,19 +1343,38 @@
                         `Awesome work! You've completed ${modeNames[currentMode]}!`;
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentMode].length}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('building-the-houses', 'Building the Houses', score, questions[currentMode].length, modeNames[currentMode]);
+                    }
                     showPage('completion-page');
                 } else {
                     loadQuestion();
                 }
                 return;
             }
-            if (currentQuestion >= questions[currentMode].length) {
+            if (isWordedMode() && currentQuestion >= wordedQuestions[wordedLevel].length) {
+                const total = wordedQuestions[wordedLevel].length;
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed ${wordedLevelNames[wordedLevel]}!`;
+                document.getElementById('final-score').textContent = `${score}/${total}`;
+                if (typeof submitResult === 'function') {
+                    submitResult('building-the-houses', 'Building the Houses', score, total, wordedLevelNames[wordedLevel]);
+                }
+                showPage('completion-page');
+                return;
+            }
+            if (!isWordedMode() && currentQuestion >= questions[currentMode].length) {
                 const incorrectIndices = questions[currentMode].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
                 if (incorrectIndices.length === 0) {
+                    const total = questions[currentMode].length;
+                    const modeLabel = modeNames[currentMode];
                     document.getElementById('completion-message').textContent = 
-                        `Awesome work! You've completed ${modeNames[currentMode]}!`;
+                        `Awesome work! You've completed ${modeLabel}!`;
                     document.getElementById('final-score').textContent = 
-                        `${score}/${questions[currentMode].length}`;
+                        `${score}/${total}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('building-the-houses', 'Building the Houses', score, total, modeLabel);
+                    }
                     showPage('completion-page');
                 } else {
                     startRevisionRound(incorrectIndices);
@@ -1054,6 +1400,16 @@
                 } else if (e.key === 'Enter' && hasChecked) {
                     nextQuestion();
                 }
+            });
+            ['answer-step-a', 'answer-step-b'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !hasChecked) {
+                        checkAnswer();
+                    } else if (e.key === 'Enter' && hasChecked) {
+                        nextQuestion();
+                    }
+                });
             });
         });
     </script>
