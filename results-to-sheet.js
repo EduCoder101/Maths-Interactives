@@ -9,9 +9,11 @@ var RESULTS_SECRET_KEY = ''; // optional; leave '' if you don't use a secret in 
 function submitResult(activityId, activityName, score, total, modeOrLevel) {
   if (!RESULTS_SCRIPT_URL) return;
   var studentName = sessionStorage.getItem('maths_interactives_student_name') || 'Anonymous';
+  var studentClass = sessionStorage.getItem('maths_interactives_student_class') || '';
   var payload = {
     timestamp: new Date().toISOString(),
     studentName: studentName,
+    studentClass: studentClass,
     activityId: activityId,
     activityName: activityName,
     modeOrLevel: modeOrLevel || '',
@@ -19,10 +21,11 @@ function submitResult(activityId, activityName, score, total, modeOrLevel) {
     total: total
   };
   if (RESULTS_SECRET_KEY) payload.secret = RESULTS_SECRET_KEY;
+  // Use text/plain to avoid CORS preflight (Apps Script still parses JSON from body)
   fetch(RESULTS_SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
-  }).catch(function () { /* no-cors hides response; fire-and-forget */ });
+  }).catch(function () { /* fire-and-forget */ });
 }
