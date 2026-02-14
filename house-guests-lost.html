@@ -703,6 +703,59 @@
             border: 2px solid white;
         }
 
+        .progress-circle.partial {
+            background: #F4C430;
+            border-color: #F4C430;
+            color: white;
+        }
+
+        .story-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .step-block { margin-bottom: 1.25rem; }
+        .step-block label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .hint-btn {
+            background: #FFF3E0;
+            border: 2px solid #FFB74D;
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .hint-btn:hover { background: #FFE0B2; transform: translateY(-1px); }
+        .hint-btn.revealed { opacity: 0.7; cursor: default; }
+
+        .hint-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+        .hint-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+        .hint-box strong { display: block; margin-bottom: 0.4rem; color: var(--text-dark); }
+        .hint-box p { margin: 0; font-size: 0.95rem; color: var(--text-dark); }
+
     </style>
 </head>
 <body>
@@ -765,6 +818,41 @@
                             <span>20 questions</span>
                         </div>
                     </button>
+                    <button class="level-btn level-1" onclick="showWordedLevelSelect()" style="grid-column: 1 / -1;">
+                        <h3>📝 Worded Questions</h3>
+                        <p>Two-step word problems with hints (Level 1, 2 or 3)</p>
+                        <div class="level-meta">
+                            <span>10 questions per level</span>
+                            <span>2 marks per question</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- WORDED LEVEL SELECT -->
+            <div id="worded-level-select-page" class="page">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <button class="back-btn" onclick="backToLanding()">← Back</button>
+                    <a href="index.html" class="home-btn">🏠 Home</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Worded <span>Questions</span></h1>
+                    <p class="subtitle">House Guests Lost – choose your level</p>
+                </div>
+                <h2 class="level-section-title">Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="selectWordedLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Working Toward – Hundreds of Thousands</p>
+                    </button>
+                    <button class="level-btn level-2" onclick="selectWordedLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Working At – Millions</p>
+                    </button>
+                    <button class="level-btn level-3" onclick="selectWordedLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Working Beyond – Billions, Trillions &amp; Messy</p>
+                    </button>
                 </div>
             </div>
 
@@ -790,18 +878,35 @@
 
                 <div id="question-card" class="question-card">
                     <div class="question-label" id="question-label">Question 1</div>
-                    <div class="question-text">Drag the lost house guests to their correct houses!</div>
+                    <div class="question-text" id="question-text">Drag the lost house guests to their correct houses!</div>
                     
-                    <div class="guests-pool">
-                        <div class="pool-label">🏃 Lost House Guests:</div>
-                        <div class="guests-container" id="guests-pool"></div>
+                    <div id="standard-question-wrap">
+                        <div class="guests-pool">
+                            <div class="pool-label">🏃 Lost House Guests:</div>
+                            <div class="guests-container" id="guests-pool"></div>
+                        </div>
+                        <div class="houses-grid" id="houses-grid"></div>
+                        <div class="answer-section">
+                            <div class="answer-label">What's the secret number?</div>
+                            <input type="text" id="answer-input" class="answer-input" placeholder="Enter the number with commas..." autocomplete="off">
+                        </div>
                     </div>
 
-                    <div class="houses-grid" id="houses-grid"></div>
-                    
-                    <div class="answer-section">
-                        <div class="answer-label">What's the secret number?</div>
-                        <input type="text" id="answer-input" class="answer-input" placeholder="Enter the number with commas..." autocomplete="off">
+                    <div id="worded-question-wrap" style="display: none;">
+                        <div class="story-display" id="story-display"></div>
+                        <div class="step-block">
+                            <label id="step-a-label">Step A:</label>
+                            <input type="text" id="answer-step-a" class="answer-input" placeholder="" autocomplete="off">
+                        </div>
+                        <div class="step-block">
+                            <label id="step-b-label">Step B:</label>
+                            <input type="text" id="answer-step-b" class="answer-input" placeholder="" autocomplete="off">
+                        </div>
+                        <button type="button" class="hint-btn" id="hint-btn" onclick="toggleHint()">💡 Hint</button>
+                        <div class="hint-box" id="hint-box">
+                            <strong>Hint</strong>
+                            <p id="hint-text"></p>
+                        </div>
                     </div>
                     
                     <div class="feedback-box" id="feedback-box">
@@ -823,7 +928,7 @@
                 <h2 id="completion-message">Awesome work!</h2>
                 <div class="score-display">
                     <div class="score-number" id="final-score">0/20</div>
-                    <div class="score-label">Correct Answers</div>
+                    <div class="score-label" id="score-label">Correct Answers</div>
                 </div>
                 <p>You've mastered this level!</p>
                 <div class="button-row" style="max-width: 500px; margin: 0 auto;">
@@ -834,6 +939,7 @@
         </div>
     </div>
 
+    <script src="results-to-sheet.js?v=2"></script>
     <script>
         const questions = {
             1: [ // Level 1: Millions & Thousands
@@ -910,7 +1016,50 @@
             3: "The Grandmaster Jumble"
         };
 
+        const wordedQuestions = {
+            1: [
+                { title: "The Mystery Migration", stepA: "A 5-digit number. Thousands digit is 8. Hundreds digit is half the thousands. Ones digit is 3 more than the hundreds. All other digits are 0.", stepB: "Round to the nearest ten-thousand.", answerA: "8407", answerB: "10000", hint: "Start with the thousands digit (8). Half of 8 is 4, and 3 more than 4 is 7." },
+                { title: "The Hidden Hive", stepA: "A 6-digit number. Hundred-thousands digit is 2. Ten-thousands digit is triple the hundred-thousands. Hundreds digit is half the ten-thousands. All other digits are 5.", stepB: "How many tens are in this number?", answerA: "263355", answerB: "26335", hint: "Multiply 2 by 3 to get the ten-thousands. Half of 6 is 3. Fill the rest with 5s." },
+                { title: "The Ancient Turtle", stepA: "A 6-digit number. Ones digit is 9. Tens digit is 6. Thousands digit is the difference between the ones and tens. All other digits are 1.", stepB: "What is 10 times this number?", answerA: "113169", answerB: "1131690", hint: "Subtract 6 from 9 to find the thousands digit." },
+                { title: "Cactus Water Storage", stepA: "A 5-digit number. Ten-thousands digit is 4. Thousands digit is double the ten-thousands. Ones digit is the sum of the ten-thousands and thousands. All other digits are 0.", stepB: "Round to the nearest thousand.", answerA: "48012", answerB: "48000", hint: "Double 4 is 8. The sum of 4 and 8 is 12, but since 12 is two digits, the 2 stays in the ones and the 1 carries to the tens!" },
+                { title: "Snow Leopard Camouflage", stepA: "A 6-digit number. Hundred-thousands digit is 7. Thousands digit is 7 less than that. Tens digit is 9. All other digits are 2.", stepB: "How many hundreds are in this number?", answerA: "720292", answerB: "7202", hint: "7 minus 7 is 0. Put 9 in the tens and 2s everywhere else." },
+                { title: "Whale Song Frequency", stepA: "A 6-digit number. Hundred-thousands digit is 3. Hundreds digit is double that. Ones digit is half the hundreds. All other digits are 0.", stepB: "Round to the nearest ten-thousand.", answerA: "300603", answerB: "300000", hint: "Double 3 is 6. Half of 6 is 3." },
+                { title: "Seed Dispersal", stepA: "A 5-digit number. Thousands digit is 7. Tens digit is 2 less than that. Ones digit is 1. All other digits are 4.", stepB: "How many hundreds are in this number?", answerA: "47451", answerB: "474", hint: "7 minus 2 is 5. Put 5 in the tens and 1 in the ones." },
+                { title: "Elephant Herd Memory", stepA: "A 5-digit number. Ten-thousands digit is 1. Thousands digit is 9. Hundreds digit is the difference between the thousands and ten-thousands. All other digits are 0.", stepB: "What is 10 times this number?", answerA: "19800", answerB: "198000", hint: "9 minus 1 is 8. Put 8 in the hundreds." },
+                { title: "Antarctic Ice Depth", stepA: "A 6-digit number. Hundred-thousands digit is 5. Tens digit is double that. All other digits are 3.", stepB: "Round to the nearest hundred.", answerA: "533403", answerB: "533400", hint: "\"Double 5\" is 10. The 0 stays in the tens, and the 1 carries to the hundreds!" },
+                { title: "Fungi Networks", stepA: "A 6-digit number. Ten-thousands digit is 6. Thousands digit is half that. Ones digit is one-third the thousands. All other digits are 0.", stepB: "How many tens are in this total?", answerA: "63001", answerB: "6300", hint: "Half of 6 is 3. One-third of 3 is 1." }
+            ],
+            2: [
+                { title: "Blue Whale's Heartbeat", stepA: "A 7-digit number. Millions digit is 3. Thousands digit is double the millions. Tens digit is half the thousands. All other digits are 0.", stepB: "How many ten-thousands are in this number?", answerA: "3006030", answerB: "300", hint: "Double 3 is 6. Half of 6 is 3." },
+                { title: "Amazon Tree Count", stepA: "An 8-digit number. Ten-millions digit is 5. Millions digit is 2 less than that. Thousands digit is the sum of those two digits. All other digits are 4.", stepB: "Round to the nearest million.", answerA: "53008444", answerB: "53000000", hint: "5 minus 2 is 3. 5 plus 3 is 8." },
+                { title: "Deep Sea Bioluminescence", stepA: "A 7-digit number. Millions digit is 1. Hundred-thousands digit is 9. Ones digit is one-third of the hundred-thousands. All other digits are 0.", stepB: "What is one-tenth (1/10) of this number?", answerA: "1900003", answerB: "190000.3", hint: "One-third of 9 is 3." },
+                { title: "The Ant Bridge", stepA: "A 7-digit number. Millions digit is 4. Hundreds digit is 4. Tens digit is double the hundreds. Thousands digit is half the millions. All other digits are 1.", stepB: "Rename as a combination of millions and thousands.", answerA: "4102481", answerB: "4 millions and 102 thousands", hint: "Half of 4 is 2. Double 4 is 8." },
+                { title: "Coral Reef Polyps", stepA: "An 8-digit number. Ten-millions digit is 2. Millions digit is triple that. Thousands digit is 1. Hundreds digit is double the thousands. All other digits are 0.", stepB: "Round to the nearest hundred-thousand.", answerA: "26001200", answerB: "26000000", hint: "Triple 2 is 6. Double 1 is 2." },
+                { title: "Plankton Density", stepA: "A 7-digit number. Millions digit is 8. Thousands digit is half that. Hundreds digit is half the thousands. All other digits are 5.", stepB: "Round to the nearest million.", answerA: "8554255", answerB: "9000000", hint: "Half of 8 is 4. Half of 4 is 2." },
+                { title: "Tree Leaf Photosynthesis", stepA: "An 8-digit number. Ten-millions digit is 4. Millions digit is double that. Hundreds digit is 1/4 of the millions digit. All other digits are 0.", stepB: "What is one-tenth (1/10) of this number?", answerA: "48000200", answerB: "4800020", hint: "Double 4 is 8. 1/4 of 8 is 2." },
+                { title: "Great Barrier Reef Life", stepA: "A 7-digit number. Millions digit is 2. Thousands digit is triple that. Tens digit is 9. All other digits are 1.", stepB: "How many ten-thousands are in this number?", answerA: "2106191", answerB: "210", hint: "Triple 2 is 6." },
+                { title: "Amazon Rainfall", stepA: "An 8-digit number. Ten-millions digit is 9. Millions digit is one-third of that. Thousands digit is half the millions (regroup). All other digits are 0.", stepB: "Round to the nearest ten-million.", answerA: "93001500", answerB: "90000000", hint: "1/3 of 9 is 3. Half of 3 is 1.5. Since we use whole digits, use 1 in the thousands and 5 in the hundreds!" },
+                { title: "Migration Path", stepA: "A 7-digit number. Millions digit is 5. Hundred-thousands digit is 4. Tens digit is the sum of those two. All other digits are 2.", stepB: "What is 100 times this number?", answerA: "5422292", answerB: "542229200", hint: "5 plus 4 is 9." }
+            ],
+            3: [
+                { title: "The Bacteria Colony", stepA: "A 13-digit number. Trillions digit is 5. Hundreds digit is 15. Millions digit is double the trillions. All other digits are 0.", stepB: "How many millions are in this total?", answerA: "5000010001500", answerB: "5000010", hint: "\"15 hundreds\" is actually 1 thousand and 5 hundreds. Double 5 is 10, which carries to the ten-millions!" },
+                { title: "Star Systems", stepA: "A 10-digit number. Billions digit is 1. Ten-thousands digit is 12. Ones digit is half of 12 (6). All other digits are 0.", stepB: "Round to the nearest billion.", answerA: "1000120006", answerB: "1000000000", hint: "\"12 ten-thousands\" is 1 hundred-thousand and 2 ten-thousands." },
+                { title: "DNA Sequences", stepA: "A 13-digit number. Trillions digit is 8. Millions digit is half that (4). Thousands digit is 25. All other digits are 0.", stepB: "What is 100 times this number?", answerA: "8000004025000", answerB: "800000402500000", hint: "\"25 thousands\" is 2 ten-thousands and 5 thousands." },
+                { title: "Oceanic Water Drops", stepA: "A 14-digit number. Ten-trillions digit is 2. Billions digit is 4. Hundred-thousands digit is 40. Ones digit is half of 4. All other digits are 0.", stepB: "How much more to reach the next trillion?", answerA: "20004004000002", answerB: "995995999998", hint: "\"40 hundred-thousands\" is exactly 4 millions." },
+                { title: "The Insect Empire", stepA: "A 13-digit number. Trillions digit is 9. Millions digit is one-third of that. Hundreds digit is 22. All other digits are 1.", stepB: "How many billions are in this number?", answerA: "9001003113311", answerB: "9001", hint: "\"22 hundreds\" is 2 thousands and 2 hundreds. One-third of 9 is 3." },
+                { title: "Global Carbon Cycle", stepA: "A 13-digit number. Trillions digit is 4. Millions digit is 22. Thousands digit is half of 22 (11). All other digits are 0.", stepB: "Round to the nearest billion.", answerA: "4000022011000", answerB: "4000000000000", hint: "\"22 millions\" means 2 in the ten-millions and 2 in the millions." },
+                { title: "Soil Microbes", stepA: "A 14-digit number. Ten-trillions digit is 7. Billions digit is 14. Hundreds digit is 5. All other digits are 0.", stepB: "How many millions are in this number?", answerA: "70014000000500", answerB: "70014000", hint: "\"14 billions\" is 1 ten-billion and 4 billions." },
+                { title: "Insect Population", stepA: "A 13-digit number. Trillions digit is 1. Billions digit is triple that. Millions digit is 45. Ones digit is 9. All other digits are 0.", stepB: "What is 1/100th of this number?", answerA: "1003045000009", answerB: "10030450000.09", hint: "\"45 millions\" is 4 ten-millions and 5 millions." },
+                { title: "Deep Sea Biomass", stepA: "A 15-digit number. Hundred-trillions digit is 3. Trillions digit is 15. Ten-billions digit is half of the hundred-trillions. All other digits are 0.", stepB: "How much more to reach the next quadrillion?", answerA: "315015000000000", answerB: "684985000000000", hint: "\"15 trillions\" carries 1 into the ten-trillions. Half of 3 is 1.5 (use 1 in the ten-billions and 5 in the billions)." },
+                { title: "Atmospheric Molecules", stepA: "A 13-digit number. Trillions digit is 6. Billions digit is one-third of that. Hundred-thousands digit is 12. All other digits are 8.", stepB: "Round to the nearest trillion.", answerA: "6002128888888", answerB: "6000000000000", hint: "\"12 hundred-thousands\" is 1 million and 2 hundred-thousands." }
+            ]
+        };
+
+        const wordedLevelNames = { 1: "Level 1 – Working Toward", 2: "Level 2 – Working At", 3: "Level 3 – Working Beyond" };
+
         let currentLevel = 1;
+        let isWordedMode = false;
+        let wordedLevel = 0;
         let currentQuestion = 0;
         let questionStatus = []; // Track: null, "correct", "incorrect"
         let score = 0;
@@ -924,15 +1073,59 @@
             document.getElementById(pageId).classList.add('active');
         }
 
+        function showWordedLevelSelect() {
+            showPage('worded-level-select-page');
+        }
+
+        function selectWordedLevel(level) {
+            isWordedMode = true;
+            wordedLevel = level;
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function normalizeWordedAnswer(s) {
+            if (typeof s !== 'string') return '';
+            return s.replace(/\s+/g, ' ').trim().toLowerCase().replace(/,/g, '').replace(/\s+/g, ' ');
+        }
+
+        function wordedAnswerMatch(user, correct) {
+            const u = normalizeWordedAnswer(user);
+            const c = normalizeWordedAnswer(correct);
+            if (u === c) return true;
+            const un = u.replace(/\s/g, '');
+            const cn = c.replace(/\s/g, '');
+            if (un === cn) return true;
+            const numU = parseFloat(un);
+            const numC = parseFloat(cn);
+            if (!isNaN(numU) && !isNaN(numC) && Math.abs(numU - numC) < 0.0001) return true;
+            return false;
+        }
+
+        function toggleHint() {
+            const box = document.getElementById('hint-box');
+            const btn = document.getElementById('hint-btn');
+            box.classList.toggle('visible');
+            btn.classList.add('revealed');
+            btn.textContent = box.classList.contains('visible') ? '💡 Hint (shown)' : '💡 Hint';
+        }
+
         function createProgressTracker() {
             const grid = document.getElementById('progress-grid');
             if (!grid) return;
             grid.innerHTML = '';
+            const total = isWordedMode
+                ? (wordedQuestions[wordedLevel] ? wordedQuestions[wordedLevel].length : 10)
+                : (isRevisionRound ? revisionIndices.length : (questions[currentLevel] ? questions[currentLevel].length : 20));
             if (!isRevisionRound) {
-                const total = questions[currentLevel] ? questions[currentLevel].length : 20;
                 questionStatus = new Array(total).fill(null);
             }
-            const total = isRevisionRound ? revisionIndices.length : (questions[currentLevel] ? questions[currentLevel].length : 20);
             for (let i = 0; i < total; i++) {
                 const circle = document.createElement('div');
                 circle.className = 'progress-circle';
@@ -951,9 +1144,10 @@
                 const circle = document.getElementById(`progress-${i}`);
                 if (!circle) continue;
                 const actualIndex = isRevisionRound ? revisionIndices[i] : i;
-                circle.classList.remove('current', 'correct', 'incorrect');
+                circle.classList.remove('current', 'correct', 'incorrect', 'partial');
                 if (i === currentQuestion) circle.classList.add('current');
                 if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'partial') circle.classList.add('partial');
                 else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
             }
         }
@@ -965,6 +1159,7 @@
 
 
         function startLevel(level) {
+            isWordedMode = false;
             currentLevel = level;
             currentQuestion = 0;
             score = 0;
@@ -981,8 +1176,48 @@
 
         function loadQuestion() {
             const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
-            const q = questions[currentLevel][actualIndex];
             const card = document.getElementById('question-card');
+            
+            if (isWordedMode) {
+                const list = wordedQuestions[wordedLevel];
+                const q = list[actualIndex];
+                document.getElementById('standard-question-wrap').style.display = 'none';
+                document.getElementById('worded-question-wrap').style.display = 'block';
+                document.getElementById('reset-btn').style.display = 'none';
+                card.className = 'question-card level-' + wordedLevel;
+                document.getElementById('question-text').style.display = 'none';
+                document.getElementById('question-label').textContent = wordedLevelNames[wordedLevel] + ' – Question ' + (currentQuestion + 1) + ' of ' + list.length;
+                document.getElementById('story-display').textContent = q.title + '. ' + q.stepA;
+                document.getElementById('step-a-label').textContent = 'Step A (your number):';
+                document.getElementById('step-b-label').textContent = 'Step B: ' + q.stepB;
+                document.getElementById('hint-text').textContent = q.hint;
+                document.getElementById('current-q').textContent = currentQuestion + 1;
+                document.getElementById('total-q').textContent = list.length;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.value = '';
+                inputB.value = '';
+                inputA.className = 'answer-input';
+                inputB.className = 'answer-input';
+                inputA.disabled = false;
+                inputB.disabled = false;
+                document.getElementById('hint-box').classList.remove('visible');
+                document.getElementById('hint-btn').classList.remove('revealed');
+                document.getElementById('hint-btn').textContent = '💡 Hint';
+                document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+                document.getElementById('check-btn').disabled = false;
+                document.getElementById('next-btn').disabled = true;
+                hasChecked = false;
+                updateProgressTracker();
+                setTimeout(() => inputA.focus(), 100);
+                return;
+            }
+            
+            document.getElementById('standard-question-wrap').style.display = 'block';
+            document.getElementById('worded-question-wrap').style.display = 'none';
+            document.getElementById('reset-btn').style.display = '';
+            document.getElementById('question-text').style.display = 'block';
+            const q = questions[currentLevel][actualIndex];
             
             card.className = `question-card level-${currentLevel}`;
             
@@ -994,7 +1229,6 @@
             document.getElementById('current-q').textContent = currentQuestion + 1;
             document.getElementById('total-q').textContent = totalInRound;
             
-            // Reset state
             const input = document.getElementById('answer-input');
             input.value = '';
             input.className = 'answer-input';
@@ -1112,6 +1346,46 @@
         function checkAnswer() {
             if (hasChecked) return;
             const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            
+            if (isWordedMode) {
+                const q = wordedQuestions[wordedLevel][actualIndex];
+                const userA = (document.getElementById('answer-step-a').value || '').trim();
+                const userB = (document.getElementById('answer-step-b').value || '').trim();
+                const correctA = wordedAnswerMatch(userA, q.answerA);
+                const correctB = wordedAnswerMatch(userB, q.answerB);
+                const marks = (correctA ? 1 : 0) + (correctB ? 1 : 0);
+                score += marks;
+                hasChecked = true;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.className = 'answer-input ' + (correctA ? 'correct' : 'incorrect');
+                inputB.className = 'answer-input ' + (correctB ? 'correct' : 'incorrect');
+                inputA.disabled = true;
+                inputB.disabled = true;
+                if (marks === 2) questionStatus[actualIndex] = 'correct';
+                else if (marks === 1) questionStatus[actualIndex] = 'partial';
+                else questionStatus[actualIndex] = 'incorrect';
+                const feedbackBox = document.getElementById('feedback-box');
+                const feedbackText = document.getElementById('feedback-text');
+                feedbackBox.classList.add('visible');
+                if (marks === 2) {
+                    feedbackBox.classList.add('correct');
+                    feedbackBox.classList.remove('incorrect');
+                    feedbackText.textContent = 'Both steps correct! You got 2 out of 2 marks. Well done.';
+                } else {
+                    feedbackBox.classList.add('incorrect');
+                    feedbackBox.classList.remove('correct');
+                    const parts = [];
+                    if (!correctA) parts.push('Step A: ' + q.answerA);
+                    if (!correctB) parts.push('Step B: ' + q.answerB);
+                    feedbackText.textContent = 'You got ' + marks + ' out of 2 marks for this question. Correct answers for the part(s) you missed: ' + parts.join(' | ');
+                }
+                updateProgressTracker();
+                document.getElementById('check-btn').disabled = true;
+                document.getElementById('next-btn').disabled = false;
+                return;
+            }
+            
             const q = questions[currentLevel][actualIndex];
             const input = document.getElementById('answer-input');
             const userAnswer = input.value.replace(/,/g, '').replace(/\s/g, '').trim();
@@ -1149,23 +1423,44 @@
             currentQuestion++;
             if (isRevisionRound) {
                 if (currentQuestion >= revisionIndices.length) {
+                    document.getElementById('score-label').textContent = 'Correct Answers';
                     document.getElementById('completion-message').textContent = 
                         `Awesome work! You've completed ${levelNames[currentLevel]}!`;
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('house-guests-lost', 'House Guests Lost!', score, questions[currentLevel].length, levelNames[currentLevel]);
+                    }
                     showPage('completion-page');
                 } else {
                     loadQuestion();
                 }
                 return;
             }
-            if (currentQuestion >= questions[currentLevel].length) {
+            if (isWordedMode && currentQuestion >= wordedQuestions[wordedLevel].length) {
+                const numQuestions = wordedQuestions[wordedLevel].length;
+                const totalMarks = numQuestions * 2;
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed ${wordedLevelNames[wordedLevel]}!`;
+                document.getElementById('final-score').textContent = `${score}/${totalMarks}`;
+                document.getElementById('score-label').textContent = 'Marks (2 per question)';
+                if (typeof submitResult === 'function') {
+                    submitResult('house-guests-lost', 'House Guests Lost!', score, totalMarks, wordedLevelNames[wordedLevel]);
+                }
+                showPage('completion-page');
+                return;
+            }
+            if (!isWordedMode && currentQuestion >= questions[currentLevel].length) {
                 const incorrectIndices = questions[currentLevel].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
                 if (incorrectIndices.length === 0) {
+                    document.getElementById('score-label').textContent = 'Correct Answers';
                     document.getElementById('completion-message').textContent = 
                         `Awesome work! You've completed ${levelNames[currentLevel]}!`;
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('house-guests-lost', 'House Guests Lost!', score, questions[currentLevel].length, levelNames[currentLevel]);
+                    }
                     showPage('completion-page');
                 } else {
                     startRevisionRound(incorrectIndices);
@@ -1191,6 +1486,16 @@
                 } else if (e.key === 'Enter' && hasChecked) {
                     nextQuestion();
                 }
+            });
+            ['answer-step-a', 'answer-step-b'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !hasChecked) {
+                        checkAnswer();
+                    } else if (e.key === 'Enter' && hasChecked) {
+                        nextQuestion();
+                    }
+                });
             });
         });
     </script>
