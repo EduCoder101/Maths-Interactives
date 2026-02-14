@@ -284,14 +284,25 @@
             font-family: inherit;
             font-weight: 600;
             cursor: pointer;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.2s, transform 0.1s;
         }
         .student-name-row button:hover {
             opacity: 0.9;
+        }
+        .student-name-row button:active {
+            transform: scale(0.98);
         }
         .student-name-hint {
             font-size: 0.75rem;
             color: var(--text-light);
             margin: 0;
+            min-height: 1.25em;
+        }
+        .student-name-hint.saved-confirm {
+            color: #27AE60;
+            font-weight: 500;
         }
         footer {
             text-align: center;
@@ -335,7 +346,7 @@
                     </select>
                     <button type="button" id="student-name-save">Save</button>
                 </div>
-                <p class="student-name-hint" id="student-name-hint">Saved for this session. You can change and save again anytime.</p>
+                <p class="student-name-hint" id="student-name-hint" role="status" aria-live="polite">Click Save to remember your name and class for this session.</p>
             </div>
         </header>
 
@@ -510,12 +521,22 @@
             var saveBtn = document.getElementById('student-name-save');
             if (sessionStorage.getItem(NAME_KEY)) input.value = sessionStorage.getItem(NAME_KEY);
             if (sessionStorage.getItem(CLASS_KEY)) select.value = sessionStorage.getItem(CLASS_KEY);
+            var hintEl = document.getElementById('student-name-hint');
+            var savedMessage = 'Saved! Your name and class will be used when you complete activities.';
+
             saveBtn.addEventListener('click', function () {
                 var name = (input.value || '').trim();
                 var cls = (select.value || '').trim();
                 sessionStorage.setItem(NAME_KEY, name || '');
                 sessionStorage.setItem(CLASS_KEY, cls || '');
                 input.value = name;
+
+                hintEl.textContent = savedMessage;
+                hintEl.classList.add('saved-confirm');
+                setTimeout(function () {
+                    hintEl.textContent = 'Saved for this session. You can change and save again anytime.';
+                    hintEl.classList.remove('saved-confirm');
+                }, 3000);
             });
         })();
     </script>

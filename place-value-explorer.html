@@ -761,11 +761,13 @@
                     <span class="score-value" id="score-percentage">0%</span>
                 </div>
             </div>
+            <p class="result-sent-msg" id="result-sent-msg" style="display: none; font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">Your result has been sent to your teacher.</p>
 
             <button class="btn btn-primary" onclick="goToLanding()" style="max-width: 300px; margin: 0 auto; display: block;">Choose Another Level</button>
         </div>
     </div>
 
+    <script src="results-to-sheet.js?v=2"></script>
     <script>
         const questions = {
             1: [
@@ -1089,8 +1091,30 @@
             document.getElementById('score-correct').textContent = correctCount;
             document.getElementById('score-percentage').textContent = percentage + '%';
             
+            if (typeof submitResult === 'function') {
+                submitResult('place-value-explorer', 'Place Value Explorer', correctCount, questions[currentLevel].length, levelNames[currentLevel]);
+                var sentMsg = document.getElementById('result-sent-msg');
+                if (sentMsg) sentMsg.style.display = 'block';
+            }
             showPage('completion-page');
         }
+
+        // Allow Enter key to submit: always trigger the visible primary button (Check or Next)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
     </script>
 </body>
 </html>

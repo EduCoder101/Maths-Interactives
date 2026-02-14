@@ -624,6 +624,12 @@
             border: 2px solid white;
         }
 
+        .progress-circle.partial {
+            background: #F4C430;
+            border-color: #F4C430;
+            color: white;
+        }
+
         /* Worded questions: level colours */
         .level1-color { --level-accent: #4ECDC4; }
         .level2-color { --level-accent: #FF6B6B; }
@@ -900,7 +906,7 @@
                 <h2 id="completion-message">Awesome work!</h2>
                 <div class="score-display">
                     <div class="score-number" id="final-score">0/10</div>
-                    <div class="score-label">Correct Answers</div>
+                    <div class="score-label" id="score-label">Correct Answers</div>
                 </div>
                 <p>You've mastered this mode!</p>
                 <div class="button-row" style="max-width: 500px; margin: 0 auto;">
@@ -911,7 +917,7 @@
         </div>
     </div>
 
-    <script src="results-to-sheet.js"></script>
+    <script src="results-to-sheet.js?v=2"></script>
     <script>
         const questions = {
             'standard-to-expanded': [
@@ -1074,9 +1080,10 @@
                 const circle = document.getElementById(`progress-${i}`);
                 if (!circle) continue;
                 const actualIndex = isRevisionRound ? revisionIndices[i] : i;
-                circle.classList.remove('current', 'correct', 'incorrect');
+                circle.classList.remove('current', 'correct', 'incorrect', 'partial');
                 if (i === currentQuestion) circle.classList.add('current');
                 if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'partial') circle.classList.add('partial');
                 else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
             }
         }
@@ -1250,7 +1257,8 @@
                 const userB = (document.getElementById('answer-step-b').value || '').trim();
                 const correctA = wordedAnswerMatch(userA, q.answerA);
                 const correctB = wordedAnswerMatch(userB, q.answerB);
-                const bothCorrect = correctA && correctB;
+                const marks = (correctA ? 1 : 0) + (correctB ? 1 : 0);
+                score += marks;
                 hasChecked = true;
                 const inputA = document.getElementById('answer-step-a');
                 const inputB = document.getElementById('answer-step-b');
@@ -1258,23 +1266,23 @@
                 inputB.className = 'answer-input step-b ' + (correctB ? 'correct' : 'incorrect');
                 inputA.disabled = true;
                 inputB.disabled = true;
+                if (marks === 2) questionStatus[actualIndex] = 'correct';
+                else if (marks === 1) questionStatus[actualIndex] = 'partial';
+                else questionStatus[actualIndex] = 'incorrect';
                 const feedbackBox = document.getElementById('feedback-box');
                 const feedbackText = document.getElementById('feedback-text');
                 feedbackBox.classList.add('visible');
-                if (bothCorrect) {
-                    score++;
-                    questionStatus[actualIndex] = 'correct';
+                if (marks === 2) {
                     feedbackBox.classList.add('correct');
                     feedbackBox.classList.remove('incorrect');
-                    feedbackText.textContent = 'Both steps correct! Well done.';
+                    feedbackText.textContent = 'Both steps correct! You got 2 out of 2 marks. Well done.';
                 } else {
-                    questionStatus[actualIndex] = 'incorrect';
                     feedbackBox.classList.add('incorrect');
                     feedbackBox.classList.remove('correct');
                     const parts = [];
                     if (!correctA) parts.push('Step A: ' + q.answerA);
-                    if (!correctB) parts.push('Step B: ' + q.answerB);
-                    feedbackText.textContent = 'Not quite. Correct answers: ' + parts.join(' | ');
+                    if (!correctB) parts.push('Step B: ' + q.answerB');
+                    feedbackText.textContent = 'You got ' + marks + ' out of 2 marks for this question. Correct answers for the part(s) you missed: ' + parts.join(' | ');
                 }
                 updateProgressTracker();
                 document.getElementById('check-btn').disabled = true;
@@ -1339,6 +1347,7 @@
             currentQuestion++;
             if (isRevisionRound) {
                 if (currentQuestion >= revisionIndices.length) {
+                    document.getElementById('score-label').textContent = 'Correct Answers';
                     document.getElementById('completion-message').textContent = 
                         `Awesome work! You've completed ${modeNames[currentMode]}!`;
                     document.getElementById('final-score').textContent = 
@@ -1353,12 +1362,14 @@
                 return;
             }
             if (isWordedMode() && currentQuestion >= wordedQuestions[wordedLevel].length) {
-                const total = wordedQuestions[wordedLevel].length;
+                const numQuestions = wordedQuestions[wordedLevel].length;
+                const totalMarks = numQuestions * 2;
                 document.getElementById('completion-message').textContent = 
                     `Awesome work! You've completed ${wordedLevelNames[wordedLevel]}!`;
-                document.getElementById('final-score').textContent = `${score}/${total}`;
+                document.getElementById('final-score').textContent = `${score}/${totalMarks}`;
+                document.getElementById('score-label').textContent = 'Marks (2 per question)';
                 if (typeof submitResult === 'function') {
-                    submitResult('building-the-houses', 'Building the Houses', score, total, wordedLevelNames[wordedLevel]);
+                    submitResult('building-the-houses', 'Building the Houses', score, totalMarks, wordedLevelNames[wordedLevel]);
                 }
                 showPage('completion-page');
                 return;
@@ -1368,6 +1379,7 @@
                 if (incorrectIndices.length === 0) {
                     const total = questions[currentMode].length;
                     const modeLabel = modeNames[currentMode];
+                    document.getElementById('score-label').textContent = 'Correct Answers';
                     document.getElementById('completion-message').textContent = 
                         `Awesome work! You've completed ${modeLabel}!`;
                     document.getElementById('final-score').textContent = 
@@ -1392,24 +1404,20 @@
             loadQuestion();
         }
 
-        // Allow Enter key to submit
+        // Allow Enter key to submit: always trigger the visible primary button (Check or Next)
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('answer-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !hasChecked) {
-                    checkAnswer();
-                } else if (e.key === 'Enter' && hasChecked) {
-                    nextQuestion();
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
                 }
-            });
-            ['answer-step-a', 'answer-step-b'].forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter' && !hasChecked) {
-                        checkAnswer();
-                    } else if (e.key === 'Enter' && hasChecked) {
-                        nextQuestion();
-                    }
-                });
             });
         });
     </script>

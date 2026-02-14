@@ -798,6 +798,7 @@
         </div>
     </div>
 
+    <script src="results-to-sheet.js?v=2"></script>
     <script>
         const questions = {
             0: [
@@ -1021,6 +1022,9 @@
                         `Awesome work! You've completed ${levelNames[currentLevel]}!`;
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('house-guest-word-sort', 'House Guest Word Sort', score, questions[currentLevel].length, levelNames[currentLevel]);
+                    }
                     showPage('completion-page');
                 } else {
                     loadQuestion();
@@ -1034,6 +1038,9 @@
                         `Awesome work! You've completed ${levelNames[currentLevel]}!`;
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('house-guest-word-sort', 'House Guest Word Sort', score, questions[currentLevel].length, levelNames[currentLevel]);
+                    }
                     showPage('completion-page');
                 } else {
                     startRevisionRound(incorrectIndices);
@@ -1051,13 +1058,19 @@
             loadQuestion();
         }
 
-        // Allow Enter key to submit
+        // Allow Enter key to submit: always trigger the visible primary button (Check or Next)
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('answer-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !hasChecked) {
-                    checkAnswer();
-                } else if (e.key === 'Enter' && hasChecked) {
-                    nextQuestion();
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
                 }
             });
         });

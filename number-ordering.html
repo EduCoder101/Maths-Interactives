@@ -1015,6 +1015,7 @@
         </div>
     </div>
 
+    <script src="results-to-sheet.js?v=2"></script>
     <script>
         const questions = {
             ascending: {
@@ -1391,6 +1392,9 @@
                         `Awesome work! You've completed Level ${currentLevel}: ${levelNames[currentLevel]} (${modeText})`;
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentMode][currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('number-ordering', 'Number Ordering Detective', score, questions[currentMode][currentLevel].length, 'Level ' + currentLevel + ': ' + levelNames[currentLevel] + ' (' + modeText + ')');
+                    }
                     showPage('completion-page');
                 } else {
                     loadQuestion();
@@ -1405,6 +1409,9 @@
                         `Awesome work! You've completed Level ${currentLevel}: ${levelNames[currentLevel]} (${modeText})`;
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentMode][currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        submitResult('number-ordering', 'Number Ordering Detective', score, questions[currentMode][currentLevel].length, 'Level ' + currentLevel + ': ' + levelNames[currentLevel] + ' (' + modeText + ')');
+                    }
                     showPage('completion-page');
                 } else {
                     startRevisionRound(incorrectIndices);
@@ -1421,6 +1428,23 @@
             createProgressTracker();
             loadQuestion();
         }
+
+        // Allow Enter key to submit: always trigger the visible primary button (Check or Next)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
     </script>
 </body>
 </html>
