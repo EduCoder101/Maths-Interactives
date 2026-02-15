@@ -829,6 +829,7 @@
         let attemptedCount = 0;
         let answered = false;
         let questionStatus = [];
+        let initialQuestionResult = [];
         let selectedPartA = null;
         let selectedPartB = null;
         let isRevisionRound = false;
@@ -860,6 +861,7 @@
             grid.innerHTML = '';
             if (!isRevisionRound) {
                 questionStatus = new Array(questions[currentLevel].length).fill(null);
+                initialQuestionResult = new Array(questions[currentLevel].length).fill(null);
             }
             const total = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
             for (let i = 0; i < total; i++) {
@@ -1018,6 +1020,9 @@
             answered = true;
             
             questionStatus[actualIndex] = isCorrect ? 'correct' : 'incorrect';
+            if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                initialQuestionResult[actualIndex] = isCorrect ? 'correct' : 'incorrect';
+            }
             
             showFeedback(isCorrect);
             updateProgressTracker();
@@ -1092,8 +1097,9 @@
             document.getElementById('score-percentage').textContent = percentage + '%';
             
             if (typeof submitResult === 'function') {
-                var qData = typeof buildQuestionData === 'function' ? buildQuestionData(questionStatus, questions[currentLevel].length) : [];
-                submitResult('place-value-explorer', 'Place Value Explorer', correctCount, questions[currentLevel].length, levelNames[currentLevel], qData);
+                var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                submitResult('place-value-explorer', 'Place Value Explorer', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
                 var sentMsg = document.getElementById('result-sent-msg');
                 if (sentMsg) sentMsg.style.display = 'block';
             }

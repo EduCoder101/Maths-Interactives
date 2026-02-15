@@ -853,6 +853,7 @@
         let currentLevel = 1;
         let currentQuestion = 0;
         let questionStatus = []; // Track: null, "correct", "incorrect"
+        let initialQuestionResult = [];
         let score = 0;
         let hasChecked = false;
         let isRevisionRound = false;
@@ -870,6 +871,7 @@
             if (!isRevisionRound) {
                 const total = questions[currentLevel] ? questions[currentLevel].length : 8;
                 questionStatus = new Array(total).fill(null);
+                initialQuestionResult = new Array(total).fill(null);
             }
             const total = isRevisionRound ? revisionIndices.length : (questions[currentLevel] ? questions[currentLevel].length : 8);
             for (let i = 0; i < total; i++) {
@@ -970,12 +972,18 @@
             if (correct) {
                 score++;
                 questionStatus[actualIndex] = 'correct';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'correct';
+                }
                 input.className = 'answer-input correct';
                 feedbackBox.classList.add('correct');
                 feedbackBox.classList.remove('incorrect');
                 feedbackText.textContent = `Perfect! The answer is ${q.answer.toLocaleString()}`;
             } else {
                 questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
                 input.className = 'answer-input incorrect';
                 feedbackBox.classList.add('incorrect');
                 feedbackBox.classList.remove('correct');
@@ -1023,8 +1031,9 @@
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentLevel].length}`;
                     if (typeof submitResult === 'function') {
-                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(questionStatus, questions[currentLevel].length) : [];
-                        submitResult('house-guest-word-sort', 'House Guest Word Sort', score, questions[currentLevel].length, levelNames[currentLevel], qData);
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                        submitResult('house-guest-word-sort', 'House Guest Word Sort', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
                     }
                     showPage('completion-page');
                 } else {
@@ -1040,8 +1049,9 @@
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentLevel].length}`;
                     if (typeof submitResult === 'function') {
-                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(questionStatus, questions[currentLevel].length) : [];
-                        submitResult('house-guest-word-sort', 'House Guest Word Sort', score, questions[currentLevel].length, levelNames[currentLevel], qData);
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                        submitResult('house-guest-word-sort', 'House Guest Word Sort', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
                     }
                     showPage('completion-page');
                 } else {

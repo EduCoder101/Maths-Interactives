@@ -1021,6 +1021,7 @@
         let currentMode = 'standard-to-expanded';
         let currentQuestion = 0;
         let questionStatus = []; // Track: null, "correct", "incorrect"
+        let initialQuestionResult = [];
         let score = 0;
         let hasChecked = false;
         let isRevisionRound = false;
@@ -1061,6 +1062,7 @@
                 : (isRevisionRound ? revisionIndices.length : (questions[currentMode] ? questions[currentMode].length : 10));
             if (!isRevisionRound) {
                 questionStatus = new Array(total).fill(null);
+                initialQuestionResult = new Array(total).fill(null);
             }
             for (let i = 0; i < total; i++) {
                 const circle = document.createElement('div');
@@ -1269,6 +1271,9 @@
                 if (marks === 2) questionStatus[actualIndex] = 'correct';
                 else if (marks === 1) questionStatus[actualIndex] = 'partial';
                 else questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = questionStatus[actualIndex];
+                }
                 const feedbackBox = document.getElementById('feedback-box');
                 const feedbackText = document.getElementById('feedback-text');
                 feedbackBox.classList.add('visible');
@@ -1313,12 +1318,18 @@
             if (correct) {
                 score++;
                 questionStatus[actualIndex] = 'correct';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'correct';
+                }
                 input.className = 'answer-input correct';
                 feedbackBox.classList.add('correct');
                 feedbackBox.classList.remove('incorrect');
                 feedbackText.textContent = `Perfect! The answer is ${q.answer}`;
             } else {
                 questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
                 input.className = 'answer-input incorrect';
                 feedbackBox.classList.add('incorrect');
                 feedbackBox.classList.remove('correct');
@@ -1353,8 +1364,9 @@
                     document.getElementById('final-score').textContent = 
                         `${score}/${questions[currentMode].length}`;
                     if (typeof submitResult === 'function') {
-                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(questionStatus, questions[currentMode].length) : [];
-                        submitResult('building-the-houses', 'Building the Houses', score, questions[currentMode].length, modeNames[currentMode], qData);
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentMode].length) : [];
+                        submitResult('building-the-houses', 'Building the Houses', initialScore, questions[currentMode].length, modeNames[currentMode], qData);
                     }
                     showPage('completion-page');
                 } else {
@@ -1370,8 +1382,9 @@
                 document.getElementById('final-score').textContent = `${score}/${totalMarks}`;
                 document.getElementById('score-label').textContent = 'Marks (2 per question)';
                 if (typeof submitResult === 'function') {
-                    var qData = typeof buildQuestionData === 'function' ? buildQuestionData(questionStatus, numQuestions) : [];
-                    submitResult('building-the-houses', 'Building the Houses', score, totalMarks, wordedLevelNames[wordedLevel], qData);
+                    var initialScore = initialQuestionResult.reduce(function (sum, s) { return sum + (s === 'correct' ? 2 : s === 'partial' ? 1 : 0); }, 0);
+                    var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, numQuestions) : [];
+                    submitResult('building-the-houses', 'Building the Houses', initialScore, totalMarks, wordedLevelNames[wordedLevel], qData);
                 }
                 showPage('completion-page');
                 return;
@@ -1387,8 +1400,9 @@
                     document.getElementById('final-score').textContent = 
                         `${score}/${total}`;
                     if (typeof submitResult === 'function') {
-                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(questionStatus, total) : [];
-                        submitResult('building-the-houses', 'Building the Houses', score, total, modeLabel, qData);
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, total) : [];
+                        submitResult('building-the-houses', 'Building the Houses', initialScore, total, modeLabel, qData);
                     }
                     showPage('completion-page');
                 } else {
