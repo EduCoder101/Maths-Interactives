@@ -7,13 +7,35 @@ var RESULTS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzCYPoI84V9jq
 var RESULTS_SECRET_KEY = ''; // optional; leave '' if you don't use a secret in Apps Script
 
 /**
+ * Build per-question data for analytics (which questions were right/wrong).
+ * Use this so you can analyse student and cohort performance over time.
+ * @param {Array<string|null>} questionStatus - Same array used for the progress circles: null, 'correct', 'incorrect', or 'partial'.
+ * @param {number} [total] - Total questions in the set (defaults to questionStatus.length).
+ * @returns {Array<{q: number, correct: boolean, result: string}>} One entry per question: q = 1-based index, correct = true/false, result = 'correct'|'incorrect'|'partial'|'unanswered'.
+ */
+function buildQuestionData(questionStatus, total) {
+  var len = total != null ? total : (questionStatus ? questionStatus.length : 0);
+  if (!len) return [];
+  var out = [];
+  for (var i = 0; i < len; i++) {
+    var s = questionStatus[i];
+    out.push({
+      q: i + 1,
+      correct: s === 'correct',
+      result: s || 'unanswered'
+    });
+  }
+  return out;
+}
+
+/**
  * Submit a result to the Google Sheet.
  * @param {string} activityId - Internal id (e.g. 'building-the-houses').
  * @param {string} activityName - Display name; used as the sheet tab name (e.g. 'Building the Houses', 'Place Value Explorer').
  * @param {number} score - Correct answers / marks.
  * @param {number} total - Total questions or marks.
  * @param {string} [modeOrLevel] - Level or mode label (e.g. 'Thousands House', 'Level 1').
- * @param {Array} [questionData] - Optional array of per-question data for the spreadsheet.
+ * @param {Array} [questionData] - Optional array of per-question data: [{ q: 1, correct: true, result: 'correct' }, ...]. Use buildQuestionData(questionStatus, total) to build from your progress array.
  */
 function submitResult(activityId, activityName, score, total, modeOrLevel, questionData) {
   if (!RESULTS_SCRIPT_URL) return;
