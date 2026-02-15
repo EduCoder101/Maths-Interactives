@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maths Interactives — Results Analyser</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 1rem 2rem; max-width: 1200px; }
+    h1 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+    .sheet-select { margin-bottom: 1.5rem; }
+    .sheet-select label { margin-right: 0.5rem; }
+    .sheet-select select { padding: 0.35rem 0.75rem; font-size: 1rem; min-width: 220px; }
+    .summary-bar { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 0.75rem 1rem; background: #f0f0f0; border-radius: 6px; margin-bottom: 1rem; }
+    .summary-bar span { font-weight: 500; }
+    .results-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .results-table th, .results-table td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid #ddd; }
+    .results-table th { background: #e8e8e8; font-weight: 600; cursor: pointer; user-select: none; }
+    .results-table th:hover { background: #ddd; }
+    .results-table th.sort-asc::after { content: " \u25B2"; font-size: 0.7em; }
+    .results-table th.sort-desc::after { content: " \u25BC"; font-size: 0.7em; }
+    .pill { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 999px; font-weight: 500; font-size: 0.9em; }
+    .pill-green { background: #c8e6c9; color: #1b5e20; }
+    .pill-amber { background: #ffe0b2; color: #e65100; }
+    .pill-red { background: #ffcdd2; color: #b71c1c; }
+    .message { padding: 1rem; color: #666; }
+    .error { color: #b71c1c; }
+    .setup-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+    .setup-box label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
+    .setup-box input { width: 100%; max-width: 480px; padding: 0.4rem 0.6rem; font-size: 1rem; margin-bottom: 0.5rem; }
+    .setup-box .hint { font-size: 0.9rem; color: #555; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <h1>Maths Interactives — Results Analyser</h1>
+  <p class="message">Select an activity to load results from the Google Sheet. The sheet must be <strong>Published to web</strong> (File → Share → Publish to web). If data does not load when opening this file from disk, try serving the folder locally (e.g. <code>npx serve .</code>).</p>
+
+  <div class="setup-box">
+    <label for="sheet-id-input">Google Sheet ID</label>
+    <input type="text" id="sheet-id-input" placeholder="Paste your Sheet ID here" spellcheck="false" autocomplete="off">
+    <p class="hint"><strong>How to get it:</strong> Open your Google Sheet in the browser. Look at the address bar. The ID is the long string between <code>/d/</code> and <code>/edit</code>. Example: <code>https://docs.google.com/spreadsheets/d/<strong>1ABC...xyz</strong>/edit</code> — the part in bold is your Sheet ID. Copy it and paste it in the box above.</p>
+  </div>
+
+  <div class="sheet-select">
+    <label for="tab-select">Activity:</label>
+    <select id="tab-select"></select>
+  </div>
+
+  <div id="summary-bar" class="summary-bar" style="display: none;"></div>
+  <div id="table-wrap"></div>
+
+  <script>
+    // ─── CONFIG ─────────────────────────────────────────────────────────────
+    // Paste your sheet ID from the sheet URL: .../d/SHEET_ID/edit
+    const SHEET_ID = '';
+    // Tab names must match exactly the activity names used when submitting (same as sheet tab names).
+    const SHEET_TABS = [
+      'Building the Houses',
+      'House Guests Lost!',
+      'House Guest Word Sort',
+      'The Value Detective',
+      'Number Ordering Detective',
+      'Place Value Explorer',
+      'Rounding Ranger'
+    ];
+    const SCORE_GREEN_MIN = 80;
+    const SCORE_AMBER_MIN = 60;
+    // ───────────────────────────────────────────────────────────────────────
+
+    const tabSelect = document.getElementById('tab-select');
+    const summaryBar = document.getElementById('summary-bar');
+    const tableWrap = document.getElementById('table-wrap');
+    const sheetIdInput = document.getElementById('sheet-id-input');
+
+    const STORAGE_KEY_SHEET_ID = 'maths_analyser_sheet_id';
+    function getEffectiveSheetId() {
+      const fromInput = sheetIdInput && sheetIdInput.value ? sheetIdInput.value.trim() : '';
+      return fromInput || SHEET_ID;
+    }
+
+    function getPillClass(pct) {
+      if (pct >= SCORE_GREEN_MIN) return 'pill-green';
+      if (pct >= SCORE_AMBER_MIN) return 'pill-amber';
+      return 'pill-red';
+    }
+
+    function formatDate(isoStr) {
+      if (!isoStr) return '—';
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return isoStr;
+      return d.toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function parseGvizResponse(text) {
+      const from = text.indexOf('{');
+      const to = text.lastIndexOf('}');
+      if (from === -1 || to === -1 || from >= to) return null;
+      try {
+        return JSON.parse(text.substring(from, to + 1));
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function gvizRowsToData(parsed) {
+      const table = parsed && parsed.table;
+      if (!table || !Array.isArray(table.rows)) return [];
+      const rows = table.rows;
+      const out = [];
+      for (let i = 0; i < rows.length; i++) {
+        const c = rows[i].c;
+        if (!c || c.length < 6) continue;
+        const firstVal = c[0] && c[0].v;
+        if (firstVal === 'Timestamp' || firstVal === 'timestamp') continue;
+        const timestamp = firstVal != null ? String(firstVal) : '';
+        const studentName = (c[1] && c[1].v != null) ? String(c[1].v) : '';
+        const studentClass = (c[2] && c[2].v != null) ? String(c[2].v) : '';
+        const modeLevel = (c[3] && c[3].v != null) ? String(c[3].v) : '';
+        const scoreVal = c[4] && c[4].v;
+        const totalVal = c[5] && c[5].v;
+        const score = typeof scoreVal === 'number' ? scoreVal : (scoreVal != null ? Number(scoreVal) : NaN);
+        const total = typeof totalVal === 'number' ? totalVal : (totalVal != null ? Number(totalVal) : NaN);
+        let questionData = null;
+        const rawQ = c[6] && c[6].v;
+        if (rawQ != null && typeof rawQ === 'string' && rawQ.trim()) {
+          try {
+            questionData = JSON.parse(rawQ);
+            if (!Array.isArray(questionData)) questionData = null;
+          } catch (_) { /* skip malformed */ }
+        }
+        out.push({ timestamp, studentName, studentClass, modeLevel, score, total, questionData });
+      }
+      return out;
+    }
+
+    function computeSummary(rows) {
+      const valid = rows.filter(r => !isNaN(r.score) && !isNaN(r.total) && r.total > 0);
+      const students = new Set(valid.map(r => r.studentName.trim() || 'Anonymous')).size;
+      let sumPct = 0;
+      let countPct = 0;
+      const wrongByQ = {};
+      for (const r of valid) {
+        const pct = Math.round((r.score / r.total) * 100);
+        sumPct += pct;
+        countPct += 1;
+        if (r.questionData && Array.isArray(r.questionData)) {
+          for (const q of r.questionData) {
+            if (q.q == null) continue;
+            const key = Number(q.q);
+            if (!wrongByQ[key]) wrongByQ[key] = { wrong: 0, total: 0 };
+            wrongByQ[key].total += 1;
+            if (q.result === 'incorrect') wrongByQ[key].wrong += 1;
+          }
+        }
+      }
+      const avgPct = countPct > 0 ? Math.round(sumPct / countPct) : 0;
+      let mostMissed = null;
+      let mostMissedPct = 0;
+      for (const [qNum, stats] of Object.entries(wrongByQ)) {
+        if (stats.total === 0) continue;
+        const pct = Math.round((stats.wrong / stats.total) * 100);
+        if (pct >= mostMissedPct) {
+          mostMissedPct = pct;
+          mostMissed = { q: Number(qNum), pct };
+        }
+      }
+      return { students, avgPct, countPct, mostMissed };
+    }
+
+    function renderSummary(summary) {
+      let html = `<span>Students attempted: <strong>${summary.students}</strong></span>`;
+      html += `<span>Class average: <strong>${summary.avgPct}%</strong></span>`;
+      if (summary.mostMissed) {
+        html += `<span>Most missed: <strong>Q${summary.mostMissed.q}</strong> — ${summary.mostMissed.pct}% incorrect</span>`;
+      } else {
+        html += `<span>Most missed: —</span>`;
+      }
+      summaryBar.innerHTML = html;
+      summaryBar.style.display = 'flex';
+    }
+
+    function renderTable(rows, sortKey, sortDir) {
+      const keys = ['studentName', 'timestamp', 'scorePct'];
+      const dir = sortDir === 'asc' ? 1 : -1;
+      const sorted = [...rows].sort((a, b) => {
+        let va = a[sortKey], vb = b[sortKey];
+        if (sortKey === 'timestamp') {
+          va = new Date(va || 0).getTime();
+          vb = new Date(vb || 0).getTime();
+        }
+        if (va < vb) return -1 * dir;
+        if (va > vb) return 1 * dir;
+        return 0;
+      });
+
+      let table = '<table class="results-table"><thead><tr>';
+      const headers = [
+        { key: 'studentName', label: 'Student' },
+        { key: 'studentClass', label: 'Class' },
+        { key: 'modeLevel', label: 'Level/Mode' },
+        { key: 'score', label: 'Score' },
+        { key: 'total', label: 'Total' },
+        { key: 'scorePct', label: '%' },
+        { key: 'timestamp', label: 'Date' }
+      ];
+      headers.forEach(h => {
+        const isSortable = h.key === 'studentName' || h.key === 'timestamp' || h.key === 'scorePct';
+        const cls = (isSortable && sortKey === h.key) ? (sortDir === 'asc' ? ' sort-asc' : ' sort-desc') : '';
+        table += `<th data-sort="${h.key}"${cls ? ` class="${cls.trim()}"` : ''}>${h.label}</th>`;
+      });
+      table += '</tr></thead><tbody>';
+
+      for (const r of sorted) {
+        const pct = (r.total > 0 && !isNaN(r.score)) ? Math.round((r.score / r.total) * 100) : null;
+        const pctDisplay = pct != null ? pct : '—';
+        const pillClass = pct != null ? getPillClass(pct) : '';
+        const pill = pillClass ? `<span class="pill ${pillClass}">${pctDisplay}%</span>` : pctDisplay;
+        table += '<tr>';
+        table += `<td>${escapeHtml(r.studentName || '—')}</td>`;
+        table += `<td>${escapeHtml(r.studentClass || '—')}</td>`;
+        table += `<td>${escapeHtml(r.modeLevel || '—')}</td>`;
+        table += `<td>${r.score}</td>`;
+        table += `<td>${r.total}</td>`;
+        table += `<td>${pill}</td>`;
+        table += `<td>${formatDate(r.timestamp)}</td>`;
+        table += '</tr>';
+      }
+      table += '</tbody></table>';
+      tableWrap.innerHTML = table;
+
+      tableWrap.querySelectorAll('th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.getAttribute('data-sort');
+          const nextDir = (sortKey === key && sortDir === 'asc') ? 'desc' : 'asc';
+          state.sortKey = key;
+          state.sortDir = nextDir;
+          renderTable(state.rows, state.sortKey, state.sortDir);
+        });
+      });
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    const state = { rows: [], sortKey: 'timestamp', sortDir: 'desc' };
+
+    async function loadSheet(tabName) {
+      const sheetId = getEffectiveSheetId();
+      if (!sheetId) {
+        tableWrap.innerHTML = '<p class="message error">Enter your Sheet ID in the box above, or set SHEET_ID in the CONFIG at the top of this file and refresh.</p>';
+        summaryBar.style.display = 'none';
+        return;
+      }
+      const encodedTab = encodeURIComponent(tabName);
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodedTab}`;
+      tableWrap.innerHTML = '<p class="message">Loading…</p>';
+      summaryBar.style.display = 'none';
+
+      try {
+        const res = await fetch(url);
+        const text = await res.text();
+        const parsed = parseGvizResponse(text);
+        if (!parsed) {
+          tableWrap.innerHTML = '<p class="message error">Could not parse sheet response. Check that the sheet is published to web and the tab name is correct.</p>';
+          return;
+        }
+        const rows = gvizRowsToData(parsed);
+        rows.forEach(r => {
+          r.scorePct = (r.total > 0 && !isNaN(r.score)) ? Math.round((r.score / r.total) * 100) : null;
+        });
+        state.rows = rows;
+
+        if (rows.length === 0) {
+          tableWrap.innerHTML = '<p class="message">No data rows in this sheet.</p>';
+          summaryBar.style.display = 'none';
+          return;
+        }
+
+        const summary = computeSummary(rows);
+        renderSummary(summary);
+        renderTable(rows, state.sortKey, state.sortDir);
+      } catch (err) {
+        tableWrap.innerHTML = '<p class="message error">Failed to load data. If you opened this file from disk (file://), try serving the folder locally (e.g. npx serve .) and open the page from the server URL.</p>';
+        console.error(err);
+      }
+    }
+
+    SHEET_TABS.forEach(tab => {
+      const opt = document.createElement('option');
+      opt.value = tab;
+      opt.textContent = tab;
+      tabSelect.appendChild(opt);
+    });
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_SHEET_ID);
+      if (saved && sheetIdInput) sheetIdInput.value = saved;
+    } catch (_) {}
+    sheetIdInput.addEventListener('input', () => {
+      try {
+        const v = sheetIdInput.value.trim();
+        if (v) localStorage.setItem(STORAGE_KEY_SHEET_ID, v);
+        else localStorage.removeItem(STORAGE_KEY_SHEET_ID);
+      } catch (_) {}
+    });
+    sheetIdInput.addEventListener('change', () => loadSheet(tabSelect.value));
+
+    tabSelect.addEventListener('change', () => loadSheet(tabSelect.value));
+    if (SHEET_TABS.length) {
+      tabSelect.value = SHEET_TABS[0];
+      loadSheet(SHEET_TABS[0]);
+    }
+  </script>
+</body>
+</html>
