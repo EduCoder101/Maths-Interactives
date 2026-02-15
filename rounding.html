@@ -1129,6 +1129,7 @@
         let answered = false;
         let selectedBenchmark = null;
         let questionStatus = []; // Track status of each question: null, 'correct', 'incorrect'
+        let initialQuestionResult = []; // First-attempt only: never overwritten; used for spreadsheet
         let isRevisionRound = false;
         let revisionIndices = [];
 
@@ -1157,6 +1158,7 @@
             if (!isRevisionRound) {
                 const totalQuestions = questions[currentLevel].length;
                 questionStatus = new Array(totalQuestions).fill(null);
+                initialQuestionResult = new Array(totalQuestions).fill(null);
             }
             const totalQuestions = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
             for (let i = 0; i < totalQuestions; i++) {
@@ -1188,6 +1190,9 @@
             const actualIdx = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
             if (answered && questionStatus[actualIdx] === null) {
                 questionStatus[actualIdx] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIdx] === null) {
+                    initialQuestionResult[actualIdx] = 'incorrect';
+                }
             }
             currentQuestion = questionIndex;
             const newActual = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
@@ -1400,8 +1405,11 @@
             attemptedCount++;
             answered = true;
             
-            // Record status
+            // Record status (UI + revision)
             questionStatus[actualIndex] = isCorrect ? 'correct' : 'incorrect';
+            if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                initialQuestionResult[actualIndex] = isCorrect ? 'correct' : 'incorrect';
+            }
             
             showFeedback(isCorrect);
             updateProgressTracker();
@@ -1454,6 +1462,9 @@
             // Record as incorrect when revealed (not answered correctly by student)
             if (questionStatus[actualIndex] === null) {
                 questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
             }
             
             showFeedback(false, answerText);
@@ -1524,8 +1535,9 @@
             document.getElementById('score-percentage').textContent = percentage + '%';
             
             if (typeof submitResult === 'function') {
-                var qData = typeof buildQuestionData === 'function' ? buildQuestionData(questionStatus, questions[currentLevel].length) : [];
-                submitResult('rounding', 'Rounding Ranger', correctCount, questions[currentLevel].length, 'Level ' + currentLevel + ': ' + levelNames[currentLevel], qData);
+                var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                submitResult('rounding', 'Rounding Ranger', initialScore, questions[currentLevel].length, 'Level ' + currentLevel + ': ' + levelNames[currentLevel], qData);
             }
             showPage('completion-page');
         }
