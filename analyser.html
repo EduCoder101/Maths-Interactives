@@ -102,6 +102,42 @@
       }
     }
 
+    /** Load sheet data via script tag so it works from file:// and any host (avoids CORS). */
+    function fetchGvizByScript(url) {
+      return new Promise((resolve, reject) => {
+        let done = false;
+        const timeout = setTimeout(() => {
+          if (done) return;
+          done = true;
+          cleanup();
+          reject(new Error('Timeout or no data'));
+        }, 15000);
+        function cleanup() {
+          clearTimeout(timeout);
+          if (script.parentNode) script.remove();
+          try { delete window.google.visualization.Query.setResponse; } catch (_) {}
+        }
+        window.google = window.google || {};
+        window.google.visualization = window.google.visualization || {};
+        window.google.visualization.Query = window.google.visualization.Query || {};
+        window.google.visualization.Query.setResponse = function (data) {
+          if (done) return;
+          done = true;
+          cleanup();
+          resolve(data);
+        };
+        const script = document.createElement('script');
+        script.src = url;
+        script.onerror = () => {
+          if (done) return;
+          done = true;
+          cleanup();
+          reject(new Error('Network error'));
+        };
+        document.body.appendChild(script);
+      });
+    }
+
     function gvizRowsToData(parsed) {
       const table = parsed && parsed.table;
       if (!table || !Array.isArray(table.rows)) return [];
@@ -260,11 +296,16 @@
       summaryBar.style.display = 'none';
 
       try {
-        const res = await fetch(url);
-        const text = await res.text();
-        const parsed = parseGvizResponse(text);
-        if (!parsed) {
-          tableWrap.innerHTML = '<p class="message error">Could not parse sheet response. Check that the sheet is published to web and the tab name is correct.</p>';
+        let parsed;
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          parsed = parseGvizResponse(text);
+        } catch (_) {
+          parsed = await fetchGvizByScript(url);
+        }
+        if (!parsed || !parsed.table) {
+          tableWrap.innerHTML = '<p class="message error">Could not load or parse sheet. Check that the sheet is <strong>Published to web</strong> (File → Share → Publish to web) and the Sheet ID and tab name are correct.</p>';
           return;
         }
         const rows = gvizRowsToData(parsed);
@@ -283,7 +324,7 @@
         renderSummary(summary);
         renderTable(rows, state.sortKey, state.sortDir);
       } catch (err) {
-        tableWrap.innerHTML = '<p class="message error">Failed to load data (often due to opening the page from a file). Open this page from your <strong>GitHub Pages URL</strong> (e.g. https://yourusername.github.io/repo-name/analyser.html) or run <code>npx serve .</code> in the project folder and use the local URL. Also ensure the sheet is Published to web.</p>';
+        tableWrap.innerHTML = '<p class="message error">Failed to load data. Ensure the sheet is <strong>Published to web</strong> (File → Share → Publish to web), and that the Sheet ID and activity tab name match your Google Sheet. If the sheet has no data yet, add a test result from an activity first.</p>';
         console.error(err);
       }
     }
