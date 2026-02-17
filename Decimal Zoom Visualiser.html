@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decimal Zoom</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 0 52px;
+  overflow-x: hidden;
+  font-family: 'DM Mono', monospace;
+  color: #2d1a3a;
+  position: relative;
+
+  /* Warm gradient: rose blush → soft lavender → pale mint */
+  background:
+    radial-gradient(ellipse at 15% 10%,  rgba(255, 182, 193, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 20%,  rgba(216, 191, 255, 0.45) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 85%,  rgba(180, 235, 215, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 80%,  rgba(255, 218, 185, 0.35) 0%, transparent 45%),
+    linear-gradient(145deg, #fdf0f5 0%, #f5eeff 40%, #edfaf4 100%);
+}
+
+/* Subtle floating orb decorations */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  width: 480px; height: 480px;
+  top: -140px; right: -120px;
+  background: radial-gradient(circle, rgba(216,191,255,0.25) 0%, transparent 70%);
+}
+body::after {
+  width: 380px; height: 380px;
+  bottom: -100px; left: -80px;
+  background: radial-gradient(circle, rgba(180,235,215,0.3) 0%, transparent 70%);
+}
+
+/* Everything above the decorations */
+body > * { position: relative; z-index: 1; }
+
+h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(26px, 4vw, 36px);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  color: #3d1a5a;
+}
+
+.sub {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9b82b8;
+  margin-bottom: 44px;
+}
+
+/* ── Number line stage ── */
+.stage {
+  width: 100%;
+  position: relative;
+  height: 130px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+  mask-image:         linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+/* Frosted glass backing strip for the number line */
+.stage-glass {
+  position: absolute;
+  left: 4%; right: 4%;
+  top: 18px; bottom: 18px;
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.75);
+  box-shadow: 0 4px 24px rgba(140,100,180,0.08), 0 1px 4px rgba(140,100,180,0.06);
+  pointer-events: none;
+}
+
+.line-track {
+  position: absolute;
+  top: 0; bottom: 0;
+  will-change: transform;
+  white-space: nowrap;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 28px;
+}
+
+.axis-line {
+  position: absolute;
+  bottom: 46px;
+  left: 0; right: 0;
+  height: 2px;
+  background: #3d1a5a;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.tick {
+  position: absolute;
+  bottom: 46px;
+  width: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: none;
+}
+
+.tick-label {
+  position: absolute;
+  bottom: 12px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+  pointer-events: none;
+  font-weight: 500;
+}
+
+.seg-zone {
+  position: absolute;
+  bottom: 32px;
+  height: 52px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.seg-zone:hover {
+  background: rgba(140, 100, 200, 0.1);
+}
+
+/* ── Info panel ── */
+.info {
+  width: 100%;
+  max-width: 680px;
+  margin-top: 28px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Card behind the decimal + description */
+.info-card {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 20px;
+  box-shadow: 0 6px 32px rgba(140,100,180,0.09), 0 1px 4px rgba(140,100,180,0.06);
+  padding: 28px 36px 24px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.decimal-row {
+  font-size: clamp(46px, 9vw, 66px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  font-family: 'DM Mono', monospace;
+}
+
+.level-pill {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 16px;
+  border-radius: 20px;
+  border: 1.5px solid currentColor;
+  transition: color 0.4s, border-color 0.4s;
+  background: rgba(255,255,255,0.5);
+}
+
+.depth-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(150,120,200,0.3);
+  transition: all 0.3s;
+}
+.dot.filled {
+  border-color: currentColor;
+  background: currentColor;
+}
+
+.desc {
+  font-size: 13px;
+  line-height: 1.85;
+  color: #7a5a9a;
+  text-align: center;
+  max-width: 400px;
+  min-height: 46px;
+}
+
+/* ── Buttons ── */
+.btn-row {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+.btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(140,100,200,0.3);
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(8px);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: #7a5a9a;
+  transition: all 0.18s;
+  box-shadow: 0 2px 8px rgba(140,100,180,0.07);
+}
+.btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(140,100,200,0.6);
+  color: #3d1a5a;
+  box-shadow: 0 4px 14px rgba(140,100,180,0.15);
+  transform: translateY(-1px);
+}
+.btn:active:not(:disabled) { transform: translateY(0); }
+.btn:disabled { opacity: 0.25; cursor: default; }
+</style>
+</head>
+<body>
+
+<h1>Decimal Zoom</h1>
+<p class="sub">Click any segment to zoom in</p>
+
+<div class="stage" id="stage">
+  <div class="stage-glass"></div>
+  <div class="axis-line"></div>
+  <div class="line-track" id="lineTrack"></div>
+</div>
+
+<div class="info">
+  <div class="info-card">
+    <div class="decimal-row" id="decimalRow"></div>
+    <div class="level-pill" id="levelPill"></div>
+    <div class="depth-dots" id="depthDots"></div>
+    <p class="desc" id="desc"></p>
+  </div>
+</div>
+
+<div class="btn-row">
+  <button class="btn" id="btnOut" onclick="zoomOut()">← zoom out</button>
+  <button class="btn" id="btnReset" onclick="resetZoom()">reset</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   The model:
+   
+   The number line spans from -∞ to +∞ but we care about 0..1.
+   We track two things:
+     scale  : how many pixels = 1 unit (starts = stage width)
+     offset : pixel position of "0" from left edge of stage
+   
+   Initially:
+     scale  = stageWidth   (so 0→1 exactly fits the stage)
+     offset = 0            (0 is at left edge)
+
+   On each zoom, we multiply scale by 10 and reposition
+   so the clicked segment's centre stays centred on screen.
+══════════════════════════════════════════════════ */
+
+const COLORS  = ['#3d1a5a', '#c0392b', '#1a6b3c', '#1a4fa8'];
+const NAMES   = ['Ones', 'Tenths', 'Hundredths', 'Thousandths'];
+const MAX_DEPTH = 3;
+const ANIM_MS   = 600;
+
+let scale  = 1;   // units: we'll convert to px dynamically
+let offset = 0;   // in 0..1 units: offset of left edge from 0
+// i.e., left edge of stage = worldX(offset), right = worldX(offset + 1/scale * stageW)
+// Actually: stageX = (worldPos - viewLeft) * scale_px
+// We store: viewLeft (leftmost world coord visible at stage left edge)
+
+let viewLeft   = 0;      // world coord at left edge
+let viewWidth  = 1;      // how much of the world is visible (= 1/zoomLevel)
+let zoomLevel  = 1;      // 1, 10, 100, or 1000
+let depth      = 0;
+let animating  = false;
+
+// Track which segment was selected at each depth (for decimal readout)
+let selectedSegments = []; // e.g. [3, 7] means tenths=3, hundredths=7
+
+const stage = document.getElementById('stage');
+const track = document.getElementById('lineTrack');
+
+function stageWidth() { return stage.getBoundingClientRect().width || window.innerWidth; }
+
+/* ── World → stage pixel ── */
+function worldToStage(worldX) {
+  return (worldX - viewLeft) / viewWidth * stageWidth();
+}
+
+/* ── Stage pixel → world ── */
+function stageToWorld(px) {
+  return viewLeft + px / stageWidth() * viewWidth;
+}
+
+/* ══════════════════════════════════════════════════
+   DRAWING
+   We draw tick marks and labels for the current view.
+   The number of visible ticks depends on zoomLevel.
+══════════════════════════════════════════════════ */
+
+function draw(vLeft, vWidth, dep) {
+  track.innerHTML = '';
+  const sw = stageWidth();
+  const col = COLORS[dep];
+
+  const tickSpacing = Math.pow(0.1, dep + 1);
+  const subSpacing  = tickSpacing / 10;
+
+  const margin   = vWidth * 0.5; // draw ticks slightly beyond visible edges
+  const firstTick = Math.floor((vLeft - margin) / tickSpacing) * tickSpacing;
+  const lastTick  = vLeft + vWidth + margin;
+  const firstSub  = Math.floor((vLeft - margin) / subSpacing) * subSpacing;
+
+  // ── Parent-level ticks (always visible, gives bookend numbers) ──
+  if (dep > 0) {
+    const parentSpacing = tickSpacing * 10;
+    const parentCol     = COLORS[dep - 1];
+    const pFirst = Math.floor((vLeft - margin) / parentSpacing) * parentSpacing;
+    let p = pFirst;
+    while (p <= lastTick + parentSpacing) {
+      const px = worldToStageLocal(p, vLeft, vWidth, sw);
+      if (px > -80 && px < sw + 80) {
+        // Taller tick, stronger presence
+        makeTick(px, 32, parentCol, 0.9, track);
+        makeTick(px, -8, parentCol, 0.4, track);
+        // Always show label — pinned to edges if off-screen
+        const clampedPx = Math.max(22, Math.min(sw - 22, px));
+        const lbl = fmtTick(p, dep - 1);
+        makeLabel(clampedPx, lbl, parentCol, 0.85, track);
+      }
+      p = Math.round((p + parentSpacing) * 1e12) / 1e12;
+    }
+  }
+
+  // ── Sub-ticks (next level faint preview) ──
+  if (dep < MAX_DEPTH) {
+    const nextCol = COLORS[dep + 1];
+    let s = firstSub;
+    while (s <= lastTick + subSpacing) {
+      const isMajor = Math.abs(Math.round(s / tickSpacing) * tickSpacing - s) < subSpacing * 0.01;
+      if (!isMajor) {
+        const px = worldToStageLocal(s, vLeft, vWidth, sw);
+        if (px > -20 && px < sw + 20) {
+          makeTick(px, 8, nextCol, 0.25, track);
+        }
+      }
+      s = Math.round((s + subSpacing) * 1e9) / 1e9;
+    }
+  }
+
+  // ── Current-level ticks + labels ──
+  let t = firstTick;
+  while (t <= lastTick) {
+    const px = worldToStageLocal(t, vLeft, vWidth, sw);
+    if (px > -60 && px < sw + 60) {
+      const h = 18;
+      makeTick(px, h, col, 0.75, track);
+      makeTick(px, -h, col, 0.35, track);
+      if (px > 10 && px < sw - 10) {
+        makeLabel(px, fmtTick(t, dep), col, 0.8, track);
+      }
+    }
+    t = Math.round((t + tickSpacing) * 1e12) / 1e12;
+  }
+
+  // Clickable segments (only if not at max depth)
+  if (dep < MAX_DEPTH) {
+    let s = firstTick;
+    while (s < lastTick) {
+      const x1 = worldToStageLocal(s, vLeft, vWidth, sw);
+      const x2 = worldToStageLocal(s + tickSpacing, vLeft, vWidth, sw);
+      if (x2 > 0 && x1 < sw) {
+        const zone = document.createElement('div');
+        zone.className = 'seg-zone';
+        zone.style.left  = Math.max(x1, 0) + 'px';
+        zone.style.width = (Math.min(x2, sw) - Math.max(x1, 0)) + 'px';
+        const segVal = s; // capture for closure
+        zone.addEventListener('click', () => clickSegment(segVal, tickSpacing));
+        track.appendChild(zone);
+      }
+      s = Math.round((s + tickSpacing) * 1e12) / 1e12;
+    }
+  }
+}
+
+function worldToStageLocal(worldX, vLeft, vWidth, sw) {
+  return (worldX - vLeft) / vWidth * sw;
+}
+
+function makeTick(px, height, color, alpha, parent) {
+  const el = document.createElement('div');
+  el.className = 'tick';
+  el.style.left    = px + 'px';
+  el.style.background = color;
+  el.style.opacity = alpha;
+  if (height > 0) {
+    el.style.height = height + 'px';
+    el.style.bottom = '46px';
+  } else {
+    el.style.height  = Math.abs(height) + 'px';
+    el.style.bottom  = (46 + Math.abs(height)) + 'px';
+  }
+  parent.appendChild(el);
+}
+
+function makeLabel(px, text, color, alpha, parent) {
+  const el = document.createElement('div');
+  el.className = 'tick-label';
+  el.style.left    = px + 'px';
+  el.style.color   = color;
+  el.style.opacity = alpha;
+  el.textContent   = text;
+  parent.appendChild(el);
+}
+
+/* ══════════════════════════════════════════════════
+   FORMAT
+══════════════════════════════════════════════════ */
+function fmtTick(v, dep) {
+  // Show enough decimal places to distinguish ticks
+  const places = dep + 1;
+  // Clean float rounding
+  const rounded = Math.round(v * Math.pow(10, places + 3)) / Math.pow(10, places + 3);
+  if (places === 1 && rounded === 0) return '0';
+  if (places === 1 && rounded === 1) return '1';
+  return rounded.toFixed(places).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+}
+
+/* ══════════════════════════════════════════════════
+   ANIMATION
+══════════════════════════════════════════════════ */
+function animateView(fromLeft, fromWidth, toLeft, toWidth, fromDepth, toDepth, onDone) {
+  if (animating) return;
+  animating = true;
+
+  const start = performance.now();
+
+  function ease(t) {
+    // Smooth cubic ease in-out
+    return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+  }
+
+  function frame(now) {
+    const raw = Math.min((now - start) / ANIM_MS, 1);
+    const t   = ease(raw);
+
+    // Interpolate in log space for scale, linear for position
+    const logFrom = Math.log(fromWidth);
+    const logTo   = Math.log(toWidth);
+    const curWidth  = Math.exp(logFrom + (logTo - logFrom) * t);
+    const curLeft   = fromLeft + (toLeft - fromLeft) * t;
+
+    draw(curLeft, curWidth, raw < 0.5 ? fromDepth : toDepth);
+
+    if (raw < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      animating = false;
+      onDone();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ══════════════════════════════════════════════════
+   ZOOM ACTIONS
+══════════════════════════════════════════════════ */
+function clickSegment(segWorldStart, segSize) {
+  if (animating || depth >= MAX_DEPTH) return;
+
+  // The clicked segment spans [segWorldStart, segWorldStart + segSize]
+  // We want the segment to fill ~65% of the screen so that one full
+  // parent-level tick (= segSize) is always visible on each side.
+  // viewWidth = segSize / 0.65  → segment occupies 65% of view
+  // Then centre the segment within that view.
+  const FILL = 0.65;
+  const newWidth  = segSize / FILL;
+  const segCentre = segWorldStart + segSize / 2;
+  const newLeft   = segCentre - newWidth / 2;
+
+  // Derive the digit directly from the world position.
+  const factor = Math.pow(10, depth + 1);
+  const segIndex = Math.floor(Math.round(segWorldStart * factor * 1e9) / 1e9) % 10;
+
+  const oldLeft  = viewLeft;
+  const oldWidth = viewWidth;
+  const oldDepth = depth;
+
+  animateView(oldLeft, oldWidth, newLeft, newWidth, oldDepth, oldDepth + 1, () => {
+    viewLeft  = newLeft;
+    viewWidth = newWidth;
+    depth++;
+    selectedSegments.push(segIndex);
+    render();
+  });
+}
+
+function zoomOut() {
+  if (animating || depth === 0) return;
+
+  selectedSegments.pop();
+  const targetDepth = depth - 1;
+
+  // Reconstruct the parent view — parent tick spacing is viewWidth * 10 / FILL_RATIO
+  // But viewWidth was already segSize / FILL, so parentSegSize = viewWidth * FILL
+  // and parent viewWidth = parentSegSize * 10 / FILL = viewWidth * FILL * 10 / FILL = viewWidth * 10
+  // However if depth=1 we restore the original full 0-1 view.
+  const FILL = 0.65;
+  const parentSegSize = viewWidth * FILL;          // the segment we zoomed into
+  const parentWidth   = parentSegSize * 10 / FILL; // = viewWidth * 10
+  const currentCentre = viewLeft + viewWidth / 2;
+  const parentLeft    = currentCentre - parentWidth / 2;
+
+  const oldLeft  = viewLeft;
+  const oldWidth = viewWidth;
+  const oldDepth = depth;
+
+  animateView(oldLeft, oldWidth, parentLeft, parentWidth, oldDepth, targetDepth, () => {
+    // Snap to clean [0,1] when returning to top level
+    if (targetDepth === 0) {
+      viewLeft  = 0;
+      viewWidth = 1;
+    } else {
+      viewLeft  = parentLeft;
+      viewWidth = parentWidth;
+    }
+    depth     = targetDepth;
+    render();
+  });
+}
+
+function resetZoom() {
+  if (animating) return;
+  const oldLeft  = viewLeft;
+  const oldWidth = viewWidth;
+  const oldDepth = depth;
+
+  animateView(oldLeft, oldWidth, 0, 1, oldDepth, 0, () => {
+    viewLeft  = 0;
+    viewWidth = 1;
+    depth     = 0;
+    selectedSegments = [];
+    render();
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   UI UPDATE
+══════════════════════════════════════════════════ */
+function render(animate = false) {
+  const col = COLORS[depth];
+
+  // Number line
+  draw(viewLeft, viewWidth, depth);
+
+  // Decimal readout
+  const decEl = document.getElementById('decimalRow');
+  const segs  = selectedSegments;
+  const digits = [segs[0] ?? null, segs[1] ?? null, segs[2] ?? null];
+  const dcols  = [COLORS[1], COLORS[2], COLORS[3]];
+  let html = `<span style="color:${COLORS[0]}">0</span><span style="color:rgba(140,100,180,0.35)">.</span>`;
+  digits.forEach((d, i) => {
+    if (d === null) {
+      html += `<span style="color:rgba(140,100,180,0.2)">_</span>`;
+    } else {
+      html += `<span style="color:${dcols[i]}">${d}</span>`;
+    }
+  });
+  decEl.innerHTML = html;
+
+  // Level pill
+  const pill = document.getElementById('levelPill');
+  pill.textContent = NAMES[depth];
+  pill.style.color = col;
+
+  // Depth dots
+  const dotsEl = document.getElementById('depthDots');
+  dotsEl.innerHTML = Array.from({length: MAX_DEPTH + 1}, (_, i) => {
+    const filled = i <= depth;
+    return `<div class="dot${filled ? ' filled' : ''}" style="color:${COLORS[i]};border-color:${i <= depth ? COLORS[i] : '#c8c0b0'}"></div>`;
+  }).join('');
+
+  // Description
+  const descEl = document.getElementById('desc');
+  const descs = [
+    'The number line from 0 to 1. It\'s divided into 10 equal parts — click any one to zoom in.',
+    `You\'re looking at one tenth. It splits into 10 equal hundredths — click one to zoom in further.`,
+    `You\'re inside one hundredth. It splits into 10 thousandths. Click to see them.`,
+    `These 10 slices are thousandths — 0.001 each. Far too small for any ruler to show. These are the gaps between the gaps.`,
+  ];
+  descEl.textContent = descs[depth];
+
+  // Buttons
+  document.getElementById('btnOut').disabled   = depth === 0 || animating;
+  document.getElementById('btnReset').disabled = depth === 0 || animating;
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+window.addEventListener('resize', () => {
+  draw(viewLeft, viewWidth, depth);
+});
+
+render();
+</script>
+</body>
+</html>
