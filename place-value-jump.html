@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Place Value Jumps</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --col-w: 82px;
+  --col-gap: 6px;
+  --house-h: 110px;
+  --radius: 14px;
+  --bg-cream: #FFF8F0;
+  --text-dark: #2D3436;
+  --text-light: #636E72;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  --accent: #4ECDC4;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Fredoka', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 52px;
+  overflow-x: hidden;
+  background: var(--bg-cream);
+  color: var(--text-dark);
+  position: relative;
+}
+
+/* Subtle background blobs — matching reference style */
+body::before {
+  content: '';
+  position: fixed;
+  width: 250px; height: 250px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.1;
+  top: -80px; right: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: #27AE60;
+  opacity: 0.1;
+  bottom: 10%; left: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Third blob via a wrapper div added in HTML */
+.blob3 {
+  position: fixed;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: #E74C3C;
+  opacity: 0.1;
+  top: 50%; right: 5%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > *:not(.blob3) { position: relative; z-index: 1; }
+
+/* ── Header ── */
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3.5vw, 36px);
+  color: var(--text-dark);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+.header h1 span { color: var(--accent); }
+.header p {
+  font-size: 15px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* ── Column toggle strip ── */
+.col-toggle {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.col-toggle button {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: white;
+  color: var(--text-light);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.col-toggle button.active {
+  color: white;
+  background: var(--col-color);
+  border-color: var(--col-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* ── Main stage ── */
+.stage-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.stage {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--col-gap);
+  position: relative;
+  padding: 16px 20px 0;
+  min-height: calc(var(--house-h) + 60px);
+}
+
+/* ── Place value house (column) ── */
+.house {
+  width: var(--col-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.house-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--house-color);
+  min-height: 28px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.house-cell {
+  width: var(--col-w);
+  height: var(--house-h);
+  border-radius: var(--radius);
+  border: 2.5px solid var(--house-color);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.house-cell.lit {
+  background: white;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--house-color) 18%, transparent), 0 4px 12px rgba(0,0,0,0.07);
+}
+
+/* Decimal point — special fixed element between ones and tenths */
+.decimal-post {
+  width: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 12px;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+.decimal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3d1a5a;
+  box-shadow: 0 0 0 3px rgba(61,26,90,0.15);
+  margin-bottom: calc(var(--house-h) * 0.08);
+}
+
+/* ── Digit token ── */
+.digit-token {
+  position: absolute;
+  width: calc(var(--col-w) - 16px);
+  height: calc(var(--house-h) - 16px);
+  border-radius: calc(var(--radius) - 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  font-weight: 900;
+  color: white;
+  background: var(--token-color);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.12);
+  pointer-events: none;
+  will-change: transform, left, top;
+  z-index: 10;
+  /* position set by JS absolutely within stage */
+}
+
+.digit-token.is-zero {
+  opacity: 0.55;
+  font-size: 36px;
+  background: color-mix(in srgb, var(--token-color) 65%, #888);
+}
+
+/* Zero pop animation */
+@keyframes zeroPop {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 0.7; }
+  100% { transform: scale(1);   opacity: 0.55; }
+}
+.digit-token.pop-in {
+  animation: zeroPop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Controls below stage ── */
+.controls {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Operation buttons */
+.op-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.op-btn {
+  padding: 11px 22px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s;
+  color: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+  letter-spacing: 0.02em;
+}
+.op-btn.multiply { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.op-btn.divide   { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+.op-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+.op-btn:active:not(:disabled) { transform: translateY(0); }
+.op-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+/* Result narration */
+.narration {
+  min-height: 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: center;
+  padding: 10px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  border-top: 4px solid var(--accent);
+  max-width: 500px;
+  transition: opacity 0.3s;
+}
+
+/* Number input row */
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.input-row label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+.num-input {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid #e0d5c5;
+  background: white;
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  width: 140px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.num-input:focus { border-color: var(--accent); }
+
+.set-btn, .example-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.set-btn {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(78,205,196,0.35);
+}
+.set-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.example-btn {
+  background: white;
+  color: var(--text-light);
+  border: 2px solid #e0d5c5;
+}
+
+/* Examples chips */
+.examples-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.ex-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: white;
+  border: 2px solid #e0d5c5;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.ex-chip:hover, .ex-chip.active {
+  background: white;
+  border-color: var(--accent);
+  color: var(--text-dark);
+  box-shadow: 0 2px 10px rgba(78,205,196,0.25);
+}
+
+/* Reset */
+.reset-btn {
+  padding: 7px 18px;
+  border-radius: 8px;
+  border: 2px solid #e0d5c5;
+  background: transparent;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.reset-btn:hover { color: var(--text-dark); border-color: #aaa; }
+</style>
+</head>
+<body>
+
+<div class="blob3"></div>
+
+<div class="header">
+  <h1>Place Value <span>Jumps</span></h1>
+  <p>Watch the digits shift houses — the decimal point never moves</p>
+</div>
+
+<!-- Column visibility toggles -->
+<div class="col-toggle" id="colToggle"></div>
+
+<!-- Main stage -->
+<div class="stage-wrap">
+  <div class="stage" id="stage"></div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="narration" id="narration">Choose a number below, then press a jump button</div>
+
+  <div class="op-row">
+    <button class="op-btn divide"   onclick="doOp('div',1000)" id="btn-d1000">÷ 1000</button>
+    <button class="op-btn divide"   onclick="doOp('div',100)"  id="btn-d100">÷ 100</button>
+    <button class="op-btn divide"   onclick="doOp('div',10)"   id="btn-d10">÷ 10</button>
+    <button class="op-btn multiply" onclick="doOp('mul',10)"   id="btn-m10">× 10</button>
+    <button class="op-btn multiply" onclick="doOp('mul',100)"  id="btn-m100">× 100</button>
+    <button class="op-btn multiply" onclick="doOp('mul',1000)" id="btn-m1000">× 1000</button>
+  </div>
+
+  <div class="examples-row" id="examplesRow"></div>
+
+  <div class="input-row">
+    <label>Enter your own:</label>
+    <input class="num-input" id="numInput" type="text" placeholder="e.g. 0.045" />
+    <button class="set-btn" onclick="setFromInput()">Set</button>
+  </div>
+
+  <button class="reset-btn" onclick="resetToStart()">↺ Reset</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   PLACE VALUE DEFINITIONS
+   Powers: millions=6, hthousands=5, tthousands=4,
+           thousands=3, hundreds=2, tens=1, ones=0,
+           tenths=-1, hundredths=-2, thousandths=-3,
+           tthousandths=-4
+══════════════════════════════════════════════ */
+const ALL_PLACES = [
+  { pow: 6,  id: 'mil',  label: 'Millions',        short: 'Mil',   color: '#e8650a' },
+  { pow: 5,  id: 'hth',  label: 'Hundred\nThousands', short: 'HTh', color: '#d44d8a' },
+  { pow: 4,  id: 'tth',  label: 'Ten\nThousands',  short: 'TTh',   color: '#7c3aed' },
+  { pow: 3,  id: 'tho',  label: 'Thousands',        short: 'Th',   color: '#1d4ed8' },
+  { pow: 2,  id: 'hun',  label: 'Hundreds',          short: 'H',   color: '#0891b2' },
+  { pow: 1,  id: 'ten',  label: 'Tens',              short: 'T',   color: '#059669' },
+  { pow: 0,  id: 'one',  label: 'Ones',              short: 'O',   color: '#65a30d' },
+  // decimal point sits here
+  { pow: -1, id: 'tth1', label: 'Tenths',            short: '.1',  color: '#ca8a04' },
+  { pow: -2, id: 'hnd1', label: 'Hundredths',        short: '.01', color: '#dc2626' },
+  { pow: -3, id: 'thd1', label: 'Thousandths',       short: '.001',color: '#7c3aed' },
+  { pow: -4, id: 'ttd1', label: 'Ten-\nThousandths', short: '.0001',color:'#0891b2' },
+];
+
+const EXAMPLES = [
+  '0.005', '0.04', '0.3', '2', '25', '0.007', '1.4', '300', '0.125',
+];
+
+/* ── State ── */
+let visiblePows = new Set([2, 1, 0, -1, -2, -3]); // default: hundreds→thousandths
+let currentValue = 0.005; // stored as JS number
+let animating = false;
+
+/* ── Utility: parse a decimal string → exact integer representation ──
+   We represent the number as { digits: Map<pow, digit>, sign: 1|-1 }
+   to avoid float rounding issues entirely.                            */
+function parseToDigitMap(numStr) {
+  numStr = numStr.trim().replace(/,/g, '');
+  const sign = numStr.startsWith('-') ? -1 : 1;
+  numStr = numStr.replace(/^-/, '');
+
+  let [intPart, fracPart = ''] = numStr.split('.');
+  intPart  = intPart  || '0';
+  fracPart = fracPart || '';
+
+  const map = new Map();
+
+  // Integer digits: rightmost is pow=0
+  for (let i = 0; i < intPart.length; i++) {
+    const pow = intPart.length - 1 - i;
+    const d = parseInt(intPart[i]);
+    if (!isNaN(d)) map.set(pow, d);
+  }
+
+  // Fractional digits: first after decimal is pow=-1
+  for (let i = 0; i < fracPart.length; i++) {
+    const pow = -(i + 1);
+    const d = parseInt(fracPart[i]);
+    if (!isNaN(d)) map.set(pow, d);
+  }
+
+  // Remove trailing zeros in fractional part that aren't significant
+  // (keep them — they're meaningful for display context)
+
+  return { sign, map };
+}
+
+function digitMapToString(dm) {
+  if (dm.map.size === 0) return '0';
+  const pows = Array.from(dm.map.keys()).sort((a, b) => b - a);
+  const maxPow = pows[0];
+  const minPow = pows[pows.length - 1];
+
+  let intStr = '';
+  for (let p = Math.max(maxPow, 0); p >= 0; p--) {
+    intStr += (dm.map.get(p) ?? 0);
+  }
+  if (minPow < 0) {
+    let fracStr = '';
+    for (let p = -1; p >= minPow; p--) {
+      fracStr += (dm.map.get(p) ?? 0);
+    }
+    return (dm.sign < 0 ? '-' : '') + intStr + '.' + fracStr;
+  }
+  return (dm.sign < 0 ? '-' : '') + intStr;
+}
+
+/* Shift all digits left (×) or right (÷) by `places` positions */
+function shiftDigitMap(dm, places) {
+  // places > 0 = shift left (multiply), < 0 = shift right (divide)
+  const newMap = new Map();
+  for (const [pow, digit] of dm.map.entries()) {
+    newMap.set(pow + places, digit);
+  }
+  return { sign: dm.sign, map: newMap };
+}
+
+/* ══════════════════════════════════════════════
+   RENDERING
+══════════════════════════════════════════════ */
+
+let digitMap = parseToDigitMap('0.005');
+
+function getVisiblePlaces() {
+  return ALL_PLACES.filter(p => visiblePows.has(p.pow));
+}
+
+/* Build the static column HTML */
+function buildStage() {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = '';
+
+  const places = getVisiblePlaces();
+  const hasDecimal = places.some(p => p.pow < 0) && places.some(p => p.pow >= 0);
+
+  // We need to track pixel positions for animation
+  // Houses are laid out left→right (highest pow first)
+  places.forEach((place, idx) => {
+    // Insert decimal post between ones and tenths
+    if (place.pow === -1 && hasDecimal) {
+      const dp = document.createElement('div');
+      dp.className = 'decimal-post';
+      dp.innerHTML = `<div class="decimal-dot"></div>`;
+      stage.appendChild(dp);
+    }
+
+    const house = document.createElement('div');
+    house.className = 'house';
+    house.id = 'house-' + place.pow;
+    house.style.setProperty('--house-color', place.color);
+
+    const labelLines = place.label.split('\n');
+    house.innerHTML = `
+      <div class="house-label">${labelLines.join('<br>')}</div>
+      <div class="house-cell" id="cell-${place.pow}"></div>
+    `;
+    stage.appendChild(house);
+  });
+
+  renderDigits(false);
+}
+
+/* Place digit tokens into cells (no animation) */
+function renderDigits(animate, fromMap, toMap, shiftPlaces) {
+  if (!animate) {
+    // Static render
+    const places = getVisiblePlaces();
+    places.forEach(place => {
+      const cell = document.getElementById('cell-' + place.pow);
+      if (!cell) return;
+      cell.innerHTML = '';
+      const digit = digitMap.map.get(place.pow);
+      if (digit !== undefined) {
+        const token = makeToken(digit, place.color, digit === 0);
+        cell.appendChild(token);
+        cell.classList.toggle('lit', digit !== 0);
+      } else {
+        cell.classList.remove('lit');
+      }
+    });
+    return;
+  }
+
+  // Animated render: slide tokens from fromMap positions to toMap positions
+  animateShift(fromMap, toMap, shiftPlaces);
+}
+
+function makeToken(digit, color, isZero = false) {
+  const t = document.createElement('div');
+  t.className = 'digit-token' + (isZero ? ' is-zero' : '');
+  t.style.setProperty('--token-color', color);
+  t.textContent = digit;
+  return t;
+}
+
+/* ══════════════════════════════════════════════
+   ANIMATION: digits fly across houses
+══════════════════════════════════════════════ */
+function getCellRect(pow) {
+  const cell = document.getElementById('cell-' + pow);
+  if (!cell) return null;
+  return cell.getBoundingClientRect();
+}
+
+function animateShift(fromMap, toMap, shiftPlaces) {
+  animating = true;
+  updateButtons();
+
+  const stage = document.getElementById('stage');
+  const stageRect = stage.getBoundingClientRect();
+
+  // We'll animate tokens absolutely positioned over the page
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+  `;
+  document.body.appendChild(overlay);
+
+  const ANIM_MS = 600;
+  const STAGGER = 80; // ms between each digit starting
+  const promises = [];
+
+  // Collect all non-zero digits in fromMap that are in visible range
+  const places = getVisiblePlaces();
+  const visSet = new Set(places.map(p => p.pow));
+
+  // Digits that MOVE (exist in fromMap at a significant value)
+  const movingDigits = [];
+  for (const [pow, digit] of fromMap.map.entries()) {
+    if (digit === 0) continue; // zeros don't move, they pop
+    movingDigits.push({ pow, digit });
+  }
+
+  // Sort: if shifting left (multiply), animate left-most first; else right-most first
+  movingDigits.sort((a, b) => shiftPlaces > 0 ? a.pow - b.pow : b.pow - a.pow);
+
+  // Hide current cell contents during animation
+  places.forEach(p => {
+    const cell = document.getElementById('cell-' + p.pow);
+    if (cell) cell.innerHTML = '';
+    const c = document.getElementById('cell-' + p.pow);
+    if (c) c.classList.remove('lit');
+  });
+
+  movingDigits.forEach((item, i) => {
+    const fromPow = item.pow;
+    const toPow   = item.pow + shiftPlaces;
+    const fromPlace = ALL_PLACES.find(p => p.pow === fromPow);
+    const toPlace   = ALL_PLACES.find(p => p.pow === toPow);
+
+    const fromRect = getCellRect(fromPow);
+    const toRect   = getCellRect(toPow);
+
+    if (!fromRect || !toRect || !fromPlace) return;
+
+    const token = document.createElement('div');
+    token.className = 'digit-token';
+    token.style.setProperty('--token-color', fromPlace.color);
+    token.textContent = item.digit;
+    token.style.cssText += `
+      position: fixed;
+      width: ${fromRect.width - 16}px;
+      height: ${fromRect.height - 16}px;
+      left: ${fromRect.left + 8}px;
+      top:  ${fromRect.top  + 8}px;
+      font-size: 42px;
+      transition: none;
+    `;
+    overlay.appendChild(token);
+
+    const delay = i * STAGGER;
+    const p = new Promise(resolve => {
+      setTimeout(() => {
+        token.style.transition = `left ${ANIM_MS}ms cubic-bezier(0.4,0,0.2,1), top ${ANIM_MS}ms cubic-bezier(0.4,0,0.2,1), background ${ANIM_MS*0.5}ms`;
+        if (toPlace) token.style.setProperty('--token-color', toPlace.color);
+        if (toRect) {
+          token.style.left = (toRect.left + 8) + 'px';
+          token.style.top  = (toRect.top  + 8) + 'px';
+        } else {
+          // Token flies off screen
+          token.style.left = (shiftPlaces > 0 ? -200 : window.innerWidth + 200) + 'px';
+          token.style.opacity = '0';
+        }
+        setTimeout(resolve, ANIM_MS + 40);
+      }, delay);
+    });
+    promises.push(p);
+  });
+
+  const totalDelay = movingDigits.length * STAGGER;
+
+  Promise.all(promises).then(() => {
+    overlay.remove();
+
+    // Now render the final state with zeros popping in
+    digitMap = toMap;
+    places.forEach(place => {
+      const cell = document.getElementById('cell-' + place.pow);
+      if (!cell) return;
+      cell.innerHTML = '';
+      const digit = toMap.map.get(place.pow);
+      if (digit !== undefined) {
+        const wasInFrom = fromMap.map.has(place.pow) && fromMap.map.get(place.pow) !== 0;
+        const isZeroNow = digit === 0;
+        const token = makeToken(digit, place.color, isZeroNow);
+        if (isZeroNow && !wasInFrom) {
+          // New zero — pop it in
+          token.classList.add('pop-in');
+        }
+        cell.appendChild(token);
+        cell.classList.toggle('lit', digit !== 0);
+      } else {
+        cell.classList.remove('lit');
+      }
+    });
+
+    animating = false;
+    updateButtons();
+    updateNarration(fromMap, toMap, shiftPlaces);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   OPERATIONS
+══════════════════════════════════════════════ */
+function doOp(type, factor) {
+  if (animating) return;
+  const places = Math.log10(factor); // 1, 2, or 3
+  const shift = type === 'mul' ? places : -places;
+
+  const fromMap = { sign: digitMap.sign, map: new Map(digitMap.map) };
+
+  // Add zeros for all visible places the digits will vacate
+  const toMap = shiftDigitMap(fromMap, shift);
+
+  // Fill in explicit zeros where needed: for each pow in fromMap,
+  // the vacated spot (pow itself if the digit moved away) needs a 0
+  // if any non-zero digit in fromMap still leaves it as a non-significant spot
+  // Actually: zeros appear in positions that are between the new min/max significant
+  // and the old min/max — handled by ensuring the toMap has 0s in those slots.
+  fillZeros(fromMap, toMap, shift);
+
+  // Clean up: remove digits that fell off the defined range (-4 to 6)
+  for (const pow of toMap.map.keys()) {
+    if (pow < -4 || pow > 6) toMap.map.delete(pow);
+  }
+
+  // Also remove leading/trailing zeros outside the number's extent
+  // but keep zeros that are between significant digits
+  cleanMap(toMap);
+
+  renderDigits(true, fromMap, toMap, shift);
+}
+
+function fillZeros(fromMap, toMap, shift) {
+  // Step 1: For every significant digit in fromMap, its old pow is now vacated.
+  // If the digit moved away and nothing else landed there, it needs a 0 IF it sits
+  // between the new number's min and max significant pow (crossing zeros rule).
+  // 
+  // Step 2: The canonical rule for decimal numbers:
+  //   All integer positions from 0 up to the highest significant digit get a 0 if empty.
+  //   All fractional positions from -1 down to the lowest significant digit get a 0 if empty.
+  //   i.e. fill the entire span from minSig to maxSig.
+
+  // First pass: fill between new significant digits
+  const sigPows = [];
+  for (const [pow, digit] of toMap.map.entries()) {
+    if (digit !== 0) sigPows.push(pow);
+  }
+  if (sigPows.length === 0) { toMap.map.set(0, 0); return; }
+
+  const maxSig = Math.max(...sigPows);
+  const minSig = Math.min(...sigPows);
+
+  // Fill every position between minSig and maxSig
+  for (let p = minSig; p <= maxSig; p++) {
+    if (!toMap.map.has(p)) toMap.map.set(p, 0);
+  }
+
+  // Second pass: if the number has any integer part (maxSig >= 0),
+  // ensure pow=0 (ones) exists, even if 0 — so "20" shows the ones house
+  if (maxSig >= 1 && !toMap.map.has(0)) toMap.map.set(0, 0);
+
+  // Third pass: vacated positions from the shift.
+  // Each original significant digit at pow X moved to pow X+shift.
+  // The old position X might need a 0 if it lies between the new minSig and maxSig.
+  // (already handled above) — but also handle the case where digits crossed 0.
+  // e.g. 0.005 × 100 = 0.5: from has pow=-3 (5), to has pow=-1 (5).
+  // minSig=-1, maxSig=-1. Pows -2 doesn't exist → needs 0? NO — 0.5 has no hundredths.
+  // But 0.05 × 10 = 0.5: from pow=-2(5), to pow=-1(5). Just pow=-1, no gap. Correct.
+  // And 5 × 10 = 50: from pow=0(5), to pow=1(5). minSig=1,maxSig=1. Need pow=0 → 0. ✓ (caught above)
+  // And 0.005 × 10 = 0.05: from pow=-3(5), to pow=-2(5). minSig=-2. Need pow=-1? NO — 0.05 is correct.
+  // The existing logic handles these correctly.
+}
+
+function cleanMap(dm) {
+  // Remove digits outside pow range -4..6
+  for (const pow of dm.map.keys()) {
+    if (pow < -4 || pow > 6) dm.map.delete(pow);
+  }
+
+  const sigPows = [...dm.map.entries()].filter(([,d]) => d !== 0).map(([p]) => p);
+  if (sigPows.length === 0) { dm.map.clear(); dm.map.set(0, 0); return; }
+
+  const maxSig = Math.max(...sigPows);
+  const minSig = Math.min(...sigPows);
+
+  // Remove leading zeros above the highest significant digit
+  for (const [pow, digit] of dm.map.entries()) {
+    if (pow > maxSig && digit === 0) dm.map.delete(pow);
+  }
+
+  // Remove trailing fractional zeros below the lowest significant digit
+  for (const [pow, digit] of dm.map.entries()) {
+    if (pow < minSig && digit === 0) dm.map.delete(pow);
+  }
+
+  // ALWAYS ensure every integer position from 0 up to maxSig exists.
+  // e.g. 50 needs pow=0 (ones=0) and pow=1 (tens=5).
+  // e.g. 500 needs pow=0, pow=1, pow=2.
+  if (maxSig >= 0) {
+    for (let p = 0; p <= maxSig; p++) {
+      if (!dm.map.has(p)) dm.map.set(p, 0);
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   NARRATION
+══════════════════════════════════════════════ */
+function updateNarration(fromMap, toMap, shiftPlaces) {
+  const fromStr = digitMapToString(fromMap);
+  const toStr   = digitMapToString(toMap);
+  const op      = shiftPlaces > 0 ? `× ${Math.pow(10, shiftPlaces).toLocaleString()}` : `÷ ${Math.pow(10, -shiftPlaces).toLocaleString()}`;
+  const houses  = Math.abs(shiftPlaces);
+  const dir     = shiftPlaces > 0 ? 'left' : 'right';
+
+  const el = document.getElementById('narration');
+  el.innerHTML = `
+    <span style="color:#7c3aed">${fromStr}</span>
+    ${op} =
+    <span style="color:#059669">${toStr}</span>
+    &nbsp;·&nbsp; Every digit shifted ${houses} house${houses > 1 ? 's' : ''} to the ${dir}
+  `;
+}
+
+/* ══════════════════════════════════════════════
+   COLUMN TOGGLE — always contiguous
+   ALL_PLACES is ordered high→low pow (6 down to -4).
+   visiblePows must always be a contiguous range.
+══════════════════════════════════════════════ */
+function buildToggle() {
+  const wrap = document.getElementById('colToggle');
+  wrap.innerHTML = '';
+  ALL_PLACES.forEach(place => {
+    const btn = document.createElement('button');
+    btn.textContent = place.short;
+    btn.style.setProperty('--col-color', place.color);
+    btn.classList.toggle('active', visiblePows.has(place.pow));
+    btn.addEventListener('click', () => {
+      toggleColumn(place.pow);
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function toggleColumn(pow) {
+  const allPows = ALL_PLACES.map(p => p.pow); // high to low: 6,5,4,...,-4
+  const visArr  = allPows.filter(p => visiblePows.has(p));
+  const maxVis  = Math.max(...visArr);
+  const minVis  = Math.min(...visArr);
+
+  if (visiblePows.has(pow)) {
+    // Only allow removing from the edges (not the middle)
+    if (pow !== maxVis && pow !== minVis) return; // can't remove middle
+    if (visArr.length <= 2) return; // keep minimum 2
+    visiblePows.delete(pow);
+  } else {
+    // Adding: fill everything between the new pow and the current range
+    // so the set stays contiguous
+    const lo = Math.min(pow, minVis);
+    const hi = Math.max(pow, maxVis);
+    for (let p = lo; p <= hi; p++) {
+      if (ALL_PLACES.some(pl => pl.pow === p)) visiblePows.add(p);
+    }
+  }
+
+  buildToggle();
+  buildStage();
+}
+
+/* ══════════════════════════════════════════════
+   EXAMPLES
+══════════════════════════════════════════════ */
+function buildExamples() {
+  const row = document.getElementById('examplesRow');
+  row.innerHTML = '';
+  EXAMPLES.forEach(ex => {
+    const chip = document.createElement('div');
+    chip.className = 'ex-chip';
+    chip.textContent = ex;
+    chip.addEventListener('click', () => {
+      setNumber(ex);
+      document.querySelectorAll('.ex-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+    row.appendChild(chip);
+  });
+}
+
+function setFromInput() {
+  const val = document.getElementById('numInput').value.trim();
+  if (!val) return;
+  setNumber(val);
+  document.querySelectorAll('.ex-chip').forEach(c => c.classList.remove('active'));
+}
+
+function setNumber(str) {
+  try {
+    const dm = parseToDigitMap(str);
+    // Validate it has at least one digit
+    if (dm.map.size === 0) return;
+    digitMap = dm;
+
+    // Auto-show columns that have significant digits, keeping range contiguous
+    const newPows = [...dm.map.keys()].filter(p => p >= -4 && p <= 6);
+    if (newPows.length > 0) {
+      const lo = Math.min(...newPows, ...visiblePows);
+      const hi = Math.max(...newPows, ...visiblePows);
+      for (let p = lo; p <= hi; p++) {
+        if (ALL_PLACES.some(pl => pl.pow === p)) visiblePows.add(p);
+      }
+    }
+
+    // Rebuild toggle to reflect new visible state
+    buildToggle();
+    buildStage();
+
+    document.getElementById('narration').textContent = `Set to ${digitMapToString(dm)} — now choose a jump`;
+  } catch(e) {
+    document.getElementById('narration').textContent = 'Please enter a valid number';
+  }
+}
+
+function resetToStart() {
+  setNumber('0.005');
+  document.querySelector('.ex-chip')?.classList.add('active');
+  document.getElementById('numInput').value = '';
+  document.getElementById('narration').textContent = 'Choose a number below, then press a jump button';
+}
+
+/* ══════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════ */
+function updateButtons() {
+  const btns = document.querySelectorAll('.op-btn');
+  btns.forEach(b => b.disabled = animating);
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+buildToggle();
+buildExamples();
+buildStage();
+document.getElementById('numInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') setFromInput();
+});
+</script>
+</body>
+</html>
