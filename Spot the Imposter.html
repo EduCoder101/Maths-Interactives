@@ -1,0 +1,2330 @@
+<!DOCTYPE html>
+<!-- saved from url=(0091)file:///C:/Users/pell/OneDrive%20-%20Roseville%20College/Downloads/spot-the-imposter_8.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spot the Imposter</title>
+    <link href="./Spot the Imposter_files/css2" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --stage1-color: #4ECDC4;
+            --stage2-color: #FF6B6B;
+            --stage3-color: #9B5DE5;
+            --stage4-color: #F7931E;
+            --stage5-color: #E91E8C;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 { width: 250px; height: 250px; background: var(--primary-accent); top: -80px; right: -50px; }
+        .bg-shape-2 { width: 180px; height: 180px; background: var(--stage2-color); bottom: 10%; left: -50px; }
+        .bg-shape-3 { width: 120px; height: 120px; background: var(--stage3-color); top: 50%; right: 5%; }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── LANDING ── */
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span { color: var(--primary-accent); }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .key-concept p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* ── STAGE GRID ── */
+        .stage-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .stage-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 5px;
+        }
+
+        .stage-1 .level-btn::before { background: var(--stage1-color); }
+        .stage-2 .level-btn::before { background: var(--stage2-color); }
+        .stage-3 .level-btn::before { background: var(--stage3-color); }
+        .stage-4 .level-btn::before { background: var(--stage4-color); }
+        .stage-5 .level-btn::before { background: var(--stage5-color); }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        /* ── NAV BUTTONS ── */
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        /* ── PROGRESS TRACKER ── */
+        .progress-tracker {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .progress-circle:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .progress-circle.current { border-color: var(--primary-accent); border-width: 4px; color: var(--primary-accent); }
+
+        .progress-circle.correct { background: var(--correct-color); border-color: var(--correct-color); color: white; }
+        .progress-circle.incorrect { background: var(--incorrect-color); border-color: var(--incorrect-color); color: white; }
+
+        .progress-circle.correct::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px; right: -2px;
+            background: var(--correct-color);
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.incorrect::after {
+            content: "✗";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px; right: -2px;
+            background: var(--incorrect-color);
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* ── QUESTION CARD ── */
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.stage-1 { border-top-color: var(--stage1-color); }
+        .question-card.stage-2 { border-top-color: var(--stage2-color); }
+        .question-card.stage-3 { border-top-color: var(--stage3-color); }
+        .question-card.stage-4 { border-top-color: var(--stage4-color); }
+        .question-card.stage-5 { border-top-color: var(--stage5-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-prompt {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.75rem;
+            line-height: 1.5;
+        }
+
+        /* ── DECIMAL OPTION BUTTONS ── */
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-btn {
+            background: white;
+            border: 3px solid #E0E0E0;
+            border-radius: 14px;
+            padding: 1rem 1.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-accent);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(78, 205, 196, 0.25);
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary-accent);
+            background: linear-gradient(135deg, #E0F7F5, #B2EBE9);
+        }
+
+        .option-btn.correct-pick {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            color: var(--correct-color);
+        }
+
+        .option-btn.wrong-pick {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            color: var(--incorrect-color);
+        }
+
+        .option-btn.reveal-correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            color: var(--correct-color);
+            animation: pulse-green 0.5s ease;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .option-btn:disabled { cursor: not-allowed; }
+
+        /* ── TIMER ── */
+        .timer-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .timer-icon { font-size: 1.1rem; }
+
+        .timer-display {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            min-width: 3.5rem;
+        }
+
+        /* ── FEEDBACK ── */
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before { content: "✓ "; color: var(--correct-color); font-size: 1.3rem; }
+        .feedback-box.incorrect h4::before { content: "✗ "; color: var(--incorrect-color); font-size: 1.3rem; }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* ── BUTTONS ── */
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--primary-accent); color: white; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3); }
+        .btn-secondary { background: white; color: var(--text-dark); border: 2px solid var(--text-light); }
+        .btn-secondary:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--text-dark); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ── COMPLETION ── */
+        .completion-page { text-align: center; padding: 2rem 0; }
+        .completion-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .completion-page h2 { font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem; }
+        .completion-page p { font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem; }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-label { font-size: 1rem; color: var(--text-light); margin-top: 0.5rem; }
+
+        .time-summary {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        /* ── REVISION BANNER ── */
+        .revision-banner {
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #F7931E;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            display: none;
+        }
+
+        .revision-banner.visible { display: block; }
+
+        @media (max-width: 600px) {
+            .option-btn { font-size: 1.1rem; padding: 0.85rem 1rem; min-width: 90px; }
+            .landing-header h1 { font-size: 1.8rem; }
+        }
+
+        /* ══════════════════════════════════════
+           EXTENSION SECTION — landing page
+        ══════════════════════════════════════ */
+        .extension-section {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .extension-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .extension-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #4ECDC4;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.25em 0.7em;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1px solid rgba(78,205,196,0.35);
+        }
+
+        .extension-intro {
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+            border-left: 4px solid #4ECDC4;
+        }
+
+        .extension-intro p {
+            color: #8892a4;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .ext-level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .ext-level-btn {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 1.1rem 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .ext-level-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--ext-color, #4ECDC4);
+        }
+
+        .ext-level-btn:hover {
+            transform: translateY(-3px);
+            border-color: var(--ext-color, #4ECDC4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 16px rgba(78,205,196,0.1);
+        }
+
+        .ext-level-btn .ext-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--ext-color, #4ECDC4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        .ext-level-btn h4 {
+            font-size: 0.9rem;
+            color: #f0f0f0;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+
+        .ext-level-btn p {
+            font-size: 0.72rem;
+            color: #8892a4;
+            line-height: 1.3;
+            margin-bottom: 0.6rem;
+        }
+
+        .ext-pills {
+            display: flex;
+            gap: 0.3rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ext-pill {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.58rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.06);
+            color: #8892a4;
+        }
+
+        /* ══════════════════════════════════════
+           EXTENSION FULLSCREEN OVERLAY
+        ══════════════════════════════════════ */
+        #ext-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            background: #0f0f1a;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        #ext-overlay.active { display: block; }
+
+        /* Stars inside overlay */
+        #ext-stars {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .ext-star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: extTwinkle var(--dur,3s) ease-in-out infinite;
+            animation-delay: var(--delay,0s);
+        }
+
+        @keyframes extTwinkle {
+            0%,100% { opacity: var(--mn,.1); transform: scale(1); }
+            50%      { opacity: var(--mx,.6); transform: scale(1.3); }
+        }
+
+        /* Ext sub-pages */
+        .ext-page { display: none; }
+        .ext-page.active { display: block; }
+
+        /* HUD */
+        #ext-hud {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 9100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 1.25rem;
+            background: rgba(15,15,26,0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .ext-back-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #8892a4;
+            padding: 0.38rem 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .ext-back-btn:hover { border-color: #4ECDC4; color: #4ECDC4; }
+
+        .ext-level-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            color: #8892a4;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ext-hud-stat { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+        .ext-hud-val {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f0f0f0;
+        }
+        .ext-hud-lbl {
+            font-size: 0.6rem;
+            color: #8892a4;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .ext-lives { display: flex; gap: 0.25rem; align-items: center; }
+        .ext-heart { font-size: 1rem; transition: all 0.3s; filter: drop-shadow(0 0 4px rgba(231,76,60,0.5)); }
+        .ext-heart.lost { opacity: 0.2; filter: none; transform: scale(0.8); }
+
+        .ext-found-bar { display: flex; gap: 0.28rem; align-items: center; }
+        .ext-dot {
+            width: 11px; height: 11px;
+            border-radius: 50%;
+            border: 2px solid rgba(78,205,196,0.3);
+            background: transparent;
+            transition: all 0.3s;
+        }
+        .ext-dot.found { background: #2ecc71; border-color: #2ecc71; box-shadow: 0 0 7px rgba(46,204,113,0.6); }
+
+        .ext-timer {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f0f0f0;
+            min-width: 3.2rem;
+            text-align: center;
+            transition: color 0.3s;
+        }
+        .ext-timer.urgent { color: #FF6B6B; animation: extPulseRed 0.5s ease-in-out infinite; }
+        @keyframes extPulseRed { 0%,100%{opacity:1} 50%{opacity:0.55} }
+
+        /* Arena */
+        #ext-arena {
+            position: fixed;
+            inset: 0;
+            top: 58px;
+            overflow: hidden;
+            pointer-events: all;
+        }
+
+        /* Floating tiles */
+        .ext-tile {
+            position: absolute;
+            background: #1a1a2e;
+            border: 2px solid rgba(78,205,196,0.2);
+            border-radius: 11px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: #f0f0f0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            will-change: transform;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .ext-tile:hover {
+            border-color: #4ECDC4;
+            box-shadow: 0 0 14px rgba(78,205,196,0.45);
+            z-index: 10;
+        }
+
+        .ext-tile.missed {
+            animation: none !important;
+            pointer-events: none;
+            border-color: #FF6B6B;
+            background: rgba(231,76,60,0.18);
+            box-shadow: 0 0 22px rgba(231,76,60,0.7), 0 0 44px rgba(231,76,60,0.3);
+            color: #FF6B6B;
+            z-index: 20;
+            transform: scale(1.25) !important;
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+        }
+
+        .ext-tile.missed-pulse {
+            animation: missedPulse 1.2s ease-in-out infinite !important;
+        }
+
+        @keyframes missedPulse {
+            0%, 100% { box-shadow: 0 0 18px rgba(231,76,60,0.6), 0 0 36px rgba(231,76,60,0.25); }
+            50%       { box-shadow: 0 0 32px rgba(231,76,60,0.95), 0 0 64px rgba(231,76,60,0.5); }
+        }
+
+        .ext-tile.ext-found-anim {
+            animation: extFoundFlash 0.5s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes extFoundFlash {
+            0%   { transform: scale(1);   background: #2ecc71; border-color: #2ecc71; box-shadow: 0 0 20px rgba(46,204,113,0.7); opacity: 1; }
+            60%  { transform: scale(1.35); opacity: 0.85; }
+            100% { transform: scale(0);   opacity: 0; }
+        }
+
+        .ext-tile.ext-wrong-anim {
+            animation: extWrongShake 0.38s ease-out;
+        }
+        @keyframes extWrongShake {
+            0%   { transform: translateX(0);   border-color: #e74c3c; box-shadow: 0 0 18px rgba(231,76,60,0.7); }
+            20%  { transform: translateX(-8px); }
+            40%  { transform: translateX(8px);  }
+            60%  { transform: translateX(-5px); }
+            80%  { transform: translateX(5px);  }
+            100% { transform: translateX(0);   border-color: rgba(78,205,196,0.2); box-shadow: none; }
+        }
+
+        /* Countdown */
+        #ext-countdown {
+            position: fixed;
+            inset: 0;
+            z-index: 9200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,10,20,0.9);
+            backdrop-filter: blur(8px);
+        }
+        #ext-countdown.active { display: flex; }
+        .ext-count-num {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(5rem,18vw,11rem);
+            font-weight: 700;
+            color: #4ECDC4;
+            text-shadow: 0 0 40px rgba(78,205,196,0.6);
+            animation: extCountPop 0.9s ease-out;
+        }
+        @keyframes extCountPop {
+            0%   { transform: scale(2.2); opacity: 0; }
+            30%  { transform: scale(0.9); opacity: 1; }
+            80%  { transform: scale(1);   opacity: 1; }
+            100% { transform: scale(0.7); opacity: 0; }
+        }
+
+        /* Result overlay */
+        #ext-result {
+            position: fixed;
+            inset: 0;
+            z-index: 9300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,10,20,0.85);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem;
+        }
+        #ext-result.active { display: flex; animation: extFadeIn 0.3s ease-out; }
+
+        #ext-round-complete {
+            position: fixed;
+            inset: 0;
+            z-index: 9300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,10,20,0.85);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem;
+        }
+        #ext-round-complete.active { display: flex; animation: extFadeIn 0.3s ease-out; }
+
+        .ext-round-pip {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            margin: 0 3px;
+            transition: all 0.3s;
+        }
+        .ext-round-pip.done { background: #2ecc71; box-shadow: 0 0 6px rgba(46,204,113,0.6); }
+        .ext-round-pip.current { background: #4ECDC4; box-shadow: 0 0 6px rgba(78,205,196,0.6); }
+        @keyframes extFadeIn { from{opacity:0} to{opacity:1} }
+
+        .ext-result-card {
+            background: #1a1a2e;
+            border: 1px solid rgba(78,205,196,0.25);
+            border-radius: 22px;
+            padding: 2.2rem 1.75rem;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            color: #f0f0f0;
+        }
+        .ext-result-icon { font-size: 3.2rem; margin-bottom: 0.9rem; }
+        .ext-result-title { font-size: 1.7rem; font-weight: 700; margin-bottom: 0.45rem; }
+        .ext-result-sub { font-size: 0.95rem; color: #8892a4; margin-bottom: 1.4rem; line-height: 1.5; }
+
+        .ext-stat-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.4rem;
+            background: rgba(0,0,0,0.25);
+            border-radius: 12px;
+            padding: 0.9rem;
+        }
+        .ext-stat-val {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4ECDC4;
+        }
+        .ext-stat-lbl { font-size: 0.68rem; color: #8892a4; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 0.2rem; }
+
+        .ext-btn-row { display: flex; gap: 0.7rem; }
+        .ext-ov-btn {
+            flex: 1;
+            padding: 0.78rem;
+            border: none;
+            border-radius: 11px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ext-ov-primary { background: #4ECDC4; color: #0f0f1a; }
+        .ext-ov-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(78,205,196,0.4); }
+        .ext-ov-secondary { background: rgba(255,255,255,0.07); color: #f0f0f0; border: 1px solid rgba(255,255,255,0.1); }
+        .ext-ov-secondary:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
+
+        /* Hint bar */
+        .ext-hint {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15,15,26,0.82);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 0.45rem 1.1rem;
+            font-size: 0.78rem;
+            color: #8892a4;
+            pointer-events: none;
+            z-index: 9050;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="bg-shapes">
+        <div class="bg-shape bg-shape-1"></div>
+        <div class="bg-shape bg-shape-2"></div>
+        <div class="bg-shape bg-shape-3"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- ══════════════ LANDING PAGE ══════════════ -->
+        <div id="landing-page" class="page active">
+            <div style="text-align: right; margin-bottom: 1rem;">
+                <a href="file:///C:/Users/pell/OneDrive%20-%20Roseville%20College/Downloads/index.html" class="home-btn">🏠 All Activities</a>
+            </div>
+
+            <div class="landing-header">
+                <h1>Spot the <span>Imposter</span> 🕵️</h1>
+                <p class="subtitle">One decimal doesn't belong — can you find it?</p>
+            </div>
+
+            <div class="learning-card">
+                <h2>🔍 What's going on here?</h2>
+                <p>Each question shows you a group of decimals. Most of them are the <strong>same value</strong> — just written differently. But one of them is secretly a <strong>different number</strong>. That's the imposter!</p>
+
+                <div class="key-concept">
+                    <h3>💡 The Key Idea</h3>
+                    <p>Zeros in decimals matter! A trailing zero after a decimal (like 0.50) is still equal to 0.5. But a zero sandwiched in the middle (like 0.05) completely changes the value. Knowing the difference is your superpower.</p>
+
+                    <div class="example-box">
+                        These are all EQUAL: &nbsp; 0.5 &nbsp;|&nbsp; 0.50 &nbsp;|&nbsp; 0.500<br><br>
+                        This is the IMPOSTER: &nbsp; 0.05 &nbsp; ← it's ten times smaller!
+                    </div>
+                </div>
+            </div>
+
+            <!-- STAGE 1 -->
+            <div class="stage-section stage-1">
+                <div class="stage-title">🌿 Stage 1 — The Tenths Terrace</div>
+                <div class="level-grid">
+                    <button class="level-btn" onclick="startLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Tenths vs. Whole Numbers</p>
+                        <div class="level-meta"><span>🎯 3 options</span><span>15 questions</span></div>
+                    </button>
+                    <button class="level-btn" onclick="startLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Tenths vs. Placeholders</p>
+                        <div class="level-meta"><span>🎯 3 options</span><span>15 questions</span></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STAGE 2 -->
+            <div class="stage-section stage-2">
+                <div class="stage-title">⛰️ Stage 2 — The Hundredths Heights</div>
+                <div class="level-grid">
+                    <button class="level-btn" onclick="startLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Hundredths vs. Thousandths</p>
+                        <div class="level-meta"><span>🎯 3 options</span><span>15 questions</span></div>
+                    </button>
+                    <button class="level-btn" onclick="startLevel(4)">
+                        <h3>Level 4</h3>
+                        <p>Zero Sandwich — Light</p>
+                        <div class="level-meta"><span>🎯 4 options</span><span>15 questions</span></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STAGE 3 -->
+            <div class="stage-section stage-3">
+                <div class="stage-title">🌀 Stage 3 — The Thousandths Threshold</div>
+                <div class="level-grid">
+                    <button class="level-btn" onclick="startLevel(5)">
+                        <h3>Level 5</h3>
+                        <p>Thousandths vs. Ten-Thousandths</p>
+                        <div class="level-meta"><span>🎯 4 options</span><span>15 questions</span></div>
+                    </button>
+                    <button class="level-btn" onclick="startLevel(6)">
+                        <h3>Level 6</h3>
+                        <p>Zero Sandwich — Heavy</p>
+                        <div class="level-meta"><span>🎯 4 options</span><span>15 questions</span></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STAGE 4 -->
+            <div class="stage-section stage-4">
+                <div class="stage-title">🏔️ Stage 4 — The Ten-Thousandths Trek</div>
+                <div class="level-grid">
+                    <button class="level-btn" onclick="startLevel(7)">
+                        <h3>Level 7</h3>
+                        <p>Shifting Placeholders</p>
+                        <div class="level-meta"><span>🎯 5 options</span><span>15 questions</span></div>
+                    </button>
+                    <button class="level-btn" onclick="startLevel(8)">
+                        <h3>Level 8</h3>
+                        <p>Mixed Whole Numbers</p>
+                        <div class="level-meta"><span>🎯 5 options</span><span>15 questions</span></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STAGE 5 -->
+            <div class="stage-section stage-5">
+                <div class="stage-title">🌋 Stage 5 — The Hundred-Thousandths Peak</div>
+                <div class="level-grid">
+                    <button class="level-btn" onclick="startLevel(9)">
+                        <h3>Level 9</h3>
+                        <p>Pure Placeholder / Trailing Zeros</p>
+                        <div class="level-meta"><span>🎯 5 options</span><span>15 questions</span></div>
+                    </button>
+                    <button class="level-btn" onclick="startLevel(10)">
+                        <h3>Level 10</h3>
+                        <p>The Ultimate Zero Sandwich</p>
+                        <div class="level-meta"><span>🎯 5 options</span><span>15 questions</span></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- EXTENSION -->
+            <div class="extension-section">
+                <div class="extension-header">
+                    <div class="stage-title" style="margin-bottom:0;">🚀 Extension — Imposter Hunt</div>
+                    <span class="extension-badge">Challenge Mode</span>
+                </div>
+                <div class="extension-intro">
+                    <p>Decimals float freely around the screen. Most share the same value — but imposters with <strong>different values</strong> are hiding in the swarm. Click every imposter before time runs out. Wrong click? You lose a life. ❤️❤️❤️</p>
+                </div>
+                <div class="ext-level-grid">
+                    <button class="ext-level-btn" style="--ext-color:#4ECDC4" onclick="extStartLevel(&#39;E1&#39;)">
+                        <div class="ext-num">Level E1</div>
+                        <h4>First Sighting</h4>
+                        <p>3 tiles · 1 imposter</p>
+                        <div class="ext-pills"><span class="ext-pill">60s</span><span class="ext-pill">3 lives</span><span class="ext-pill">slow</span></div>
+                    </button>
+                    <button class="ext-level-btn" style="--ext-color:#45B7D1" onclick="extStartLevel(&#39;E2&#39;)">
+                        <div class="ext-num">Level E2</div>
+                        <h4>Growing Crowd</h4>
+                        <p>8 tiles · 2 imposters</p>
+                        <div class="ext-pills"><span class="ext-pill">60s</span><span class="ext-pill">3 lives</span><span class="ext-pill">calm</span></div>
+                    </button>
+                    <button class="ext-level-btn" style="--ext-color:#9B5DE5" onclick="extStartLevel(&#39;E3&#39;)">
+                        <div class="ext-num">Level E3</div>
+                        <h4>The Swarm</h4>
+                        <p>15 tiles · 3 imposters</p>
+                        <div class="ext-pills"><span class="ext-pill">75s</span><span class="ext-pill">3 lives</span><span class="ext-pill">medium</span></div>
+                    </button>
+                    <button class="ext-level-btn" style="--ext-color:#F7931E" onclick="extStartLevel(&#39;E4&#39;)">
+                        <div class="ext-num">Level E4</div>
+                        <h4>Chaos Theory</h4>
+                        <p>25 tiles · 5 imposters</p>
+                        <div class="ext-pills"><span class="ext-pill">90s</span><span class="ext-pill">3 lives</span><span class="ext-pill">fast</span></div>
+                    </button>
+                    <button class="ext-level-btn" style="--ext-color:#E91E8C" onclick="extStartLevel(&#39;E5&#39;)">
+                        <div class="ext-num">Level E5</div>
+                        <h4>Maximum Swarm</h4>
+                        <p>35 tiles · 5 imposters</p>
+                        <div class="ext-pills"><span class="ext-pill">90s</span><span class="ext-pill">3 lives</span><span class="ext-pill">full speed</span></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════ QUESTION PAGE ══════════════ -->
+        <div id="question-page" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <button class="back-btn" onclick="backToLanding()" style="margin-bottom: 0;">← Back</button>
+                <div class="timer-row">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-display" id="timer-display">0:00</span>
+                </div>
+                <a href="file:///C:/Users/pell/OneDrive%20-%20Roseville%20College/Downloads/index.html" class="home-btn">🏠 All Activities</a>
+            </div>
+
+            <div class="revision-banner" id="revision-banner">
+                🔁 <strong>Revision Round!</strong> Have another go at the ones you missed.
+            </div>
+
+            <div class="progress-tracker">
+                <div class="progress-grid" id="progress-grid"></div>
+            </div>
+
+            <div class="question-card" id="question-card">
+                <div class="question-label" id="question-label">Level 1 – Question 1</div>
+                <div class="question-prompt">🕵️ Which one is the imposter? One decimal is a <strong>different value</strong> — find it!</div>
+
+                <div class="options-grid" id="options-grid"></div>
+
+                <div class="feedback-box" id="feedback-box">
+                    <h4 id="feedback-heading">Result</h4>
+                    <p id="feedback-text"></p>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button class="btn btn-secondary" id="next-btn" onclick="nextQuestion()" disabled="">Next →</button>
+            </div>
+        </div>
+
+        <!-- ══════════════ COMPLETION PAGE ══════════════ -->
+        <div id="completion-page" class="page">
+            <div style="text-align: right; margin-bottom: 1rem;">
+                <a href="file:///C:/Users/pell/OneDrive%20-%20Roseville%20College/Downloads/index.html" class="home-btn">🏠 All Activities</a>
+            </div>
+            <div class="completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Level Complete!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/15</div>
+                    <div class="score-label">Correct Answers</div>
+                    <div class="time-summary" id="time-summary"></div>
+                </div>
+                <div class="button-row" style="max-width: 400px; margin: 0 auto;">
+                    <button class="btn btn-primary" onclick="backToLanding()">🏠 Choose Another Level</button>
+                    <button class="btn btn-secondary" onclick="restartLevel()">↺ Try Again</button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+</div><!-- /wrapper -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  QUESTION DATA
+// ═══════════════════════════════════════════════════════
+// Format: each question = { options: [...], imposter: value, imposterIndex: i }
+// imposterIndex is the position in `options` that is the odd one out.
+
+const levels = {
+    1: [
+        {options:['0.4','0.40','4'],   imposterIndex:2},
+        {options:['7','0.7','0.70'],   imposterIndex:0},
+        {options:['0.1','1','0.10'],   imposterIndex:1},
+        {options:['9','0.9','0.90'],   imposterIndex:0},
+        {options:['0.5','0.50','5'],   imposterIndex:2},
+        {options:['0.2','2','0.20'],   imposterIndex:1},
+        {options:['8','0.8','0.80'],   imposterIndex:0},
+        {options:['0.3','0.30','3'],   imposterIndex:2},
+        {options:['6','0.6','0.60'],   imposterIndex:0},
+        {options:['0.40','4','0.4'],   imposterIndex:1},
+        {options:['0.10','0.1','1'],   imposterIndex:2},
+        {options:['5','0.50','0.5'],   imposterIndex:0},
+        {options:['0.8','8','0.80'],   imposterIndex:1},
+        {options:['2','0.20','0.2'],   imposterIndex:0},
+        {options:['0.70','0.7','7'],   imposterIndex:2},
+    ],
+    2: [
+        {options:['0.6','0.60','0.06'],  imposterIndex:2},
+        {options:['0.02','0.20','0.2'],  imposterIndex:0},
+        {options:['0.80','0.08','0.8'],  imposterIndex:1},
+        {options:['0.05','0.5','0.50'],  imposterIndex:0},
+        {options:['0.9','0.90','0.09'],  imposterIndex:2},
+        {options:['0.30','0.03','0.3'],  imposterIndex:1},
+        {options:['0.01','0.1','0.10'],  imposterIndex:0},
+        {options:['0.40','0.4','0.04'],  imposterIndex:2},
+        {options:['0.07','0.70','0.7'],  imposterIndex:0},
+        {options:['0.2','0.20','0.02'],  imposterIndex:2},
+        {options:['0.08','0.8','0.80'],  imposterIndex:0},
+        {options:['0.50','0.05','0.5'],  imposterIndex:1},
+        {options:['0.03','0.30','0.3'],  imposterIndex:0},
+        {options:['0.6','0.60','0.06'],  imposterIndex:2},
+        {options:['0.04','0.4','0.40'],  imposterIndex:0},
+    ],
+    3: [
+        {options:['0.25','0.250','0.025'],  imposterIndex:2},
+        {options:['0.066','0.66','0.660'],  imposterIndex:0},
+        {options:['0.14','0.014','0.140'],  imposterIndex:1},
+        {options:['0.088','0.88','0.880'],  imposterIndex:0},
+        {options:['0.52','0.520','0.052'],  imposterIndex:2},
+        {options:['0.031','0.31','0.310'],  imposterIndex:0},
+        {options:['0.99','0.099','0.990'],  imposterIndex:1},
+        {options:['0.012','0.12','0.120'],  imposterIndex:0},
+        {options:['0.47','0.470','0.047'],  imposterIndex:2},
+        {options:['0.055','0.55','0.550'],  imposterIndex:0},
+        {options:['0.73','0.073','0.730'],  imposterIndex:1},
+        {options:['0.022','0.22','0.220'],  imposterIndex:0},
+        {options:['0.81','0.810','0.081'],  imposterIndex:2},
+        {options:['0.044','0.44','0.440'],  imposterIndex:0},
+        {options:['0.60','0.06','0.6'],     imposterIndex:1},
+    ],
+    4: [
+        {options:['0.40','0.4','0.400','0.04'],    imposterIndex:3},
+        {options:['0.07','0.70','0.7','0.700'],    imposterIndex:0},
+        {options:['0.1','0.10','0.01','0.100'],    imposterIndex:2},
+        {options:['0.30','0.03','0.3','0.300'],    imposterIndex:1},
+        {options:['0.09','0.90','0.9','0.900'],    imposterIndex:0},
+        {options:['0.5','0.50','0.500','0.05'],    imposterIndex:3},
+        {options:['0.02','0.20','0.200','0.2'],    imposterIndex:0},
+        {options:['0.800','0.8','0.08','0.80'],    imposterIndex:2},
+        {options:['0.06','0.6','0.60','0.600'],    imposterIndex:0},
+        {options:['0.10','0.01','0.1','0.100'],    imposterIndex:1},
+        {options:['0.700','0.70','0.7','0.07'],    imposterIndex:3},
+        {options:['0.04','0.400','0.40','0.4'],    imposterIndex:0},
+        {options:['0.2','0.20','0.02','0.200'],    imposterIndex:2},
+        {options:['0.05','0.50','0.500','0.5'],    imposterIndex:0},
+        {options:['0.8','0.80','0.800','0.08'],    imposterIndex:3},
+    ],
+    5: [
+        {options:['0.123','0.1230','0.0123','0.12300'],   imposterIndex:2},
+        {options:['0.0456','0.456','0.4560','0.45600'],   imposterIndex:0},
+        {options:['0.789','0.0789','0.7890','0.78900'],   imposterIndex:1},
+        {options:['0.0111','0.111','0.1110','0.11100'],   imposterIndex:0},
+        {options:['0.222','0.2220','0.0222','0.22200'],   imposterIndex:2},
+        {options:['0.0333','0.333','0.3330','0.33300'],   imposterIndex:0},
+        {options:['0.555','0.0555','0.5550','0.55500'],   imposterIndex:1},
+        {options:['0.404','0.4040','0.0404','0.40400'],   imposterIndex:2},
+        {options:['0.0808','0.808','0.8080','0.80800'],   imposterIndex:0},
+        {options:['0.121','0.1210','0.0121','0.12100'],   imposterIndex:2},
+        {options:['0.0606','0.606','0.6060','0.60600'],   imposterIndex:0},
+        {options:['0.202','0.0202','0.2020','0.20200'],   imposterIndex:1},
+        {options:['0.909','0.9090','0.0909','0.90900'],   imposterIndex:2},
+        {options:['0.0101','0.101','0.1010','0.10100'],   imposterIndex:0},
+        {options:['0.707','0.7070','0.0707','0.70700'],   imposterIndex:2},
+    ],
+    6: [
+        {options:['0.505','0.5050','0.5500','0.50500'],    imposterIndex:2},
+        {options:['0.8800','0.808','0.8080','0.80800'],    imposterIndex:0},
+        {options:['0.101','0.1010','0.10100','0.1100'],    imposterIndex:3},
+        {options:['0.33','0.330','0.303','0.3300'],        imposterIndex:2},
+        {options:['0.9900','0.909','0.9090','0.90900'],    imposterIndex:0},
+        {options:['0.202','0.2020','0.2200','0.20200'],    imposterIndex:2},
+        {options:['0.4400','0.404','0.4040','0.40400'],    imposterIndex:0},
+        {options:['0.707','0.7700','0.7070','0.70700'],    imposterIndex:1},
+        {options:['0.6600','0.606','0.6060','0.60600'],    imposterIndex:0},
+        {options:['0.11','0.110','0.101','0.1100'],        imposterIndex:2},
+        {options:['0.808','0.8080','0.8800','0.80800'],    imposterIndex:2},
+        {options:['0.2200','0.202','0.2020','0.20200'],    imposterIndex:0},
+        {options:['0.303','0.3300','0.3030','0.30300'],    imposterIndex:1},
+        {options:['0.5500','0.505','0.5050','0.50500'],    imposterIndex:0},
+        {options:['0.909','0.9090','0.9900','0.90900'],    imposterIndex:2},
+    ],
+    7: [
+        {options:['0.0004','0.00040','0.00400','0.000400','0.0004000'],      imposterIndex:2},
+        {options:['0.0001','0.001','0.0010','0.00100','0.001000'],           imposterIndex:0},
+        {options:['0.0007','0.00070','0.000700','0.00700','0.0007000'],      imposterIndex:3},
+        {options:['0.0002','0.00020','0.00200','0.000200','0.0002000'],      imposterIndex:2},
+        {options:['0.00500','0.0005','0.00050','0.000500','0.0005000'],      imposterIndex:0},
+        {options:['0.0008','0.00080','0.00800','0.000800','0.0008000'],      imposterIndex:2},
+        {options:['0.00600','0.0006','0.00060','0.000600','0.0006000'],      imposterIndex:0},
+        {options:['0.0003','0.00030','0.000300','0.00300','0.0003000'],      imposterIndex:3},
+        {options:['0.00900','0.0009','0.00090','0.000900','0.0009000'],      imposterIndex:0},
+        {options:['0.0001','0.00010','0.00100','0.000100','0.0001000'],      imposterIndex:2},
+        {options:['0.0005','0.005','0.0050','0.00500','0.005000'],           imposterIndex:0},
+        {options:['0.0002','0.00020','0.000200','0.00200','0.0002000'],      imposterIndex:3},
+        {options:['0.00400','0.0004','0.00040','0.000400','0.0004000'],      imposterIndex:0},
+        {options:['0.0008','0.00080','0.00800','0.000800','0.0008000'],      imposterIndex:2},
+        {options:['0.00700','0.0007','0.00070','0.000700','0.0007000'],      imposterIndex:0},
+    ],
+    8: [
+        {options:['1.001','1.0010','10.01','1.00100','1.001000'],    imposterIndex:2},
+        {options:['2.02','20.2','2.020','2.0200','2.02000'],         imposterIndex:1},
+        {options:['5.005','5.0050','5.00500','50.05','5.005000'],    imposterIndex:3},
+        {options:['0.404','4.04','4.040','4.0400','4.04000'],        imposterIndex:0},
+        {options:['1.11','1.110','1.1100','11.1','1.11000'],         imposterIndex:3},
+        {options:['3.03','3.030','30.3','3.0300','3.03000'],         imposterIndex:2},
+        {options:['0.66','6.6','6.60','6.600','6.6000'],             imposterIndex:0},
+        {options:['8.08','8.080','8.0800','80.8','8.08000'],         imposterIndex:3},
+        {options:['0.909','9.09','9.090','9.0900','9.09000'],        imposterIndex:0},
+        {options:['7.07','7.070','70.7','7.0700','7.07000'],         imposterIndex:2},
+        {options:['4.4','44.0','4.40','4.400','4.4000'],             imposterIndex:1},
+        {options:['1.001','1.0010','1.00100','0.1001','1.001000'],   imposterIndex:3},
+        {options:['2.22','22.2','2.220','2.2200','2.22000'],         imposterIndex:1},
+        {options:['5.5','5.50','55.0','5.500','5.5000'],             imposterIndex:2},
+        {options:['0.33','3.3','3.30','3.300','3.3000'],             imposterIndex:0},
+    ],
+    9: [
+        {options:['0.00006','0.000060','0.000600','0.0000600','0.00006000'],     imposterIndex:2},
+        {options:['0.000200','0.00002','0.000020','0.0000200','0.00002000'],     imposterIndex:0},
+        {options:['0.00008','0.000080','0.0000800','0.00008000','0.000800'],     imposterIndex:4},
+        {options:['0.00003','0.000030','0.000300','0.0000300','0.00003000'],     imposterIndex:2},
+        {options:['0.00009','0.000090','0.0000900','0.00009000','0.000900'],        imposterIndex:4},
+        {options:['0.00001','0.000010','0.000100','0.0000100','0.00001000'],     imposterIndex:2},
+        {options:['0.000500','0.00005','0.000050','0.0000500','0.00005000'],     imposterIndex:0},
+        {options:['0.00002','0.000020','0.0000200','0.000200','0.00002000'],     imposterIndex:3},
+        {options:['0.000700','0.00007','0.000070','0.0000700','0.00007000'],     imposterIndex:0},
+        {options:['0.00004','0.000040','0.000400','0.0000400','0.00004000'],     imposterIndex:2},
+        {options:['0.00008','0.000080','0.0000800','0.00008000','0.000800'],        imposterIndex:4},
+        {options:['0.00001','0.000010','0.0000100','0.000100','0.00001000'],     imposterIndex:3},
+        {options:['0.000300','0.00003','0.000030','0.0000300','0.00003000'],     imposterIndex:0},
+        {options:['0.00007','0.000070','0.000700','0.0000700','0.00007000'],     imposterIndex:2},
+        {options:['0.000500','0.00005','0.000050','0.0000500','0.00005000'],        imposterIndex:0},
+    ],
+    10: [
+        // Normals all = 0.10101. Imposter: 0.1010010 (zero in wrong place, similar length)
+        {options:['0.10101','0.101010','0.1010010','0.1010100','0.10101000'],    imposterIndex:2},
+        // Normals all = 0.20202. Imposter: 0.2020020 (zero shifted)
+        {options:['0.20202','0.202020','0.2020200','0.2020020','0.20202000'],    imposterIndex:3},
+        // Normals all = 0.40004. Imposter: 0.4000400 looks right but = 0.40004, so use 0.4004000 (different value)
+        {options:['0.40004','0.400040','0.4004000','0.4000400','0.40004000'],    imposterIndex:2},
+        // Normals all = 0.50505. Imposter: 0.5055000 (different value, similar length)
+        {options:['0.50505','0.505050','0.5050500','0.5055000','0.50505000'],    imposterIndex:3},
+        // Normals all = 0.00808. Imposter: 0.0080800 looks right but = 0.00808 ✓, use 0.0088000 instead
+        {options:['0.00808','0.008080','0.0088000','0.0080800','0.00808000'],    imposterIndex:2},
+        // Normals all = 0.30303. Imposter: 0.3030030 (zero in wrong place)
+        {options:['0.30303','0.303030','0.3030300','0.3030030','0.30303000'],    imposterIndex:3},
+        // Normals all = 0.60606. Imposter: 0.6060060 (zero shifted)
+        {options:['0.60606','0.606060','0.6060600','0.6060060','0.60606000'],    imposterIndex:3},
+        // Normals all = 0.90909. Imposter: 0.9090090 (zero in wrong place)
+        {options:['0.90909','0.909090','0.9090900','0.9090090','0.90909000'],    imposterIndex:3},
+        // Normals all = 0.00707. Imposter: 0.0070070 (shifted zero)
+        {options:['0.00707','0.007070','0.0070700','0.0070070','0.00707000'],    imposterIndex:3},
+        // Normals all = 0.10001. Imposter: 0.1000010 (zero pattern shifted)
+        {options:['0.10001','0.100010','0.1000100','0.1000010','0.10001000'],    imposterIndex:3},
+        // Normals all = 0.20002. Imposter: 0.2000200 looks right but = 0.20002 ✓, use 0.2002000
+        {options:['0.20002','0.200020','0.2002000','0.2000200','0.20002000'],    imposterIndex:2},
+        // Normals all = 0.50505. Imposter: 0.5050050 (shifted zero)
+        {options:['0.50505','0.505050','0.5050500','0.5050050','0.50505000'],    imposterIndex:3},
+        // Normals all = 0.30003. Imposter: 0.3000030 (zero pattern shifted)
+        {options:['0.30003','0.300030','0.3000300','0.3000030','0.30003000'],    imposterIndex:3},
+        // Normals all = 0.40404. Imposter: 0.4040040 (shifted zero)
+        {options:['0.40404','0.404040','0.4040400','0.4040040','0.40404000'],    imposterIndex:3},
+        // Normals all = 0.80808. Imposter: 0.8080080 (shifted zero)
+        {options:['0.80808','0.808080','0.8080800','0.8080080','0.80808000'],    imposterIndex:3},
+    ],
+};
+
+const levelNames = {
+    1: 'Level 1 – Tenths vs. Whole Numbers',
+    2: 'Level 2 – Tenths vs. Placeholders',
+    3: 'Level 3 – Hundredths vs. Thousandths',
+    4: 'Level 4 – Zero Sandwich (Light)',
+    5: 'Level 5 – Thousandths vs. Ten-Thousandths',
+    6: 'Level 6 – Zero Sandwich (Heavy)',
+    7: 'Level 7 – Shifting Placeholders',
+    8: 'Level 8 – Mixed Whole Numbers',
+    9: 'Level 9 – Pure Placeholder',
+    10: 'Level 10 – Ultimate Zero Sandwich',
+};
+
+const levelStage = {1:'stage-1',2:'stage-1',3:'stage-2',4:'stage-2',5:'stage-3',6:'stage-3',7:'stage-4',8:'stage-4',9:'stage-5',10:'stage-5'};
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let currentLevel = 1;
+let currentQuestion = 0;
+let questionStatus = [];   // null | 'correct' | 'incorrect'
+let initialQuestionResult = [];
+let score = 0;
+let hasAnswered = false;
+let isRevisionRound = false;
+let revisionIndices = [];
+let shuffledOptions = [];  // store shuffled order for current q
+let timerInterval = null;
+let timerSeconds = 0;
+let levelStartTime = 0;
+
+// ═══════════════════════════════════════════════════════
+//  PAGE CONTROL
+// ═══════════════════════════════════════════════════════
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function backToLanding() {
+    stopTimer();
+    showPage('landing-page');
+}
+
+function restartLevel() {
+    stopTimer();
+    startLevel(currentLevel);
+}
+
+// ═══════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════
+function startTimer() {
+    stopTimer();
+    timerSeconds = 0;
+    levelStartTime = Date.now();
+    timerInterval = setInterval(() => {
+        timerSeconds = Math.floor((Date.now() - levelStartTime) / 1000);
+        document.getElementById('timer-display').textContent = formatTime(timerSeconds);
+    }, 500);
+}
+
+function stopTimer() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + String(sec).padStart(2, '0');
+}
+
+// ═══════════════════════════════════════════════════════
+//  LEVEL START
+// ═══════════════════════════════════════════════════════
+function startLevel(level) {
+    currentLevel = level;
+    currentQuestion = 0;
+    score = 0;
+    isRevisionRound = false;
+    revisionIndices = [];
+    questionStatus = new Array(levels[level].length).fill(null);
+    initialQuestionResult = new Array(levels[level].length).fill(null);
+    createProgressTracker();
+    startTimer();
+    loadQuestion();
+    showPage('question-page');
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROGRESS TRACKER
+// ═══════════════════════════════════════════════════════
+function createProgressTracker() {
+    const grid = document.getElementById('progress-grid');
+    grid.innerHTML = '';
+    const total = isRevisionRound ? revisionIndices.length : levels[currentLevel].length;
+    if (!isRevisionRound) {
+        questionStatus = new Array(levels[currentLevel].length).fill(null);
+        initialQuestionResult = new Array(levels[currentLevel].length).fill(null);
+    }
+    for (let i = 0; i < total; i++) {
+        const c = document.createElement('div');
+        c.className = 'progress-circle';
+        c.textContent = i + 1;
+        c.id = `progress-${i}`;
+        c.onclick = () => jumpToQuestion(i);
+        grid.appendChild(c);
+    }
+    updateProgressTracker();
+}
+
+function updateProgressTracker() {
+    const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+    for (let i = 0; i < total; i++) {
+        const c = document.getElementById(`progress-${i}`);
+        if (!c) continue;
+        const idx = isRevisionRound ? revisionIndices[i] : i;
+        c.classList.remove('current', 'correct', 'incorrect');
+        if (i === currentQuestion) c.classList.add('current');
+        if (questionStatus[idx] === 'correct') c.classList.add('correct');
+        else if (questionStatus[idx] === 'incorrect') c.classList.add('incorrect');
+    }
+}
+
+function jumpToQuestion(index) {
+    currentQuestion = index;
+    loadQuestion();
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOAD QUESTION
+// ═══════════════════════════════════════════════════════
+function loadQuestion() {
+    hasAnswered = false;
+    const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+    const q = levels[currentLevel][actualIndex];
+    const totalInRound = isRevisionRound ? revisionIndices.length : levels[currentLevel].length;
+
+    // Revision banner
+    document.getElementById('revision-banner').classList.toggle('visible', isRevisionRound);
+
+    // Card stage colour
+    const card = document.getElementById('question-card');
+    card.className = 'question-card ' + levelStage[currentLevel];
+
+    // Label
+    document.getElementById('question-label').textContent = isRevisionRound
+        ? `Revision – Question ${currentQuestion + 1} of ${totalInRound}`
+        : `${levelNames[currentLevel]} — Question ${currentQuestion + 1} of ${totalInRound}`;
+
+    // Shuffle options but remember the mapping
+    const indices = q.options.map((_, i) => i);
+    shuffleArray(indices);
+    shuffledOptions = indices; // shuffledOptions[displayPosition] = originalIndex
+
+    // Build option buttons
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    indices.forEach((origIdx, displayIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = q.options[origIdx];
+        btn.dataset.origIdx = origIdx;
+        btn.onclick = () => handleChoice(btn, origIdx, q.imposterIndex, q.options[q.imposterIndex]);
+        grid.appendChild(btn);
+    });
+
+    // Hide feedback
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+
+    // Disable next
+    document.getElementById('next-btn').disabled = true;
+
+    updateProgressTracker();
+}
+
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+//  HANDLE CHOICE
+// ═══════════════════════════════════════════════════════
+function handleChoice(btn, origIdx, correctIdx, correctValue) {
+    if (hasAnswered) return;
+    hasAnswered = true;
+
+    const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+    const allBtns = document.querySelectorAll('.option-btn');
+    allBtns.forEach(b => b.disabled = true);
+
+    const fb = document.getElementById('feedback-box');
+    const fbHeading = document.getElementById('feedback-heading');
+    const fbText = document.getElementById('feedback-text');
+
+    if (origIdx === correctIdx) {
+        // Correct!
+        score++;
+        questionStatus[actualIndex] = 'correct';
+        if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+            initialQuestionResult[actualIndex] = 'correct';
+        }
+        btn.classList.add('correct-pick');
+        fb.className = 'feedback-box visible correct';
+        fbHeading.textContent = 'Got it! 🎉';
+        fbText.textContent = `"${correctValue}" is the imposter — it's a different value from the others.`;
+    } else {
+        // Wrong
+        questionStatus[actualIndex] = 'incorrect';
+        if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+            initialQuestionResult[actualIndex] = 'incorrect';
+        }
+        btn.classList.add('wrong-pick');
+        // Highlight the correct one
+        allBtns.forEach(b => {
+            if (parseInt(b.dataset.origIdx) === correctIdx) {
+                b.classList.add('reveal-correct');
+            }
+        });
+        fb.className = 'feedback-box visible incorrect';
+        fbHeading.textContent = 'Not quite! 🕵️';
+        fbText.textContent = `The imposter was "${correctValue}" — it's a different value from the others.`;
+    }
+
+    updateProgressTracker();
+    document.getElementById('next-btn').disabled = false;
+}
+
+// ═══════════════════════════════════════════════════════
+//  NEXT QUESTION
+// ═══════════════════════════════════════════════════════
+function nextQuestion() {
+    currentQuestion++;
+    const roundLength = isRevisionRound ? revisionIndices.length : levels[currentLevel].length;
+
+    if (currentQuestion >= roundLength) {
+        if (isRevisionRound) {
+            // Done — show completion
+            showCompletion();
+        } else {
+            // Check for incorrects
+            const incorrectIndices = questionStatus.map((s, i) => s === 'incorrect' ? i : -1).filter(i => i >= 0);
+            if (incorrectIndices.length === 0) {
+                showCompletion();
+            } else {
+                // Start revision round
+                isRevisionRound = true;
+                revisionIndices = incorrectIndices;
+                currentQuestion = 0;
+                createProgressTracker();
+                loadQuestion();
+            }
+        }
+    } else {
+        loadQuestion();
+    }
+}
+
+function showCompletion() {
+    stopTimer();
+    const total = levels[currentLevel].length;
+    const initialCorrect = initialQuestionResult.filter(s => s === 'correct').length;
+    document.getElementById('completion-message').textContent = `Level complete! ${levelNames[currentLevel]}`;
+    document.getElementById('final-score').textContent = `${initialCorrect}/${total}`;
+    document.getElementById('time-summary').textContent = `⏱ Time: ${formatTime(timerSeconds)}`;
+    showPage('completion-page');
+}
+
+// ═══════════════════════════════════════════════════════
+//  ENTER KEY → NEXT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn && !nextBtn.disabled) {
+        e.preventDefault();
+        nextBtn.click();
+    }
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════════
+     EXTENSION OVERLAY — fullscreen hunt game
+════════════════════════════════════════════════════ -->
+<div id="ext-overlay">
+    <!-- Stars -->
+    <div id="ext-stars"><div class="ext-star" style="width: 2.45761px; height: 2.45761px; top: 67.4252%; left: 9.83221%; --dur: 2.007308236961177s; --delay: 1.5624635261173827s; --mn: 0.0574903983371374; --mx: 0.6909930680431344;"></div><div class="ext-star" style="width: 1.0121px; height: 1.0121px; top: 64.7327%; left: 61.4788%; --dur: 5.30442639475275s; --delay: 2.3065039478560916s; --mn: 0.06936353872053723; --mx: 0.3039031023815932;"></div><div class="ext-star" style="width: 0.588045px; height: 0.588045px; top: 91.8528%; left: 70.85%; --dur: 2.7950731955428245s; --delay: 2.152448632286901s; --mn: 0.13546944985459367; --mx: 0.34509241006176805;"></div><div class="ext-star" style="width: 1.36137px; height: 1.36137px; top: 3.84244%; left: 10.2593%; --dur: 3.172509063945147s; --delay: 0.5270757397437102s; --mn: 0.1687556567784224; --mx: 0.7249015682956674;"></div><div class="ext-star" style="width: 2.33929px; height: 2.33929px; top: 37.2387%; left: 84.9849%; --dur: 2.1288979090408566s; --delay: 3.4783336223601116s; --mn: 0.07155388003027123; --mx: 0.3649687825774382;"></div><div class="ext-star" style="width: 2.15557px; height: 2.15557px; top: 1.78813%; left: 34.9166%; --dur: 5.870041614168784s; --delay: 3.9411528742667734s; --mn: 0.05344730409030556; --mx: 0.7970822784761761;"></div><div class="ext-star" style="width: 1.36875px; height: 1.36875px; top: 85.9168%; left: 2.25829%; --dur: 4.4651026652538235s; --delay: 2.748269155800717s; --mn: 0.1189726185251053; --mx: 0.6104280036479826;"></div><div class="ext-star" style="width: 0.731437px; height: 0.731437px; top: 71.264%; left: 79.8915%; --dur: 5.483595177668281s; --delay: 2.1305811594796285s; --mn: 0.12998500337928198; --mx: 0.6172218611843674;"></div><div class="ext-star" style="width: 1.95747px; height: 1.95747px; top: 54.4944%; left: 31.2116%; --dur: 5.331370382221616s; --delay: 3.205405875289726s; --mn: 0.11669165469770944; --mx: 0.8238602360729264;"></div><div class="ext-star" style="width: 1.08135px; height: 1.08135px; top: 18.1018%; left: 29.9761%; --dur: 3.7509290299512936s; --delay: 0.4331454776557737s; --mn: 0.11391964236117255; --mx: 0.5492734293216213;"></div><div class="ext-star" style="width: 2.34608px; height: 2.34608px; top: 98.0997%; left: 31.7522%; --dur: 3.2509098759694584s; --delay: 3.181054508876285s; --mn: 0.13726093187708538; --mx: 0.6767506086745179;"></div><div class="ext-star" style="width: 1.57546px; height: 1.57546px; top: 86.8354%; left: 4.10869%; --dur: 3.62363395897942s; --delay: 1.7478155150821553s; --mn: 0.1420392980097161; --mx: 0.8084142374283707;"></div><div class="ext-star" style="width: 1.50026px; height: 1.50026px; top: 22.6947%; left: 48.7542%; --dur: 3.729995630668876s; --delay: 0.4309939935679572s; --mn: 0.07276081376768259; --mx: 0.45020457198003777;"></div><div class="ext-star" style="width: 1.88134px; height: 1.88134px; top: 65.3882%; left: 54.183%; --dur: 4.8277560114485585s; --delay: 2.1941959295010114s; --mn: 0.1168044205595638; --mx: 0.6972249218614444;"></div><div class="ext-star" style="width: 2.14355px; height: 2.14355px; top: 79.7088%; left: 89.2727%; --dur: 5.35311867647433s; --delay: 3.9768075877529436s; --mn: 0.14805713637324486; --mx: 0.3007998169034813;"></div><div class="ext-star" style="width: 1.87601px; height: 1.87601px; top: 68.5646%; left: 82.5694%; --dur: 3.6034514098039985s; --delay: 2.126141751500879s; --mn: 0.07595225121404618; --mx: 0.6354264489833203;"></div><div class="ext-star" style="width: 0.527967px; height: 0.527967px; top: 35.2131%; left: 4.0065%; --dur: 3.0333134270856705s; --delay: 3.376253306485118s; --mn: 0.10118671585333278; --mx: 0.3280592831006616;"></div><div class="ext-star" style="width: 1.81026px; height: 1.81026px; top: 90.2698%; left: 45.7757%; --dur: 4.709469612813039s; --delay: 3.8885482408410277s; --mn: 0.09803711685814938; --mx: 0.4846346363363219;"></div><div class="ext-star" style="width: 2.68838px; height: 2.68838px; top: 95.8889%; left: 73.772%; --dur: 3.4143216459126795s; --delay: 3.7077939219628546s; --mn: 0.09269898434203615; --mx: 0.6547830239436361;"></div><div class="ext-star" style="width: 0.671452px; height: 0.671452px; top: 5.41827%; left: 50.659%; --dur: 3.959097343619137s; --delay: 2.9291464084886867s; --mn: 0.08686638257800816; --mx: 0.6206916039887482;"></div><div class="ext-star" style="width: 1.92086px; height: 1.92086px; top: 19.4967%; left: 77.592%; --dur: 5.61487015824438s; --delay: 3.308319503527155s; --mn: 0.08104649567873061; --mx: 0.5024435560558951;"></div><div class="ext-star" style="width: 1.02406px; height: 1.02406px; top: 22.4842%; left: 85.2105%; --dur: 4.540044281600972s; --delay: 0.19758147961314076s; --mn: 0.12033786542659027; --mx: 0.5480604792964656;"></div><div class="ext-star" style="width: 0.809701px; height: 0.809701px; top: 52.9352%; left: 43.8045%; --dur: 2.7994921603002045s; --delay: 3.206303279709216s; --mn: 0.1291281995514379; --mx: 0.6264372515110549;"></div><div class="ext-star" style="width: 1.99179px; height: 1.99179px; top: 71.9728%; left: 46.3902%; --dur: 2.3541795169634487s; --delay: 0.0974443671559424s; --mn: 0.11157082256183048; --mx: 0.49667960274299894;"></div><div class="ext-star" style="width: 1.81532px; height: 1.81532px; top: 62.6097%; left: 24.6716%; --dur: 5.649364565834144s; --delay: 0.16493004508499354s; --mn: 0.12758767302797275; --mx: 0.5768080086934763;"></div><div class="ext-star" style="width: 1.45897px; height: 1.45897px; top: 34.7627%; left: 1.76263%; --dur: 5.275860238586038s; --delay: 1.5799739506872084s; --mn: 0.09630582712125298; --mx: 0.5294786401907363;"></div><div class="ext-star" style="width: 2.39126px; height: 2.39126px; top: 52.5501%; left: 22.3608%; --dur: 3.669899448449655s; --delay: 0.48531487085069047s; --mn: 0.07635250306757964; --mx: 0.3855229928746242;"></div><div class="ext-star" style="width: 1.68106px; height: 1.68106px; top: 34.7189%; left: 26.1556%; --dur: 4.9258011556484185s; --delay: 2.6678193959704166s; --mn: 0.1594014706919123; --mx: 0.6816024794090481;"></div><div class="ext-star" style="width: 1.12956px; height: 1.12956px; top: 54.9407%; left: 55.9355%; --dur: 4.0194251597976045s; --delay: 3.332386071345801s; --mn: 0.08273580951474323; --mx: 0.795578112781511;"></div><div class="ext-star" style="width: 1.88297px; height: 1.88297px; top: 21.0237%; left: 90.3021%; --dur: 2.109483934995257s; --delay: 1.0393733406679821s; --mn: 0.14658113154697353; --mx: 0.7195350840412638;"></div><div class="ext-star" style="width: 1.83417px; height: 1.83417px; top: 27.8168%; left: 73.5812%; --dur: 3.365215119499977s; --delay: 3.550341263959369s; --mn: 0.13337257054003804; --mx: 0.31731460887813207;"></div><div class="ext-star" style="width: 0.829925px; height: 0.829925px; top: 49.9404%; left: 54.1185%; --dur: 2.843746499494558s; --delay: 0.7146918805628735s; --mn: 0.0854571502721491; --mx: 0.7586835936605902;"></div><div class="ext-star" style="width: 1.3499px; height: 1.3499px; top: 79.4774%; left: 17.2418%; --dur: 2.6287320711417306s; --delay: 2.492096685025963s; --mn: 0.08002846316595383; --mx: 0.6411252980049329;"></div><div class="ext-star" style="width: 1.28611px; height: 1.28611px; top: 80.3862%; left: 70.049%; --dur: 2.4707308577643112s; --delay: 0.5717724444427033s; --mn: 0.10950954239773553; --mx: 0.3002976886066786;"></div><div class="ext-star" style="width: 0.569747px; height: 0.569747px; top: 55.1251%; left: 11.2482%; --dur: 4.243128776308957s; --delay: 2.0280146917156197s; --mn: 0.15625089731612246; --mx: 0.8125003937239887;"></div><div class="ext-star" style="width: 1.62101px; height: 1.62101px; top: 39.6081%; left: 36.3851%; --dur: 5.241050667462072s; --delay: 0.2680746891982255s; --mn: 0.05234874595830714; --mx: 0.5314967980831073;"></div><div class="ext-star" style="width: 1.93496px; height: 1.93496px; top: 73.2797%; left: 84.5798%; --dur: 5.671752963088963s; --delay: 2.919297040952257s; --mn: 0.1484954388626462; --mx: 0.6411255333019256;"></div><div class="ext-star" style="width: 0.647732px; height: 0.647732px; top: 3.95719%; left: 76.1373%; --dur: 3.2659227395578445s; --delay: 0.10722084204077431s; --mn: 0.09942317431383982; --mx: 0.4566528401538262;"></div><div class="ext-star" style="width: 1.09166px; height: 1.09166px; top: 85.3556%; left: 11.8535%; --dur: 5.14039157523887s; --delay: 3.7433951591347645s; --mn: 0.09703198082496976; --mx: 0.3123520299074918;"></div><div class="ext-star" style="width: 1.40031px; height: 1.40031px; top: 40.8887%; left: 29.1465%; --dur: 5.873105573123601s; --delay: 3.0553387854758434s; --mn: 0.12261666153070243; --mx: 0.4746022130910038;"></div><div class="ext-star" style="width: 1.26564px; height: 1.26564px; top: 52.0822%; left: 39.7029%; --dur: 4.8310767810202035s; --delay: 3.595227162264742s; --mn: 0.07432985378454753; --mx: 0.4925925859862138;"></div><div class="ext-star" style="width: 2.62537px; height: 2.62537px; top: 43.954%; left: 39.8913%; --dur: 3.487413239956728s; --delay: 3.1896311846820997s; --mn: 0.16612080856515749; --mx: 0.7789525567849074;"></div><div class="ext-star" style="width: 1.21391px; height: 1.21391px; top: 35.4939%; left: 74.8397%; --dur: 3.128302867901008s; --delay: 3.273915840135185s; --mn: 0.06892215663142802; --mx: 0.32464616956656184;"></div><div class="ext-star" style="width: 1.27608px; height: 1.27608px; top: 61.8901%; left: 92.2066%; --dur: 4.923602302560495s; --delay: 1.5942409466360008s; --mn: 0.11960656953807683; --mx: 0.6463758442711689;"></div><div class="ext-star" style="width: 1.02003px; height: 1.02003px; top: 86.9583%; left: 52.6497%; --dur: 2.621498848447399s; --delay: 1.497180847069849s; --mn: 0.1261171638822396; --mx: 0.4908505871684039;"></div><div class="ext-star" style="width: 1.51947px; height: 1.51947px; top: 29.0797%; left: 77.2801%; --dur: 5.4787874915646215s; --delay: 3.3881987331982892s; --mn: 0.1069023534550948; --mx: 0.6510305653202011;"></div><div class="ext-star" style="width: 1.13714px; height: 1.13714px; top: 67.0823%; left: 90.0957%; --dur: 5.487827606846938s; --delay: 3.21257678599166s; --mn: 0.07591017176365579; --mx: 0.6320500498074967;"></div><div class="ext-star" style="width: 1.40184px; height: 1.40184px; top: 21.7483%; left: 35.794%; --dur: 2.3528094042591605s; --delay: 1.821375712047577s; --mn: 0.14147058921066036; --mx: 0.5601776572140966;"></div><div class="ext-star" style="width: 2.27315px; height: 2.27315px; top: 50.9662%; left: 72.7117%; --dur: 4.896926160524236s; --delay: 2.5819324367563663s; --mn: 0.08135138044328119; --mx: 0.8287732688680183;"></div><div class="ext-star" style="width: 1.39613px; height: 1.39613px; top: 21.7483%; left: 80.876%; --dur: 2.471898248934666s; --delay: 3.767216745643592s; --mn: 0.16133474666920267; --mx: 0.35108662271224234;"></div><div class="ext-star" style="width: 1.57175px; height: 1.57175px; top: 96.8934%; left: 30.6533%; --dur: 5.479613228310173s; --delay: 3.1544770182964914s; --mn: 0.13750310421733136; --mx: 0.8261994996637894;"></div><div class="ext-star" style="width: 2.30332px; height: 2.30332px; top: 43.9068%; left: 56.7549%; --dur: 2.410299310622423s; --delay: 2.00848902843939s; --mn: 0.11731064015384196; --mx: 0.47599640581750247;"></div><div class="ext-star" style="width: 0.89764px; height: 0.89764px; top: 52.3308%; left: 43.5205%; --dur: 4.85886803925483s; --delay: 1.3669634164692939s; --mn: 0.10712838867382854; --mx: 0.3049640901585674;"></div><div class="ext-star" style="width: 1.16219px; height: 1.16219px; top: 61.8866%; left: 54.9545%; --dur: 5.680911527095413s; --delay: 2.726098434218062s; --mn: 0.06700634071615605; --mx: 0.7898925533247202;"></div><div class="ext-star" style="width: 2.12651px; height: 2.12651px; top: 24.0995%; left: 21.1782%; --dur: 3.355271999195177s; --delay: 1.5986453477296876s; --mn: 0.08107628894456022; --mx: 0.3255428817586293;"></div><div class="ext-star" style="width: 2.65012px; height: 2.65012px; top: 65.8343%; left: 68.5211%; --dur: 5.555106052474143s; --delay: 0.6296948284169206s; --mn: 0.14439317922306433; --mx: 0.4825839981948624;"></div><div class="ext-star" style="width: 0.869713px; height: 0.869713px; top: 64.5152%; left: 64.7081%; --dur: 2.825715222556671s; --delay: 0.8979911094580166s; --mn: 0.09671047145457815; --mx: 0.7361657663722406;"></div><div class="ext-star" style="width: 1.88476px; height: 1.88476px; top: 56.4575%; left: 91.0867%; --dur: 4.22447808441699s; --delay: 0.7135794321379421s; --mn: 0.1182778827708476; --mx: 0.5974749076911964;"></div><div class="ext-star" style="width: 2.14013px; height: 2.14013px; top: 95.6992%; left: 91.8139%; --dur: 5.837042809561683s; --delay: 3.443559247794394s; --mn: 0.12491870095890126; --mx: 0.7629298084457136;"></div><div class="ext-star" style="width: 1.43641px; height: 1.43641px; top: 86.6122%; left: 73.5817%; --dur: 3.8147704479834537s; --delay: 1.4472800397258463s; --mn: 0.05270301788392725; --mx: 0.43052167898933963;"></div><div class="ext-star" style="width: 0.635148px; height: 0.635148px; top: 76.741%; left: 83.0412%; --dur: 2.771026688195654s; --delay: 0.6776759907570793s; --mn: 0.07941963038949199; --mx: 0.7313899494354454;"></div><div class="ext-star" style="width: 2.55888px; height: 2.55888px; top: 18.3657%; left: 26.4789%; --dur: 4.256489509066838s; --delay: 2.3934929730728127s; --mn: 0.08776662901422541; --mx: 0.5475533787681606;"></div><div class="ext-star" style="width: 0.84478px; height: 0.84478px; top: 68.1282%; left: 96.8761%; --dur: 5.76743276508064s; --delay: 0.3306126071558544s; --mn: 0.058705621577787595; --mx: 0.6041624219483652;"></div><div class="ext-star" style="width: 0.563873px; height: 0.563873px; top: 30.6934%; left: 19.6744%; --dur: 3.4911243797115774s; --delay: 2.5601403849046322s; --mn: 0.08870111566670386; --mx: 0.6357260142118883;"></div><div class="ext-star" style="width: 1.14864px; height: 1.14864px; top: 11.1093%; left: 94.6932%; --dur: 3.675360422118293s; --delay: 1.5720172751804982s; --mn: 0.08990182674268321; --mx: 0.37296257089736795;"></div><div class="ext-star" style="width: 1.77982px; height: 1.77982px; top: 56.5648%; left: 10.6666%; --dur: 5.4461140456752135s; --delay: 0.931597492431282s; --mn: 0.1268989652595988; --mx: 0.3450271551846673;"></div><div class="ext-star" style="width: 0.69252px; height: 0.69252px; top: 31.9343%; left: 72.9324%; --dur: 4.727021331804767s; --delay: 3.8008131970577335s; --mn: 0.08494484910769015; --mx: 0.47109247851868874;"></div><div class="ext-star" style="width: 2.44918px; height: 2.44918px; top: 89.6015%; left: 51.4661%; --dur: 2.89603119536477s; --delay: 0.5970151734222569s; --mn: 0.15102852938311173; --mx: 0.6004890197886927;"></div><div class="ext-star" style="width: 1.12114px; height: 1.12114px; top: 42.4183%; left: 60.6221%; --dur: 5.2169898144833695s; --delay: 0.15153319575620872s; --mn: 0.060659444242055896; --mx: 0.6697689643545641;"></div><div class="ext-star" style="width: 0.652984px; height: 0.652984px; top: 1.23904%; left: 27.6319%; --dur: 4.902203369747497s; --delay: 3.9321420554219495s; --mn: 0.10584205857555568; --mx: 0.4039693714036881;"></div><div class="ext-star" style="width: 1.25662px; height: 1.25662px; top: 39.07%; left: 8.24965%; --dur: 5.551325168117003s; --delay: 1.5905569319210904s; --mn: 0.09959088522304055; --mx: 0.47427754042700226;"></div><div class="ext-star" style="width: 2.65963px; height: 2.65963px; top: 36.0055%; left: 78.05%; --dur: 2.6154707740196437s; --delay: 0.5508693674026031s; --mn: 0.05608948623065092; --mx: 0.7538437906098333;"></div><div class="ext-star" style="width: 1.04063px; height: 1.04063px; top: 53.9229%; left: 64.4176%; --dur: 3.238471303904456s; --delay: 2.6803712860079405s; --mn: 0.09526870747943172; --mx: 0.8410159875674905;"></div><div class="ext-star" style="width: 1.74748px; height: 1.74748px; top: 11.7405%; left: 25.4727%; --dur: 5.628528009033115s; --delay: 2.2822732095307128s; --mn: 0.06901794188417645; --mx: 0.3067156632172349;"></div><div class="ext-star" style="width: 2.53969px; height: 2.53969px; top: 39.9257%; left: 19.3885%; --dur: 5.550659194946959s; --delay: 2.870181564142073s; --mn: 0.10257729967981465; --mx: 0.8493440024414298;"></div><div class="ext-star" style="width: 2.157px; height: 2.157px; top: 33.0381%; left: 62.9364%; --dur: 3.1926116947615824s; --delay: 2.6856603634964893s; --mn: 0.12784006291053174; --mx: 0.7200553488232156;"></div><div class="ext-star" style="width: 1.50091px; height: 1.50091px; top: 54.0981%; left: 38.1208%; --dur: 5.933513228518334s; --delay: 2.7056078407962856s; --mn: 0.13183678635167947; --mx: 0.4959468062249347;"></div><div class="ext-star" style="width: 2.5924px; height: 2.5924px; top: 75.0788%; left: 71.3503%; --dur: 2.848751663938837s; --delay: 2.5647292779538264s; --mn: 0.12258677067405374; --mx: 0.41973875643046843;"></div><div class="ext-star" style="width: 1.36275px; height: 1.36275px; top: 91.9264%; left: 31.8726%; --dur: 4.560345257797987s; --delay: 3.8159425965488816s; --mn: 0.11784864783927869; --mx: 0.35489036443043986;"></div><div class="ext-star" style="width: 2.40277px; height: 2.40277px; top: 99.269%; left: 81.4029%; --dur: 4.4986389672367935s; --delay: 3.899833004361802s; --mn: 0.14740024295159898; --mx: 0.311827925140828;"></div><div class="ext-star" style="width: 1.57827px; height: 1.57827px; top: 95.3733%; left: 51.195%; --dur: 5.694704347404201s; --delay: 1.7565007080294146s; --mn: 0.10827982293668559; --mx: 0.47945980339444083;"></div><div class="ext-star" style="width: 0.768126px; height: 0.768126px; top: 33.2537%; left: 86.5704%; --dur: 4.329942190319503s; --delay: 2.542985392258525s; --mn: 0.09657000633620233; --mx: 0.6519409744965543;"></div><div class="ext-star" style="width: 1.70061px; height: 1.70061px; top: 23.5318%; left: 30.0628%; --dur: 2.416319892381612s; --delay: 0.9985859805578139s; --mn: 0.07477251681396688; --mx: 0.5670241091191724;"></div><div class="ext-star" style="width: 2.45668px; height: 2.45668px; top: 14.1504%; left: 84.6958%; --dur: 2.957456359477359s; --delay: 1.4135704153188566s; --mn: 0.05286417148292044; --mx: 0.8243967130562604;"></div><div class="ext-star" style="width: 1.44855px; height: 1.44855px; top: 9.9743%; left: 62.0058%; --dur: 3.7649192116148886s; --delay: 3.9654936574939676s; --mn: 0.07501656067729193; --mx: 0.7372168301750232;"></div><div class="ext-star" style="width: 1.21098px; height: 1.21098px; top: 10.8941%; left: 11.5107%; --dur: 3.455380865119024s; --delay: 1.945745593117675s; --mn: 0.1400487002386324; --mx: 0.3641789082664577;"></div><div class="ext-star" style="width: 1.27656px; height: 1.27656px; top: 30.009%; left: 55.1171%; --dur: 4.309045621183471s; --delay: 1.099329340865769s; --mn: 0.07048488805766265; --mx: 0.6673828487000775;"></div><div class="ext-star" style="width: 2.56689px; height: 2.56689px; top: 67.6108%; left: 7.1583%; --dur: 4.344204273501372s; --delay: 2.210110675994858s; --mn: 0.054869505932479315; --mx: 0.49861863938730866;"></div><div class="ext-star" style="width: 1.81488px; height: 1.81488px; top: 63.8597%; left: 19.445%; --dur: 5.040444575759195s; --delay: 1.6732507539530976s; --mn: 0.16583181632364924; --mx: 0.4695225410053149;"></div><div class="ext-star" style="width: 2.17445px; height: 2.17445px; top: 5.05729%; left: 29.3461%; --dur: 2.7500315642577133s; --delay: 1.7380187914501648s; --mn: 0.09371041726374879; --mx: 0.46849120944919453;"></div><div class="ext-star" style="width: 1.09757px; height: 1.09757px; top: 55.6008%; left: 57.5693%; --dur: 5.878729789149782s; --delay: 0.4049698318228705s; --mn: 0.068639044501851; --mx: 0.6772524835363412;"></div><div class="ext-star" style="width: 2.67406px; height: 2.67406px; top: 42.6748%; left: 39.2827%; --dur: 4.382197234284143s; --delay: 3.9509785414157217s; --mn: 0.1132754688698424; --mx: 0.4892050257506948;"></div><div class="ext-star" style="width: 1.23717px; height: 1.23717px; top: 33.3553%; left: 38.2678%; --dur: 4.908573773802862s; --delay: 3.5438359037591525s; --mn: 0.07641584208392786; --mx: 0.5117018666381712;"></div><div class="ext-star" style="width: 1.99016px; height: 1.99016px; top: 17.048%; left: 76.0054%; --dur: 4.40032719483807s; --delay: 0.2024171535763779s; --mn: 0.1057509945893956; --mx: 0.7530957497182251;"></div><div class="ext-star" style="width: 1.98416px; height: 1.98416px; top: 74.792%; left: 40.6577%; --dur: 2.884220391450374s; --delay: 2.907267588531198s; --mn: 0.11422288286987181; --mx: 0.37790326898741033;"></div><div class="ext-star" style="width: 0.534534px; height: 0.534534px; top: 60.3952%; left: 66.5624%; --dur: 4.11825727164806s; --delay: 0.2878703721915965s; --mn: 0.13103283667615445; --mx: 0.36274328459180954;"></div><div class="ext-star" style="width: 0.849123px; height: 0.849123px; top: 39.6792%; left: 51.5578%; --dur: 2.588970170862975s; --delay: 0.3252523339187259s; --mn: 0.15111503803500353; --mx: 0.6690859253335524;"></div><div class="ext-star" style="width: 0.962016px; height: 0.962016px; top: 36.2574%; left: 85.1234%; --dur: 3.996021273824885s; --delay: 3.5377720657969487s; --mn: 0.16037642631708557; --mx: 0.37205445857157027;"></div><div class="ext-star" style="width: 1.8358px; height: 1.8358px; top: 0.0365552%; left: 64.3038%; --dur: 5.294938953401832s; --delay: 2.415088408035385s; --mn: 0.07222648487765543; --mx: 0.5468389583417725;"></div><div class="ext-star" style="width: 2.48003px; height: 2.48003px; top: 41.0042%; left: 75.0462%; --dur: 4.112485080831024s; --delay: 1.0645334665617412s; --mn: 0.0783941145601729; --mx: 0.7694198983430152;"></div></div>
+
+    <!-- HUD -->
+    <div id="ext-hud" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+            <button class="ext-back-btn" onclick="extQuit()">← Back</button>
+            <span class="ext-level-label" id="ext-level-label">Level E1</span>
+        </div>
+        <div style="display:flex;gap:1.25rem;align-items:center;">
+            <div class="ext-hud-stat">
+                <div class="ext-found-bar" id="ext-found-bar"></div>
+                <div class="ext-hud-lbl">Found</div>
+            </div>
+            <div class="ext-hud-stat">
+                <div class="ext-timer" id="ext-timer">1:00</div>
+                <div class="ext-hud-lbl">Time Left</div>
+            </div>
+            <div class="ext-hud-stat">
+                <div class="ext-lives" id="ext-lives"></div>
+                <div class="ext-hud-lbl">Lives</div>
+            </div>
+        </div>
+        <div style="width:80px;"></div><!-- spacer to balance layout -->
+    </div>
+
+    <!-- Arena -->
+    <div id="ext-arena"></div>
+
+    <!-- Hint -->
+    <div class="ext-hint">Click the imposters — they have a different value!</div>
+
+    <!-- Countdown -->
+    <div id="ext-countdown">
+        <div class="ext-count-num" id="ext-count-num">3</div>
+    </div>
+
+    <!-- Result -->
+    <div id="ext-result">
+        <div class="ext-result-card">
+            <div class="ext-result-icon" id="ext-result-icon">🎉</div>
+            <div class="ext-result-title" id="ext-result-title">All found!</div>
+            <div class="ext-result-sub" id="ext-result-sub"></div>
+            <div class="ext-stat-row">
+                <div>
+                    <div class="ext-stat-val" id="ext-stat-found">0/0</div>
+                    <div class="ext-stat-lbl">Found</div>
+                </div>
+                <div>
+                    <div class="ext-stat-val" id="ext-stat-time">0s</div>
+                    <div class="ext-stat-lbl">Time Left</div>
+                </div>
+                <div>
+                    <div class="ext-stat-val" id="ext-stat-mistakes">0</div>
+                    <div class="ext-stat-lbl">Mistakes</div>
+                </div>
+            </div>
+            <div class="ext-btn-row">
+                <button class="ext-ov-btn ext-ov-secondary" onclick="extQuit()">← Levels</button>
+                <button class="ext-ov-btn ext-ov-primary" onclick="extRestart()">↺ Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Round complete overlay -->
+    <div id="ext-round-complete">
+        <div class="ext-result-card">
+            <div class="ext-result-icon" id="ext-rc-icon">✅</div>
+            <div class="ext-result-title" id="ext-rc-title">Round complete!</div>
+            <div class="ext-result-sub" id="ext-rc-sub"></div>
+            <div class="ext-stat-row">
+                <div>
+                    <div class="ext-stat-val" id="ext-rc-round">1/5</div>
+                    <div class="ext-stat-lbl">Round</div>
+                </div>
+                <div>
+                    <div class="ext-stat-val" id="ext-rc-found">0/0</div>
+                    <div class="ext-stat-lbl">Found</div>
+                </div>
+                <div>
+                    <div class="ext-stat-val" id="ext-rc-mistakes">0</div>
+                    <div class="ext-stat-lbl">Mistakes</div>
+                </div>
+            </div>
+            <div style="font-size:0.82rem;color:#8892a4;margin-bottom:1rem;" id="ext-rc-next-label">Next round starting in <span id="ext-rc-countdown">3</span>s…</div>
+            <div class="ext-btn-row">
+                <button class="ext-ov-btn ext-ov-secondary" onclick="extQuit()">← Quit</button>
+                <button class="ext-ov-btn ext-ov-primary" onclick="extNextRoundNow()">Next Round →</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  EXTENSION — STARS
+// ═══════════════════════════════════════════════════════
+(function() {
+    const c = document.getElementById('ext-stars');
+    for (let i = 0; i < 100; i++) {
+        const s = document.createElement('div');
+        s.className = 'ext-star';
+        const sz = Math.random() * 2.2 + 0.5;
+        s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--mn:${0.05+Math.random()*0.12};--mx:${0.3+Math.random()*0.55};`;
+        c.appendChild(s);
+    }
+})();
+
+// ═══════════════════════════════════════════════════════
+//  EXTENSION — LEVEL CONFIGS
+// ═══════════════════════════════════════════════════════
+const EXT_CONFIGS = {
+    E1: { label:'Level E1 — First Sighting',   tileCount:3,  imposterCount:1, timeSecs:60, lives:3, speed:0.35, scenario:'L1_simple' },
+    E2: { label:'Level E2 — Growing Crowd',     tileCount:8,  imposterCount:2, timeSecs:60, lives:3, speed:0.55, scenario:'L2_tenths' },
+    E3: { label:'Level E3 — The Swarm',         tileCount:15, imposterCount:3, timeSecs:75, lives:3, speed:0.85, scenario:'L3_hundredths' },
+    E4: { label:'Level E4 — Chaos Theory',      tileCount:25, imposterCount:5, timeSecs:90, lives:3, speed:1.2,  scenario:'L4_mixed' },
+    E5: { label:'Level E5 — Maximum Swarm',     tileCount:40, imposterCount:5, timeSecs:90, lives:3, speed:0.85, scenario:'L5_chaos' },
+};
+
+const EXT_SCENARIOS = {
+    // E1 — tenths vs whole numbers (3 tiles, 1 imposter)
+    L1_simple: {
+        rounds: [
+            { normal:['0.5','0.50','0.500','0.5000'],   imposters:['5','0.05'] },
+            { normal:['0.3','0.30','0.300','0.3000'],   imposters:['3','0.03'] },
+            { normal:['0.7','0.70','0.700','0.7000'],   imposters:['7','0.07'] },
+            { normal:['0.2','0.20','0.200','0.2000'],   imposters:['2','0.02'] },
+            { normal:['0.8','0.80','0.800','0.8000'],   imposters:['8','0.08'] },
+        ]
+    },
+    // E2 — tenths vs hundredths/thousandths (8 tiles, 2 imposters)
+    L2_tenths: {
+        rounds: [
+            { normal:['0.4','0.40','0.400','0.4000','0.40000'],  imposters:['4','0.04','0.004'] },
+            { normal:['0.6','0.60','0.600','0.6000','0.60000'],  imposters:['6','0.06','0.006'] },
+            { normal:['0.9','0.90','0.900','0.9000','0.90000'],  imposters:['9','0.09','0.009'] },
+            { normal:['0.1','0.10','0.100','0.1000','0.10000'],  imposters:['1','0.01','0.001'] },
+            { normal:['0.5','0.50','0.500','0.5000','0.50000'],  imposters:['5','0.05','0.005'] },
+        ]
+    },
+    // E3 — hundredths: trailing zeros vs shifted decimals (15 tiles, 3 imposters)
+    L3_hundredths: {
+        rounds: [
+            { normal:['0.25','0.250','0.2500','0.25000'],  imposters:['0.025','2.5','0.0025','0.205'] },
+            { normal:['0.47','0.470','0.4700','0.47000'],  imposters:['0.047','4.7','0.0047','0.407'] },
+            { normal:['0.63','0.630','0.6300','0.63000'],  imposters:['0.063','6.3','0.0063','0.603'] },
+            { normal:['0.82','0.820','0.8200','0.82000'],  imposters:['0.082','8.2','0.0082','0.802'] },
+            { normal:['0.36','0.360','0.3600','0.36000'],  imposters:['0.036','3.6','0.0036','0.306'] },
+        ]
+    },
+    // E4 — zero-sandwich patterns (25 tiles, 5 imposters)
+    L4_mixed: {
+        rounds: [
+            { normal:['0.505','0.5050','0.50500','0.505000'],  imposters:['0.55','5.05','0.0505','5.5','0.055'] },
+            { normal:['0.303','0.3030','0.30300','0.303000'],  imposters:['0.33','3.03','0.0303','3.3','0.033'] },
+            { normal:['0.707','0.7070','0.70700','0.707000'],  imposters:['0.77','7.07','0.0707','7.7','0.077'] },
+            { normal:['0.808','0.8080','0.80800','0.808000'],  imposters:['0.88','8.08','0.0808','8.8','0.088'] },
+            { normal:['0.404','0.4040','0.40400','0.404000'],  imposters:['0.44','4.04','0.0404','4.4','0.044'] },
+        ]
+    },
+    // E5 — alternating-digit patterns (35 tiles, 5 imposters)
+    L5_chaos: {
+        rounds: [
+            { normal:['0.10101','0.101010','0.1010100','0.10101000','0.101010000'], imposters:['0.111','1.0101','0.010101','0.11','1.01010','0.1011'] },
+            { normal:['0.50505','0.505050','0.5050500','0.50505000','0.505050000'], imposters:['0.555','5.0505','0.050505','0.55','5.05050','0.5055'] },
+            { normal:['0.30303','0.303030','0.3030300','0.30303000','0.303030000'], imposters:['0.333','3.0303','0.030303','0.33','3.03030','0.3033'] },
+            { normal:['0.40404','0.404040','0.4040400','0.40404000','0.404040000'], imposters:['0.444','4.0404','0.040404','0.44','4.04040','0.4044'] },
+            { normal:['0.20202','0.202020','0.2020200','0.20202000','0.202020000'], imposters:['0.222','2.0202','0.020202','0.22','2.02020','0.2022'] },
+        ]
+    },
+};
+
+// ═══════════════════════════════════════════════════════
+//  EXTENSION STATE
+// ═══════════════════════════════════════════════════════
+const EXT_TOTAL_ROUNDS = 5;
+
+let extCurrentKey    = 'E1';
+let extConfig        = null;
+// Per-round state
+let extLives         = 3;
+let extTimeLeft      = 60;
+let extFound         = 0;
+let extTotalImp      = 1;
+let extMistakes      = 0;
+let extTimerInt      = null;
+let extAnimId        = null;
+let extTiles         = [];
+let extGameActive    = false;
+let extRoundData     = null;
+// Multi-round tracking
+let extCurrentRound  = 0;   // 0-indexed
+let extRoundOrder    = [];  // shuffled indices into scenario.rounds
+let extTotalFound    = 0;   // across all rounds
+let extTotalMistakes = 0;
+let extTotalImpAll   = 0;   // total possible across all rounds
+let extRcTimer       = null;
+
+// ═══════════════════════════════════════════════════════
+//  OPEN / CLOSE OVERLAY
+// ═══════════════════════════════════════════════════════
+function extStartLevel(key) {
+    extCurrentKey    = key;
+    extConfig        = EXT_CONFIGS[key];
+    extCurrentRound  = 0;
+    extTotalFound    = 0;
+    extTotalMistakes = 0;
+    extTotalImpAll   = EXT_TOTAL_ROUNDS * extConfig.imposterCount;
+
+    // Build a shuffled round order (cycle through all 5 rounds in random order)
+    const scenData = EXT_SCENARIOS[extConfig.scenario];
+    const indices = scenData.rounds.map((_,i) => i);
+    extRoundOrder = extShuffle(indices).slice(0, EXT_TOTAL_ROUNDS);
+
+    const ov = document.getElementById('ext-overlay');
+    ov.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    document.getElementById('ext-result').classList.remove('active');
+    document.getElementById('ext-round-complete').classList.remove('active');
+    document.getElementById('ext-countdown').classList.remove('active');
+    document.getElementById('ext-hud').style.display = 'none';
+
+    extSetupRound();
+    extDoCountdown(() => extBeginGame());
+}
+
+function extQuit() {
+    extStopAll();
+    if (extRcTimer) { clearInterval(extRcTimer); extRcTimer = null; }
+    document.getElementById('ext-overlay').classList.remove('active');
+    document.getElementById('ext-result').classList.remove('active');
+    document.getElementById('ext-round-complete').classList.remove('active');
+    document.getElementById('ext-countdown').classList.remove('active');
+    document.getElementById('ext-hud').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function extRestart() {
+    document.getElementById('ext-result').classList.remove('active');
+    extStartLevel(extCurrentKey);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETUP ROUND
+// ═══════════════════════════════════════════════════════
+function extSetupRound() {
+    const scenData = EXT_SCENARIOS[extConfig.scenario];
+    extRoundData = scenData.rounds[extRoundOrder[extCurrentRound]];
+
+    extLives    = extConfig.lives;
+    extTimeLeft = extConfig.timeSecs;
+    extFound    = 0;
+    extTotalImp = extConfig.imposterCount;
+    extMistakes = 0;
+
+    document.getElementById('ext-level-label').textContent =
+        `${extConfig.label} — Round ${extCurrentRound + 1}/${EXT_TOTAL_ROUNDS}`;
+    extRenderHUD();
+    extBuildTiles();
+}
+
+// ═══════════════════════════════════════════════════════
+//  HUD
+// ═══════════════════════════════════════════════════════
+function extRenderHUD() {
+    // Lives
+    const livesEl = document.getElementById('ext-lives');
+    livesEl.innerHTML = '';
+    for (let i = 0; i < extConfig.lives; i++) {
+        const h = document.createElement('span');
+        h.className = 'ext-heart' + (i >= extLives ? ' lost' : '');
+        h.id = `ext-heart-${i}`;
+        h.textContent = '❤️';
+        livesEl.appendChild(h);
+    }
+
+    // Found dots
+    const bar = document.getElementById('ext-found-bar');
+    bar.innerHTML = '';
+    for (let i = 0; i < extTotalImp; i++) {
+        const d = document.createElement('div');
+        d.className = 'ext-dot' + (i < extFound ? ' found' : '');
+        d.id = `ext-dot-${i}`;
+        bar.appendChild(d);
+    }
+
+    extUpdateTimer();
+}
+
+function extUpdateTimer() {
+    const m = Math.floor(extTimeLeft / 60);
+    const s = extTimeLeft % 60;
+    const el = document.getElementById('ext-timer');
+    el.textContent = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}s`;
+    el.classList.toggle('urgent', extTimeLeft <= 10);
+}
+
+function extLoseLife() {
+    extMistakes++;
+    extLives = Math.max(0, extLives - 1);
+    for (let i = 0; i < extConfig.lives; i++) {
+        const h = document.getElementById(`ext-heart-${i}`);
+        if (h) h.classList.toggle('lost', i >= extLives);
+    }
+    if (extLives <= 0) extEndGame(false);
+}
+
+function extMarkFound() {
+    const dot = document.getElementById(`ext-dot-${extFound}`);
+    if (dot) dot.classList.add('found');
+    extFound++;
+    if (extFound >= extTotalImp) extEndGame(true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  BUILD TILES
+// ═══════════════════════════════════════════════════════
+function extBuildTiles() {
+    const arena = document.getElementById('ext-arena');
+    arena.innerHTML = '';
+    extTiles = [];
+
+    const aW = window.innerWidth;
+    const aH = window.innerHeight - 60;
+
+    // Pick mixed imposter values
+    const impPool = extShuffle([...extRoundData.imposters]);
+    const impValues = [];
+    for (let i = 0; i < extTotalImp; i++) {
+        impValues.push(impPool[i % impPool.length]);
+    }
+
+    // Normal values to fill the rest
+    const normalNeeded = extConfig.tileCount - extTotalImp;
+    const normPool = [...extRoundData.normal];
+    const normValues = [];
+    for (let i = 0; i < normalNeeded; i++) {
+        normValues.push(normPool[i % normPool.length]);
+    }
+
+    const all = extShuffle([
+        ...normValues.map(v => ({ v, isImposter: false })),
+        ...impValues.map(v => ({ v, isImposter: true })),
+    ]);
+
+    const fs = extConfig.tileCount <= 3  ? 1.5
+             : extConfig.tileCount <= 8  ? 1.2
+             : extConfig.tileCount <= 15 ? 1.05
+             : extConfig.tileCount <= 25 ? 0.95
+             : 1.0;
+
+    all.forEach(({ v, isImposter }) => {
+        const el = document.createElement('div');
+        el.className = 'ext-tile';
+        el.textContent = v;
+        el.style.fontSize = fs + 'rem';
+        el.style.padding = fs >= 1 ? '0.6rem 1rem' : '0.45rem 0.75rem';
+
+        const tW = Math.max(70, v.length * fs * 11 + 24);
+        const tH = fs >= 1 ? 46 : 38;
+        const x = Math.random() * Math.max(0, aW - tW);
+        const y = Math.random() * Math.max(0, aH - tH);
+        const angle = Math.random() * Math.PI * 2;
+        const spd = extConfig.speed * (0.7 + Math.random() * 0.6);
+
+        el.style.left = x + 'px';
+        el.style.top  = y + 'px';
+
+        const tObj = { el, x, y, vx: Math.cos(angle)*spd, vy: Math.sin(angle)*spd, isImposter, w: tW, h: tH, removed: false };
+        el.addEventListener('click', () => extHandleClick(tObj));
+        arena.appendChild(el);
+        extTiles.push(tObj);
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+//  COUNTDOWN
+// ═══════════════════════════════════════════════════════
+function extDoCountdown(cb) {
+    const cdEl = document.getElementById('ext-countdown');
+    cdEl.classList.add('active');
+    let count = 3;
+
+    function tick() {
+        count--;
+        const numEl = document.getElementById('ext-count-num');
+        if (!numEl) return;
+
+        if (count <= 0) {
+            numEl.textContent = 'GO!';
+            numEl.style.animation = 'none';
+            numEl.offsetHeight; // force reflow to restart animation
+            numEl.style.animation = '';
+            setTimeout(() => {
+                cdEl.classList.remove('active');
+                document.getElementById('ext-hud').style.display = 'flex';
+                cb();
+            }, 700);
+        } else {
+            numEl.textContent = count;
+            numEl.style.animation = 'none';
+            numEl.offsetHeight; // force reflow to restart animation
+            numEl.style.animation = '';
+            setTimeout(tick, 900);
+        }
+    }
+    setTimeout(tick, 900);
+}
+
+// ═══════════════════════════════════════════════════════
+//  GAME LOOP
+// ═══════════════════════════════════════════════════════
+function extBeginGame() {
+    extGameActive = true;
+
+    extTimerInt = setInterval(() => {
+        if (!extGameActive) return;
+        extTimeLeft--;
+        extUpdateTimer();
+        if (extTimeLeft <= 0) extEndGame(false);
+    }, 1000);
+
+    function loop() {
+        if (!extGameActive) return;
+        extMoveTiles();
+        extAnimId = requestAnimationFrame(loop);
+    }
+    loop();
+}
+
+function extMoveTiles() {
+    const aW = window.innerWidth;
+    const aH = window.innerHeight - 60;
+
+    extTiles.forEach(t => {
+        if (t.removed) return;
+        t.x += t.vx;
+        t.y += t.vy;
+
+        if (t.x < 0)         { t.x = 0;        t.vx =  Math.abs(t.vx); }
+        if (t.y < 0)         { t.y = 0;        t.vy =  Math.abs(t.vy); }
+        if (t.x + t.w > aW) { t.x = aW - t.w; t.vx = -Math.abs(t.vx); }
+        if (t.y + t.h > aH) { t.y = aH - t.h; t.vy = -Math.abs(t.vy); }
+
+        t.el.style.left = t.x + 'px';
+        t.el.style.top  = t.y + 'px';
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+//  CLICK HANDLING
+// ═══════════════════════════════════════════════════════
+function extHandleClick(t) {
+    if (!extGameActive || t.removed) return;
+
+    if (t.isImposter) {
+        t.removed = true;
+        t.el.classList.add('ext-found-anim');
+        setTimeout(() => t.el.remove(), 550);
+        extMarkFound();
+    } else {
+        t.el.classList.add('ext-wrong-anim');
+        t.el.addEventListener('animationend', () => t.el.classList.remove('ext-wrong-anim'), { once: true });
+        extLoseLife();
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+//  END ROUND / END LEVEL
+// ═══════════════════════════════════════════════════════
+function extEndGame(won) {
+    extStopAll();
+    extGameActive = false;
+
+    // Accumulate totals
+    extTotalFound    += extFound;
+    extTotalMistakes += extMistakes;
+
+    const isLastRound = extCurrentRound >= EXT_TOTAL_ROUNDS - 1;
+
+    if (!won) {
+        // Freeze all tiles, then reveal any remaining imposters
+        extRevealMissed(() => {
+            extShowLevelResult(false);
+        });
+    } else if (isLastRound) {
+        extShowLevelResult(true);
+    } else {
+        extShowRoundComplete();
+    }
+}
+
+function extRevealMissed(cb) {
+    // Stop all tile movement
+    extTiles.forEach(t => { t.vx = 0; t.vy = 0; });
+
+    // Highlight remaining imposters
+    const missed = extTiles.filter(t => t.isImposter && !t.removed);
+    missed.forEach(t => {
+        t.el.classList.add('missed', 'missed-pulse');
+    });
+
+    // If nothing to reveal, proceed immediately
+    if (missed.length === 0) {
+        setTimeout(cb, 400);
+        return;
+    }
+
+    // Show imposters for 2 seconds before showing result screen
+    setTimeout(cb, 2200);
+}
+
+function extShowRoundComplete() {
+    const rc = document.getElementById('ext-round-complete');
+    document.getElementById('ext-rc-icon').textContent     = extFound >= extTotalImp ? '✅' : '⏰';
+    document.getElementById('ext-rc-title').textContent    = extFound >= extTotalImp ? 'Round complete!' : "Time's up!";
+    document.getElementById('ext-rc-sub').textContent      = `Found ${extFound} of ${extTotalImp} imposter${extTotalImp>1?'s':''}`;
+    document.getElementById('ext-rc-round').textContent    = `${extCurrentRound + 1}/${EXT_TOTAL_ROUNDS}`;
+    document.getElementById('ext-rc-found').textContent    = `${extFound}/${extTotalImp}`;
+    document.getElementById('ext-rc-mistakes').textContent = extMistakes;
+
+    // Round pips
+    extUpdateRoundPips(extCurrentRound);
+
+    rc.classList.add('active');
+
+    // Auto-advance countdown
+    let secs = 3;
+    document.getElementById('ext-rc-countdown').textContent = secs;
+    extRcTimer = setInterval(() => {
+        secs--;
+        const el = document.getElementById('ext-rc-countdown');
+        if (el) el.textContent = secs;
+        if (secs <= 0) {
+            clearInterval(extRcTimer);
+            extRcTimer = null;
+            extNextRoundNow();
+        }
+    }, 1000);
+}
+
+function extNextRoundNow() {
+    if (extRcTimer) { clearInterval(extRcTimer); extRcTimer = null; }
+    document.getElementById('ext-round-complete').classList.remove('active');
+    extCurrentRound++;
+    extSetupRound();
+    extDoCountdown(() => extBeginGame());
+}
+
+function extUpdateRoundPips(completedIndex) {
+    // Show pips inside the round-complete card sub area
+    const sub = document.getElementById('ext-rc-sub');
+    let pips = '<div style="margin-top:0.6rem;display:flex;justify-content:center;gap:5px;">';
+    for (let i = 0; i < EXT_TOTAL_ROUNDS; i++) {
+        const cls = i < completedIndex ? 'ext-round-pip done'
+                  : i === completedIndex ? 'ext-round-pip done'
+                  : 'ext-round-pip';
+        pips += `<span class="${cls}"></span>`;
+    }
+    pips += '</div>';
+    sub.innerHTML = `Found ${extFound} of ${extTotalImp} imposter${extTotalImp>1?'s':''}` + pips;
+}
+
+function extShowLevelResult(fullSuccess) {
+    const perfect = extTotalFound >= extTotalImpAll;
+    document.getElementById('ext-result-icon').textContent  = fullSuccess ? (perfect ? '🏆' : '🎉') : (extLives <= 0 ? '💔' : '⏰');
+    document.getElementById('ext-result-title').textContent = fullSuccess
+        ? (perfect ? 'Perfect Level!' : 'Level Complete!')
+        : (extLives <= 0 ? 'Out of lives!' : "Time's up!");
+    document.getElementById('ext-result-sub').textContent   = fullSuccess
+        ? `You completed all ${EXT_TOTAL_ROUNDS} rounds!`
+        : `Round ${extCurrentRound + 1} of ${EXT_TOTAL_ROUNDS} — have another go!`;
+
+    document.getElementById('ext-stat-found').textContent    = `${extTotalFound}/${extTotalImpAll}`;
+    document.getElementById('ext-stat-time').textContent     = `Round ${extCurrentRound + 1}/${EXT_TOTAL_ROUNDS}`;
+    document.getElementById('ext-stat-mistakes').textContent = extTotalMistakes;
+
+    // Relabel the stat headings for level context
+    document.querySelector('#ext-result .ext-stat-lbl:nth-of-type(2)');
+
+    document.getElementById('ext-result').classList.add('active');
+}
+
+function extStopAll() {
+    extGameActive = false;
+    if (extTimerInt) { clearInterval(extTimerInt); extTimerInt = null; }
+    if (extAnimId)   { cancelAnimationFrame(extAnimId); extAnimId = null; }
+}
+
+// ═══════════════════════════════════════════════════════
+//  UTILITY
+// ═══════════════════════════════════════════════════════
+function extShuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+</script>
+
+
+</body></html>
