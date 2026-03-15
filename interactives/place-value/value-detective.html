@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Value Detective</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--level2-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--level3-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .learning-card h2::before {
+            content: "🔍";
+            font-size: 1.3rem;
+        }
+
+        .learning-card h2 .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .learning-content {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .learning-content.open {
+            display: block;
+        }
+
+        .learning-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .learning-content p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .success-criteria {
+            list-style: none;
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+
+        .success-criteria li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .success-criteria li::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .key-concept h3::before {
+            content: "💡";
+        }
+
+        .key-concept p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .example-box strong {
+            color: var(--primary-accent);
+            text-decoration: underline;
+        }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .progress-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .progress-circle.current {
+            border-color: var(--primary-accent);
+            border-width: 4px;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .progress-circle.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .progress-circle.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .progress-circle.correct::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--correct-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.incorrect::after {
+            content: "✗";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--incorrect-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .number-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .number-large {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: 2px;
+        }
+
+        .underline-digit {
+            color: var(--primary-accent);
+            text-decoration: underline;
+            text-decoration-thickness: 3px;
+            text-underline-offset: 5px;
+        }
+
+        .answer-input-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-input-wrapper label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .choices-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .choice-btn {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .choice-btn:hover:not(:disabled) {
+            border-color: var(--primary-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .choice-btn.selected {
+            border-color: var(--primary-accent);
+            background: linear-gradient(135deg, #E0F7F6, #B2EBF2);
+        }
+
+        .choice-btn.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .choice-btn.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .choice-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 600px) {
+            .choices-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .hint-btn {
+            background: white;
+            border: 2px solid #FF8400;
+            color: #FF8400;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .hint-btn:hover:not(:disabled) {
+            background: #FFF3E0;
+            transform: translateY(-1px);
+        }
+
+        .hint-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .hint-box {
+            background: #FFF3E0;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+            border-left: 4px solid #FF8400;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            display: none;
+        }
+
+        .hint-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .number-large {
+                font-size: 1.8rem;
+            }
+        }
+
+        .pv-ref-toggle {
+            background: none;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .pv-ref-toggle:hover {
+            border-color: var(--primary-accent);
+            color: var(--primary-accent);
+        }
+
+        .pv-ref-chart {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 0.6rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .pv-ref-chart.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .pv-ref-row {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            min-width: fit-content;
+        }
+
+        .pv-ref-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 52px;
+            padding: 0.3rem 0.25rem;
+        }
+
+        .pv-ref-col .col-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: white;
+            background: var(--col-color);
+            border-radius: 6px;
+            padding: 0.2rem 0.4rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .pv-ref-divider {
+            width: 2px;
+            background: #E0E0E0;
+            margin: 0 4px;
+            align-self: stretch;
+            border-radius: 1px;
+        }
+
+        /* === GO DEEPER: Extension === */
+        .go-deeper-card {
+            background: white;
+            border-radius: 20px;
+            border-top: 5px solid var(--primary-accent);
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 700px;
+            text-align: left;
+        }
+        .go-deeper-card h2 {
+            font-size: 1.4rem;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+        .go-deeper-intro {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+        .ext-task {
+            background: #f0fdfa;
+            border-left: 4px solid var(--primary-accent);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .ext-task-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-accent);
+            margin-bottom: 0.4rem;
+        }
+        .ext-task-prompt {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+        .ext-task-sub {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+            font-style: italic;
+        }
+        .ext-thinking-area {
+            width: 100%;
+            min-height: 80px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        .ext-thinking-area:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+        }
+        .ext-thinking-area::placeholder {
+            color: #b0b0b0;
+        }
+        .mathematician-box {
+            background: linear-gradient(135deg, #e8faf7, #f0fdfa);
+            border: 2px dashed var(--primary-accent);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-top: 0.75rem;
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        .mathematician-box strong {
+            color: var(--primary-accent);
+        }
+        .ext-numbers {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+        }
+        .ext-reveal-btn {
+            background: none;
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            cursor: pointer;
+            margin-top: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .ext-reveal-btn:hover {
+            background: var(--primary-accent);
+            color: white;
+        }
+        .ext-model-response {
+            display: none;
+            background: white;
+            border: 2px solid var(--primary-accent);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 0.75rem;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+        .ext-model-response.visible {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .ext-model-response .model-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-accent);
+            margin-bottom: 0.5rem;
+        }
+        .go-deeper-level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            grid-column: 1 / -1;
+        }
+        .go-deeper-level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 5px;
+            background: var(--primary-accent);
+        }
+        .go-deeper-level-btn:not(.locked):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        .go-deeper-level-btn.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+            filter: grayscale(0.3);
+        }
+        .go-deeper-level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .go-deeper-level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <div class="landing-header">
+                    <h1>The Value <span>Detective</span></h1>
+                    <p class="subtitle">Find the value of each digit</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2 onclick="toggleLearningSection()">
+                        Learning Intention &amp; Success Criteria
+                        <span class="toggle-icon" id="learningToggle">▼</span>
+                    </h2>
+                    <div class="learning-content" id="learningContent">
+                        <h3>Learning Intention</h3>
+                        <p>We are learning to identify the value of a digit based on its position in a number.</p>
+                        <h3>Success Criteria</h3>
+                        <ul class="success-criteria">
+                            <li>I can determine the place value column a digit sits in</li>
+                            <li>I can state the actual value of a digit in a number (e.g. the 4 in 5,420 is worth 400)</li>
+                            <li>I can explain why the same digit can have different values in different positions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2>How to Be a Value Detective</h2>
+                    <p>Each digit in a number has a different value depending on its position. Your job is to find the actual value of the underlined digit!</p>
+                    
+                    <div class="key-concept">
+                        <h3>The Detective's Rule</h3>
+                        <p>The position of a digit determines its value. The same digit "4" can be worth 4, 40, 400, 4,000, or even 4,000,000 depending on where it sits!</p>
+                        
+                        <div class="example-box">
+                            Example: In 5,<strong>4</strong>20, the underlined 4 is in the hundreds place.<br>
+                            So its value is <strong>400</strong> (not just 4!)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2>Worked Example</h2>
+                    <p>Let's work through a question together, step by step.</p>
+
+                    <div class="key-concept">
+                        <h3>What is the value of the underlined digit in 3<u>8</u>,205 ?</h3>
+
+                        <div class="example-box">
+                            <div style="display:flex;flex-direction:column;gap:1.1rem;margin-top:0.5rem;">
+                                <div><strong>Step 1:</strong> Find the underlined digit. It is <strong>8</strong>.</div>
+                                <div><strong>Step 2:</strong> Work out which column it sits in. Counting from the right: ones, tens, hundreds, <strong>thousands</strong>.</div>
+                                <div><strong>Step 3:</strong> Multiply the digit by its column value: <strong>8 &times; 1,000 = 8,000</strong></div>
+                                <div style="padding:0.6rem;background:#E8F5E9;border-radius:8px;"><strong>Answer:</strong> The value of the underlined <strong>8</strong> is <strong>8,000</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:1rem;padding:1rem;background:#FFF3E0;border-radius:12px;border-left:4px solid #FF8400;">
+                        <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Your Turn</h3>
+                        <p style="font-size:0.95rem;">What is the value of the underlined digit in 6<u>2</u>4,100 ?</p>
+                        <p style="font-size:0.9rem;color:#636E72;">Think about it, then pick a level below to practise!</p>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose a Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Thousands House</p>
+                        <div class="level-meta">
+                            <span>15 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Millions House</p>
+                        <div class="level-meta">
+                            <span>15 questions • Multiple Choice</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Billions & Trillions</p>
+                        <div class="level-meta">
+                            <span>15 questions • Multiple Choice</span>
+                        </div>
+                    </button>
+                    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+                        <h3><span class="lock-icon" style="font-size:1.3rem;">🔒</span> Go Deeper: Place Value Investigations</h3>
+                        <p>Complete Level 3 to unlock</p>
+                    </button>
+                </div>
+            </div>
+
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="backToLanding()">← Back</button>
+                        <a href="index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">15</span>
+                    </div>
+                </div>
+
+                <div class="progress-tracker">
+                    <div class="progress-grid" id="progress-grid"></div>
+                </div>
+
+                <button class="pv-ref-toggle" id="pv-ref-toggle" onclick="togglePVChart()">Show Place Value Chart</button>
+                <div class="pv-ref-chart" id="pv-ref-chart">
+                    <div class="pv-ref-row">
+                        <div class="pv-ref-col" style="--col-color:#7c3aed"><div class="col-label">T Th</div></div>
+                        <div class="pv-ref-col" style="--col-color:#1d4ed8"><div class="col-label">Th</div></div>
+                        <div class="pv-ref-divider"></div>
+                        <div class="pv-ref-col" style="--col-color:#0891b2"><div class="col-label">H</div></div>
+                        <div class="pv-ref-col" style="--col-color:#059669"><div class="col-label">T</div></div>
+                        <div class="pv-ref-col" style="--col-color:#65a30d"><div class="col-label">O</div></div>
+                    </div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text">What is the value of the underlined digit?</div>
+                    
+                    <div class="number-display">
+                        <div class="number-large" id="number-display"></div>
+                    </div>
+                    
+                    <div class="answer-input-wrapper" id="text-input-area">
+                        <label for="answer-input">Your Answer:</label>
+                        <input type="text" id="answer-input" class="answer-input" placeholder="Enter the value..." autocomplete="off">
+                    </div>
+                    
+                    <div class="choices-wrapper" id="choices-area" style="display: none;">
+                    </div>
+                    
+                    <div class="feedback-box" id="feedback-box">
+                        <h4 id="feedback-title">Feedback</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+
+                    <div class="hint-box" id="hint-box"></div>
+
+                    <div class="button-row">
+                        <button class="hint-btn" id="hint-btn" onclick="showHint()">Show Hint</button>
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/15</div>
+                    <div class="score-label">Correct Answers</div>
+                </div>
+                <p>You've mastered this level!</p>
+                <p class="result-sent-msg" id="result-sent-msg" style="display: none; font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem;">Your result has been sent to your teacher.</p>
+                <div class="button-row" style="max-width: 500px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLanding()">Choose Another Level</button>
+                    <a href="index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                </div>
+                <button class="btn btn-primary" id="go-deeper-btn" onclick="showPage('extension-page')" style="max-width: 300px; margin: 1rem auto 0; display: none; background: var(--primary-accent);">Go Deeper</button>
+            </div>
+
+            <!-- EXTENSION PAGE: Go Deeper -->
+            <div id="extension-page" class="page">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <button class="back-btn" onclick="backToLanding()">← Back to Levels</button>
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+
+                <div class="go-deeper-card">
+                    <h2>Go Deeper: Place Value Investigations</h2>
+                    <p class="go-deeper-intro">You've mastered the skills. Now think like a mathematician. These tasks are not about right or wrong answers. They are about exploring, reasoning, and convincing others.</p>
+
+                    <!-- Task 1: What If investigation -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Specialising</div>
+                        <div class="ext-task-prompt">
+                            In the number <span class="ext-numbers">52,347</span>, the digit <span class="ext-numbers">5</span> is worth <span class="ext-numbers">50,000</span>.<br><br>
+                            What if the <span class="ext-numbers">5</span> moved one column to the right? What would it be worth now? What if it moved two columns to the right?<br><br>
+                            Try this with at least 3 different starting numbers and digits.
+                        </div>
+                        <div class="ext-task-sub">Each time a digit moves one column to the right, what happens to its value? What about moving to the left?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\u0027s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>In <span class="ext-numbers">52,347</span>, the 5 is in the ten thousands column, worth <span class="ext-numbers">50,000</span>.</p>
+                            <p>Move it one column right (thousands): now worth <span class="ext-numbers">5,000</span>. That is <strong>10 times smaller</strong>.</p>
+                            <p>Move it two columns right (hundreds): now worth <span class="ext-numbers">500</span>. That is <strong>100 times smaller</strong> than where it started.</p>
+                            <p>I tried <span class="ext-numbers">1,836</span>. The 8 in the hundreds column is worth <span class="ext-numbers">800</span>. Move it left to thousands: <span class="ext-numbers">8,000</span>. That is <strong>10 times bigger</strong>.</p>
+                            <p>Each column to the right divides the value by 10. Each column to the left multiplies the value by 10. The digit stays the same, but its position decides its value.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means working through specific examples carefully to notice something. The best discoveries come from trying lots of cases and asking "what changed?"
+                        </div>
+                    </div>
+
+                    <!-- Task 2: Reverse question -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Conjecturing</div>
+                        <div class="ext-task-prompt">
+                            A 6-digit number contains <strong>exactly one 7</strong>, and that <span class="ext-numbers">7</span> has a value of <span class="ext-numbers">70,000</span>.<br><br>
+                            How many different 6-digit numbers could it be? Can you work it out without listing every single one?
+                        </div>
+                        <div class="ext-task-sub">Think about which column the 7 must be in. Then think about what choices you have for each of the other five digits.</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\u0027s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>For the 7 to be worth <span class="ext-numbers">70,000</span>, it must sit in the <strong>ten thousands</strong> column. In a 6-digit number, that is the second position: <strong>_ 7 _ , _ _ _</strong></p>
+                            <p>The first digit (hundred thousands) can be 1, 2, 3, 4, 5, 6, 8, or 9. It cannot be 0 (or it would not be a 6-digit number) and it cannot be 7 (because there is only one 7 in the number). That gives <strong>8 choices</strong>.</p>
+                            <p>Each of the remaining 4 digits (thousands, hundreds, tens, ones) can be 0, 1, 2, 3, 4, 5, 6, 8, or 9. They cannot be 7 (only one 7 allowed). That gives <strong>9 choices each</strong>.</p>
+                            <p>Total: 8 x 9 x 9 x 9 x 9 = <strong>52,488 numbers</strong>. You do not need to list them all. The shortcut is to count the choices for each position and multiply!</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means making a testable claim about how many possibilities there are. Mathematicians look for shortcuts and patterns rather than listing every case by hand.
+                        </div>
+                    </div>
+
+                    <!-- Task 3: Connection task -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Generalising</div>
+                        <div class="ext-task-prompt">
+                            In <span class="ext-numbers">3,482</span>, the <span class="ext-numbers">3</span> is worth <span class="ext-numbers">3,000</span>.<br>
+                            In <span class="ext-numbers">34,820</span>, the <span class="ext-numbers">3</span> is worth <span class="ext-numbers">30,000</span>.<br><br>
+                            The second number is the first number multiplied by <span class="ext-numbers">10</span>. The value of the <span class="ext-numbers">3</span> also got <span class="ext-numbers">10</span> times bigger.<br><br>
+                            <strong>Does this always happen?</strong> If you multiply a number by 10, does every digit's value get 10 times bigger? What about multiplying by 100?
+                        </div>
+                        <div class="ext-task-sub">Try it with at least 3 different numbers. Can you write a rule that connects multiplying by 10 to what happens in the place value columns?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\u0027s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p><span class="ext-numbers">256</span>: the 2 is worth <span class="ext-numbers">200</span>. Multiply by 10: <span class="ext-numbers">2,560</span>. Now the 2 is worth <span class="ext-numbers">2,000</span>. That is 10 times bigger.</p>
+                            <p><span class="ext-numbers">4,091</span>: the 9 is worth <span class="ext-numbers">90</span>. Multiply by 10: <span class="ext-numbers">40,910</span>. Now the 9 is worth <span class="ext-numbers">900</span>. That is 10 times bigger.</p>
+                            <p><span class="ext-numbers">73</span> x 100 = <span class="ext-numbers">7,300</span>. The 7 went from <span class="ext-numbers">70</span> to <span class="ext-numbers">7,000</span>. That is 100 times bigger.</p>
+                            <p><strong>My rule:</strong> When you multiply a number by 10, every digit moves one column to the left, so every digit's value gets 10 times bigger. Multiplying by 100 moves every digit two columns left, making each value 100 times bigger. This always works because our place value system is built on powers of 10.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means looking across lots of examples to find a rule that always works. You are also making a <em>connection</em> between two ideas: place value and multiplication.
+                        </div>
+                    </div>
+
+                    <!-- Task 4: Error / counterexample -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Justifying</div>
+                        <div class="ext-task-prompt">
+                            Priya says: <em>"In the number <span class="ext-numbers">848,484</span>, all the <span class="ext-numbers">4</span>s have the same value because they are the same digit."</em><br><br>
+                            Is Priya right or wrong? Write a clear explanation that would convince a younger student why.
+                        </div>
+                        <div class="ext-task-sub">Can you use a place value chart to help explain? What would you tell Priya about the difference between a digit and its value?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\u0027s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>Priya is <strong>wrong</strong>. The digit is the same (4), but the <em>value</em> depends on which column it sits in.</p>
+                            <p>In <span class="ext-numbers">848,484</span>:</p>
+                            <p>The first 4 is in the <strong>ten thousands</strong> column, so it is worth <span class="ext-numbers">40,000</span>.<br>
+                            The second 4 is in the <strong>hundreds</strong> column, so it is worth <span class="ext-numbers">400</span>.<br>
+                            The third 4 is in the <strong>ones</strong> column, so it is worth <span class="ext-numbers">4</span>.</p>
+                            <p>A digit is just a symbol (0 to 9). Its value is what that symbol is actually worth, and that changes depending on its position. Think of it like a 1p coin and a &pound;1 coin. They both have "1" on them, but they are not worth the same amount. Position matters.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means explaining <em>why</em> something is true or false, not just saying the answer. A strong justification walks through the reasoning step by step so that someone else could follow it.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="backToLanding()" style="max-width: 300px;">Back to Levels</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="results-to-sheet.js?v=2"></script>
+    <script>
+        function toggleLearningSection() {
+            const content = document.getElementById('learningContent');
+            const toggle = document.getElementById('learningToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        const questions = {
+            1: [
+                { number: "5,420", answer: 400, display: "5,<u>4</u>20" },
+                { number: "8,109", answer: 8000, display: "<u>8</u>,109" },
+                { number: "2,351", answer: 50, display: "2,3<u>5</u>1" },
+                { number: "6,047", answer: 40, display: "6,0<u>4</u>7" },
+                { number: "1,999", answer: 1000, display: "<u>1</u>,999" },
+                { number: "3,456", answer: 3000, display: "<u>3</u>,456" },
+                { number: "7,890", answer: 0, display: "7,89<u>0</u>" },
+                { number: "4,321", answer: 300, display: "4,<u>3</u>21" },
+                { number: "9,876", answer: 9000, display: "<u>9</u>,876" },
+                { number: "5,555", answer: 500, display: "5,<u>5</u>55" },
+                { number: "2,048", answer: 2000, display: "<u>2</u>,048" },
+                { number: "6,789", answer: 80, display: "6,7<u>8</u>9" },
+                { number: "1,234", answer: 200, display: "1,<u>2</u>34" },
+                { number: "8,765", answer: 60, display: "8,7<u>6</u>5" },
+                { number: "3,912", answer: 2, display: "3,91<u>2</u>" }
+            ],
+            2: [
+                { number: "4,500,000", answer: 4000000, display: "<u>4</u>,500,000", choices: [4000000, 400000, 40000, 4000] },
+                { number: "7,230,000", answer: 200000, display: "7,<u>2</u>30,000", choices: [200000, 2000000, 20000, 2000] },
+                { number: "5,042,000", answer: 40000, display: "5,0<u>4</u>2,000", choices: [40000, 400000, 4000, 400] },
+                { number: "8,099,100", answer: 0, display: "8,<u>0</u>99,100", choices: [0, 90000, 9000, 900] },
+                { number: "3,450,200", answer: 3000000, display: "<u>3</u>,450,200", choices: [3000000, 300000, 30000, 3000] },
+                { number: "9,876,543", answer: 800000, display: "9,<u>8</u>76,543", choices: [800000, 8000000, 80000, 8000] },
+                { number: "1,234,567", answer: 30000, display: "1,2<u>3</u>4,567", choices: [30000, 300000, 3000, 300] },
+                { number: "6,789,012", answer: 6000000, display: "<u>6</u>,789,012", choices: [6000000, 600000, 60000, 6000] },
+                { number: "2,468,135", answer: 400000, display: "2,<u>4</u>68,135", choices: [400000, 4000000, 40000, 4000] },
+                { number: "5,123,456", answer: 100000, display: "5,<u>1</u>23,456", choices: [100000, 1000000, 10000, 1000] },
+                { number: "7,654,321", answer: 50000, display: "7,6<u>5</u>4,321", choices: [50000, 500000, 5000, 500] },
+                { number: "3,987,654", answer: 3000000, display: "<u>3</u>,987,654", choices: [3000000, 300000, 30000, 3000] },
+                { number: "8,246,135", answer: 6000, display: "8,24<u>6</u>,135", choices: [6000, 60000, 600, 60] },
+                { number: "4,567,890", answer: 60000, display: "4,5<u>6</u>7,890", choices: [60000, 600000, 6000, 600] },
+                { number: "9,012,345", answer: 9000000, display: "<u>9</u>,012,345", choices: [9000000, 900000, 90000, 9000] }
+            ],
+            3: [
+                { number: "1,500,000,000", answer: 1000000000, display: "<u>1</u>,500,000,000", choices: [1000000000, 100000000, 10000000, 1000000] },
+                { number: "25,000,000,000", answer: 5000000000, display: "2<u>5</u>,000,000,000", choices: [5000000000, 500000000, 50000000, 5000000] },
+                { number: "450,000,000,000", answer: 0, display: "450,<u>0</u>00,000,000", choices: [0, 10000000, 100000000, 1000000000] },
+                { number: "9,000,000,000,000", answer: 9000000000000, display: "<u>9</u>,000,000,000,000", choices: [9000000000000, 900000000000, 90000000000, 9000000000] },
+                { number: "1,200,000,000,000", answer: 200000000000, display: "1,<u>2</u>00,000,000,000", choices: [200000000000, 2000000000000, 20000000000, 2000000000] },
+                { number: "67,890,000,000", answer: 7000000000, display: "6<u>7</u>,890,000,000", choices: [7000000000, 70000000000, 700000000, 70000000] },
+                { number: "345,678,000,000", answer: 5000000000, display: "34<u>5</u>,678,000,000", choices: [5000000000, 50000000000, 500000000, 5000000] },
+                { number: "8,123,456,789", answer: 8000000000, display: "<u>8</u>,123,456,789", choices: [8000000000, 800000000, 80000000, 8000000] },
+                { number: "56,789,012,345", answer: 6000000000, display: "5<u>6</u>,789,012,345", choices: [6000000000, 60000000000, 600000000, 60000000] },
+                { number: "234,567,890,123", answer: 4000000000, display: "23<u>4</u>,567,890,123", choices: [4000000000, 40000000000, 400000000, 4000000] },
+                { number: "7,890,123,456,789", answer: 7000000000000, display: "<u>7</u>,890,123,456,789", choices: [7000000000000, 700000000000, 70000000000, 7000000000] },
+                { number: "12,345,678,901,234", answer: 2000000000000, display: "1<u>2</u>,345,678,901,234", choices: [2000000000000, 20000000000000, 200000000000, 20000000000] },
+                { number: "456,789,012,345", answer: 400000000000, display: "<u>4</u>56,789,012,345", choices: [400000000000, 4000000000000, 40000000000, 4000000000] },
+                { number: "89,012,345,678", answer: 9000000000, display: "8<u>9</u>,012,345,678", choices: [9000000000, 90000000000, 900000000, 90000000] },
+                { number: "123,456,789,012", answer: 3000000000, display: "12<u>3</u>,456,789,012", choices: [3000000000, 30000000000, 300000000, 30000000] }
+            ]
+        };
+
+        const levelNames = {
+            1: "Thousands House",
+            2: "Millions House",
+            3: "Billions & Trillions"
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let questionStatus = []; // Track: null, "correct", "incorrect"
+        let initialQuestionResult = [];
+        let score = 0;
+        let hasChecked = false;
+        let selectedChoice = null;
+        let isRevisionRound = false;
+        let revisionIndices = [];
+        let hintLevel = 0;
+
+        function togglePVChart() {
+            var chart = document.getElementById('pv-ref-chart');
+            var btn = document.getElementById('pv-ref-toggle');
+            chart.classList.toggle('visible');
+            btn.textContent = chart.classList.contains('visible') ? 'Hide Place Value Chart' : 'Show Place Value Chart';
+        }
+
+        function buildPVChart() {
+            var chart = document.getElementById('pv-ref-chart');
+            var columns = [];
+            var colours = {
+                'O': '#65a30d', 'T': '#059669', 'H': '#0891b2',
+                'Th': '#1d4ed8', 'T Th': '#7c3aed', 'H Th': '#d44d8a',
+                'M': '#65a30d', 'T M': '#059669', 'H M': '#0891b2',
+                'B': '#1d4ed8', 'T B': '#7c3aed', 'H B': '#d44d8a',
+                'Tr': '#65a30d', 'T Tr': '#059669'
+            };
+            var houses = [];
+            if (currentLevel >= 3) houses.push(['Tr', 'H B', 'T B', 'B']);
+            if (currentLevel >= 2) houses.push(['H M', 'T M', 'M']);
+            houses.push(['H Th', 'T Th', 'Th']);
+            houses.push(['H', 'T', 'O']);
+
+            // For level 1, only show Th house and Ones house
+            if (currentLevel === 1) {
+                houses = [['Th'], ['H', 'T', 'O']];
+            }
+
+            var html = '<div class="pv-ref-row">';
+            houses.forEach(function(house, houseIdx) {
+                house.forEach(function(col) {
+                    html += '<div class="pv-ref-col" style="--col-color:' + colours[col] + '"><div class="col-label">' + col + '</div></div>';
+                });
+                if (houseIdx < houses.length - 1) {
+                    html += '<div class="pv-ref-divider"></div>';
+                }
+            });
+            html += '</div>';
+            chart.innerHTML = html;
+        }
+
+        function createProgressTracker() {
+            const grid = document.getElementById('progress-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            if (!isRevisionRound) {
+                const total = questions[currentLevel] ? questions[currentLevel].length : 15;
+                questionStatus = new Array(total).fill(null);
+                initialQuestionResult = new Array(total).fill(null);
+            }
+            const total = isRevisionRound ? revisionIndices.length : (questions[currentLevel] ? questions[currentLevel].length : 15);
+            for (let i = 0; i < total; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = `progress-${i}`;
+                circle.onclick = () => jumpToQuestion(i);
+                grid.appendChild(circle);
+            }
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
+                const circle = document.getElementById(`progress-${i}`);
+                if (!circle) continue;
+                const actualIndex = isRevisionRound ? revisionIndices[i] : i;
+                circle.classList.remove('current', 'correct', 'incorrect');
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
+            }
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            loadQuestion();
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            createProgressTracker();
+            buildPVChart();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function unlockGoDeeper() {
+            var card = document.getElementById('go-deeper-card');
+            card.classList.remove('locked');
+            card.disabled = false;
+            card.querySelector('h3').innerHTML = '<span style="font-size:1.3rem;">🔓</span> Go Deeper: Place Value Investigations';
+            card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+        }
+
+        function openGoDeeper() {
+            showPage('extension-page');
+        }
+
+        function backToLanding() {
+            showPage('landing-page');
+        }
+
+        function loadQuestion() {
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentLevel][actualIndex];
+            const card = document.getElementById('question-card');
+            
+            card.className = `question-card level-${currentLevel}`;
+            
+            const totalInRound = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
+            document.getElementById('question-label').textContent = isRevisionRound 
+                ? `Revision – Question ${currentQuestion + 1} of ${totalInRound}` 
+                : `${levelNames[currentLevel]} - Question ${currentQuestion + 1}`;
+            
+            document.getElementById('number-display').innerHTML = q.display;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = totalInRound;
+
+            // Reset hints
+            hintLevel = 0;
+            document.getElementById('hint-box').classList.remove('visible');
+            document.getElementById('hint-box').innerHTML = '';
+            document.getElementById('hint-btn').disabled = false;
+
+            updateProgressTracker();
+            
+            // Reset state
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            
+            const alreadyAnswered = !isRevisionRound && questionStatus[actualIndex] !== null;
+            hasChecked = alreadyAnswered;
+            selectedChoice = null;
+            document.getElementById('check-btn').disabled = alreadyAnswered;
+            document.getElementById('next-btn').disabled = !alreadyAnswered;
+            
+            // Show text input for level 1, multiple choice for levels 2-3
+            if (currentLevel === 1) {
+                document.getElementById('text-input-area').style.display = 'block';
+                document.getElementById('choices-area').style.display = 'none';
+                
+                const input = document.getElementById('answer-input');
+                input.value = '';
+                input.className = 'answer-input';
+                input.disabled = false;
+                setTimeout(() => input.focus(), 100);
+            } else {
+                document.getElementById('text-input-area').style.display = 'none';
+                document.getElementById('choices-area').style.display = 'grid';
+                
+                // Create choice buttons
+                const choicesArea = document.getElementById('choices-area');
+                choicesArea.innerHTML = '';
+                
+                // Shuffle choices
+                const shuffledChoices = [...q.choices].sort(() => Math.random() - 0.5);
+                
+                shuffledChoices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.textContent = choice.toLocaleString();
+                    btn.dataset.value = choice;
+                    btn.onclick = () => selectChoice(btn, choice);
+                    choicesArea.appendChild(btn);
+                });
+            }
+        }
+
+        function selectChoice(btn, value) {
+            if (hasChecked) return;
+
+            // Remove selected class from all buttons
+            document.querySelectorAll('.choice-btn').forEach(b => {
+                b.classList.remove('selected');
+            });
+
+            // Add selected class to clicked button
+            btn.classList.add('selected');
+            selectedChoice = value;
+
+            // Enable check button
+            document.getElementById('check-btn').disabled = false;
+        }
+
+        function getPlaceName(value) {
+            const places = {
+                0: 'ones', 1: 'ones', 2: 'tens', 3: 'hundreds',
+                4: 'thousands', 5: 'ten-thousands', 6: 'hundred-thousands',
+                7: 'millions', 8: 'ten-millions', 9: 'hundred-millions',
+                10: 'billions', 11: 'ten-billions', 12: 'hundred-billions',
+                13: 'trillions', 14: 'ten-trillions'
+            };
+            if (value === 0) return 'ones';
+            const digits = Math.floor(Math.log10(Math.abs(value)));
+            return places[digits] || 'ones';
+        }
+
+        function getDigitFromAnswer(answer) {
+            if (answer === 0) return 0;
+            const s = String(Math.abs(answer));
+            return parseInt(s[0]);
+        }
+
+        function getPlaceNameFromAnswer(answer) {
+            if (answer === 0) return 'ones';
+            var len = answer.toString().length;
+            var names = {1:'ones',2:'tens',3:'hundreds',4:'thousands',5:'ten thousands',6:'hundred thousands',7:'millions',8:'ten millions',9:'hundred millions',10:'billions',11:'ten billions',12:'hundred billions',13:'trillions',14:'ten trillions'};
+            return names[len] || 'ones';
+        }
+
+        function getValueWord(answer) {
+            if (answer === 0) return '0';
+            var abs = Math.abs(answer);
+            var thresholds = [
+                {v:1000000000000, w:'trillion'}, {v:1000000000, w:'billion'},
+                {v:1000000, w:'million'}, {v:1000, w:'thousand'},
+                {v:100, w:'hundred'}
+            ];
+            for (var i = 0; i < thresholds.length; i++) {
+                if (abs >= thresholds[i].v && abs % thresholds[i].v === 0) {
+                    return (abs / thresholds[i].v) + ' ' + thresholds[i].w;
+                }
+            }
+            return answer.toLocaleString();
+        }
+
+        function showHint() {
+            if (hasChecked) return;
+            hintLevel++;
+            var actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            var q = questions[currentLevel][actualIndex];
+            var hintBox = document.getElementById('hint-box');
+            var hintBtn = document.getElementById('hint-btn');
+            var placeName = getPlaceNameFromAnswer(q.answer);
+
+            var hints = [];
+            if (currentLevel === 1) {
+                hints = [
+                    'Count the place value columns from right to left: ones, tens, hundreds, thousands...',
+                    'The underlined digit is in the <strong>' + placeName + '</strong> column.',
+                    'Multiply the digit by its column value. For example, a 5 in the hundreds column is worth 500.'
+                ];
+            } else {
+                hints = [
+                    'Look at which column the underlined digit sits in. Count from the right.',
+                    'The underlined digit is in the <strong>' + placeName + '</strong> column. Which option matches that column?'
+                ];
+            }
+
+            if (hintLevel <= hints.length) {
+                hintBox.innerHTML = '<strong>Hint ' + hintLevel + ':</strong> ' + hints[hintLevel - 1];
+                hintBox.classList.add('visible');
+            }
+            if (hintLevel >= hints.length) {
+                hintBtn.disabled = true;
+            }
+        }
+
+        function parsePlaceValueLanguage(raw) {
+            // Accepts: "400", "4 hundreds", "4 hundred", "four hundred", etc.
+            var s = raw.trim().toLowerCase().replace(/,/g, '').replace(/\s+/g, ' ');
+            // Try plain numeric first (only if entirely digits/spaces)
+            var stripped = s.replace(/\s/g, '');
+            if (/^\d+$/.test(stripped)) return parseInt(stripped);
+            // Word-to-digit map
+            var wordNums = {zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9};
+            // Place value multipliers (singular and plural)
+            var placeMultipliers = {
+                'one':1,'ones':1,
+                'ten':10,'tens':10,
+                'hundred':100,'hundreds':100,
+                'thousand':1000,'thousands':1000,
+                'ten thousand':10000,'ten thousands':10000,
+                'ten-thousand':10000,'ten-thousands':10000,
+                'hundred thousand':100000,'hundred thousands':100000,
+                'hundred-thousand':100000,'hundred-thousands':100000,
+                'million':1000000,'millions':1000000,
+                'ten million':10000000,'ten millions':10000000,
+                'ten-million':10000000,'ten-millions':10000000,
+                'hundred million':100000000,'hundred millions':100000000,
+                'hundred-million':100000000,'hundred-millions':100000000,
+                'billion':1000000000,'billions':1000000000,
+                'ten billion':10000000000,'ten billions':10000000000,
+                'ten-billion':10000000000,'ten-billions':10000000000,
+                'hundred billion':100000000000,'hundred billions':100000000000,
+                'hundred-billion':100000000000,'hundred-billions':100000000000,
+                'trillion':1000000000000,'trillions':1000000000000,
+                'ten trillion':10000000000000,'ten trillions':10000000000000,
+                'ten-trillion':10000000000000,'ten-trillions':10000000000000
+            };
+            // Try "N place" pattern, e.g. "4 hundreds" or "four hundred"
+            // Check longest place names first (e.g. "hundred thousand" before "hundred")
+            var sortedPlaces = Object.keys(placeMultipliers).sort(function(a,b) { return b.length - a.length; });
+            for (var i = 0; i < sortedPlaces.length; i++) {
+                var place = sortedPlaces[i];
+                if (s.endsWith(place)) {
+                    var prefix = s.slice(0, s.length - place.length).trim();
+                    var digit = parseInt(prefix);
+                    if (isNaN(digit) && wordNums.hasOwnProperty(prefix)) digit = wordNums[prefix];
+                    if (!isNaN(digit) && digit >= 0 && digit <= 9) {
+                        return digit * placeMultipliers[place];
+                    }
+                }
+            }
+            return NaN;
+        }
+
+        function checkAnswer() {
+            if (hasChecked) return;
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentLevel][actualIndex];
+            let correct = false;
+
+            if (currentLevel === 1) {
+                // Text input
+                const input = document.getElementById('answer-input');
+                const userAnswer = input.value.replace(/,/g, '').replace(/\s/g, '').trim();
+                correct = parseInt(userAnswer) === q.answer;
+                // Also accept place value language like "4 hundreds", "four hundred"
+                if (!correct) {
+                    correct = parsePlaceValueLanguage(input.value) === q.answer;
+                }
+                
+                if (correct) {
+                    input.className = 'answer-input correct';
+                } else {
+                    input.className = 'answer-input incorrect';
+                }
+                input.disabled = true;
+            } else {
+                // Multiple choice
+                if (selectedChoice === null) return;
+                
+                correct = selectedChoice === q.answer;
+                
+                // Mark all buttons
+                document.querySelectorAll('.choice-btn').forEach(btn => {
+                    const btnValue = parseInt(btn.dataset.value);
+                    btn.disabled = true;
+                    
+                    if (btnValue === q.answer) {
+                        btn.classList.add('correct');
+                    } else if (btnValue === selectedChoice && !correct) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+            }
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedbackBox.classList.add('visible');
+            hasChecked = true;
+            document.getElementById('hint-btn').disabled = true;
+
+            if (correct) {
+                score++;
+                questionStatus[actualIndex] = 'correct';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'correct';
+                }
+                feedbackBox.classList.add('correct');
+                feedbackBox.classList.remove('incorrect');
+                feedbackText.innerHTML = `Perfect! The value is <span style="font-family:'Space Mono',monospace;font-weight:700;">${q.answer.toLocaleString()}</span>, ${getValueWord(q.answer)}.`;
+            } else {
+                questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
+                feedbackBox.classList.add('incorrect');
+                feedbackBox.classList.remove('correct');
+
+                // Improved error feedback
+                let feedbackHTML = '';
+                const correctDigit = getDigitFromAnswer(q.answer);
+                const correctPlace = getPlaceName(q.answer);
+
+                if (currentLevel === 1) {
+                    // Text input feedback for Level 1
+                    const input = document.getElementById('answer-input');
+                    const userAnswer = input.value.replace(/,/g, '').replace(/\s/g, '').trim();
+
+                    feedbackHTML = `You answered <span style="font-family:'Space Mono',monospace"><strong>${userAnswer}</strong></span>.`;
+
+                    // Check for face value misconception (e.g., typed "4" instead of "400")
+                    if (parseInt(userAnswer) === correctDigit && parseInt(userAnswer) !== 0) {
+                        feedbackHTML += ` You wrote the digit itself, but remember each digit has a value based on its column. The digit <span style="font-family:'Space Mono',monospace"><strong>${correctDigit}</strong></span> is in the <strong>${correctPlace}</strong> column, so its value is <span style="font-family:'Space Mono',monospace"><strong>${q.answer.toLocaleString()}</strong></span>.`;
+                    }
+                    // Check for power-of-10 errors
+                    else if (q.answer !== 0 && parseInt(userAnswer) !== 0) {
+                        const userVal = parseInt(userAnswer);
+                        const ratio = q.answer / userVal;
+                        if (ratio === 10 || ratio === 100 || ratio === 1000 || ratio === 0.1 || ratio === 0.01 || ratio === 0.001) {
+                            const wrongPlace = getPlaceName(userVal);
+                            feedbackHTML += ` Close! You may have the wrong column. The digit <span style="font-family:'Space Mono',monospace"><strong>${correctDigit}</strong></span> is in the <strong>${correctPlace}</strong> column, not the <strong>${wrongPlace}</strong>. Its value is <span style="font-family:'Space Mono',monospace"><strong>${q.answer.toLocaleString()}</strong></span>.`;
+                        } else {
+                            feedbackHTML += ` Not quite. The <span style="font-family:'Space Mono',monospace"><strong>${correctDigit}</strong></span> in <span style="font-family:'Space Mono',monospace"><strong>${q.number}</strong></span> is in the <strong>${correctPlace}</strong> column, so its value is <span style="font-family:'Space Mono',monospace"><strong>${q.answer.toLocaleString()}</strong></span>.`;
+                        }
+                    } else {
+                        feedbackHTML += ` Not quite. The <span style="font-family:'Space Mono',monospace"><strong>${correctDigit}</strong></span> in <span style="font-family:'Space Mono',monospace"><strong>${q.number}</strong></span> is in the <strong>${correctPlace}</strong> column, so its value is <span style="font-family:'Space Mono',monospace"><strong>${q.answer.toLocaleString()}</strong></span>.`;
+                    }
+                } else {
+                    // Multiple choice feedback for Levels 2-3
+                    const wrongPlace = getPlaceName(selectedChoice);
+                    feedbackHTML = `You chose <span style="font-family:'Space Mono',monospace"><strong>${selectedChoice.toLocaleString()}</strong></span>. That would be the <strong>${wrongPlace}</strong> column. But the underlined digit is in the <strong>${correctPlace}</strong> column, so its value is <span style="font-family:'Space Mono',monospace"><strong>${q.answer.toLocaleString()}</strong></span>.`;
+                }
+
+                feedbackText.innerHTML = feedbackHTML;
+            }
+            
+            updateProgressTracker();
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) {
+                    document.getElementById('completion-message').textContent =
+                        `Awesome work! You've completed ${levelNames[currentLevel]}!`;
+                    document.getElementById('final-score').textContent =
+                        `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                        submitResult('value-detective', 'The Value Detective', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
+                        var sentMsg = document.getElementById('result-sent-msg');
+                        if (sentMsg) sentMsg.style.display = 'block';
+                    }
+                    var deeperBtn = document.getElementById('go-deeper-btn');
+                    if (currentLevel === 3) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                    showPage('completion-page');
+                } else {
+                    loadQuestion();
+                }
+                return;
+            }
+            if (currentQuestion >= questions[currentLevel].length) {
+                const incorrectIndices = questions[currentLevel].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
+                if (incorrectIndices.length === 0) {
+                    document.getElementById('completion-message').textContent =
+                        `Awesome work! You've completed ${levelNames[currentLevel]}!`;
+                    document.getElementById('final-score').textContent =
+                        `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                        submitResult('value-detective', 'The Value Detective', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
+                        var sentMsg = document.getElementById('result-sent-msg');
+                        if (sentMsg) sentMsg.style.display = 'block';
+                    }
+                    var deeperBtn2 = document.getElementById('go-deeper-btn');
+                    if (currentLevel === 3) { deeperBtn2.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn2.style.display = 'none'; }
+                    showPage('completion-page');
+                } else {
+                    startRevisionRound(incorrectIndices);
+                }
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            createProgressTracker();
+            loadQuestion();
+        }
+
+        // Allow Enter key to submit: always trigger the visible primary button (Check or Next)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

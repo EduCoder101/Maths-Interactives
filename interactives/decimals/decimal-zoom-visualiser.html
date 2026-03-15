@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<!-- saved from url=(0097)file:///C:/Users/pell/OneDrive%20-%20Roseville%20College/Downloads/Decimal_Zoom_Visualiser_1.html -->
+<html lang="en-GB" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decimal Zoom</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-accent: #4ECDC4;
+  --bg-cream: #FFF8F0;
+  --text-dark: #2D3436;
+  --text-light: #636E72;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Fredoka', sans-serif;
+  background: transparent;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+.wrapper {
+  background: var(--bg-cream);
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+.bg-shapes { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+.bg-shape  { position:absolute; border-radius:50%; opacity:0.1; }
+.bg-shape-1 { width:250px; height:250px; background:var(--primary-accent); top:-80px; right:-50px; }
+.bg-shape-2 { width:180px; height:180px; background:#FF6B6B; bottom:10%; left:-50px; }
+.bg-shape-3 { width:120px; height:120px; background:#9B5DE5; top:50%; right:5%; }
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: min(1800px, 96vw);
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { text-align:center; margin-bottom:2rem; padding-top:0.5rem; }
+.page-header h1 { font-size:2.4rem; font-weight:700; color:var(--text-dark); margin-bottom:0.3rem; letter-spacing:-0.5px; }
+.page-header h1 span { color:var(--primary-accent); }
+.page-header .subtitle { font-size:1.05rem; color:var(--text-light); font-weight:500; }
+
+/* ── Number line card ── */
+.stage-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem 1.5rem 1rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1.5rem;
+  border-top: 5px solid var(--primary-accent);
+  overflow: hidden;
+}
+
+.stage {
+  width: 100%;
+  position: relative;
+  height: 110px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  mask-image:         linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  border-radius: 12px;
+  background: #F8F9FA;
+  user-select: none;
+  /* cursor set dynamically */
+}
+.stage.can-pan   { cursor: grab; }
+.stage.dragging  { cursor: grabbing; }
+.stage.can-click { cursor: pointer; }
+
+.axis-line {
+  position: absolute;
+  bottom: 44px; left: 0; right: 0;
+  height: 2px;
+  background: var(--text-dark);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.line-track {
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  pointer-events: none;
+}
+
+.tick {
+  position: absolute;
+  bottom: 44px;
+  width: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  border-radius: 1px;
+}
+
+.tick-label {
+  position: absolute;
+  bottom: 10px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+  pointer-events: none;
+  font-weight: 700;
+}
+
+.seg-zone {
+  position: absolute;
+  bottom: 30px;
+  height: 54px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  pointer-events: all;
+  z-index: 2;
+}
+.seg-zone:hover { background: rgba(78,205,196,0.15); }
+
+.stage-hint {
+  position: absolute;
+  top: 10px; right: 14px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── Info card ── */
+.info-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.decimal-block { flex: 0 0 auto; }
+.decimal-row {
+  font-size: clamp(40px, 8vw, 60px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  font-family: 'Space Mono', monospace;
+}
+
+.info-right {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.level-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  border: 2px solid var(--primary-accent);
+  color: var(--primary-accent);
+  background: white;
+  width: fit-content;
+}
+
+.depth-dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; border:2px solid #DDD; transition:all 0.3s; }
+.dot.filled { border-color:var(--primary-accent); background:var(--primary-accent); }
+
+.desc {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-light);
+  font-weight: 500;
+  max-width: 380px;
+}
+
+/* ── Zoom level bar ── */
+.depth-bar {
+  background: white;
+  border-radius: 20px;
+  padding: 0.9rem 1.5rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.depth-bar-label { font-size:0.85rem; font-weight:600; color:var(--text-light); white-space:nowrap; }
+.depth-segments  { display:flex; gap:0.4rem; flex:1; }
+.depth-seg {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  background: #EEE;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #AAA;
+  transition: background 0.3s, color 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.depth-seg.active { background: var(--primary-accent); color: white; }
+
+/* ── Buttons ── */
+.btn-row { display:flex; gap:0.75rem; flex-wrap:wrap; }
+.btn {
+  padding: 0.75rem 1.4rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-primary    { background:var(--primary-accent); color:white; box-shadow:0 4px 12px rgba(78,205,196,0.25); }
+.btn-primary:hover:not(:disabled)    { background:#3db8b0; transform:translateY(-2px); }
+.btn-secondary  { background:white; color:var(--text-dark); border:2px solid #DDD; }
+.btn-secondary:hover:not(:disabled)  { border-color:var(--text-dark); transform:translateY(-2px); }
+.btn:disabled   { opacity:0.4; cursor:not-allowed; transform:none !important; }
+
+.learning-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+  border-top: 5px solid var(--primary-accent);
+}
+.learning-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.learning-card h2 .toggle-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+.learning-content {
+  display: none;
+  margin-top: 1rem;
+}
+.learning-content.open {
+  display: block;
+}
+.learning-content h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+.learning-content p {
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+.success-criteria {
+  list-style: none;
+  margin-left: 0;
+  margin-top: 0.75rem;
+}
+.success-criteria li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  font-size: 0.95rem;
+}
+.success-criteria li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="bg-shapes">
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    <div class="bg-shape bg-shape-3"></div>
+  </div>
+
+  <div class="container">
+
+    <p style="margin-bottom:1rem;"><a href="index.html" style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--primary-accent);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a></p>
+    <div class="page-header">
+      <h1>Decimal <span>Zoom</span></h1>
+      <p class="subtitle">Drag to pan along the number line &nbsp;·&nbsp; Click a segment to zoom in</p>
+    </div>
+
+    <div class="learning-card">
+        <h2 onclick="toggleLearningSection()">
+            Learning Intention &amp; Success Criteria
+            <span class="toggle-icon" id="learningToggle">▼</span>
+        </h2>
+        <div class="learning-content" id="learningContent">
+            <h3>Learning Intention</h3>
+            <p>We are learning to visualise how decimals fit on a number line by zooming in between whole numbers to see tenths, hundredths, and thousandths.</p>
+            <h3>Success Criteria</h3>
+            <ul class="success-criteria">
+                <li>I can locate a decimal on a number line between two whole numbers</li>
+                <li>I can zoom in to see the smaller divisions (tenths into hundredths, hundredths into thousandths)</li>
+                <li>I can explain that the place value system extends infinitely by dividing into ten equal parts</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="stage-card">
+      <div class="stage can-pan" id="stage">
+        <div class="axis-line"></div>
+        <div class="line-track" id="lineTrack"><div class="tick" style="left: -16.08px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: -8.04px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 8.04px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 16.08px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 24.12px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 32.16px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 40.2px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 48.24px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 56.28px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 64.32px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 72.36px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 88.44px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 96.48px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 104.52px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 112.56px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 120.6px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 128.64px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 136.68px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 144.72px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 152.76px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 168.84px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 176.88px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 184.92px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 192.96px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 201px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 209.04px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 217.08px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 225.12px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 233.16px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 249.24px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 257.28px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 265.32px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 273.36px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 281.4px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 289.44px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 297.48px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 305.52px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 313.56px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 329.64px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 337.68px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 345.72px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 353.76px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 361.8px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 369.84px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 377.88px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 385.92px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 393.96px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 410.04px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 418.08px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 426.12px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 434.16px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 442.2px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 450.24px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 458.28px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 466.32px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 474.36px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 490.44px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 498.48px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 506.52px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 514.56px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 522.6px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 530.64px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 538.68px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 546.72px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 554.76px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 570.84px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 578.88px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 586.92px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 594.96px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 603px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 611.04px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 619.08px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 627.12px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 635.16px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 651.24px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 659.28px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 667.32px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 675.36px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 683.4px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 691.44px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 699.48px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 707.52px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 715.56px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 731.64px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 739.68px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 747.72px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 755.76px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 763.8px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 771.84px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 779.88px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 787.92px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 795.96px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 812.04px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 820.08px; background: rgb(45, 52, 54); opacity: 0.18; height: 7px; bottom: 44px;"></div><div class="tick" style="left: 0px; background: rgb(45, 52, 54); opacity: 1; height: 42px; bottom: 44px;"></div><div class="tick" style="left: 0px; background: rgb(45, 52, 54); opacity: 0.3; height: 8px; bottom: 52px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 1; font-size: 18px; left: 0px; transform: none;">0</div><div class="tick" style="left: 804px; background: rgb(45, 52, 54); opacity: 1; height: 42px; bottom: 44px;"></div><div class="tick" style="left: 804px; background: rgb(45, 52, 54); opacity: 0.3; height: 8px; bottom: 52px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 1; font-size: 18px; left: auto; right: 0px; transform: none;">1</div><div class="tick" style="left: 0px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 0px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick" style="left: 80.4px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 80.4px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 80.4px; transform: none;">0.1</div><div class="tick" style="left: 160.8px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 160.8px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 160.8px;">0.2</div><div class="tick" style="left: 241.2px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 241.2px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 241.2px;">0.3</div><div class="tick" style="left: 321.6px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 321.6px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 321.6px;">0.4</div><div class="tick" style="left: 402px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 402px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 402px;">0.5</div><div class="tick" style="left: 482.4px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 482.4px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 482.4px;">0.6</div><div class="tick" style="left: 562.8px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 562.8px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 562.8px;">0.7</div><div class="tick" style="left: 643.2px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 643.2px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: 643.2px;">0.8</div><div class="tick" style="left: 723.6px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 723.6px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="tick-label" style="color: rgb(45, 52, 54); opacity: 0.85; font-size: 11px; left: auto; right: 80.4px; transform: none;">0.9</div><div class="tick" style="left: 804px; background: rgb(45, 52, 54); opacity: 0.85; height: 20px; bottom: 44px;"></div><div class="tick" style="left: 804px; background: rgb(45, 52, 54); opacity: 0.28; height: 20px; bottom: 64px;"></div><div class="seg-zone" style="left: 0px; width: 80.4px;"></div><div class="seg-zone" style="left: 80.4px; width: 80.4px;"></div><div class="seg-zone" style="left: 160.8px; width: 80.4px;"></div><div class="seg-zone" style="left: 241.2px; width: 80.4px;"></div><div class="seg-zone" style="left: 321.6px; width: 80.4px;"></div><div class="seg-zone" style="left: 402px; width: 80.4px;"></div><div class="seg-zone" style="left: 482.4px; width: 80.4px;"></div><div class="seg-zone" style="left: 562.8px; width: 80.4px;"></div><div class="seg-zone" style="left: 643.2px; width: 80.4px;"></div><div class="seg-zone" style="left: 723.6px; width: 80.4px;"></div></div>
+        <div class="stage-hint" id="stageHint">Drag to pan · Click a segment to zoom in</div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="decimal-block">
+        <div class="decimal-row" id="decimalRow"><span style="color:var(--text-dark)">0</span></div>
+      </div>
+      <div class="info-right">
+        <div class="level-pill" id="levelPill">Ones</div>
+        <div class="depth-dots" id="depthDots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <p class="desc" id="desc">Drag left or right to explore the number line. Click any segment to zoom into its decimals.</p>
+      </div>
+    </div>
+
+    <div class="depth-bar">
+      <span class="depth-bar-label">Zoom level</span>
+      <div class="depth-segments">
+        <div class="depth-seg active" id="dseg0">Ones</div>
+        <div class="depth-seg" id="dseg1">Tenths</div>
+        <div class="depth-seg" id="dseg2">Hundredths</div>
+        <div class="depth-seg" id="dseg3">Thousandths</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="btnOut" onclick="zoomOut()" disabled="">← Zoom Out</button>
+      <button class="btn btn-primary" id="btnReset" onclick="resetView()" disabled="">Reset</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   MODEL
+   
+   depth 0: viewing a span of 1 whole number, e.g. 123 → 124
+            ticks at every 0.1
+   depth 1: viewing one tenth
+            ticks at every 0.01
+   depth 2: viewing one hundredth
+            ticks at every 0.001
+   depth 3: max, thousandths visible
+
+   panOffset: the whole-number that sits at the left of the
+              depth-0 view. Can be any integer (or .0 value).
+              Dragging at depth 0 changes panOffset.
+              Dragging is DISABLED at depth > 0 (zoomed in).
+
+   viewLeft / viewWidth: the actual world coords visible,
+              derived from panOffset + zoom state.
+══════════════════════════════════════════════════ */
+
+const COL       = '#2D3436';
+const MAX_DEPTH = 3;
+const ANIM_MS   = 500;
+const NAMES     = ['Ones', 'Tenths', 'Hundredths', 'Thousandths'];
+const DESCS     = [
+  'Drag left or right to explore the number line. Click any segment to zoom into its decimals.',
+  'You\'re looking at one whole number. Each segment is one tenth, click one to zoom in further.',
+  'You\'re inside one tenth. Each segment is one hundredth.',
+  'These are thousandths, 0.001 each. Far too small for any ruler to show.',
+];
+
+let panOffset       = 0;    // which whole number is at the left edge (depth-0 view)
+let viewPanOffset   = 0;    // pan within zoomed view (depth > 0), in world units
+let depth           = 0;
+let selectedSegs    = [];   // digit chosen at each zoom level, e.g. [3, 7] = 0.37…
+let animating       = false;
+
+// Derived view (set by updateView)
+let viewLeft  = 0;
+let viewWidth = 1;
+
+function updateView() {
+  // At depth 0 the view spans exactly 1 unit starting at panOffset
+  // At depth d>0 it spans 10^-d centred on the selected sub-segment
+  if (depth === 0) {
+    viewLeft  = panOffset;
+    viewWidth = 1;
+  } else {
+    // Build from selectedSegs
+    // The selected segment at depth d starts at:
+    // panOffset + sum(segs[i] * 10^(-(i+1)) for i=0..d-1)
+    let start = panOffset;
+    for (let i = 0; i < depth; i++) {
+      start += selectedSegs[i] * Math.pow(10, -(i + 1));
+    }
+    const segSize = Math.pow(10, -depth);
+    const FILL    = 0.65;
+    viewWidth = segSize / FILL;
+    viewLeft  = (start + segSize / 2) - viewWidth / 2;
+    viewLeft += viewPanOffset;
+  }
+}
+
+const stageEl = document.getElementById('stage');
+const trackEl = document.getElementById('lineTrack');
+
+function sw() { return stageEl.getBoundingClientRect().width || 800; }
+
+/* ══════════════════════════════════════════════════
+   DRAWING
+══════════════════════════════════════════════════ */
+function draw(vLeft, vWidth, dep) {
+  trackEl.innerHTML = '';
+  const W = sw();
+
+  const tickSp   = Math.pow(10, -(dep + 1));
+  const parentSp = tickSp * 10;
+  const subSp    = tickSp / 10;
+
+  const margin    = vWidth * 0.6;
+  const lastWorld = vLeft + vWidth + margin;
+
+  // Bookends: parent-level values that bracket the visible range
+  const bookLo = Math.floor(clean(vLeft / parentSp)) * parentSp;
+  const bookHi = clean(bookLo + parentSp);
+
+  // ── Sub-ticks (faint next-level preview) ──
+  if (dep < MAX_DEPTH) {
+    let s = Math.floor((vLeft - margin) / subSp) * subSp;
+    while (s <= lastWorld) {
+      const isMajor = Math.abs(clean(Math.round(s / tickSp) * tickSp - s)) < subSp * 0.01;
+      if (!isMajor) {
+        const px = w2s(s, vLeft, vWidth, W);
+        if (px > -20 && px < W + 20) makeTick(px, 7, COL, 0.18);
+      }
+      s = clean(s + subSp);
+    }
+  }
+
+  // ── Parent-level ticks ──
+  {
+    let p = Math.floor((vLeft - margin) / parentSp) * parentSp;
+    while (p <= lastWorld + parentSp) {
+      const px = w2s(p, vLeft, vWidth, W);
+      if (px > -100 && px < W + 100) {
+        const isBook = Math.abs(p - bookLo) < parentSp * 0.001 ||
+                       Math.abs(p - bookHi) < parentSp * 0.001;
+        makeTick(px, isBook ? 42 : 30, COL, isBook ? 1 : 0.6);
+        makeTick(px, -8, COL, 0.3);
+        makeLabel(px, fmtNum(p, dep - 1), COL, isBook ? 1 : 0.65,
+                  isBook ? '18px' : '11px', W);
+      }
+      p = clean(p + parentSp);
+    }
+  }
+
+  // ── Current-level ticks + labels ──
+  {
+    let t = Math.floor((vLeft - margin) / tickSp) * tickSp;
+    while (t <= lastWorld) {
+      const px = w2s(t, vLeft, vWidth, W);
+      if (px > -60 && px < W + 60) {
+        makeTick(px, 20, COL, 0.85);
+        makeTick(px, -20, COL, 0.28);
+        const atBook = Math.abs(t - bookLo) < tickSp * 0.001 ||
+                       Math.abs(t - bookHi) < tickSp * 0.001;
+        if (px > 10 && px < W - 10 && !atBook) {
+          makeLabel(px, fmtNum(t, dep), COL, 0.85, '11px', W);
+        }
+      }
+      t = clean(t + tickSp);
+    }
+  }
+
+  // ── Clickable segments (only when not at max depth and not dragging) ──
+  if (dep < MAX_DEPTH) {
+    let s = Math.floor((vLeft - margin) / tickSp) * tickSp;
+    while (s < lastWorld) {
+      const x1 = w2s(s, vLeft, vWidth, W);
+      const x2 = w2s(s + tickSp, vLeft, vWidth, W);
+      if (x2 > 0 && x1 < W) {
+        const zone = document.createElement('div');
+        zone.className = 'seg-zone';
+        zone.style.left  = Math.max(x1, 0) + 'px';
+        zone.style.width = (Math.min(x2, W) - Math.max(x1, 0)) + 'px';
+        const sv = s, ss = tickSp;
+        zone.addEventListener('click', () => {
+          if (dragMoved) return;
+          clickSegment(sv, ss);
+        });
+        trackEl.appendChild(zone);
+      }
+      s = clean(s + tickSp);
+    }
+  }
+}
+
+function w2s(worldX, vLeft, vWidth, W) {
+  return (worldX - vLeft) / vWidth * W;
+}
+
+function clean(v) { return Math.round(v * 1e12) / 1e12; }
+
+function makeTick(px, height, color, alpha) {
+  const el = document.createElement('div');
+  el.className = 'tick';
+  el.style.left       = px + 'px';
+  el.style.background = color;
+  el.style.opacity    = alpha;
+  if (height > 0) {
+    el.style.height = height + 'px';
+    el.style.bottom = '44px';
+  } else {
+    el.style.height = Math.abs(height) + 'px';
+    el.style.bottom = (44 + Math.abs(height)) + 'px';
+  }
+  trackEl.appendChild(el);
+}
+
+function makeLabel(px, text, color, alpha, fontSize, W) {
+  const el = document.createElement('div');
+  el.className   = 'tick-label';
+  el.style.color   = color;
+  el.style.opacity = alpha;
+  if (fontSize) el.style.fontSize = fontSize;
+  // Edge-aware anchoring
+  if (px > W * 0.82) {
+    el.style.left      = 'auto';
+    el.style.right     = (W - px) + 'px';
+    el.style.transform = 'none';
+  } else if (px < W * 0.18) {
+    el.style.left      = px + 'px';
+    el.style.transform = 'none';
+  } else {
+    el.style.left = px + 'px';
+  }
+  el.textContent = text;
+  trackEl.appendChild(el);
+}
+
+/* ══════════════════════════════════════════════════
+   FORMAT
+══════════════════════════════════════════════════ */
+function fmtNum(v, dep) {
+  const places = Math.max(0, dep + 1);
+  const rounded = Math.round(v * Math.pow(10, places + 4)) / Math.pow(10, places + 4);
+  if (places === 0) return String(Math.round(rounded));
+  return parseFloat(rounded.toFixed(places)).toString();
+}
+
+/* ══════════════════════════════════════════════════
+   DRAG TO PAN  (all zoom levels: ones, tenths, hundredths, thousandths)
+══════════════════════════════════════════════════ */
+let dragStartX       = null;
+let dragStartOffset  = null;
+let dragStartViewPan = null;
+let dragMoved        = false;
+
+stageEl.addEventListener('mousedown', (e) => {
+  dragStartX      = e.clientX;
+  dragStartOffset = panOffset;
+  dragStartViewPan = viewPanOffset;
+  dragMoved       = false;
+  stageEl.classList.remove('can-pan', 'can-click');
+  stageEl.classList.add('dragging');
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (dragStartX === null) return;
+  const dx = e.clientX - dragStartX;
+  if (Math.abs(dx) > 3) dragMoved = true;
+  if (dragMoved) {
+    if (depth === 0) {
+      panOffset = dragStartOffset - (dx / sw()) * 1;
+    } else {
+      viewPanOffset = dragStartViewPan - (dx / sw()) * viewWidth;
+    }
+    updateView();
+    draw(viewLeft, viewWidth, depth);
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (dragStartX !== null) {
+    dragStartX = null;
+    stageEl.classList.remove('dragging');
+    stageEl.classList.add(depth === 0 ? 'can-pan' : 'can-click');
+    setTimeout(() => { dragMoved = false; }, 0);
+  }
+});
+
+// Touch drag (single finger, all zoom levels)
+let touchStartX       = null;
+let touchStartOffset  = null;
+let touchStartViewPan = null;
+let touchMoved        = false;
+
+stageEl.addEventListener('touchstart', (e) => {
+  if (e.touches.length !== 1) return;
+  touchStartX       = e.touches[0].clientX;
+  touchStartOffset  = panOffset;
+  touchStartViewPan = viewPanOffset;
+  touchMoved        = false;
+}, { passive: true });
+
+stageEl.addEventListener('touchmove', (e) => {
+  if (touchStartX === null || e.touches.length !== 1) return;
+  const dx = e.touches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 4) touchMoved = true;
+  if (touchMoved) {
+    if (depth === 0) {
+      panOffset = touchStartOffset - (dx / sw()) * 1;
+    } else {
+      viewPanOffset = touchStartViewPan - (dx / sw()) * viewWidth;
+    }
+    updateView();
+    draw(viewLeft, viewWidth, depth);
+  }
+}, { passive: true });
+
+stageEl.addEventListener('touchend', () => {
+  touchStartX = null;
+  setTimeout(() => { touchMoved = false; }, 0);
+});
+
+/* ══════════════════════════════════════════════════
+   CLICK-TO-ZOOM-IN
+══════════════════════════════════════════════════ */
+function clickSegment(segWorldStart, segSize) {
+  if (animating || depth >= MAX_DEPTH) return;
+
+  // Work out which digit (0–9) was clicked
+  const factor   = Math.pow(10, depth + 1);
+  const segIndex = Math.floor(clean(segWorldStart * factor)) % 10;
+  // Handle negatives gracefully
+  const idx = ((segIndex % 10) + 10) % 10;
+
+  const oldLeft  = viewLeft;
+  const oldWidth = viewWidth;
+
+  selectedSegs.push(idx);
+  depth++;
+  viewPanOffset = 0;
+  updateView();
+
+  animateTo(oldLeft, oldWidth, viewLeft, viewWidth, () => render());
+}
+
+/* ══════════════════════════════════════════════════
+   ZOOM OUT
+══════════════════════════════════════════════════ */
+function zoomOut() {
+  if (animating || depth === 0) return;
+
+  const oldLeft  = viewLeft;
+  const oldWidth = viewWidth;
+
+  selectedSegs.pop();
+  depth--;
+  viewPanOffset = 0;
+  updateView();
+
+  animateTo(oldLeft, oldWidth, viewLeft, viewWidth, () => render());
+}
+
+/* ══════════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════════ */
+function resetView() {
+  if (animating) return;
+
+  const oldLeft  = viewLeft;
+  const oldWidth = viewWidth;
+
+  selectedSegs  = [];
+  depth         = 0;
+  panOffset     = 0;
+  viewPanOffset = 0;
+  updateView();
+
+  animateTo(oldLeft, oldWidth, viewLeft, viewWidth, () => render());
+}
+
+/* ══════════════════════════════════════════════════
+   ANIMATION
+══════════════════════════════════════════════════ */
+function animateTo(fromLeft, fromWidth, toLeft, toWidth, onDone) {
+  if (animating) return;
+  animating = true;
+  const start = performance.now();
+
+  function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
+
+  function frame(now) {
+    const raw = Math.min((now - start) / ANIM_MS, 1);
+    const t   = ease(raw);
+    const lw  = Math.log(fromWidth), lt = Math.log(toWidth);
+    const cw  = Math.exp(lw + (lt - lw) * t);
+    const cl  = fromLeft + (toLeft - fromLeft) * t;
+    draw(cl, cw, raw < 0.5
+      ? Math.max(0, depth - 1)
+      : depth);
+    if (raw < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      animating = false;
+      if (onDone) onDone();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ══════════════════════════════════════════════════
+   UI UPDATE
+══════════════════════════════════════════════════ */
+function render() {
+  updateView();
+  draw(viewLeft, viewWidth, depth);
+
+  // Update stage cursor & hint (pan works at all zoom levels)
+  stageEl.classList.remove('can-click');
+  stageEl.classList.add('can-pan');
+  document.getElementById('stageHint').textContent = depth < MAX_DEPTH
+    ? 'Drag to pan · Click a segment to zoom in'
+    : 'Drag to pan';
+
+  // Decimal readout, show panOffset as the integer part
+  const decEl = document.getElementById('decimalRow');
+  const intPart = Math.round(panOffset); // panOffset is always integer at rest
+  const digits  = [selectedSegs[0] ?? null, selectedSegs[1] ?? null, selectedSegs[2] ?? null];
+  let html = `<span style="color:var(--text-dark)">${intPart}</span>`;
+  if (depth > 0) {
+    html += `<span style="color:rgba(45,52,54,0.3)">.</span>`;
+    digits.forEach((d) => {
+      if (d === null) {
+        html += `<span style="color:rgba(45,52,54,0.2)">_</span>`;
+      } else {
+        html += `<span style="color:var(--text-dark)">${d}</span>`;
+      }
+    });
+  }
+  decEl.innerHTML = html;
+
+  // Level pill
+  document.getElementById('levelPill').textContent = NAMES[depth];
+
+  // Depth dots
+  const dotsEl = document.getElementById('depthDots');
+  dotsEl.innerHTML = Array.from({length: MAX_DEPTH + 1}, (_, i) =>
+    `<div class="dot${i <= depth ? ' filled' : ''}"></div>`
+  ).join('');
+
+  // Depth bar
+  for (let i = 0; i <= MAX_DEPTH; i++) {
+    document.getElementById('dseg' + i)
+      .classList.toggle('active', i <= depth);
+  }
+
+  // Description
+  document.getElementById('desc').textContent = DESCS[depth];
+
+  // Buttons
+  document.getElementById('btnOut').disabled   = depth === 0 || animating;
+  document.getElementById('btnReset').disabled = (depth === 0 && panOffset === 0) || animating;
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+window.addEventListener('resize', () => { updateView(); draw(viewLeft, viewWidth, depth); });
+updateView();
+render();
+
+/* LEARNING CARD TOGGLE */
+function toggleLearningSection() {
+  const content = document.getElementById('learningContent');
+  const toggle = document.getElementById('learningToggle');
+  content.classList.toggle('open');
+  toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+</script>
+
+
+</body></html>

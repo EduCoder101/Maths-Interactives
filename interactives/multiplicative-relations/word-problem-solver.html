@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Problem Solver</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B5DE5;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--orange); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+  .learning-card {
+    width: 100%; max-width: 720px;
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+    border-top: 5px solid var(--accent);
+  }
+  .learning-card h2 {
+    font-size: 1.1rem; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  .phase-nav {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    justify-content: center; width: 100%; max-width: 720px;
+  }
+  .phase-btn {
+    padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0;
+    background: white; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s;
+  }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+  .reveal-btn {
+    background: var(--accent); color: white; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.2s;
+  }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn {
+    border: none; border-radius: 30px; padding: 8px 22px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: white;
+  }
+  .level-btn.l1 { background: var(--accent); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  .q-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border); display: none;
+  }
+  .q-card.active { display: block; animation: fadeIn 0.35s ease; }
+  .q-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px; }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.7; margin-bottom: 16px; }
+  .q-hint { font-size: 14px; color: var(--text-light); font-style: italic; margin-bottom: 16px; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .div-input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+  .div-label { font-size: 15px; font-weight: 600; color: var(--text-light); }
+  .div-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 12px 8px; width: 120px; outline: none;
+    transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc;
+  }
+  .div-input:focus { border-color: var(--accent); }
+  .div-input.correct { border-color: var(--green); background: var(--green-light); }
+  .div-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .div-input:disabled { opacity: 0.7; }
+
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text-dark); color: white; }
+  .btn-dark:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  .feedback {
+    border-radius: 14px; padding: 14px 18px; margin-top: 12px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+
+  .progress-area { width: 100%; max-width: 720px; margin-bottom: 16px; display: none; }
+  .progress-area.show { display: block; }
+  .progress-label { font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-align: center; }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  .summary-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; text-align: center;
+    margin-top: 16px; display: none; width: 100%; max-width: 720px;
+  }
+  .summary-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700; margin: 12px 0; }
+  .summary-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .result-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; text-align: left; }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; flex-shrink: 0; }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--accent); max-width: 720px; width: 100%; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn { background: transparent; color: var(--accent-dark); border: 2px solid var(--accent); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-section { display: none; }
+  .go-deeper-section.visible { display: block; animation: fadeIn 0.35s ease; }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .card, .q-card, .learning-card { padding: 20px 18px; }
+    .div-input { width: 96px; font-size: 18px; }
+    .go-deeper-card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Word Problem <span>Solver</span></h1>
+  <p>Use the four-step protocol to crack multi-step word problems</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to solve multi-step multiplication word problems by identifying hidden steps and ignoring extraneous information.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can use the four-step protocol: Visualise, Estimate, Calculate, Check.</li>
+      <li>I can identify hidden steps in a word problem.</li>
+      <li>I can identify extraneous information that is not needed.</li>
+      <li>I can choose an efficient strategy for the calculation.</li>
+      <li>I can check my answer against a Radar estimate.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn" onclick="showSection('practice', this)">Practice</button>
+</div>
+
+<!-- ══════ LEARN SECTION ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>The four-step protocol</h3>
+    <p>Every word problem follows the same four steps. This keeps your thinking organised.</p>
+    <div style="display:flex;flex-direction:column;gap:1.1rem;margin-top:16px;">
+      <div>
+        <p style="font-weight:700;color:var(--accent-dark);">Step 1: Visualise</p>
+        <p>Read the problem. Picture it. Draw a quick sketch if it helps.</p>
+      </div>
+      <div>
+        <p style="font-weight:700;color:var(--accent-dark);">Step 2: Estimate</p>
+        <p>Use your Radar to estimate. Round the numbers and calculate roughly.</p>
+      </div>
+      <div>
+        <p style="font-weight:700;color:var(--accent-dark);">Step 3: Calculate</p>
+        <p>Choose your strategy (mental, area model, lattice, algorithm) and solve.</p>
+      </div>
+      <div>
+        <p style="font-weight:700;color:var(--accent-dark);">Step 4: Check</p>
+        <p>Compare your answer with your Radar estimate. Is it reasonable?</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Hidden steps and extraneous information</h3>
+    <p>Some word problems have <strong>hidden steps</strong>: you need to do more than one calculation, even though the problem looks like it only asks one question.</p>
+
+    <div class="callout callout-teal" style="margin-top:12px;">
+      <div class="label">Example: hidden step</div>
+      <p>"A hall has <strong>24</strong> rows of <strong>15</strong> chairs, plus <strong>6</strong> extra chairs at the front for teachers. How many chairs in total?"</p>
+      <p style="margin-top:8px;">The hidden step: first multiply <strong>24</strong> x <strong>15</strong> = <strong>360</strong>, then add <strong>6</strong>. Answer: <strong>366</strong>.</p>
+    </div>
+
+    <p style="margin-top:16px;">Other problems have <strong>extraneous information</strong>: facts that are true but not needed for the calculation.</p>
+
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="label">Example: extraneous info</div>
+      <p>"Sarah is <strong>11</strong> years old. She buys <strong>6</strong> boxes of cat food. Each box has <strong>12</strong> pouches. How many pouches?"</p>
+      <p style="margin-top:8px;">Sarah's age is extraneous. You only need <strong>6</strong> x <strong>12</strong> = <strong>72</strong> pouches.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PRACTICE SECTION ══════ -->
+<div id="practice" class="section">
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="startLevel(1)">Level 1</button>
+    <button class="level-btn l2" onclick="startLevel(2)">Level 2</button>
+    <button class="level-btn l3" onclick="startLevel(3)">Level 3</button>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Problem Design Investigations</h3>
+    <p>Complete Level 3 to unlock</p>
+  </button>
+
+  <div class="progress-area" id="progress-area">
+    <div class="progress-label" id="progress-label">Question 1 of 6</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="question-area"></div>
+
+  <div class="summary-card" id="summary-card">
+    <div class="summary-label">Your Score</div>
+    <div class="summary-score" id="summary-score"></div>
+    <div class="summary-label" id="summary-message"></div>
+    <div id="summary-breakdown" style="text-align:left;margin-top:24px;"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="retryLevel()">Try Again</button>
+      <button class="btn btn-dark" id="next-level-btn" style="display:none;" onclick="goNextLevel()">Next Level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER SECTION ══════ -->
+<div class="go-deeper-section" id="go-deeper-section">
+  <div class="go-deeper-card">
+    <h2>&#x1F513; Go Deeper: Problem Design Investigations</h2>
+    <p>Now that you can solve word problems, explore what makes a problem tricky in the first place.</p>
+
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising</div>
+      <div class="ext-task-prompt">
+        Take this simple problem: "A shop has <span class="ext-numbers">15</span> shelves with <span class="ext-numbers">24</span> books on each. How many books?" Now add one piece of extraneous information to it. Then add a hidden step. Write out all three versions of the problem.
+      </div>
+      <div class="ext-task-sub">What changed about the difficulty each time? Did the calculation itself change?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>Original: "A shop has <span class="ext-numbers">15</span> shelves with <span class="ext-numbers">24</span> books on each. How many books?" Answer: <span class="ext-numbers">360</span>.</p>
+        <p>With extraneous info: "A shop has <span class="ext-numbers">15</span> wooden shelves, each <span class="ext-numbers">90</span> cm wide, with <span class="ext-numbers">24</span> books on each. How many books?" The width is extraneous. The answer is still <span class="ext-numbers">360</span>.</p>
+        <p>With a hidden step: "A shop has <span class="ext-numbers">15</span> shelves with <span class="ext-numbers">24</span> books on each. The shop has <span class="ext-numbers">3</span> rooms like this. How many books in total?" Now you need <span class="ext-numbers">15</span> x <span class="ext-numbers">24</span> = <span class="ext-numbers">360</span>, then <span class="ext-numbers">360</span> x <span class="ext-numbers">3</span> = <span class="ext-numbers">1,080</span>.</p>
+        <p>I first thought adding extraneous info would change the difficulty a lot, but it mainly just tests whether you can spot what matters. The hidden step actually changes the calculation itself.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are working through a specific example carefully to understand how different features of a problem affect its difficulty.
+      </div>
+    </div>
+
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecturing</div>
+      <div class="ext-task-prompt">
+        Make a conjecture: is it possible to write a word problem that has both a hidden step AND extraneous information, where the extraneous information looks like it could be the hidden step? Try to write one.
+      </div>
+      <div class="ext-task-sub">This is the trickiest kind of word problem. What makes it so hard?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>I tried: "A baker makes <span class="ext-numbers">24</span> trays with <span class="ext-numbers">15</span> biscuits each. The oven uses <span class="ext-numbers">3</span> kilowatts of electricity. He packs biscuits into bags of <span class="ext-numbers">6</span>. How many bags does he need?"</p>
+        <p>The electricity (<span class="ext-numbers">3</span> kilowatts) looks like a number you might use, but it is extraneous. The hidden step is: first calculate <span class="ext-numbers">24</span> x <span class="ext-numbers">15</span> = <span class="ext-numbers">360</span> biscuits, then divide <span class="ext-numbers">360</span> &#247; <span class="ext-numbers">6</span> = <span class="ext-numbers">60</span> bags.</p>
+        <p>It is hard because the extraneous number (<span class="ext-numbers">3</span>) is tempting. You could mistakenly multiply by <span class="ext-numbers">3</span> instead of dividing by <span class="ext-numbers">6</span>. The trick is always to re-read the question and ask: "What am I actually being asked?"</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are testing whether something is possible by trying to construct an example.
+      </div>
+    </div>
+
+    <div class="ext-task">
+      <div class="ext-task-label">Generalising</div>
+      <div class="ext-task-prompt">
+        Write a set of rules for making a word problem harder without changing the core multiplication. Your rules should work for any word problem, not just the examples you have tried.
+      </div>
+      <div class="ext-task-sub">Think about all the tricks you have seen. Can you organise them into a list from least to most difficult?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>My rules, from least to most difficult:</p>
+        <p><span class="ext-numbers">1</span>. Add extraneous information that is clearly unrelated (like a person's age). This is easy to spot.</p>
+        <p><span class="ext-numbers">2</span>. Add a hidden step that uses a different operation (multiply then add, or multiply then divide). This changes the calculation.</p>
+        <p><span class="ext-numbers">3</span>. Add extraneous information that uses the same operation as the main calculation (a number that looks like it should be multiplied). This is hard to spot.</p>
+        <p><span class="ext-numbers">4</span>. Combine a hidden step with extraneous info that looks like the hidden step. This is the hardest because the solver must decide which numbers matter and which do not.</p>
+        <p>I first tried ordering by number size, but realised bigger numbers do not actually make a problem harder to understand. What makes it harder is the reasoning needed to decide which calculation to do.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means you are making a set of rules that works for all word problems, not just the ones you have tried.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── QUESTION POOLS ──
+
+// Level 1: Single-step word problems
+var pool1 = [
+  {text:'A library has <span class="mono">28</span> shelves. Each shelf holds <span class="mono">15</span> books. How many books are there in total?', answer:420, hint:'Radar: 30 x 15 = 450', fbCorrect:'<span class="mono">28 x 15 = 420</span> books. Radar: <span class="mono">30 x 15 = 450</span>. Close and reasonable.', fbWrong:'The calculation is <span class="mono">28 x 15</span>. Area model: <span class="mono">20 x 15 = 300</span>, <span class="mono">8 x 15 = 120</span>. Total: <span class="mono">300 + 120 = 420</span>.'},
+  {text:'A school orders <span class="mono">24</span> boxes of pencils. Each box contains <span class="mono">36</span> pencils. How many pencils in total?', answer:864, hint:'Radar: 24 x 36 is near 25 x 36 = 900', fbCorrect:'<span class="mono">24 x 36 = 864</span> pencils. Radar: <span class="mono">25 x 36 = 900</span>. Close and reasonable.', fbWrong:'The calculation is <span class="mono">24 x 36</span>. Partials: <span class="mono">20 x 36 = 720</span>, <span class="mono">4 x 36 = 144</span>. Total: <span class="mono">720 + 144 = 864</span>.'},
+  {text:'A tiler lays <span class="mono">18</span> tiles in each row. The floor needs <span class="mono">14</span> rows. How many tiles are needed?', answer:252, hint:'Radar: 18 x 14 is near 20 x 14 = 280', fbCorrect:'<span class="mono">18 x 14 = 252</span> tiles. Radar: <span class="mono">20 x 14 = 280</span>. Reasonable.', fbWrong:'The calculation is <span class="mono">18 x 14</span>. Partials: <span class="mono">18 x 10 = 180</span>, <span class="mono">18 x 4 = 72</span>. Total: <span class="mono">180 + 72 = 252</span>.'},
+  {text:'A hall has <span class="mono">32</span> rows of chairs with <span class="mono">25</span> chairs in each row. How many chairs are there?', answer:800, hint:'Radar: 30 x 25 = 750', fbCorrect:'<span class="mono">32 x 25 = 800</span> chairs. You could factorise: <span class="mono">32 x 25 = 8 x 4 x 25 = 8 x 100 = 800</span>.', fbWrong:'The calculation is <span class="mono">32 x 25</span>. One strategy: factorise <span class="mono">25 = 5 x 5</span>, so <span class="mono">32 x 5 = 160</span>, then <span class="mono">160 x 5 = 800</span>.'},
+  {text:'A bakery makes <span class="mono">15</span> packs of biscuits. Each pack contains <span class="mono">8</span> biscuits. How many biscuits altogether?', answer:120, hint:'Radar: 15 x 8 = 15 x 8', fbCorrect:'<span class="mono">15 x 8 = 120</span> biscuits. Double and halve: <span class="mono">30 x 4 = 120</span>.', fbWrong:'The calculation is <span class="mono">15 x 8</span>. Double and halve: <span class="mono">30 x 4 = 120</span>. Or: <span class="mono">10 x 8 = 80</span>, <span class="mono">5 x 8 = 40</span>. Total: <span class="mono">120</span>.'},
+  {text:'A car park has <span class="mono">45</span> spaces. There are <span class="mono">6</span> levels. How many cars can the car park hold?', answer:270, hint:'Radar: 45 x 6 is near 50 x 6 = 300', fbCorrect:'<span class="mono">45 x 6 = 270</span> cars. Radar: <span class="mono">50 x 6 = 300</span>. Reasonable.', fbWrong:'The calculation is <span class="mono">45 x 6</span>. Partials: <span class="mono">40 x 6 = 240</span>, <span class="mono">5 x 6 = 30</span>. Total: <span class="mono">240 + 30 = 270</span>.'},
+  {text:'A farmer plants <span class="mono">34</span> rows with <span class="mono">27</span> seeds in each row. How many seeds does the farmer plant?', answer:918, hint:'Radar: 34 x 27 is near 34 x 30 = 1,020', fbCorrect:'<span class="mono">34 x 27 = 918</span> seeds. Radar: <span class="mono">34 x 30 = 1,020</span>. Reasonable.', fbWrong:'The calculation is <span class="mono">34 x 27</span>. Area model: <span class="mono">30 x 20 = 600</span>, <span class="mono">4 x 20 = 80</span>, <span class="mono">30 x 7 = 210</span>, <span class="mono">4 x 7 = 28</span>. Total: <span class="mono">918</span>.'},
+  {text:'A cinema has <span class="mono">23</span> rows of seats with <span class="mono">16</span> seats in each row. How many seats are there?', answer:368, hint:'Radar: 23 x 16 is near 23 x 16', fbCorrect:'<span class="mono">23 x 16 = 368</span> seats. Factorising: <span class="mono">23 x 16 = 23 x 4 x 4 = 92 x 4 = 368</span>.', fbWrong:'The calculation is <span class="mono">23 x 16</span>. Area model: <span class="mono">20 x 10 = 200</span>, <span class="mono">3 x 10 = 30</span>, <span class="mono">20 x 6 = 120</span>, <span class="mono">3 x 6 = 18</span>. Total: <span class="mono">368</span>.'}
+];
+
+// Level 2: Multi-step with hidden steps
+var pool2 = [
+  {text:'A hall has <span class="mono">24</span> rows of <span class="mono">15</span> chairs. There are also <span class="mono">6</span> extra chairs at the front for teachers. How many chairs are there in total?', answer:366, steps:'Step 1: <span class="mono">24 x 15 = 360</span> chairs in rows.<br>Step 2: <span class="mono">360 + 6 = 366</span> total.', fbWrong:'This is a two-step problem. First, find the chairs in the rows: <span class="mono">24 x 15 = 360</span>. Then add the extra chairs: <span class="mono">360 + 6 = 366</span>.'},
+  {text:'A farmer plants <span class="mono">34</span> rows of <span class="mono">27</span> seedlings. During a storm, <span class="mono">18</span> seedlings die. How many survive?', answer:900, steps:'Step 1: <span class="mono">34 x 27 = 918</span> seedlings planted.<br>Step 2: <span class="mono">918 - 18 = 900</span> survive.', fbWrong:'Two steps: first, total planted is <span class="mono">34 x 27 = 918</span>. Then subtract the dead ones: <span class="mono">918 - 18 = 900</span>.'},
+  {text:'A printer prints <span class="mono">48</span> pages per minute. It runs for <span class="mono">35</span> minutes in the morning and <span class="mono">27</span> minutes in the afternoon. How many pages does it print altogether?', answer:2976, steps:'Step 1: Total minutes = <span class="mono">35 + 27 = 62</span>.<br>Step 2: <span class="mono">48 x 62 = 2,976</span> pages.', fbWrong:'Hidden step: first add the times: <span class="mono">35 + 27 = 62</span> minutes. Then multiply: <span class="mono">48 x 62 = 2,976</span> pages.'},
+  {text:'A shop has <span class="mono">15</span> shelves. Each shelf holds <span class="mono">24</span> books. The shop has <span class="mono">3</span> rooms like this. How many books in total?', answer:1080, steps:'Step 1: Books per room = <span class="mono">15 x 24 = 360</span>.<br>Step 2: <span class="mono">360 x 3 = 1,080</span> total.', fbWrong:'Two steps: first, books in one room = <span class="mono">15 x 24 = 360</span>. Then multiply by rooms: <span class="mono">360 x 3 = 1,080</span>.'},
+  {text:'A school orders <span class="mono">24</span> classes worth of textbooks. Each class needs <span class="mono">28</span> books. They already have <span class="mono">150</span> in the storeroom. How many more do they need to order?', answer:522, steps:'Step 1: Total needed = <span class="mono">24 x 28 = 672</span>.<br>Step 2: <span class="mono">672 - 150 = 522</span> to order.', fbWrong:'First, find total needed: <span class="mono">24 x 28 = 672</span>. Then subtract existing stock: <span class="mono">672 - 150 = 522</span> more needed.'},
+  {text:'A cinema shows <span class="mono">4</span> films per day. Each screening has <span class="mono">23</span> rows of <span class="mono">16</span> seats. If every screening is full, how many people watch films in one day?', answer:1472, steps:'Step 1: Seats per screening = <span class="mono">23 x 16 = 368</span>.<br>Step 2: <span class="mono">368 x 4 = 1,472</span> people per day.', fbWrong:'First, find seats per screening: <span class="mono">23 x 16 = 368</span>. Then multiply by films: <span class="mono">368 x 4 = 1,472</span>.'},
+  {text:'A farmer plants <span class="mono">47</span> rows of <span class="mono">8</span> seedlings. She gives away <span class="mono">76</span> seedlings and replants <span class="mono">20</span>. How many does she have now?', answer:320, steps:'Step 1: <span class="mono">47 x 8 = 376</span> planted.<br>Step 2: <span class="mono">376 - 76 = 300</span> after giving away.<br>Step 3: <span class="mono">300 + 20 = 320</span> after replanting.', fbWrong:'Three steps: <span class="mono">47 x 8 = 376</span> planted. <span class="mono">376 - 76 = 300</span> after giving away. <span class="mono">300 + 20 = 320</span> after replanting.'}
+];
+
+// Level 3: Multi-step problems with extraneous information
+var pool3 = [
+  {text:'A school orders <span class="mono">24</span> packs of exercise books. Each pack contains <span class="mono">15</span> books. The books are shared equally among <span class="mono">8</span> classes. How many books does each class get?', answer:45, extraneous:'', steps:'Step 1: <span class="mono">24 x 15 = 360</span> books total.<br>Step 2: <span class="mono">360 / 8 = 45</span> books per class.'},
+  {text:'A farmer plants <span class="mono">16</span> rows of apple trees with <span class="mono">12</span> trees in each row. Each tree produces <span class="mono">45</span> apples. How many apples are produced in total?', answer:8640, extraneous:'', steps:'Step 1: <span class="mono">16 x 12 = 192</span> trees.<br>Step 2: <span class="mono">192 x 45 = 8,640</span> apples.'},
+  {text:'A bakery makes <span class="mono">288</span> muffins. They are packed in boxes of <span class="mono">12</span>. Each box sells for <span class="mono">$8</span>. How much money does the bakery earn if all boxes are sold?', answer:192, extraneous:'', steps:'Step 1: <span class="mono">288 / 12 = 24</span> boxes.<br>Step 2: <span class="mono">24 x 8 = 192</span> dollars.'},
+  {text:'A factory produces <span class="mono">36</span> crates with <span class="mono">25</span> items in each crate. All items are distributed to <span class="mono">30</span> shops equally. How many items does each shop receive?', answer:30, extraneous:'', steps:'Step 1: <span class="mono">36 x 25 = 900</span> items total.<br>Step 2: <span class="mono">900 / 30 = 30</span> items per shop.'},
+  {text:'A publisher prints <span class="mono">28</span> batches of books with <span class="mono">45</span> books per batch. Each book has <span class="mono">32</span> pages. How many pages are printed in total?', answer:40320, extraneous:'', steps:'Step 1: <span class="mono">28 x 45 = 1,260</span> books.<br>Step 2: <span class="mono">1,260 x 32 = 40,320</span> pages.'},
+  {text:'A sports club has <span class="mono">336</span> basketballs. They are shared equally among <span class="mono">14</span> teams. Each team sells their basketballs for <span class="mono">$15</span> each. How much money does one team earn?', answer:360, extraneous:'', steps:'Step 1: <span class="mono">336 / 14 = 24</span> basketballs per team.<br>Step 2: <span class="mono">24 x 15 = 360</span> dollars.'},
+  {text:'A gardener plants <span class="mono">32</span> rows of flowers with <span class="mono">18</span> flowers per row. The garden is <span class="mono">50</span> metres long. The flowers are grouped into bunches of <span class="mono">24</span>. How many complete bunches can be made?', answer:24, extraneous:'The garden is 50 metres long', steps:'Step 1: <span class="mono">32 x 18 = 576</span> flowers.<br>Step 2: <span class="mono">576 / 24 = 24</span> bunches.'},
+  {text:'A library receives <span class="mono">15</span> boxes with <span class="mono">24</span> books each. They keep half of the books for themselves. The remaining books are sent to <span class="mono">6</span> schools equally. How many books does each school receive?', answer:30, extraneous:'', steps:'Step 1: <span class="mono">15 x 24 = 360</span> books.<br>Step 2: <span class="mono">360 / 2 = 180</span> books remaining.<br>Step 3: <span class="mono">180 / 6 = 30</span> books per school.'},
+  {text:'A school buys <span class="mono">18</span> packs of pencils with <span class="mono">24</span> pencils per pack. The packs are bright yellow. They use <span class="mono">216</span> pencils in the first week. How many pencils are left?', answer:216, extraneous:'The packs are bright yellow', steps:'Step 1: <span class="mono">18 x 24 = 432</span> pencils.<br>Step 2: <span class="mono">432 - 216 = 216</span> pencils left.'},
+  {text:'A cinema received <span class="mono">468</span> raffle tickets. The tickets are divided equally among <span class="mono">18</span> screenings. The cinema is decorated with red and gold. How many tickets are available per screening?', answer:26, extraneous:'The cinema is decorated with red and gold', steps:'<span class="mono">468 / 18 = 26</span> tickets per screening.'}
+];
+
+// ── STATE ──
+var currentLevel = 1;
+var currentQ = 0;
+var questions = [];
+var answers = [];
+
+// ── UTILITY ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── NAVIGATION ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── START LEVEL ──
+function startLevel(n) {
+  currentLevel = n;
+  currentQ = 0;
+  answers = [];
+
+  document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+
+  if (n === 1) questions = shuffle(pool1).slice(0, 6);
+  else if (n === 2) questions = shuffle(pool2).slice(0, 6);
+  else questions = shuffle(pool3).slice(0, 6);
+
+  document.getElementById('progress-area').classList.add('show');
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+
+  buildQuestion();
+}
+
+// ── BUILD QUESTION ──
+function buildQuestion() {
+  var area = document.getElementById('question-area');
+  var q = questions[currentQ];
+
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+
+  var html = '<div class="q-card active">';
+  html += '<div class="q-number">Question ' + (currentQ + 1) + ' of ' + questions.length + '</div>';
+  html += '<div class="q-stem">' + q.text + '</div>';
+
+  if (currentLevel === 1 && q.hint) {
+    html += '<div class="q-hint">' + q.hint + '</div>';
+  }
+  if (currentLevel === 3) {
+    html += '<div class="q-hint">This problem needs more than one step. Work carefully through each operation.</div>';
+  }
+
+  html += '<div class="div-input-row">';
+  html += '<div class="div-label">Answer</div>';
+  html += '<input type="text" class="div-input" id="inp-ans" inputmode="numeric" placeholder="?" autocomplete="off">';
+  html += '</div>';
+
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Check Answer</button>';
+  html += '</div>';
+  html += '<div class="feedback" id="feedback"></div>';
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-dark" id="next-btn" style="display:none;margin-top:12px;" onclick="nextQuestion()">Next Question</button>';
+  html += '</div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+  var inp = document.getElementById('inp-ans');
+  if (inp) setTimeout(function() { inp.focus(); }, 100);
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer() {
+  if (answers[currentQ] !== undefined) return;
+  var q = questions[currentQ];
+  var inp = document.getElementById('inp-ans');
+  var fb = document.getElementById('feedback');
+  var raw = inp.value.replace(/,/g, '').replace(/\s/g, '').replace(/\$/g, '');
+
+  if (raw === '' || isNaN(Number(raw))) { inp.style.borderColor = 'var(--red)'; return; }
+
+  var studentAns = parseInt(raw, 10);
+  var isCorrect = (studentAns === q.answer);
+  inp.disabled = true;
+  inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+  if (currentLevel === 1) {
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> ' + q.fbCorrect;
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + studentAns.toLocaleString('en-GB') + '</span>. ' + q.fbWrong;
+    }
+  } else if (currentLevel === 2) {
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> ' + q.steps;
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + studentAns.toLocaleString('en-GB') + '</span>. Look for the hidden step.<br>' + q.fbWrong;
+    }
+  } else {
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      var msg = '<strong>Correct.</strong> ' + q.steps;
+      if (q.extraneous) { msg += '<br>Extraneous information: ' + q.extraneous + '.'; }
+      fb.innerHTML = msg;
+    } else {
+      fb.className = 'feedback show incorrect';
+      var msg = '<strong>Not quite.</strong> You wrote <span class="mono">' + studentAns.toLocaleString('en-GB') + '</span>. Look for the hidden steps.<br>' + q.steps;
+      if (q.extraneous) { msg += '<br>Extraneous information: ' + q.extraneous + '.'; }
+      fb.innerHTML = msg;
+    }
+  }
+
+  answers[currentQ] = { correct: isCorrect };
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+// ── NEXT QUESTION ──
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showSummary(); return; }
+  buildQuestion();
+}
+
+// ── SUMMARY ──
+function showSummary() {
+  document.getElementById('question-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 5) msg = 'Excellent problem solving.';
+  else if (correct >= 3) msg = 'Good work. Read the feedback on the ones you missed.';
+  else msg = 'Keep practising. Check the Learn section for the four-step protocol.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var breakdown = '<h3 style="font-size:16px;margin-bottom:12px;">Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    var label = q.text.replace(/<[^>]*>/g, '').substring(0, 55) + '...';
+    breakdown += '<div class="result-row">';
+    breakdown += '<div class="result-icon ' + icon + '">' + symbol + '</div>';
+    breakdown += '<span>' + label + '</span>';
+    breakdown += '</div>';
+  });
+  document.getElementById('summary-breakdown').innerHTML = breakdown;
+
+  var nextBtn = document.getElementById('next-level-btn');
+  if (currentLevel < 3 && correct >= 4) nextBtn.style.display = 'inline-block';
+  else nextBtn.style.display = 'none';
+
+  if (currentLevel === 3 && correct >= 4) unlockGoDeeper();
+
+  document.getElementById('summary-card').classList.add('show');
+}
+
+function retryLevel() { startLevel(currentLevel); }
+function goNextLevel() { startLevel(currentLevel + 1); }
+
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card) {
+    card.classList.remove('locked');
+    card.disabled = false;
+    card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+    card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  }
+}
+
+function openGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card.classList.contains('locked')) return;
+  document.getElementById('go-deeper-section').classList.add('visible');
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var checkBtn = document.getElementById('check-btn');
+    var nextBtn = document.getElementById('next-btn');
+    if (nextBtn && nextBtn.style.display !== 'none') nextQuestion();
+    else if (checkBtn && checkBtn.style.display !== 'none') checkAnswer();
+  }
+});
+
+startLevel(1);
+</script>
+</body>
+</html>

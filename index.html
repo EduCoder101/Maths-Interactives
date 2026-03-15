@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maths Interactives</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --daily-color: #E17055;
+            --number-color: #4ECDC4;
+            --addition-color: #3498DB;
+            --multiplication-color: #9B5DE5;
+            --fractions-color: #FF6B6B;
+            --tools-color: #636E72;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--bg-cream);
+            min-height: 100vh; overflow-x: hidden;
+        }
+
+        .bg-shapes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-shape { position: absolute; border-radius: 50%; opacity: 0.08; }
+        .bg-shape-1 { width: 300px; height: 300px; background: var(--number-color); top: -100px; right: -80px; }
+        .bg-shape-2 { width: 200px; height: 200px; background: var(--fractions-color); bottom: 15%; left: -60px; }
+        .bg-shape-3 { width: 150px; height: 150px; background: var(--multiplication-color); top: 40%; right: 10%; }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 960px; margin: 0 auto;
+            padding: 2rem; padding-bottom: 4rem;
+        }
+
+        /* ── Header ── */
+        header { text-align: center; margin-bottom: 1.5rem; }
+        header h1 { font-size: 2.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.3rem; }
+        header h1 span {
+            background: linear-gradient(135deg, var(--number-color), var(--multiplication-color));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        header p { font-size: 1.15rem; color: var(--text-light); }
+
+        /* ── Student name box ── */
+        .student-name-box {
+            margin: 1.25rem auto 0; padding: 1.25rem 1.5rem;
+            background: #fff; border-radius: 12px; max-width: 420px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            border: 2px solid var(--number-color);
+        }
+        .student-name-intro { font-size: 0.9rem; color: var(--text-dark); margin-bottom: 1rem; line-height: 1.4; }
+        .student-name-box label { display: block; font-size: 0.9rem; color: var(--text-dark); margin-bottom: 0.4rem; }
+        .student-name-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .student-name-row input { flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 1rem; }
+        .student-name-row select { padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 1rem; min-width: 100px; }
+        .student-name-row button { padding: 0.5rem 1rem; background: var(--number-color); color: white; border: none; border-radius: 8px; font-family: inherit; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+        .student-name-row button:hover { opacity: 0.9; }
+        .student-name-row button:active { transform: scale(0.98); }
+        .student-name-hint { font-size: 0.75rem; color: var(--text-light); margin: 0; min-height: 1.25em; }
+        .student-name-hint.saved-confirm { color: #27AE60; font-weight: 500; }
+
+        /* ── Search bar ── */
+        .search-wrapper { max-width: 500px; margin: 2rem auto 2rem; position: relative; }
+        .search-input {
+            width: 100%; padding: 0.85rem 1.25rem 0.85rem 3rem;
+            border: 2px solid #e2e8f0; border-radius: 14px;
+            font-family: 'Fredoka', sans-serif; font-size: 1.05rem;
+            background: white; color: var(--text-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+        }
+        .search-input:focus { border-color: var(--number-color); box-shadow: 0 2px 16px rgba(78,205,196,0.2); }
+        .search-input::placeholder { color: #b0b8c1; }
+        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem; color: #b0b8c1; pointer-events: none; }
+        .search-clear { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.3rem; color: #b0b8c1; cursor: pointer; display: none; font-family: 'Fredoka', sans-serif; line-height: 1; padding: 0.25rem; }
+        .search-clear:hover { color: var(--text-dark); }
+
+        /* ── Strand tile grid ── */
+        .tile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .strand-tile {
+            background: white; border-radius: 20px; padding: 1.75rem 1.5rem; text-align: center;
+            box-shadow: var(--card-shadow); cursor: pointer; text-decoration: none; display: block;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            border-top: 5px solid transparent; position: relative; overflow: hidden;
+        }
+        .strand-tile:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.16); }
+        .strand-tile:active { transform: translateY(-1px); }
+        .tile-icon { font-size: 2.2rem; margin-bottom: 0.5rem; display: block; }
+        .tile-title { font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem; }
+        .tile-count { font-size: 0.85rem; color: var(--text-light); }
+        .strand-tile[data-strand="daily"] { border-top-color: var(--daily-color); }
+        .strand-tile[data-strand="number"] { border-top-color: var(--number-color); }
+        .strand-tile[data-strand="addition"] { border-top-color: var(--addition-color); }
+        .strand-tile[data-strand="multiplication"] { border-top-color: var(--multiplication-color); }
+        .strand-tile[data-strand="fractions"] { border-top-color: var(--fractions-color); }
+        .strand-tile[data-strand="tools"] { border-top-color: var(--tools-color); }
+
+        /* ── Strand detail view ── */
+        .strand-view { display: none; }
+        .strand-view.active { display: block; animation: fadeIn 0.3s ease; }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-family: 'Fredoka', sans-serif; font-size: 1rem; font-weight: 600;
+            color: var(--text-dark); background: white; border: 2px solid #e2e8f0;
+            border-radius: 12px; padding: 0.6rem 1.2rem; cursor: pointer;
+            transition: all 0.2s; margin-bottom: 1.25rem;
+        }
+        .back-btn:hover { border-color: var(--text-dark); transform: translateY(-1px); }
+        .strand-view-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .strand-view-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .strand-view-title { font-size: 1.6rem; font-weight: 700; color: var(--text-dark); }
+        .strand-view-icon[data-strand="daily"] { background: var(--daily-color); }
+        .strand-view-icon[data-strand="number"] { background: var(--number-color); }
+        .strand-view-icon[data-strand="addition"] { background: var(--addition-color); }
+        .strand-view-icon[data-strand="multiplication"] { background: var(--multiplication-color); }
+        .strand-view-icon[data-strand="fractions"] { background: var(--fractions-color); }
+        .strand-view-icon[data-strand="tools"] { background: var(--tools-color); }
+
+        /* ── Activity cards ── */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 0.85rem;
+        }
+        .activity-card {
+            background: white; border-radius: 16px; padding: 1.15rem;
+            box-shadow: var(--card-shadow); text-decoration: none;
+            transition: all 0.25s ease; display: block;
+            position: relative; overflow: hidden;
+        }
+        .activity-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
+        .activity-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .activity-card h3 { font-size: 1rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .activity-card p { font-size: 0.85rem; color: var(--text-light); line-height: 1.45; }
+        .activity-meta { display: flex; gap: 0.5rem; margin-top: 0.55rem; font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--text-light); flex-wrap: wrap; }
+        .tag-tool { background: rgba(8,145,178,0.15); color: #0e7490; padding: 0.15rem 0.5rem; border-radius: 6px; font-weight: 600; }
+        .tag-checkpoint { background: rgba(155,93,229,0.15); color: #7c3aed; padding: 0.15rem 0.5rem; border-radius: 6px; font-weight: 600; }
+        .tag-extension { background: rgba(39,174,96,0.15); color: #1a9c51; padding: 0.15rem 0.5rem; border-radius: 6px; font-weight: 600; }
+
+        .activity-card[data-strand="daily"]::before { background: var(--daily-color); }
+        .activity-card[data-strand="number"]::before { background: var(--number-color); }
+        .activity-card[data-strand="addition"]::before { background: var(--addition-color); }
+        .activity-card[data-strand="multiplication"]::before { background: var(--multiplication-color); }
+        .activity-card[data-strand="fractions"]::before { background: var(--fractions-color); }
+        .activity-card[data-strand="tools"]::before { background: var(--tools-color); }
+
+        /* ── Section sub-headers (for grouped layouts) ── */
+        .section-label {
+            font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--text-light);
+            margin: 1.5rem 0 0.75rem; padding-bottom: 0.4rem;
+            border-bottom: 2px solid #e8ecef;
+        }
+        .section-label:first-child { margin-top: 0; }
+
+        /* ── Column layout (Addition, Multiplication) ── */
+        .col-layout {
+            display: grid; gap: 0.85rem;
+        }
+        .col-layout-2 { grid-template-columns: 1fr 1fr; }
+        .col-layout-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .col-header {
+            font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.06em; padding: 0.5rem 0.75rem;
+            border-radius: 10px; text-align: center;
+            position: sticky; top: 0; z-index: 2;
+        }
+        .col-header-lesson { background: rgba(155,93,229,0.12); color: #7c3aed; }
+        .col-header-tool { background: rgba(8,145,178,0.12); color: #0e7490; }
+        .col-header-checkpoint { background: rgba(255,152,0,0.12); color: #e65100; }
+        .col-header-extension { background: rgba(39,174,96,0.12); color: #1a9c51; }
+        .col-header-addition-lesson { background: rgba(52,152,219,0.12); color: #2176ae; }
+        .col-header-addition-tool { background: rgba(8,145,178,0.12); color: #0e7490; }
+
+        /* Cards inside column layouts */
+        .col-layout .activity-card { padding: 1rem; }
+        .col-layout .activity-card h3 { font-size: 0.95rem; }
+        .col-layout .activity-card p { font-size: 0.82rem; }
+
+        /* ── Search results ── */
+        .search-results { display: none; }
+        .search-results.active { display: block; animation: fadeIn 0.2s ease; }
+        .search-results-heading { font-size: 1rem; font-weight: 500; color: var(--text-light); margin-bottom: 1rem; }
+        .search-strand-label {
+            display: inline-block; font-size: 0.65rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            padding: 0.15rem 0.5rem; border-radius: 6px; color: white; margin-bottom: 0.5rem;
+        }
+        .search-strand-label[data-strand="daily"] { background: var(--daily-color); }
+        .search-strand-label[data-strand="number"] { background: var(--number-color); }
+        .search-strand-label[data-strand="addition"] { background: var(--addition-color); }
+        .search-strand-label[data-strand="multiplication"] { background: var(--multiplication-color); }
+        .search-strand-label[data-strand="fractions"] { background: var(--fractions-color); }
+        .search-strand-label[data-strand="tools"] { background: var(--tools-color); }
+        .no-results { text-align: center; padding: 3rem 1rem; color: var(--text-light); font-size: 1.1rem; }
+
+        footer { text-align: center; padding-top: 2rem; color: var(--text-light); font-size: 0.85rem; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 700px) {
+            .container { padding: 1.25rem; }
+            header h1 { font-size: 2rem; }
+            .tile-grid { grid-template-columns: 1fr; }
+            .activity-grid { grid-template-columns: 1fr; }
+            .col-layout-2, .col-layout-3 { grid-template-columns: 1fr; }
+            .col-header { position: static; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shapes">
+        <div class="bg-shape bg-shape-1"></div>
+        <div class="bg-shape bg-shape-2"></div>
+        <div class="bg-shape bg-shape-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Maths <span>Interactives</span></h1>
+            <p>Year 5 . Interactive practice activities</p>
+            <div class="student-name-box">
+                <p class="student-name-intro">Before you start, enter your name and class. Your results will be sent to your teacher's spreadsheet when you complete an activity.</p>
+                <label for="student-name-input">Your name:</label>
+                <div class="student-name-row">
+                    <input type="text" id="student-name-input" placeholder="e.g. Sam" maxlength="80">
+                </div>
+                <label for="student-class-select">Your class:</label>
+                <div class="student-name-row">
+                    <select id="student-class-select">
+                        <option value="">Select class...</option>
+                        <option value="5A">5A</option>
+                        <option value="5S">5S</option>
+                        <option value="5EG">5EG</option>
+                    </select>
+                    <button type="button" id="student-name-save">Save</button>
+                </div>
+                <p class="student-name-hint" id="student-name-hint" role="status" aria-live="polite">Click Save to remember your name and class for this session.</p>
+            </div>
+        </header>
+
+        <div class="search-wrapper">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" class="search-input" id="search-input" placeholder="Search for an activity..." autocomplete="off">
+            <button class="search-clear" id="search-clear" aria-label="Clear search">&times;</button>
+        </div>
+
+        <div id="tile-grid" class="tile-grid">
+            <div class="strand-tile" data-strand="daily" onclick="showStrand('daily')">
+                <span class="tile-icon">&#128260;</span>
+                <div class="tile-title">Daily Practice</div>
+                <div class="tile-count" id="count-daily"></div>
+            </div>
+            <div class="strand-tile" data-strand="number" onclick="showStrand('number')">
+                <span class="tile-icon">&#128290;</span>
+                <div class="tile-title">Number &amp; Place Value</div>
+                <div class="tile-count" id="count-number"></div>
+            </div>
+            <div class="strand-tile" data-strand="addition" onclick="showStrand('addition')">
+                <span class="tile-icon">&#10133;</span>
+                <div class="tile-title">Addition &amp; Subtraction</div>
+                <div class="tile-count" id="count-addition"></div>
+            </div>
+            <div class="strand-tile" data-strand="multiplication" onclick="showStrand('multiplication')">
+                <span class="tile-icon">&#10006;&#65039;</span>
+                <div class="tile-title">Multiplication &amp; Division</div>
+                <div class="tile-count" id="count-multiplication"></div>
+            </div>
+            <div class="strand-tile" data-strand="fractions" onclick="showStrand('fractions')">
+                <span class="tile-icon">&#129383;</span>
+                <div class="tile-title">Fractions &amp; Decimals</div>
+                <div class="tile-count" id="count-fractions"></div>
+            </div>
+            <div class="strand-tile" data-strand="tools" onclick="showStrand('tools')">
+                <span class="tile-icon">&#128295;</span>
+                <div class="tile-title">Teacher Tools</div>
+                <div class="tile-count" id="count-tools"></div>
+            </div>
+        </div>
+
+        <div id="strand-view" class="strand-view">
+            <button class="back-btn" onclick="showTiles()">&#8592; Back to all topics</button>
+            <div class="strand-view-header">
+                <div class="strand-view-icon" id="strand-view-icon" data-strand=""></div>
+                <h2 class="strand-view-title" id="strand-view-title"></h2>
+            </div>
+            <div id="strand-content"></div>
+        </div>
+
+        <div id="search-results" class="search-results">
+            <p class="search-results-heading" id="search-results-heading"></p>
+            <div class="activity-grid" id="search-cards"></div>
+            <div class="no-results" id="no-results" style="display:none;">No activities match your search.</div>
+        </div>
+
+        <footer><p>Built for Year 5 students</p></footer>
+    </div>
+
+    <script>
+    (function () {
+        /* ── Student name persistence ── */
+        var NK = 'maths_interactives_student_name', CK = 'maths_interactives_student_class';
+        var ni = document.getElementById('student-name-input'), cs = document.getElementById('student-class-select');
+        var sb = document.getElementById('student-name-save'), hi = document.getElementById('student-name-hint');
+        if (sessionStorage.getItem(NK)) ni.value = sessionStorage.getItem(NK);
+        if (sessionStorage.getItem(CK)) cs.value = sessionStorage.getItem(CK);
+        sb.addEventListener('click', function () {
+            var n = (ni.value || '').trim(), c = (cs.value || '').trim();
+            sessionStorage.setItem(NK, n); sessionStorage.setItem(CK, c); ni.value = n;
+            hi.textContent = 'Saved! Your name and class will be used when you complete activities.';
+            hi.classList.add('saved-confirm');
+            setTimeout(function () { hi.textContent = 'Saved for this session. You can change and save again anytime.'; hi.classList.remove('saved-confirm'); }, 3000);
+        });
+
+        /* ── Activity data ── */
+        /* cat: lesson, practice, tool, checkpoint, extension */
+        var A = [
+            /* Daily Practice */
+            { id:'d1', title:'Daily Ten', desc:'Quick retrieval practice. Ten questions to keep your maths sharp.', strand:'daily', cat:'practice', href:'interactives/mental-maths/daily-ten.html', meta:'10 questions', tags:'daily ten retrieval mental maths' },
+            { id:'d2', title:'Daily Ten \u2013 Year 3', desc:'Year 3 focused mental maths. Choose topics, set difficulty, present to students.', strand:'daily', cat:'practice', href:'interactives/mental-maths/daily-ten-year3.html', meta:'10 questions \u00b7 Year 3', tags:'daily ten year 3 mental maths' },
+
+            /* Number & Place Value */
+            { id:'n1', title:'Place Value Explorer', desc:'Compare digits across place values. How many times bigger is one digit than another?', strand:'number', cat:'practice', href:'interactives/place-value/place-value-explorer.html', meta:'3 levels \u00b7 45 questions', tags:'place value explorer compare digits' },
+            { id:'n2', title:'Place Value Jumps', desc:'Jump between place values to see how numbers change by tens, hundreds and more.', strand:'number', cat:'tool', href:'interactives/place-value/place-value-jumps.html', meta:'<span class="tag-tool">Teaching Tool</span>', tags:'place value jumps teaching tool' },
+            { id:'n3', title:'Number Ordering Detective', desc:'Order numbers up to the trillions in ascending and descending order.', strand:'number', cat:'practice', href:'interactives/place-value/number-ordering.html', meta:'5 levels \u00b7 70 questions', tags:'number ordering ascending descending detective' },
+            { id:'n4', title:'The Value Detective', desc:'Find the value of underlined digits in numbers up to the trillions.', strand:'number', cat:'practice', href:'interactives/place-value/value-detective.html', meta:'3 levels \u00b7 45 questions', tags:'value detective digit place value' },
+            { id:'n5', title:'House Guest Word Sort', desc:'Convert number words to standard form, from ones to trillions.', strand:'number', cat:'practice', href:'interactives/place-value/house-guest-word-sort.html', meta:'4 levels \u00b7 32 questions', tags:'house guest word sort number words standard form' },
+            { id:'n6', title:'Building the Houses', desc:'Practice expanded notation. Break numbers apart and put them back together.', strand:'number', cat:'practice', href:'interactives/place-value/building-the-houses.html', meta:'4 modes \u00b7 40 questions', tags:'building houses expanded notation partition' },
+            { id:'n7', title:'House Guests Lost!', desc:'Sort scrambled place values into their correct houses to find the secret number.', strand:'number', cat:'practice', href:'interactives/place-value/house-guests-lost.html', meta:'3 levels \u00b7 60 questions', tags:'house guests lost scrambled place value' },
+            { id:'n8', title:'Rounding Ranger', desc:'Master rounding from simple benchmarks to complex estimation and mystery numbers.', strand:'number', cat:'practice', href:'interactives/place-value/rounding.html', meta:'4 levels \u00b7 80 questions', tags:'rounding ranger estimation benchmark' },
+            { id:'n9', title:'Rounding Visualiser', desc:'See where a number sits on a number line and watch it round to the nearest 10, 100, 1,000 and beyond.', strand:'number', cat:'tool', href:'interactives/place-value/rounding-visualiser.html', meta:'<span class="tag-tool">Teaching Tool</span>', tags:'rounding visualiser number line teaching tool' },
+            { id:'n10', title:'Spot the Imposter', desc:'Find the number that does not belong. Spot the imposter in each set.', strand:'number', cat:'practice', href:'interactives/decimals/spot-the-imposter.html', meta:'Interactive', tags:'spot imposter odd one out does not belong' },
+
+            /* Addition & Subtraction */
+            { id:'a1', title:'Lesson 1: Radar for Error', desc:'Estimate first, then calculate. Learn to spot alignment errors and use rounding as a check.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/radar-for-error.html', meta:'5 phases \u00b7 50+ questions', tags:'lesson 1 radar error estimation rounding algorithm' },
+            { id:'a2', title:'Lesson 2: Visualising Relationships', desc:'Explore additive relations with visual models and see how numbers connect.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/visualising-relationships-additive.html', meta:'Interactive', tags:'lesson 2 visualising relationships additive bar model' },
+            { id:'a3', title:'Lesson 3: Mental Agility', desc:'Practice mental addition and subtraction using partitioning and bridging strategies.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/mental-agility-partitioning-bridging.html', meta:'Interactive', tags:'lesson 3 mental agility partitioning bridging' },
+            { id:'a4', title:'Lesson 4: Levelling (Compensation)', desc:'Adjust numbers to create friendly calculations. Learn to compensate addends without changing the answer.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/levelling-compensation.html', meta:'5 phases \u00b7 22 questions', tags:'lesson 4 levelling compensation friendly numbers' },
+            { id:'a4t', title:'Levelling Explorer', desc:'Visually transfer amounts between two numbers to create friendly calculations.', strand:'addition', cat:'tool', href:'interactives/addition-and-subtraction/levelling-explorer.html', meta:'<span class="tag-tool">Teaching Tool</span>', tags:'levelling explorer bar model teaching tool' },
+            { id:'a4s', title:'Levelling Explorer (Student)', desc:'Enter two numbers and slide to level them yourself, then calculate the friendly result.', strand:'addition', cat:'practice', href:'interactives/addition-and-subtraction/levelling-explorer-student.html', meta:'Interactive', tags:'levelling explorer student' },
+            { id:'a5a', title:'Lesson 5A: Constant Difference', desc:'Discover why shifting both numbers by the same amount never changes the difference.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/lesson-05a-constant-difference.html', meta:'4 phases', tags:'lesson 5a constant difference subtraction shift' },
+            { id:'a5t', title:'Constant Difference Explorer', desc:'Drag both numbers along a number line and watch the difference stay constant.', strand:'addition', cat:'tool', href:'interactives/addition-and-subtraction/constant-difference-number-line.html', meta:'<span class="tag-tool">Teaching Tool</span>', tags:'constant difference explorer number line teaching tool' },
+            { id:'a5b', title:'Lesson 5B: Addition for Subtraction', desc:'Reframe subtraction as counting up from the smaller number. Eliminate borrowing.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/lesson-05b-addition-for-subtraction.html', meta:'4 phases', tags:'lesson 5b addition for subtraction counting up' },
+            { id:'a6', title:'Lesson 6: Which Strategy Wins?', desc:'Learn to choose the most efficient tool: your brain, your pen, or a calculator.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/lesson-06-which-strategy-wins.html', meta:'Interactive', tags:'lesson 6 which strategy wins efficient mental written calculator' },
+            { id:'a7', title:'Lesson 7: The Error Analysis Lab', desc:'Use place value and estimation to spot and fix mistakes in algorithms.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/lesson-07-error-analysis-lab.html', meta:'Interactive', tags:'lesson 7 error analysis lab mistakes algorithm' },
+            { id:'a8', title:'Lesson 8: Hidden Steps', desc:'Translate complex text into a mathematical plan and spot the trap-doors in multi-step problems.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/lesson-08-deconstructing-multi-step.html', meta:'Interactive', tags:'lesson 8 hidden steps deconstructing multi-step problems' },
+            { id:'a9', title:'Lesson 9: Problem Solving Clinic', desc:'Apply strategies independently and learn to identify extraneous information.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/lesson-09-problem-solving-clinic.html', meta:'Interactive', tags:'lesson 9 problem solving clinic extraneous information' },
+            { id:'a10', title:'Lesson 10: The School Fete Budget', desc:'Plan a budget, prove your calculations are reasonable, and save the school fete.', strand:'addition', cat:'lesson', href:'interactives/addition-and-subtraction/lesson-10-school-fete-budget.html', meta:'Interactive', tags:'lesson 10 school fete budget real world money' },
+
+            /* Multiplication & Division */
+            { id:'m1', title:'Lesson 1: Multiplication Radar', desc:'Estimation as a checking tool for multiplication.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l01-multiplication-radar.html', meta:'Interactive', tags:'lesson 1 multiplication radar estimation' },
+            { id:'m2a', title:'Factor Finder', desc:'Find all the factor pairs of a number systematically using rectangles.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l02a-factor-finder.html', meta:'Interactive', tags:'lesson 2 factor finder pairs rectangles systematic' },
+            { id:'m2b', title:'Prime and Composite Sorter', desc:'Sort numbers as prime, composite, or neither by examining their factors.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l02b-prime-composite-sorter.html', meta:'Interactive', tags:'lesson 2 prime composite sorter factors' },
+            { id:'m3', title:'Lesson 3: Mental Multiplication', desc:'Doubling and halving, near multiples, and multiplying by powers of 10.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l03-mental-multiplication.html', meta:'Interactive', tags:'lesson 3 mental multiplication doubling halving powers of 10' },
+            { id:'m4a', title:'Lesson 4: The Area Model', desc:'Understanding how the area model reveals the structure inside multiplication.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l04a-area-model-builder.html', meta:'Interactive', tags:'lesson 4 area model builder multiplication structure' },
+            { id:'m4b', title:'Lesson 4B: Reversing the Area Model', desc:'Division hiding inside a multiplication model. Use the area model in reverse.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l04b-reverse-area-model.html', meta:'Interactive', tags:'lesson 4b reverse area model division' },
+            { id:'m5', title:'Lesson 5: Algorithm Practice', desc:'Compress the area model into the formal multiplication algorithm.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l05-algorithm-practice.html', meta:'Interactive', tags:'lesson 5 algorithm practice formal multiplication' },
+            { id:'m6', title:'Lesson 6: Factorising Challenge', desc:'Two-digit by two-digit multiplication and breaking numbers into useful factors.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l06-factorising-challenge.html', meta:'Interactive', tags:'lesson 6 factorising challenge two digit multiplication' },
+            { id:'m7', title:'Lesson 7: Lattice Multiplication', desc:'A different scaffold for the same maths, used by merchants for centuries.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/l07-lattice-multiplication.html', meta:'Interactive', tags:'lesson 7 lattice multiplication scaffold' },
+            { id:'m9p', title:'Word Problem Solver', desc:'Use the four-step protocol to crack multi-step word problems.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/word-problem-solver.html', meta:'Interactive', tags:'word problem solver four step protocol multi-step' },
+            { id:'m10', title:'Division with Remainders', desc:'Use multiplication facts, find remainders, and check with the inverse.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/division-with-remainders.html', meta:'Interactive', tags:'division remainders inverse multiplication facts' },
+            { id:'m11', title:'Division Detective', desc:'Divide larger numbers using partitioning and explore equivalent division.', strand:'multiplication', cat:'lesson', href:'interactives/multiplicative-relations/division-detective.html', meta:'Interactive', tags:'division detective partitioning equivalent' },
+            { id:'fc1', title:'Formative Checkpoint 1', desc:'After Lesson 5: estimation, factors, area model, and the formal algorithm.', strand:'multiplication', cat:'checkpoint', href:'interactives/multiplicative-relations/fc1-formative-check.html', meta:'<span class="tag-checkpoint">Checkpoint</span>', tags:'formative checkpoint 1 assessment' },
+            { id:'fc2', title:'Formative Checkpoint 2', desc:'After Lesson 9: factorising, two-digit strategies, lattice, and word problems.', strand:'multiplication', cat:'checkpoint', href:'interactives/multiplicative-relations/fc2-formative-check.html', meta:'<span class="tag-checkpoint">Checkpoint</span>', tags:'formative checkpoint 2 assessment' },
+            { id:'fc3', title:'Formative Checkpoint 3', desc:'After Lesson 11: division, remainders, partitioning, and equivalent division.', strand:'multiplication', cat:'checkpoint', href:'interactives/multiplicative-relations/fc3-formative-check.html', meta:'<span class="tag-checkpoint">Checkpoint</span>', tags:'formative checkpoint 3 assessment' },
+            { id:'fc4', title:'Formative Checkpoint 4', desc:'Lesson 12: estimation, strategy selection, error analysis, and equivalent division.', strand:'multiplication', cat:'checkpoint', href:'interactives/multiplicative-relations/fc4-formative-check.html', meta:'<span class="tag-checkpoint">Checkpoint</span>', tags:'formative checkpoint 4 assessment' },
+            { id:'ex1', title:'Extension: Decimals and Powers of 10', desc:'Multiply and divide decimals by 10, 100, and 1,000.', strand:'multiplication', cat:'extension', href:'interactives/multiplicative-relations/extension-decimals-powers-of-10.html', meta:'<span class="tag-extension">Extension</span>', tags:'extension decimals powers of 10 multiply divide' },
+            { id:'ex2', title:'Extension: Equivalent Number Sentences', desc:'Use inverse operations to find unknowns and write equivalent facts.', strand:'multiplication', cat:'extension', href:'interactives/multiplicative-relations/extension-equivalent-sentences.html', meta:'<span class="tag-extension">Extension</span>', tags:'extension equivalent number sentences inverse operations' },
+            { id:'ex3', title:'Extension: Number Patterns', desc:'Spot patterns, complete sequences, and discover rules in tables of values.', strand:'multiplication', cat:'extension', href:'interactives/multiplicative-relations/extension-number-patterns.html', meta:'<span class="tag-extension">Extension</span>', tags:'extension number patterns sequences rules multiples' },
+            { id:'ex4', title:'Extension: Order of Operations', desc:'Brackets first, then multiplication and division, then addition and subtraction.', strand:'multiplication', cat:'extension', href:'interactives/multiplicative-relations/extension-order-of-operations.html', meta:'<span class="tag-extension">Extension</span>', tags:'extension order of operations brackets bodmas' },
+
+            /* Fractions & Decimals */
+            { id:'f1', title:'Lesson 1: Decimal Place Value', desc:'Explore what decimals are. Zoom into the number line to discover tenths, hundredths and thousandths.', strand:'fractions', cat:'lesson', href:'interactives/decimals/lesson-01-decimal-place-value.html', meta:'5 phases \u00b7 18 questions', tags:'lesson 1 decimal place value tenths hundredths thousandths' },
+            { id:'f2', title:'Lesson 2: How to Name a Decimal', desc:'Learn the Last Name Rule. Read a decimal by naming its smallest place value.', strand:'fractions', cat:'lesson', href:'interactives/decimals/lesson-02-how-to-name-a-decimal.html', meta:'5 phases', tags:'lesson 2 how to name decimal last name rule' },
+            { id:'f3', title:'Lesson 3: Partition and Combine Decimals', desc:'Break decimals into expanded forms and build decimals from jumbled parts.', strand:'fractions', cat:'lesson', href:'interactives/decimals/lesson-03-partition-and-combine.html', meta:'5 phases \u00b7 18 questions', tags:'lesson 3 partition combine decimals expanded form' },
+            { id:'f4', title:'Building the Decimals', desc:'Partition the whole into tenths, hundredths and thousandths with visual bars.', strand:'fractions', cat:'tool', href:'interactives/decimals/decimal-place-value.html', meta:'<span class="tag-tool">Teaching Tool</span>', tags:'building decimals partition visual bars teaching tool' },
+            { id:'f5', title:'Expanded Notation Explorer', desc:'Build and explore decimal numbers using expanded notation with an interactive place value chart.', strand:'fractions', cat:'tool', href:'interactives/place-value/expanded-notation-explorer.html', meta:'<span class="tag-tool">Teaching Tool</span>', tags:'expanded notation explorer decimal place value chart teaching tool' },
+            { id:'f6', title:'Decimal Partitioning and Combining', desc:'Partition decimals into place value parts and combine them back.', strand:'fractions', cat:'practice', href:'interactives/decimals/decimal-partitioning-combining.html', meta:'3 levels', tags:'decimal partitioning combining place value' },
+            { id:'f7', title:'Decimal Zoom Visualiser', desc:'Zoom into a number line to explore tenths, hundredths and thousandths.', strand:'fractions', cat:'tool', href:'interactives/decimals/decimal-zoom-visualiser.html', meta:'<span class="tag-tool">Teaching Tool</span>', tags:'decimal zoom visualiser number line teaching tool' },
+            { id:'f8', title:'Decimal Place Value: The Zoom', desc:'Look inside the gaps on the number line to discover tenths, hundredths and thousandths.', strand:'fractions', cat:'lesson', href:'interactives/decimals/decimal-place-value-zoom.html', meta:'4 phases', tags:'decimal place value zoom number line guided lesson' },
+            { id:'f9', title:'Decimal Place Value Naming', desc:'Name the place value of digits in decimals: tenths, hundredths and thousandths.', strand:'fractions', cat:'practice', href:'interactives/decimals/decimal-place-value-naming.html', meta:'Interactive', tags:'decimal place value naming digits' },
+            { id:'f10', title:'Spot the Imposter', desc:'Find the number that does not belong. Spot the imposter in each set.', strand:'fractions', cat:'practice', href:'interactives/decimals/spot-the-imposter.html', meta:'Interactive', tags:'spot imposter odd one out does not belong decimals' },
+
+            /* Teacher Tools */
+            { id:'t1', title:'Results Analyser', desc:'View student results from your Google Sheet.', strand:'tools', cat:'tool', href:'tools/analyser.html', meta:'', tags:'results analyser google sheet teacher' },
+            { id:'t2', title:'Worksheet Generator', desc:'Create print-ready differentiated worksheets.', strand:'tools', cat:'tool', href:'tools/worksheet-generator.html', meta:'', tags:'worksheet generator print differentiated teacher' }
+        ];
+
+        var strandNames = { daily:'Daily Practice', number:'Number & Place Value', addition:'Addition & Subtraction', multiplication:'Multiplication & Division', fractions:'Fractions & Decimals', tools:'Teacher Tools' };
+        var strandIcons = { daily:'\uD83D\uDD04', number:'\uD83D\uDD22', addition:'\u2795', multiplication:'\u2716\uFE0F', fractions:'\uD83E\uDD67', tools:'\uD83D\uDD27' };
+
+        /* ── Tile counts ── */
+        ['daily','number','addition','multiplication','fractions','tools'].forEach(function(s) {
+            var c = A.filter(function(a){return a.strand===s;}).length;
+            document.getElementById('count-'+s).textContent = c===1?'1 activity':c+' activities';
+        });
+
+        /* ── Build card HTML string ── */
+        function cardHTML(item, showLabel) {
+            var s = item.strand;
+            var h = '<a href="'+item.href+'" class="activity-card" data-strand="'+s+'">';
+            if (showLabel) h += '<span class="search-strand-label" data-strand="'+s+'">'+strandNames[s]+'</span>';
+            h += '<h3>'+item.title+'</h3><p>'+item.desc+'</p>';
+            if (item.meta) h += '<div class="activity-meta">'+item.meta+'</div>';
+            h += '</a>';
+            return h;
+        }
+
+        function byId(id) { for (var i=0;i<A.length;i++) if(A[i].id===id) return A[i]; return null; }
+        function byCat(strand,cat) { return A.filter(function(a){return a.strand===strand && a.cat===cat;}); }
+
+        /* ── Strand renderers ── */
+
+        /* Flat grid (Daily, Tools) */
+        function renderFlat(strand) {
+            var items = A.filter(function(a){return a.strand===strand;});
+            var h = '<div class="activity-grid">';
+            items.forEach(function(i){ h += cardHTML(i,false); });
+            h += '</div>';
+            return h;
+        }
+
+        /* Grouped sections (Number, Fractions) */
+        function renderGrouped(strand, groups) {
+            var h = '';
+            groups.forEach(function(g) {
+                var items = g.ids ? g.ids.map(byId).filter(Boolean) : byCat(strand, g.cat);
+                if (!items.length) return;
+                h += '<div class="section-label">'+g.label+'</div>';
+                h += '<div class="activity-grid">';
+                items.forEach(function(i){ h += cardHTML(i,false); });
+                h += '</div>';
+            });
+            return h;
+        }
+
+        /* Two-column sequence (Addition) */
+        function renderAddition() {
+            /* Each row: [lessonId, companionIds[]] */
+            var rows = [
+                ['a1', []],
+                ['a2', []],
+                ['a3', []],
+                ['a4', ['a4t']],
+                [null, ['a4s']],
+                ['a5a', ['a5t']],
+                ['a5b', []],
+                ['a6', []],
+                ['a7', []],
+                ['a8', []],
+                ['a9', []],
+                ['a10', []]
+            ];
+            var h = '<div class="col-layout col-layout-2">';
+            h += '<div class="col-header col-header-addition-lesson">Lessons</div>';
+            h += '<div class="col-header col-header-addition-tool">Teaching Tools &amp; Practice</div>';
+            rows.forEach(function(r) {
+                /* Left cell */
+                if (r[0]) { h += cardHTML(byId(r[0]),false); }
+                else { h += '<div></div>'; }
+                /* Right cell */
+                if (r[1].length) { h += '<div>' + r[1].map(function(id){return cardHTML(byId(id),false);}).join('') + '</div>'; }
+                else { h += '<div></div>'; }
+            });
+            h += '</div>';
+            return h;
+        }
+
+        /* Three-column timeline (Multiplication) */
+        function renderMultiplication() {
+            /* Each row: [lessonId, checkpointId, extensionId] */
+            var rows = [
+                ['m1',   null,  null],
+                ['m2a',  null,  null],
+                ['m2b',  null,  null],
+                ['m3',   null,  null],
+                ['m4a',  null,  'ex1'],
+                ['m4b',  null,  'ex2'],
+                ['m5',   'fc1', null],
+                ['m6',   null,  null],
+                ['m7',   null,  null],
+                ['m9p',  'fc2', 'ex3'],
+                ['m10',  null,  null],
+                ['m11',  'fc3', 'ex4'],
+                [null,   'fc4', null]
+            ];
+            var h = '<div class="col-layout col-layout-3">';
+            h += '<div class="col-header col-header-lesson">Lessons</div>';
+            h += '<div class="col-header col-header-checkpoint">Checkpoints</div>';
+            h += '<div class="col-header col-header-extension">Extension</div>';
+            rows.forEach(function(r) {
+                for (var c=0; c<3; c++) {
+                    if (r[c]) { h += cardHTML(byId(r[c]),false); }
+                    else { h += '<div></div>'; }
+                }
+            });
+            h += '</div>';
+            return h;
+        }
+
+        /* ── Show strand ── */
+        var tileGrid = document.getElementById('tile-grid');
+        var strandView = document.getElementById('strand-view');
+        var searchResults = document.getElementById('search-results');
+        var searchInput = document.getElementById('search-input');
+        var searchClear = document.getElementById('search-clear');
+
+        window.showStrand = function(sid) {
+            searchInput.value = ''; searchClear.style.display = 'none';
+            searchResults.classList.remove('active');
+            tileGrid.style.display = 'none';
+            strandView.classList.add('active');
+
+            document.getElementById('strand-view-icon').setAttribute('data-strand', sid);
+            document.getElementById('strand-view-icon').textContent = strandIcons[sid];
+            document.getElementById('strand-view-title').textContent = strandNames[sid];
+
+            var cont = document.getElementById('strand-content');
+            if (sid === 'addition') {
+                cont.innerHTML = renderAddition();
+            } else if (sid === 'multiplication') {
+                cont.innerHTML = renderMultiplication();
+            } else if (sid === 'number') {
+                cont.innerHTML = renderGrouped('number', [
+                    { label: 'Practice', cat: 'practice' },
+                    { label: 'Teaching Tools', cat: 'tool' }
+                ]);
+            } else if (sid === 'fractions') {
+                cont.innerHTML = renderGrouped('fractions', [
+                    { label: 'Lessons', cat: 'lesson' },
+                    { label: 'Teaching Tools', cat: 'tool' },
+                    { label: 'Practice', cat: 'practice' }
+                ]);
+            } else {
+                cont.innerHTML = renderFlat(sid);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.showTiles = function() {
+            strandView.classList.remove('active');
+            searchResults.classList.remove('active');
+            tileGrid.style.display = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        /* ── Search ── */
+        searchInput.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            searchClear.style.display = q ? 'block' : 'none';
+            if (!q) {
+                searchResults.classList.remove('active');
+                if (!strandView.classList.contains('active')) tileGrid.style.display = '';
+                return;
+            }
+            tileGrid.style.display = 'none';
+            strandView.classList.remove('active');
+            searchResults.classList.add('active');
+
+            var terms = q.split(/\s+/);
+            var matches = A.filter(function(item) {
+                var hay = (item.title+' '+item.desc+' '+item.tags).toLowerCase();
+                return terms.every(function(t){ return hay.indexOf(t)!==-1; });
+            });
+
+            var box = document.getElementById('search-cards');
+            var nr = document.getElementById('no-results');
+            var hd = document.getElementById('search-results-heading');
+            box.innerHTML = '';
+            if (!matches.length) { nr.style.display=''; hd.textContent=''; }
+            else {
+                nr.style.display='none';
+                hd.textContent = matches.length===1?'1 result':matches.length+' results';
+                matches.forEach(function(i){ box.innerHTML += cardHTML(i,true); });
+            }
+        });
+
+        searchClear.addEventListener('click', function() {
+            searchInput.value = ''; searchClear.style.display = 'none';
+            searchResults.classList.remove('active');
+            if (!strandView.classList.contains('active')) tileGrid.style.display = '';
+            searchInput.focus();
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levelling Explorer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-cream: #FFF8F0;
+  --text-dark: #2D3436;
+  --text-light: #636E72;
+  --accent: #4ECDC4;
+  --accent-dark: #38b2aa;
+  --blue: #3a7bd5;
+  --blue-dark: #2176ae;
+  --orange: #FF8400;
+  --red: #FF6B6B;
+  --green: #2ecc71;
+  --green-dark: #27ae60;
+  --purple: #9B59B6;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  --radius: 16px;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Fredoka', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 52px;
+  overflow-x: hidden;
+  background: var(--bg-cream);
+  color: var(--text-dark);
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  width: 250px; height: 250px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.1;
+  top: -80px; right: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: var(--orange);
+  opacity: 0.1;
+  bottom: 10%; left: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob3 {
+  position: fixed;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--purple);
+  opacity: 0.1;
+  top: 50%; right: 5%;
+  pointer-events: none;
+  z-index: 0;
+}
+body > *:not(.blob3) { position: relative; z-index: 1; }
+
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 {
+  font-weight: 700;
+  font-size: clamp(24px, 3.5vw, 36px);
+  color: var(--text-dark);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+.header h1 span { color: var(--accent); }
+.header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+/* Stage card */
+.stage {
+  width: 100%;
+  max-width: 720px;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding: 28px 36px 32px;
+  margin-bottom: 20px;
+  border-top: 5px solid var(--accent);
+}
+
+/* Op toggle */
+.op-toggle {
+  display: flex; gap: 6px; margin-bottom: 24px; justify-content: center;
+}
+.op-btn {
+  padding: 8px 24px; border-radius: 30px; border: 2px solid #e0e0e0;
+  background: white; font-family: 'Fredoka', sans-serif; font-size: 16px;
+  font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.18s;
+}
+.op-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+.op-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+/* Equation rows */
+.equation-area { text-align: center; }
+.eq-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  color: var(--text-light); text-transform: uppercase; margin-bottom: 6px;
+}
+.eq-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap;
+}
+.eq-num {
+  font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700;
+  padding: 6px 16px; border-radius: 10px; transition: all 0.35s;
+}
+.eq-num.a  { color: var(--blue);       background: #eef4ff; }
+.eq-num.b  { color: var(--orange);     background: #fff8f0; }
+.eq-num.result { color: var(--accent-dark); background: #e8faf8; }
+.eq-num.friendly {
+  box-shadow: 0 0 0 3px var(--green), 0 0 14px rgba(46,204,113,0.25);
+}
+.eq-sym {
+  font-family: 'Space Mono', monospace; font-size: 28px;
+  font-weight: 700; color: var(--text-light);
+}
+
+/* Original equation, smaller & muted */
+.equation-area.original .eq-num { font-size: 20px; padding: 4px 12px; opacity: 0.7; }
+.equation-area.original .eq-sym { font-size: 20px; opacity: 0.7; }
+
+/* Friendly badge */
+.friendly-badge {
+  display: inline-block; background: var(--green); color: white;
+  font-size: 12px; font-weight: 700; border-radius: 20px; padding: 3px 12px;
+  margin-left: 4px; animation: popIn 0.3s ease;
+}
+@keyframes popIn {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ─── Bar section ─── */
+.bar-section { margin: 28px 0 24px; }
+
+.bar-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+.bar-label-a,
+.bar-label-b {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px; font-weight: 700; min-width: 80px;
+}
+.bar-label-a { color: var(--blue); }
+.bar-label-b { color: var(--orange); text-align: right; }
+.bar-label-a .letter,
+.bar-label-b .letter {
+  display: block;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 2px;
+}
+.bar-total-label {
+  text-align: center; flex: 1;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-light);
+}
+.bar-total-label .total-num {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 18px; color: var(--accent-dark);
+  text-transform: none; letter-spacing: 0; margin-top: 2px;
+}
+
+/* Bar wrapper, position context for the handle */
+.bar-wrapper {
+  position: relative;
+  height: 76px;
+  user-select: none;
+  /* small side padding so the handle pill doesn't clip at 0%/100% */
+  margin: 0 2px;
+}
+
+/* The coloured fills track */
+.combined-track {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 3px solid #e0e8f0;
+  background: #f0f4f8;
+  cursor: ew-resize;
+}
+
+.combined-fill {
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 18px; font-weight: 700; color: white;
+  transition: width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden; white-space: nowrap; min-width: 3px;
+}
+.combined-fill.a { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); }
+.combined-fill.b { background: linear-gradient(135deg, var(--orange), #e67e22); }
+
+/* Drag handle, wider capsule: [−1 btn | drag pill | +1 btn] */
+.bar-handle {
+  position: absolute;
+  top: -8px; bottom: -8px;
+  width: 112px;             /* 32 + 4 + 36 + 4 + 32 + 4px gaps */
+  transform: translateX(-50%);
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px;
+  z-index: 10;
+  pointer-events: none;     /* children opt back in individually */
+}
+/* vertical dividing line, sits behind everything */
+.bar-handle::before {
+  content: '';
+  position: absolute;
+  top: 8px; bottom: 8px;
+  left: 50%; width: 3px;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  z-index: 0;
+  pointer-events: none;
+}
+/* Step buttons (−1 and +1) */
+.handle-step {
+  width: 32px; height: 32px;
+  border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  cursor: pointer;
+  pointer-events: all;
+  flex-shrink: 0;
+  position: relative; z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+  transition: transform 0.12s, box-shadow 0.12s;
+  user-select: none;
+}
+.handle-step.left  { background: var(--blue);   color: white; }
+.handle-step.right { background: var(--orange);  color: white; }
+.handle-step:hover  { transform: scale(1.12); box-shadow: 0 4px 14px rgba(0,0,0,0.28); }
+.handle-step:active { transform: scale(0.93); }
+/* Centre drag pill */
+.handle-drag {
+  width: 36px; height: 36px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  border: 2.5px solid #d0dae8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text-light);
+  cursor: ew-resize;
+  pointer-events: all;
+  flex-shrink: 0;
+  position: relative; z-index: 2;
+  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+  user-select: none;
+}
+.handle-drag:hover,
+.handle-drag.dragging {
+  box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+  transform: scale(1.15);
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.bar-footer {
+  display: flex; justify-content: space-between;
+  margin-top: 10px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px; color: var(--text-light);
+}
+
+/* Divider */
+.eq-divider {
+  border: none; border-top: 2px dashed #e8edf2; margin: 20px 0;
+}
+
+/* Action buttons */
+.action-row { text-align: center; margin-top: 22px; }
+.auto-btn {
+  padding: 10px 26px; border-radius: 12px; border: none;
+  font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: all 0.18s; color: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.14); margin: 0 4px;
+}
+.auto-btn.green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+.auto-btn.reset { background: linear-gradient(135deg, #636E72, #4a5459); }
+.auto-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+.auto-btn:active { transform: translateY(0); }
+
+/* Presets */
+.presets { width: 100%; max-width: 720px; margin-bottom: 20px; }
+.preset-label {
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  color: var(--text-light); text-transform: uppercase;
+  margin-bottom: 10px; text-align: center;
+}
+.preset-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.preset-btn {
+  padding: 8px 18px; border-radius: 10px; border: 2px solid #e0e0e0;
+  background: white; font-family: 'Space Mono', monospace; font-size: 14px;
+  font-weight: 700; color: var(--text-dark); cursor: pointer; transition: all 0.18s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.preset-btn:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.preset-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+
+/* Custom input */
+.custom-input {
+  width: 100%; max-width: 720px;
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--card-shadow); padding: 20px 28px;
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; justify-content: center;
+}
+.custom-input label { font-size: 15px; font-weight: 600; color: var(--text-light); }
+.custom-input input {
+  padding: 8px 14px; border-radius: 10px; border: 2px solid #e0d5c5;
+  background: white; font-family: 'Space Mono', monospace; font-size: 16px;
+  font-weight: 700; color: var(--text-dark); width: 120px; outline: none;
+  transition: border-color 0.2s;
+}
+.custom-input input:focus { border-color: var(--accent); }
+.custom-input .set-btn {
+  padding: 8px 20px; border-radius: 10px; border: none;
+  font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; background: var(--accent); color: white;
+  box-shadow: 0 2px 8px rgba(78,205,196,0.35); transition: all 0.18s;
+}
+.custom-input .set-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+/* Narration */
+.narration {
+  width: 100%; max-width: 720px; margin-top: 20px;
+  font-size: 16px; font-weight: 600; color: var(--text-dark);
+  text-align: center; padding: 14px 24px; background: white;
+  border-radius: 12px; box-shadow: var(--card-shadow);
+  border-top: 4px solid var(--accent); min-height: 28px;
+}
+
+@media (max-width: 600px) {
+  .stage { padding: 20px 16px 24px; }
+  .bar-label-a, .bar-label-b { font-size: 18px; min-width: 60px; }
+  .combined-fill { font-size: 14px; }
+  .bar-wrapper { height: 60px; }
+  .eq-num { font-size: 22px; padding: 4px 12px; }
+  .eq-sym { font-size: 22px; }
+  .equation-area.original .eq-num { font-size: 16px; }
+  .equation-area.original .eq-sym { font-size: 16px; }
+}
+
+/* ── LEARNING CARD ── */
+.learning-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  margin-bottom: 2rem;
+  border-top: 5px solid var(--accent);
+}
+.learning-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.learning-card h2 .toggle-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+.learning-content {
+  display: none;
+  margin-top: 1rem;
+}
+.learning-content.open {
+  display: block;
+}
+.learning-content h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+.learning-content p {
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+.success-criteria {
+  list-style: none;
+  margin-left: 0;
+  margin-top: 0.75rem;
+}
+.success-criteria li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  font-size: 0.95rem;
+}
+.success-criteria li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="blob3"></div>
+
+<p style="margin-bottom:1rem; text-align:center;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--accent);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a>
+</p>
+
+<div class="header">
+  <h1>Levelling <span>Explorer</span></h1>
+  <p>Drag the slider to move amounts between numbers, the total never changes</p>
+</div>
+
+<!-- ────────────── LEARNING INTENTION & SUCCESS CRITERIA ────────────── -->
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to explore how adjusting both numbers in an equation by the same amount keeps the answer the same.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can adjust two numbers equally and see that the sum or difference stays the same</li>
+            <li>I can identify which number to make friendly by levelling</li>
+            <li>I can explain why levelling works using a number line</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Presets -->
+<div class="presets">
+  <div class="preset-label">Choose an example</div>
+  <div class="preset-grid" id="presetGrid"></div>
+</div>
+
+<!-- Main stage -->
+<div class="stage">
+  <div class="op-toggle">
+    <button class="op-btn active" id="op-add" onclick="setOp('+')">➕ Addition</button>
+    <button class="op-btn"        id="op-sub" onclick="setOp('−')">➖ Subtraction</button>
+  </div>
+
+  <!-- Original equation (muted) -->
+  <div class="equation-area original">
+    <div class="eq-label">Original</div>
+    <div class="eq-row">
+      <div class="eq-num a"      id="origA"></div>
+      <div class="eq-sym"        id="origOp">+</div>
+      <div class="eq-num b"      id="origB"></div>
+      <div class="eq-sym">       =</div>
+      <div class="eq-num result" id="origResult"></div>
+    </div>
+  </div>
+
+  <!-- Draggable bar -->
+  <div class="bar-section">
+    <div class="bar-labels">
+      <div class="bar-label-a">
+        <span class="letter">A</span>
+        <span id="valA"></span>
+      </div>
+      <div class="bar-total-label">
+        Total
+        <span class="total-num" id="valTotal"></span>
+      </div>
+      <div class="bar-label-b">
+        <span class="letter" style="text-align:right;display:block;">B</span>
+        <span id="valB"></span>
+      </div>
+    </div>
+
+    <div class="bar-wrapper" id="barWrapper">
+      <div class="combined-track" id="barTrack">
+        <div class="combined-fill a" id="barA"></div>
+        <div class="combined-fill b" id="barB"></div>
+      </div>
+      <div class="bar-handle" id="barHandle">
+        <button class="handle-step left"  id="stepLeft"  title="Give 1 to A">−1</button>
+        <div    class="handle-drag"       id="handleDrag" title="Drag to adjust">↔</div>
+        <button class="handle-step right" id="stepRight" title="Give 1 to B">+1</button>
+      </div>
+    </div>
+
+    <div class="bar-footer">
+      <span style="color:var(--blue);">← A grows</span>
+      <span>drag to level</span>
+      <span style="color:var(--orange);">B grows →</span>
+    </div>
+  </div>
+
+  <hr class="eq-divider">
+
+  <!-- New (levelled) equation -->
+  <div class="equation-area">
+    <div class="eq-label" id="compLabel">Levelled Equation</div>
+    <div class="eq-row">
+      <div class="eq-num a"      id="compA"></div>
+      <span                      id="friendlyBadgeA"></span>
+      <div class="eq-sym"        id="compOp">+</div>
+      <div class="eq-num b"      id="compB"></div>
+      <span                      id="friendlyBadgeB"></span>
+      <div class="eq-sym">       =</div>
+      <div class="eq-num result" id="compResult"></div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="action-row">
+    <button class="auto-btn green" onclick="autoLevel()">⚖️ Auto-Level</button>
+    <button class="auto-btn reset" onclick="resetTransfer()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- Custom input -->
+<div class="custom-input">
+  <label>Enter your own:</label>
+  <input id="inputA" type="text" placeholder="e.g. 398">
+  <span style="font-weight:700;color:var(--text-light);" id="inputOpLabel">+</span>
+  <input id="inputB" type="text" placeholder="e.g. 145">
+  <button class="set-btn" onclick="setFromInput()">Set</button>
+</div>
+
+<!-- Narration -->
+<div class="narration" id="narration">
+  Choose a preset or enter your own numbers, then drag the slider to level the numbers.
+</div>
+
+<script>
+const PRESETS = [
+  { a: 9,    b: 5,    op: '+', label: '9 + 5'       },
+  { a: 398,  b: 145,  op: '+', label: '398 + 145'   },
+  { a: 483,  b: 197,  op: '−', label: '483 − 197'   },
+  { a: 5983, b: 627,  op: '+', label: '5983 + 627'  },
+  { a: 199,  b: 45,   op: '+', label: '199 + 45'    },
+  { a: 995,  b: 238,  op: '+', label: '995 + 238'   },
+  { a: 602,  b: 397,  op: '−', label: '602 − 397'   },
+  { a: 4997, b: 1856, op: '+', label: '4997 + 1856' },
+  { a: 68,   b: 47,   op: '+', label: '68 + 47'     },
+  { a: 83,   b: 49,   op: '−', label: '83 − 49'     },
+];
+
+let origA = 398, origB = 145, op = '+';
+let transferred = 0;
+
+// ── drag state ──────────────────────────────────────────────
+let isDragging = false;
+let dragStartX = 0;
+let dragStartTransferred = 0;
+
+// ── init ─────────────────────────────────────────────────────
+function init() {
+  buildPresets();
+  setPreset(1);
+  initDrag();
+}
+
+// ── presets ──────────────────────────────────────────────────
+function buildPresets() {
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = '';
+  PRESETS.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.label;
+    btn.onclick = () => setPreset(i);
+    grid.appendChild(btn);
+  });
+}
+
+function setPreset(idx) {
+  const p = PRESETS[idx];
+  origA = p.a; origB = p.b; op = p.op;
+  transferred = 0;
+  updateOpButtons();
+  render(false);
+  document.querySelectorAll('.preset-btn').forEach((b, i) =>
+    b.classList.toggle('active', i === idx));
+  setNarration('Loaded: ' + p.label + '. Drag the slider to create a friendly number.');
+}
+
+function setOp(newOp) {
+  op = newOp; transferred = 0;
+  updateOpButtons();
+  render(false);
+}
+
+function updateOpButtons() {
+  document.getElementById('op-add').classList.toggle('active', op === '+');
+  document.getElementById('op-sub').classList.toggle('active', op === '−');
+  document.getElementById('origOp').textContent = op;
+  document.getElementById('compOp').textContent = op;
+  document.getElementById('inputOpLabel').textContent = op;
+}
+
+// ── maths ─────────────────────────────────────────────────────
+function getCurrentValues() {
+  if (op === '+') return { a: origA + transferred, b: origB - transferred };
+  return { a: origA + transferred, b: origB + transferred };
+}
+
+function getTotal() {
+  return op === '+' ? origA + origB : origA - origB;
+}
+
+function clampTransferred(t) {
+  if (op === '+') return Math.max(-origA, Math.min(origB, t));
+  // subtraction: keep both values on the same sign side
+  const limit = Math.max(origA, origB);
+  return Math.max(-limit, Math.min(limit, t));
+}
+
+function isFriendly(n) {
+  if (n === 0) return false;
+  const abs = Math.abs(n);
+  if (abs >= 1000) return abs % 1000 === 0;
+  if (abs >= 100)  return abs % 100  === 0;
+  return abs % 10 === 0;
+}
+
+// ── render ────────────────────────────────────────────────────
+function render(skipTransition) {
+  const { a, b } = getCurrentValues();
+  const total = getTotal();
+
+  // original
+  document.getElementById('origA').textContent      = fmt(origA);
+  document.getElementById('origB').textContent      = fmt(origB);
+  document.getElementById('origResult').textContent = fmt(total);
+
+  // levelled
+  document.getElementById('compA').textContent = fmt(a);
+  document.getElementById('compB').textContent = fmt(b);
+  document.getElementById('compResult').textContent =
+    fmt(op === '+' ? a + b : a - b);
+
+  const compAEl = document.getElementById('compA');
+  const compBEl = document.getElementById('compB');
+  compAEl.classList.toggle('friendly', isFriendly(a));
+  compBEl.classList.toggle('friendly', isFriendly(b));
+
+  document.getElementById('friendlyBadgeA').innerHTML =
+    isFriendly(a) ? '<span class="friendly-badge">Friendly!</span>' : '';
+  document.getElementById('friendlyBadgeB').innerHTML =
+    isFriendly(b) ? '<span class="friendly-badge">Friendly!</span>' : '';
+
+  document.getElementById('compLabel').textContent =
+    transferred !== 0 ? 'Levelled Equation' : 'Levelled Equation (no change yet)';
+
+  // values above bar
+  document.getElementById('valA').textContent     = fmt(a);
+  document.getElementById('valB').textContent     = fmt(b);
+  document.getElementById('valTotal').textContent = fmt(total);
+
+  // bar fill widths (A + B always = 100%)
+  const absA   = Math.max(a, 0);
+  const absB   = Math.max(b, 0);
+  const sumAB  = absA + absB || 1;
+  const aWidth = (absA / sumAB) * 100;
+  const bWidth = 100 - aWidth;
+
+  const barA = document.getElementById('barA');
+  const barB = document.getElementById('barB');
+
+  if (skipTransition) {
+    barA.style.transition = 'none';
+    barB.style.transition = 'none';
+  } else {
+    barA.style.transition = '';
+    barB.style.transition = '';
+  }
+
+  barA.style.width = aWidth + '%';
+  barB.style.width = bWidth + '%';
+  barA.textContent = aWidth > 14 ? fmt(a) : '';
+  barB.textContent = bWidth > 14 ? fmt(b) : '';
+
+  // handle position, clamped so ±1 buttons don't overflow bar edges
+  // 112px handle on a ~650px track ≈ 17%, so clamp to ~10%–90%
+  const handleLeft = Math.max(10, Math.min(90, aWidth));
+  document.getElementById('barHandle').style.left = handleLeft + '%';
+}
+
+// ── drag ──────────────────────────────────────────────────────
+function initDrag() {
+  const track    = document.getElementById('barTrack');
+  const dragPill = document.getElementById('handleDrag');
+  const stepL    = document.getElementById('stepLeft');
+  const stepR    = document.getElementById('stepRight');
+
+  // pixels of drag → units of transfer
+  function pxToTransfer(dx) {
+    const trackW = track.getBoundingClientRect().width;
+    return Math.round(dx * (origA + origB) / trackW);
+  }
+
+  // Jump handle to wherever was clicked on the track
+  function jumpToX(clientX) {
+    const rect  = track.getBoundingClientRect();
+    const frac  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const newA  = Math.round(frac * (origA + origB));
+    transferred = clampTransferred(newA - origA);
+    render(false);
+    updateNarration();
+  }
+
+  function startDrag(clientX) {
+    isDragging           = true;
+    dragStartX           = clientX;
+    dragStartTransferred = transferred;
+    dragPill.classList.add('dragging');
+    document.body.style.cursor = 'ew-resize';
+  }
+
+  function moveDrag(clientX) {
+    if (!isDragging) return;
+    transferred = clampTransferred(dragStartTransferred + pxToTransfer(clientX - dragStartX));
+    render(true);
+    updateNarration();
+  }
+
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    dragPill.classList.remove('dragging');
+    document.body.style.cursor = '';
+    render(false);   // re-enable transition for settle animation
+  }
+
+  // ── Step buttons ─────────────────────────────────────
+  function step(delta) {
+    transferred = clampTransferred(transferred + delta);
+    render(false);
+    updateNarration();
+  }
+
+  // Prevent step clicks from reaching the track (no jump)
+  [stepL, stepR].forEach(btn => {
+    btn.addEventListener('mousedown', e => e.stopPropagation());
+    btn.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+  });
+  stepL.addEventListener('click', () => step(-1));
+  stepR.addEventListener('click', () => step(+1));
+
+  // ── Track: click anywhere to jump ────────────────────
+  track.addEventListener('mousedown', e => {
+    jumpToX(e.clientX);
+    startDrag(e.clientX);
+    dragStartTransferred = transferred;
+    e.preventDefault();
+  });
+
+  // ── Centre pill: drag only ────────────────────────────
+  dragPill.addEventListener('mousedown', e => {
+    startDrag(e.clientX);
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  document.addEventListener('mousemove', e => moveDrag(e.clientX));
+  document.addEventListener('mouseup',   endDrag);
+
+  // ── Touch ─────────────────────────────────────────────
+  track.addEventListener('touchstart', e => {
+    jumpToX(e.touches[0].clientX);
+    startDrag(e.touches[0].clientX);
+    dragStartTransferred = transferred;
+    e.preventDefault();
+  }, { passive: false });
+
+  dragPill.addEventListener('touchstart', e => {
+    startDrag(e.touches[0].clientX);
+    e.preventDefault();
+    e.stopPropagation();
+  }, { passive: false });
+
+  document.addEventListener('touchmove', e => {
+    if (isDragging) { moveDrag(e.touches[0].clientX); e.preventDefault(); }
+  }, { passive: false });
+
+  document.addEventListener('touchend', endDrag);
+}
+
+// ── auto-level ────────────────────────────────────────────────
+function autoLevel() {
+  const targetA = nearestFriendly(origA);
+  const targetB = nearestFriendly(origB);
+  const costA   = Math.abs(targetA - origA);
+  const costB   = Math.abs(targetB - origB);
+  let best;
+  if (op === '+') {
+    best = costA <= costB ? targetA - origA : -(targetB - origB);
+  } else {
+    best = costA <= costB ? targetA - origA : targetB - origB;
+  }
+  transferred = clampTransferred(best);
+  render(false);
+  updateNarration();
+}
+
+function nearestFriendly(n) {
+  const abs  = Math.abs(n);
+  const base = abs >= 500 ? 100 : 10;
+  const lo   = Math.floor(abs / base) * base;
+  const hi   = lo + base;
+  const near = (abs - lo <= hi - abs) ? lo : hi;
+  return n >= 0 ? near : -near;
+}
+
+function resetTransfer() {
+  transferred = 0;
+  render(false);
+  setNarration('Reset to original. Drag the slider to try again.');
+}
+
+// ── narration ─────────────────────────────────────────────────
+function updateNarration() {
+  if (transferred === 0) {
+    setNarration('Drag the slider left or right to transfer amounts between the numbers.');
+    return;
+  }
+  const { a, b } = getCurrentValues();
+  let msg = op === '+'
+    ? `${fmt(origA)} + ${fmt(origB)} → ${fmt(a)} + ${fmt(b)} = ${fmt(a + b)}`
+    : `${fmt(origA)} − ${fmt(origB)} → ${fmt(a)} − ${fmt(b)} = ${fmt(a - b)}`;
+  if (isFriendly(a) || isFriendly(b)) msg += '  ✅ Friendly number!';
+  setNarration(msg);
+}
+
+function setNarration(txt) {
+  document.getElementById('narration').textContent = txt;
+}
+
+// ── helpers ───────────────────────────────────────────────────
+function fmt(n) {
+  return typeof n === 'number' && !isNaN(n)
+    ? n.toLocaleString('en-AU') : String(n);
+}
+
+function setFromInput() {
+  const a = parseFloat(document.getElementById('inputA').value);
+  const b = parseFloat(document.getElementById('inputB').value);
+  if (isNaN(a) || isNaN(b)) {
+    setNarration('Please enter valid numbers in both fields.'); return;
+  }
+  origA = a; origB = b; transferred = 0;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  render(false);
+  setNarration('Custom equation set: ' + fmt(a) + ' ' + op + ' ' + fmt(b) + '. Now drag the slider!');
+}
+
+document.querySelectorAll('.custom-input input').forEach(inp =>
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') setFromInput(); }));
+
+init();
+
+function toggleLearningSection() {
+  const content = document.getElementById('learningContent');
+  const toggle = document.getElementById('learningToggle');
+  content.classList.toggle('open');
+  toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+</script>
+</body>
+</html>

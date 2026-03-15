@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar for Error, Maths Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --pink: #FF67E7;
+    --purple: #AD1DEB;
+    --blue: #3a7bd5;
+    --cream: #FFF8F0;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --grad-1: linear-gradient(135deg, #b8f5b0, #4CAF50);
+    --grad-2: linear-gradient(135deg, #b3d9ff, #3a7bd5);
+    --grad-3: linear-gradient(135deg, #FFD93D, #FF8400);
+    --grad-4: linear-gradient(135deg, #FF6B6B, #c0392b);
+    --grad-5: linear-gradient(135deg, #AD1DEB, #6E3AFF);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #2D3436;
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--teal); text-transform: uppercase; margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: clamp(26px, 5vw, 42px); font-weight: 700; line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 560px; font-weight: 500; }
+
+  .radar-icon {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.10;
+  }
+
+  /* ── NAV PILLS ── */
+  .phase-nav {
+    display: flex; gap: 10px; padding: 18px 48px;
+    background: #3d4347; flex-wrap: wrap;
+  }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 8px 20px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  /* ── MAIN ── */
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  /* ── SECTION ── */
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-heading {
+    font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; color: var(--text);
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 16px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 20px; }
+  .card ul li { margin-bottom: 6px; }
+
+  /* ── DISCUSSION BOX ── */
+  .discussion {
+    background: #fffbf0; border-left: 5px solid var(--amber);
+    border-radius: 12px; padding: 18px 22px; margin: 16px 0;
+  }
+  .discussion .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--amber-dark);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .discussion p { font-size: 15px; line-height: 1.6; color: #665500; }
+
+  /* ── ALGO TABLE (hook error demo) ── */
+  .algo-table {
+    font-family: 'Space Mono', monospace; font-size: 26px;
+    border-collapse: collapse; margin: 8px 0;
+  }
+  .algo-table td {
+    padding: 2px 4px; text-align: center;
+    min-width: 28px; line-height: 1.7; color: var(--text);
+  }
+  .algo-table td.op { text-align: left; min-width: 18px; color: var(--muted); font-size: 22px; }
+  .algo-table td.thou { text-align: right; min-width: 36px; }
+  .algo-table .algo-line { border-top: 2.5px solid var(--text); margin: 2px 0; }
+  .algo-table .wrong-row td { color: var(--red); }
+  .algo-table .correct-row td { color: var(--teal-dark); font-weight: 700; }
+  .algo-table td.correct { color: var(--teal-dark); font-weight: 700; }
+  .algo-table .wrong { color: var(--text); }
+  .algo-table .line.wrong { color: var(--red); }
+
+  /* ── WORKED EXAMPLE ── */
+  .worked-example { margin: 16px 0; }
+  .worked-example .step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .worked-example .step:last-child { border-bottom: none; }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--text); color: #fff; font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .step-content { flex: 1; }
+  .step-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .step-text { font-size: 16px; line-height: 1.6; font-weight: 400; }
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: var(--teal-dark); }
+  .reveal-btn.green { background: var(--teal); color: var(--text); }
+  .reveal-btn.green:hover { background: var(--teal-dark); color: #fff; }
+
+  /* ── ESTIMATE / ACTUAL BADGES ── */
+  .estimate-badge {
+    display: inline-block; background: var(--amber); color: var(--text);
+    font-weight: 700; font-size: 14px; border-radius: 8px;
+    padding: 4px 14px; margin: 6px 4px 6px 0; font-family: 'Space Mono', monospace;
+  }
+  .actual-badge {
+    display: inline-block; background: var(--teal); color: var(--text);
+    font-weight: 700; font-size: 14px; border-radius: 8px;
+    padding: 4px 14px; margin: 6px 4px; font-family: 'Space Mono', monospace;
+  }
+
+  /* ── ALGO CORRECT DISPLAY (worked examples) ── */
+  .algo-correct {
+    font-family: 'Space Mono', monospace; font-size: 20px;
+    line-height: 2; text-align: right; display: inline-block;
+    border: 2px solid var(--border); border-radius: 12px;
+    padding: 16px 28px; background: #f8faff; color: var(--text);
+    margin-top: 10px;
+  }
+  .algo-correct .ans { color: var(--teal-dark); font-weight: 700; border-top: 2.5px solid var(--text); padding-top: 4px; display: block; }
+  .algo-correct .placeholder { color: var(--orange); font-weight: 700; }
+  .anno { color: var(--muted); font-size: 13px; display: block; margin-top: 4px; font-style: italic; font-family: 'Fredoka', sans-serif; }
+
+  /* ── ERROR DEMO ── */
+  .error-demo {
+    background: #fff4f4; border: 2px dashed var(--red);
+    border-radius: 14px; padding: 22px 28px; margin: 16px 0;
+    position: relative;
+  }
+  .error-demo .error-badge {
+    position: absolute; top: -13px; left: 20px;
+    background: var(--red); color: #fff; font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; padding: 3px 14px; border-radius: 20px; text-transform: uppercase;
+    font-family: 'Fredoka', sans-serif;
+  }
+
+  /* ── GUIDED PRACTICE ── */
+  .gp-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e8faf8 100%);
+    border: 2px solid var(--border); border-radius: var(--radius);
+    padding: 28px 32px; margin-bottom: 16px;
+  }
+  .gp-card h4 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .whiteboard-prompt {
+    background: #ffffff; color: var(--text); font-family: 'Space Mono', monospace;
+    border-radius: 14px; border: 2px solid var(--border);
+    padding: 28px 36px; font-size: 28px;
+    line-height: 2.2; margin: 16px 0;
+    display: inline-block; min-width: 260px;
+  }
+  .whiteboard-prompt .wlabel { font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; font-family: 'Fredoka', sans-serif; display: block; margin-bottom: 10px; font-weight: 600; }
+  .whiteboard-prompt table { border-collapse: collapse; }
+  .whiteboard-prompt td { padding: 0 6px; text-align: center; min-width: 28px; }
+  .whiteboard-prompt td.op { text-align: left; min-width: 22px; color: var(--muted); }
+  .whiteboard-prompt .wp-line { border-top: 2.5px solid var(--text); display: block; margin: 4px 0; }
+  .whiteboard-prompt .e-row { font-size: 22px; color: var(--muted); display: block; margin-bottom: 8px; }
+
+  /* ── AUDIT CARDS ── */
+  .audit-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 18px; margin-top: 8px;
+  }
+  .audit-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); border: 2px solid var(--border);
+    padding: 24px 26px; position: relative; overflow: hidden;
+  }
+  .audit-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .audit-card.q1::before { background: var(--grad-2); }
+  .audit-card.q2::before { background: var(--grad-5); }
+  .audit-card.q3::before { background: var(--grad-3); }
+  .audit-card.q4::before { background: var(--grad-4); }
+  .audit-card.q5::before { background: linear-gradient(135deg, #4ECDC4, #2ecc71); }
+  .audit-card.q6::before { background: var(--grad-3); }
+
+  .audit-num {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .audit-type {
+    font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px;
+  }
+  .audit-equation {
+    font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700;
+    color: var(--text); margin: 12px 0; letter-spacing: 0.02em;
+  }
+  .audit-hint {
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+    background: #f8fafc; border-radius: 10px; padding: 10px 14px; margin-top: 10px;
+  }
+  .audit-hint .hint-label {
+    font-weight: 700; color: var(--text); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 3px;
+  }
+  .audit-answer { display: none; margin-top: 12px; }
+  .audit-answer.shown { display: block; animation: fadeIn 0.25s ease; }
+  .audit-answer .answer-row {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .audit-toggle {
+    background: none; border: 2px solid var(--border); border-radius: 30px;
+    padding: 7px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    font-weight: 600; color: var(--muted); cursor: pointer; margin-top: 14px;
+    transition: all 0.2s;
+  }
+  .audit-toggle:hover { border-color: var(--text); color: var(--text); }
+  .audit-toggle.shown { background: var(--text); color: #fff; border-color: var(--text); }
+
+  /* ── PRACTICE SETTING-OUT TABLE ── */
+  .algo-small {
+    font-family: 'Space Mono', monospace; font-size: 16px; line-height: 1.9;
+    text-align: right; background: #f8faff; border: 2px solid var(--border);
+    border-radius: 10px; padding: 10px 18px; display: inline-block; color: var(--text);
+    margin-bottom: 6px;
+  }
+  .algo-small .ans { color: var(--teal-dark); font-weight: 700; border-top: 2px solid var(--text); display: block; }
+  .algo-small .placeholder { color: var(--orange); font-weight: 700; }
+
+  .pa {
+    font-family: 'Space Mono', monospace; font-size: 17px;
+    border-collapse: collapse; margin: 10px 0 4px;
+    background: #f8faff; border: 2px solid var(--border);
+    border-radius: 10px; padding: 10px;
+    display: inline-table;
+  }
+  .pa td {
+    padding: 1px 5px; text-align: center; min-width: 22px; line-height: 1.8;
+    color: var(--text);
+  }
+  .pa td.op { text-align: left; min-width: 18px; color: var(--muted); padding-right: 4px; }
+  .pa td.ph { color: var(--orange); font-weight: 700; }
+  .pa tr.ans td { color: var(--teal-dark); font-weight: 700; border-top: 2px solid var(--text); }
+  .pa tr.sub-ans td { color: var(--teal-dark); font-weight: 700; border-top: 2px solid var(--text); }
+
+  /* ── PRACTICE TIERS ── */
+  .practice-tier { margin-bottom: 36px; }
+  .tier-header {
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.5px; padding: 12px 20px; border-radius: 12px;
+    margin-bottom: 14px; display: inline-block;
+  }
+  .tier-1 { background: #d4f7e0; color: #1a5c35; }
+  .tier-2 { background: #d4e8ff; color: #0a2f6e; }
+  .tier-3 { background: #fff3c4; color: #7a3d00; }
+  .tier-4 { background: #ffd4d4; color: #7a0000; }
+  .tier-5 { background: #ead4ff; color: #4a006e; }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block; background: var(--text); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    border-radius: 20px; padding: 3px 12px; margin-right: 6px; margin-bottom: 6px;
+    font-family: 'Fredoka', sans-serif;
+  }
+  .tag.green { background: var(--teal); color: var(--text); }
+  .tag.amber { background: var(--amber); color: var(--text); }
+  .tag.red { background: var(--red); color: #fff; }
+
+  /* ── RESPONSIVE ── */
+  .exemplar-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 8px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 24px 20px; }
+    .phase-nav { padding: 12px 16px; }
+    main { padding: 24px 12px 60px; }
+    .card, .gp-card { padding: 20px 18px; }
+    .audit-grid { grid-template-columns: 1fr; }
+    .radar-icon { display: none; }
+    .algo-correct, .pa { font-size: 15px; }
+    .audit-equation { font-size: 20px; }
+    .whiteboard-prompt { font-size: 22px; }
+    .exemplar-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--teal);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* === Go Deeper Extension Styles === */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle { background: white; border: 2px dashed #4ECDC4; border-radius: 16px; padding: 1.2rem 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-family: 'Fredoka', sans-serif; transition: all 0.3s ease; width: 100%; }
+  .go-deeper-toggle:hover { border-color: #4ECDC4; box-shadow: 0 4px 16px rgba(78,205,196,0.25); transform: translateY(-2px); }
+  .go-deeper-toggle h3 { font-size: 1.15rem; font-weight: 600; margin: 0; color: #2D3436; }
+  .go-deeper-toggle .toggle-arrow { font-size: 1.2rem; transition: transform 0.3s ease; color: #4ECDC4; }
+  .go-deeper-toggle.open .toggle-arrow { transform: rotate(180deg); }
+  .go-deeper-content { display: none; padding-top: 1rem; }
+  .go-deeper-content.open { display: block; }
+  .go-deeper-card { background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-top: 5px solid #4ECDC4; padding: 2rem; }
+  .go-deeper-card > p { color: #636E72; margin-bottom: 1.5rem; font-family: 'Fredoka', sans-serif; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #4ECDC4; margin-bottom: 0.75rem; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; line-height: 1.6; color: #2D3436; margin-bottom: 0.75rem; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-style: italic; color: #636E72; margin-bottom: 1rem; font-size: 0.95rem; }
+  .ext-thinking-area { width: 100%; min-height: 90px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 0.8rem; font-family: 'Fredoka', sans-serif; font-size: 0.95rem; resize: vertical; transition: border-color 0.3s ease; box-sizing: border-box; }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn { display: inline-block; margin-top: 0.75rem; padding: 0.5rem 1.2rem; border: 2px solid #4ECDC4; border-radius: 10px; background: white; color: #4ECDC4; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response { display: none; background: white; border-radius: 10px; padding: 1.2rem; margin-top: 0.75rem; border: 1px solid #e0e0e0; }
+  .ext-model-response.visible { display: block; }
+  .ext-model-response .model-label { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 0.85rem; color: #4ECDC4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .ext-model-response p { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.6; color: #2D3436; margin: 0.5rem 0; }
+  .mathematician-box { margin-top: 1rem; padding: 1rem; border: 2px dashed #4ECDC4; border-radius: 10px; background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%); font-family: 'Fredoka', sans-serif; font-size: 0.9rem; line-height: 1.5; color: #2D3436; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 Mathematics · Addition &amp; Subtraction</div>
+  <h1>The <span>Radar for Error</span></h1>
+  <p>Estimating, place value alignment, and the formal algorithm</p>
+  <p style="margin-top:12px;"><a href="index.html" style="color:var(--teal);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a></p>
+  <div class="radar-icon">📡</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection('hook', this)">📡 The Hook</button>
+  <button onclick="showSection('radar', this)">🎯 Radar for Error</button>
+  <button onclick="showSection('ido', this)">✏️ I Do</button>
+  <button onclick="showSection('wedo', this)">🤝 We Do</button>
+  <button onclick="showSection('audit', this)">📋 Audit</button>
+  <button onclick="showSection('practice', this)">🔢 Practice</button>
+</nav>
+
+<main>
+
+<!-- ────────────── LEARNING INTENTION & SUCCESS CRITERIA ────────────── -->
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use estimation as a "Radar for Error" to check whether our calculations are reasonable, and to align numbers correctly in vertical algorithms.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can round numbers to get a quick estimate before calculating</li>
+            <li>I can set up a vertical algorithm with digits correctly aligned by place value</li>
+            <li>I can use my estimate to check whether my final answer is reasonable</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ────────────── SECTION 1: HOOK ────────────── -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · Hook</div>
+  <div class="section-heading">What's wrong with this calculation?</div>
+
+  <div class="card">
+    <h3>📡 Introducing the Radar for Error</h3>
+    <p>The greatest mathematicians don't just calculate perfectly, they know <strong>roughly what the answer should be</strong> before they even pick up a pen. That's your Radar for Error.</p>
+    <p style="margin-top:10px;">Today we're going to build that radar, then use it to check our formal algorithms.</p>
+  </div>
+
+  <div class="card">
+    <h3>🔍 Spot the Error</h3>
+    <p style="font-size:17px; font-weight:700; color:var(--navy); background:#f0f4ff; border-radius:10px; padding:14px 18px; margin-bottom:16px;">A school canteen made $4,562 on Monday and $35 on Tuesday. How much did it make altogether?</p>
+    <p>Someone has set up the algorithm below, the digits have all been added correctly. But the answer is completely wrong. What has gone wrong?</p>
+
+    <div class="error-demo" style="margin-top:18px;">
+      <span class="error-badge">⚠ Wrong</span>
+      <div style="margin-top:10px; display:flex; align-items:flex-start; gap:40px; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">What was written:</div>
+          <table class="algo-table">
+            <tr><td class="op"></td><td class="thou">4,</td><td class="h">5</td><td class="t">6</td><td class="o">2</td></tr>
+            <tr><td class="op">+</td><td class="thou">3,</td><td class="h">5</td><td class="t"></td><td class="o"></td></tr>
+            <tr><td colspan="5"><div class="algo-line"></div></td></tr>
+            <tr class="wrong-row"><td class="op"></td><td class="thou">8,</td><td class="h">0</td><td class="t">6</td><td class="o">2</td></tr>
+          </table>
+          <div class="anno">The 3 and 5 have been placed in the wrong columns</div>
+        </div>
+        <div id="correct-reveal" style="display:none;">
+          <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Correct alignment:</div>
+          <table class="algo-table">
+            <tr><td class="op"></td><td class="thou">4,</td><td class="h">5</td><td class="t">6</td><td class="o">2</td></tr>
+            <tr><td class="op">+</td><td class="thou"></td><td class="h"></td><td class="t correct">3</td><td class="o correct">5</td></tr>
+            <tr><td colspan="5"><div class="algo-line"></div></td></tr>
+            <tr class="correct-row"><td class="op"></td><td class="thou">4,</td><td class="h">5</td><td class="t">9</td><td class="o">7</td></tr>
+          </table>
+          <div class="anno">$35 sits in the tens and ones columns</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <div class="label">💬 Think about it</div>
+      <p>Every digit was added correctly, 4+3=7, 5+5=10, so why is $8,062 the wrong answer?</p>
+    </div>
+
+    <button class="reveal-btn green" onclick="document.getElementById('correct-reveal').style.display='block'; this.style.display='none';">
+      ✅ Show correct alignment
+    </button>
+  </div>
+
+</div>
+
+<!-- ────────────── SECTION 2: RADAR ────────────── -->
+<div id="radar" class="section">
+  <div class="section-title">Phase 2 · The Radar for Error</div>
+  <div class="section-heading">Could you have spotted this sooner?</div>
+
+  <div class="card">
+    <div class="discussion" style="background:#e8f8f6; border-left-color:var(--green);">
+      <div class="label" style="color:var(--green-dark);">💡 Think about it</div>
+      <p style="color:#0a3832; font-size:17px;">If you had used your Radar for Error, you would have known $8,062 was <em>impossible</em>, before you even checked the working. How?</p>
+    </div>
+
+    <div id="radar-reveal" class="step-reveal" style="margin-top:20px;">
+      <p><strong>$4,562 is already more than $4,000.</strong> Adding just $35 should give something close to $4,600, so an answer of $8,062 is clearly wrong.</p>
+      <p style="margin-top:12px;"><strong>That's the Radar for Error.</strong> Estimate first → calculate → check your answer makes sense.</p>
+    </div>
+
+    <button class="reveal-btn green" style="margin-top:20px;" onclick="document.getElementById('radar-reveal').classList.add('shown'); this.style.display='none';">
+      💡 Show the reasoning
+    </button>
+  </div>
+</div>
+
+<!-- ────────────── SECTION 3: I DO ────────────── -->
+<div id="ido" class="section">
+  <div class="section-title">Phase 2 · Explicit Instruction</div>
+  <div class="section-heading">Modelling the approach</div>
+
+  <!-- EXAMPLE 1 -->
+  <div class="card">
+    <div class="tag">Example 1</div> <div class="tag green">Whole Numbers</div>
+    <div class="audit-equation" style="margin:12px 0;">1,428 + 653</div>
+
+    <div class="worked-example">
+      <div class="step" onclick="toggleReveal('ex1-s1')">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">Round each number</div>
+          <div class="step-text">What friendly numbers are these close to?</div>
+          <div class="step-reveal" id="ex1-s1">
+            <div style="margin-top:10px;">
+              <div>1,428 → rounds to <span class="estimate-badge">1,400</span></div>
+              <div>653 → rounds to <span class="estimate-badge">650</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex1-s2')">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">Add the estimate using expanded notation</div>
+          <div class="step-text">Think about adding in parts: hundreds first, then tens.</div>
+          <div class="step-reveal" id="ex1-s2">
+            <div style="margin-top:10px;">
+              <div>1,400 + 600 = <span class="estimate-badge">2,000</span></div>
+              <div>2,000 + 50 = <span class="estimate-badge">2,050</span></div>
+              <div class="anno">My estimate is approximately 2,050</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex1-s3')" style="background:#fffbf0; border-radius:10px; padding:14px; margin-top:4px;">
+        <div class="step-num" style="background:var(--amber); color:var(--navy);">3</div>
+        <div class="step-content">
+          <div class="step-label" style="color:var(--amber-dark);">Now you try → then reveal</div>
+          <div class="step-text">Set up the algorithm in your book. Click to check your answer.</div>
+          <div class="step-reveal" id="ex1-s3">
+            <div style="margin-top:10px;">
+              <div class="algo-correct">
+                1&nbsp;4&nbsp;2&nbsp;8<br>
+                +&nbsp;&nbsp;&nbsp;6&nbsp;5&nbsp;3<br>
+                <span class="ans">2&nbsp;0&nbsp;8&nbsp;1</span>
+              </div>
+              <div class="anno" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:16px; align-items:baseline;">
+                <span><strong>Estimate:</strong> ~2,050</span>
+                <span><strong>Actual:</strong> 2,081 ✓</span>
+                <span style="font-size:14px; color:var(--amber-dark);">Makes sense!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal-btn" onclick="revealAll(['ex1-s1','ex1-s2']); this.style.display='none';">
+      👁 Reveal steps 1 &amp; 2
+    </button>
+  </div>
+
+  <!-- EXAMPLE 2 -->
+  <div class="card">
+    <div class="tag">Example 2</div> <div class="tag amber">Decimals / Money</div>
+    <div class="audit-equation" style="margin:12px 0;">$14.95 + $3.10</div>
+
+    <div class="worked-example">
+      <div class="step" onclick="toggleReveal('ex2-s1')">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">Round to friendly numbers</div>
+          <div class="step-text">What are these close to?</div>
+          <div class="step-reveal" id="ex2-s1">
+            <div style="margin-top:10px;">
+              <div>$14.95 → rounds to <span class="estimate-badge">$15</span></div>
+              <div>$3.10 → rounds to <span class="estimate-badge">$3</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex2-s2')">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">Calculate the estimate</div>
+          <div class="step-text">Add the rounded numbers.</div>
+          <div class="step-reveal" id="ex2-s2">
+            <div style="margin-top:10px;">
+              $15 + $3 = <span class="estimate-badge">$18</span>
+              <div class="anno">My estimate is approximately $18</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex2-s3')" style="background:#fffbf0; border-radius:10px; padding:14px; margin-top:4px;">
+        <div class="step-num" style="background:var(--amber); color:var(--navy);">3</div>
+        <div class="step-content">
+          <div class="step-label" style="color:var(--amber-dark);">Now you try → then reveal</div>
+          <div class="step-text">Set up the algorithm in your book. Click to check your answer.</div>
+          <div class="step-reveal" id="ex2-s3">
+            <div style="margin-top:10px;">
+              <div class="algo-correct">
+                $&nbsp;1&nbsp;4&nbsp;.&nbsp;9&nbsp;5<br>
+                +&nbsp;$&nbsp;&nbsp;3&nbsp;.&nbsp;1&nbsp;0<br>
+                <span class="ans">$&nbsp;1&nbsp;8&nbsp;.&nbsp;0&nbsp;5</span>
+              </div>
+              <div class="anno" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:16px; align-items:baseline;">
+                <span><strong>Estimate:</strong> ~$18</span>
+                <span><strong>Actual:</strong> $18.05 ✓</span>
+                <span style="font-size:14px; color:var(--amber-dark);">Makes sense!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal-btn" onclick="revealAll(['ex2-s1','ex2-s2']); this.style.display='none';">
+      👁 Reveal steps 1 &amp; 2
+    </button>
+  </div>
+</div>
+
+<!-- ────────────── SECTION 3: WE DO ────────────── -->
+<div id="wedo" class="section">
+  <div class="section-title">Phase 3 · Guided Practice</div>
+  <div class="section-heading">Your turn, mini whiteboards</div>
+
+  <div class="card">
+    <p style="font-size:16px; line-height:1.7;">For each equation below, you must write <strong>E: [Estimate]</strong> at the top of your whiteboard <em>first</em>, before setting up the algorithm. Then calculate.</p>
+  </div>
+
+  <!-- GP Q1 -->
+  <div class="gp-card">
+    <div class="tag">Question 1</div> <div class="tag" style="background:#ff7043;">Subtraction</div>
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Write in your book first:</span>
+      <span class="e-row">E: [________]</span>
+      <table>
+        <tr><td class="op"></td><td>4</td><td>8</td><td>3</td></tr>
+        <tr><td class="op">−</td><td>1</td><td>9</td><td>7</td></tr>
+        <tr><td colspan="4"><span class="wp-line"></span></td></tr>
+        <tr><td class="op"></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      </table>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal('gp1-ans'); toggleBtn(this);" style="margin-top:4px;">
+      ✅ Show answer &amp; estimate
+    </button>
+    <div class="step-reveal" id="gp1-ans" style="margin-top:14px;">
+      <div><strong>Estimate:</strong> 480 − 200 = <span class="estimate-badge">280</span></div>
+      <div style="margin-top:10px;">
+        <div class="algo-correct">
+          4&nbsp;8&nbsp;3<br>
+          −&nbsp;1&nbsp;9&nbsp;7<br>
+          <span class="ans">2&nbsp;8&nbsp;6</span>
+        </div>
+      </div>
+      <div class="anno" style="margin-top:6px;">Estimate: ~280 &nbsp;|&nbsp; Actual: 286 &nbsp;✓</div>
+    </div>
+  </div>
+
+  <!-- GP Q2 -->
+  <div class="gp-card">
+    <div class="tag">Question 2</div> <div class="tag amber">Decimal Subtraction</div>
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Write in your book first:</span>
+      <span class="e-row">E: [________]</span>
+      <table>
+        <tr><td class="op"></td><td>$</td><td>1</td><td>5</td><td>.</td><td>2</td><td>0</td></tr>
+        <tr><td class="op">−</td><td>$</td><td></td><td>4</td><td>.</td><td>8</td><td>5</td></tr>
+        <tr><td colspan="7"><span class="wp-line"></span></td></tr>
+        <tr><td class="op"></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      </table>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal('gp2-ans'); toggleBtn(this);">
+      ✅ Show answer &amp; estimate
+    </button>
+    <div class="step-reveal" id="gp2-ans" style="margin-top:14px;">
+      <div><strong>Estimate:</strong> $15 − $5 = <span class="estimate-badge">$10</span></div>
+      <div style="margin-top:10px;">
+        <div class="algo-correct">
+          $&nbsp;1&nbsp;5&nbsp;.&nbsp;<span class="placeholder">2&nbsp;0</span><br>
+          −&nbsp;$&nbsp;&nbsp;4&nbsp;.&nbsp;8&nbsp;5<br>
+          <span class="ans">$&nbsp;1&nbsp;0&nbsp;.&nbsp;3&nbsp;5</span>
+        </div>
+      </div>
+      <div class="anno" style="margin-top:6px;"><span style="color:var(--amber-dark);font-weight:800;">2 0</span> = placeholder zero added so both numbers have the same decimal length</div>
+      <div class="anno">Estimate: ~$10 &nbsp;|&nbsp; Actual: $10.35 &nbsp;✓</div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────── SECTION 4: AUDIT ────────────── -->
+<div id="audit" class="section">
+  <div class="section-title">Phase 4 · Independent Diagnostic</div>
+  <div class="section-heading">The Algorithm Audit</div>
+
+  <div class="card">
+    <p style="font-size:16px; line-height:1.7;">This is a <strong>low-stakes diagnostic</strong>, it helps your teacher plan the next two weeks of maths. For <em>every</em> question, write your estimated answer before calculating. Show all working.</p>
+  </div>
+
+  <div class="audit-grid">
+
+    <!-- Q1 -->
+    <div class="audit-card q1">
+      <div class="audit-num">Question 1</div>
+      <div class="audit-type">Standard Addition</div>
+      <div class="audit-equation">3,456 + 2,139</div>
+      <div class="audit-hint">
+        <span class="hint-label">Radar check</span>
+        Round each number, then add. Does your answer make sense?
+      </div>
+      <button class="audit-toggle" onclick="toggleAudit(this, 'a1')">Show answer</button>
+      <div class="audit-answer" id="a1">
+        <div class="answer-row">
+          <span class="estimate-badge">E: ~5,600</span>
+          <span class="actual-badge">A: 5,595</span>
+        </div>
+        <div class="algo-small">
+          3&nbsp;4&nbsp;5&nbsp;6<br>
+          +&nbsp;2&nbsp;1&nbsp;3&nbsp;9<br>
+          <span class="ans">5&nbsp;5&nbsp;9&nbsp;5</span>
+        </div>
+        <div class="anno">3,400+2,100 = ~5,500 ✓</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="audit-card q2">
+      <div class="audit-num">Question 2</div>
+      <div class="audit-type">Addition, Different Lengths</div>
+      <div class="audit-equation">302 + 317 + 3,030 + 34</div>
+      <div class="audit-hint">
+        <span class="hint-label">Watch out for</span>
+        Four numbers of different lengths. Align every number carefully on the ones column.
+      </div>
+      <button class="audit-toggle" onclick="toggleAudit(this, 'a2')">Show answer</button>
+      <div class="audit-answer" id="a2">
+        <div class="answer-row">
+          <span class="estimate-badge">E: ~3,700</span>
+          <span class="actual-badge">A: 3,683</span>
+        </div>
+        <div class="algo-small">
+          &nbsp;&nbsp;&nbsp;3&nbsp;0&nbsp;2<br>
+          &nbsp;&nbsp;&nbsp;3&nbsp;1&nbsp;7<br>
+          3&nbsp;0&nbsp;3&nbsp;0<br>
+          +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;4<br>
+          <span class="ans">3&nbsp;6&nbsp;8&nbsp;3</span>
+        </div>
+        <div class="anno">300+300+3,000+34 ≈ 3,634 ✓</div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="audit-card q3">
+      <div class="audit-num">Question 3</div>
+      <div class="audit-type">Standard Subtraction</div>
+      <div class="audit-equation">5,482 − 2,157</div>
+      <div class="audit-hint">
+        <span class="hint-label">Radar check</span>
+        5,000 − 2,000 = 3,000. Your answer should be around 3,000.
+      </div>
+      <button class="audit-toggle" onclick="toggleAudit(this, 'a3')">Show answer</button>
+      <div class="audit-answer" id="a3">
+        <div class="answer-row">
+          <span class="estimate-badge">E: ~3,300</span>
+          <span class="actual-badge">A: 3,325</span>
+        </div>
+        <div class="algo-small">
+          5&nbsp;4&nbsp;8&nbsp;2<br>
+          −&nbsp;2&nbsp;1&nbsp;5&nbsp;7<br>
+          <span class="ans">3&nbsp;3&nbsp;2&nbsp;5</span>
+        </div>
+        <div class="anno">5,500 − 2,200 ≈ 3,300 ✓</div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="audit-card q4">
+      <div class="audit-num">Question 4</div>
+      <div class="audit-type">Subtraction Across Zeros</div>
+      <div class="audit-equation">6,004 − 2,386</div>
+      <div class="audit-hint">
+        <span class="hint-label">Watch out</span>
+        The tens and hundreds columns are both zero, you'll need to trade across more than one column.
+      </div>
+      <button class="audit-toggle" onclick="toggleAudit(this, 'a4')">Show answer</button>
+      <div class="audit-answer" id="a4">
+        <div class="answer-row">
+          <span class="estimate-badge">E: ~3,600</span>
+          <span class="actual-badge">A: 3,618</span>
+        </div>
+        <div class="algo-small">
+          6&nbsp;0&nbsp;0&nbsp;4<br>
+          −&nbsp;2&nbsp;3&nbsp;8&nbsp;6<br>
+          <span class="ans">3&nbsp;6&nbsp;1&nbsp;8</span>
+        </div>
+        <div class="anno">6,000 − 2,400 ≈ 3,600 ✓</div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="audit-card q5">
+      <div class="audit-num">Question 5</div>
+      <div class="audit-type">Decimal Addition</div>
+      <div class="audit-equation">$24.50 + $115.75 + $8.20</div>
+      <div class="audit-hint">
+        <span class="hint-label">Anchor</span>
+        Align all three decimal points. The dollar amounts have different lengths, make sure hundreds, tens, and ones all line up.
+      </div>
+      <button class="audit-toggle" onclick="toggleAudit(this, 'a5')">Show answer</button>
+      <div class="audit-answer" id="a5">
+        <div class="answer-row">
+          <span class="estimate-badge">E: ~$148</span>
+          <span class="actual-badge">A: $148.45</span>
+        </div>
+        <div class="algo-small">
+          $&nbsp;&nbsp;2&nbsp;4&nbsp;.&nbsp;5&nbsp;0<br>
+          $&nbsp;1&nbsp;1&nbsp;5&nbsp;.&nbsp;7&nbsp;5<br>
+          +&nbsp;$&nbsp;&nbsp;&nbsp;8&nbsp;.&nbsp;2&nbsp;0<br>
+          <span class="ans">$&nbsp;1&nbsp;4&nbsp;8&nbsp;.&nbsp;4&nbsp;5</span>
+        </div>
+        <div class="anno">$25 + $116 + $8 ≈ $149 ✓</div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="audit-card q6">
+      <div class="audit-num">Question 6</div>
+      <div class="audit-type">Decimal Subtraction, Different Lengths</div>
+      <div class="audit-equation">$18.4 − $3.25</div>
+      <div class="audit-hint">
+        <span class="hint-label">Key question</span>
+        $18.4 has only one decimal place. $3.25 has two. What do you need to add to $18.4 to make the calculation work?
+      </div>
+      <button class="audit-toggle" onclick="toggleAudit(this, 'a6')">Show answer</button>
+      <div class="audit-answer" id="a6">
+        <div class="answer-row">
+          <span class="estimate-badge">E: ~$15</span>
+          <span class="actual-badge">A: $15.15</span>
+        </div>
+        <div class="algo-small">
+          $&nbsp;1&nbsp;8&nbsp;.&nbsp;<span class="placeholder">4&nbsp;0</span><br>
+          −&nbsp;$&nbsp;&nbsp;3&nbsp;.&nbsp;2&nbsp;5<br>
+          <span class="ans">$&nbsp;1&nbsp;5&nbsp;.&nbsp;1&nbsp;5</span>
+        </div>
+        <div class="anno" style="display:flex; flex-wrap:wrap; gap:16px; align-items:baseline;">
+          <span><span style="color:var(--amber-dark);font-weight:800;">40</span> = $18.40 (placeholder zero added)</span>
+          <span><strong>Estimate:</strong> $18 − $3 ≈ $15 ✓</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- ────────────── SECTION 5: PRACTICE ────────────── -->
+<div id="practice" class="section">
+  <div class="section-title">Consolidation Practice</div>
+  <div class="section-heading">Algorithm Practice, Full Range</div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <p style="font-size:16px; line-height:1.7;">For every question: write your <strong>estimate first</strong>, then set up and solve the algorithm. Show all working.</p>
+  </div>
+
+  <!-- TIER STYLES inline via classes already defined -->
+
+  <!-- ══ TIER 1 ══ -->
+  <div class="practice-tier">
+    <div class="tier-header tier-1">🟢 Tier 1, Tens &amp; Hundreds</div>
+    <div class="audit-grid">
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q1</div><div class="audit-type">Addition</div>
+        <div class="audit-equation">43 + 35</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p1')">Show answer</button>
+        <div class="audit-answer" id="p1">
+          <div class="answer-row"><span class="estimate-badge">E: ~80</span><span class="actual-badge">A: 78</span></div>
+          <table class="pa"><tr><td class="op"></td><td>4</td><td>3</td></tr><tr><td class="op">+</td><td>3</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>7</td><td>8</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q2</div><div class="audit-type">Addition</div>
+        <div class="audit-equation">67 + 48</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p2')">Show answer</button>
+        <div class="audit-answer" id="p2">
+          <div class="answer-row"><span class="estimate-badge">E: ~120</span><span class="actual-badge">A: 115</span></div>
+          <table class="pa"><tr><td class="op"></td><td>6</td><td>7</td></tr><tr><td class="op">+</td><td>4</td><td>8</td></tr><tr class="ans"><td class="op"></td><td>1</td><td>1</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q3</div><div class="audit-type">Subtraction</div>
+        <div class="audit-equation">85 − 47</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p3')">Show answer</button>
+        <div class="audit-answer" id="p3">
+          <div class="answer-row"><span class="estimate-badge">E: ~40</span><span class="actual-badge">A: 38</span></div>
+          <table class="pa"><tr><td class="op"></td><td>8</td><td>5</td></tr><tr><td class="op">−</td><td>4</td><td>7</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>8</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q4</div><div class="audit-type">Subtraction</div>
+        <div class="audit-equation">130 − 74</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p4')">Show answer</button>
+        <div class="audit-answer" id="p4">
+          <div class="answer-row"><span class="estimate-badge">E: ~60</span><span class="actual-badge">A: 56</span></div>
+          <table class="pa"><tr><td class="op"></td><td>1</td><td>3</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>7</td><td>4</td></tr><tr class="ans"><td class="op"></td><td></td><td>5</td><td>6</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q5">
+        <div class="audit-num">Q5</div><div class="audit-type">Addition, 3 numbers</div>
+        <div class="audit-equation">24 + 53 + 18</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p5')">Show answer</button>
+        <div class="audit-answer" id="p5">
+          <div class="answer-row"><span class="estimate-badge">E: ~95</span><span class="actual-badge">A: 95</span></div>
+          <table class="pa"><tr><td class="op"></td><td>2</td><td>4</td></tr><tr><td class="op"></td><td>5</td><td>3</td></tr><tr><td class="op">+</td><td>1</td><td>8</td></tr><tr class="ans"><td class="op"></td><td>9</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q6">
+        <div class="audit-num">Q6</div><div class="audit-type">Addition, Hundreds</div>
+        <div class="audit-equation">342 + 215</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p6')">Show answer</button>
+        <div class="audit-answer" id="p6">
+          <div class="answer-row"><span class="estimate-badge">E: ~560</span><span class="actual-badge">A: 557</span></div>
+          <table class="pa"><tr><td class="op"></td><td>3</td><td>4</td><td>2</td></tr><tr><td class="op">+</td><td>2</td><td>1</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>5</td><td>5</td><td>7</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q7</div><div class="audit-type">Addition, Carrying</div>
+        <div class="audit-equation">478 + 365</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p7')">Show answer</button>
+        <div class="audit-answer" id="p7">
+          <div class="answer-row"><span class="estimate-badge">E: ~840</span><span class="actual-badge">A: 843</span></div>
+          <table class="pa"><tr><td class="op"></td><td>4</td><td>7</td><td>8</td></tr><tr><td class="op">+</td><td>3</td><td>6</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>8</td><td>4</td><td>3</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q8</div><div class="audit-type">Subtraction, Hundreds</div>
+        <div class="audit-equation">763 − 248</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p8')">Show answer</button>
+        <div class="audit-answer" id="p8">
+          <div class="answer-row"><span class="estimate-badge">E: ~520</span><span class="actual-badge">A: 515</span></div>
+          <table class="pa"><tr><td class="op"></td><td>7</td><td>6</td><td>3</td></tr><tr><td class="op">−</td><td>2</td><td>4</td><td>8</td></tr><tr class="ans"><td class="op"></td><td>5</td><td>1</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q9</div><div class="audit-type">Subtraction, Across Zero</div>
+        <div class="audit-equation">500 − 263</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p9')">Show answer</button>
+        <div class="audit-answer" id="p9">
+          <div class="answer-row"><span class="estimate-badge">E: ~240</span><span class="actual-badge">A: 237</span></div>
+          <table class="pa"><tr><td class="op"></td><td>5</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>2</td><td>6</td><td>3</td></tr><tr class="ans"><td class="op"></td><td>2</td><td>3</td><td>7</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q10</div><div class="audit-type">Addition, Varying Lengths</div>
+        <div class="audit-equation">45 + 320 + 6</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p10')">Show answer</button>
+        <div class="audit-answer" id="p10">
+          <div class="answer-row"><span class="estimate-badge">E: ~370</span><span class="actual-badge">A: 371</span></div>
+          <table class="pa"><tr><td class="op"></td><td></td><td>4</td><td>5</td></tr><tr><td class="op"></td><td>3</td><td>2</td><td>0</td></tr><tr><td class="op">+</td><td></td><td></td><td>6</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>7</td><td>1</td></tr></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TIER 2 ══ -->
+  <div class="practice-tier">
+    <div class="tier-header tier-2">🔵 Tier 2, Thousands</div>
+    <div class="audit-grid">
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q11</div><div class="audit-type">Addition</div>
+        <div class="audit-equation">2,341 + 1,526</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p11')">Show answer</button>
+        <div class="audit-answer" id="p11">
+          <div class="answer-row"><span class="estimate-badge">E: ~3,900</span><span class="actual-badge">A: 3,867</span></div>
+          <table class="pa"><tr><td class="op"></td><td>2</td><td>3</td><td>4</td><td>1</td></tr><tr><td class="op">+</td><td>1</td><td>5</td><td>2</td><td>6</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>8</td><td>6</td><td>7</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q12</div><div class="audit-type">Addition, Carrying</div>
+        <div class="audit-equation">4,756 + 2,384</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p12')">Show answer</button>
+        <div class="audit-answer" id="p12">
+          <div class="answer-row"><span class="estimate-badge">E: ~7,100</span><span class="actual-badge">A: 7,140</span></div>
+          <table class="pa"><tr><td class="op"></td><td>4</td><td>7</td><td>5</td><td>6</td></tr><tr><td class="op">+</td><td>2</td><td>3</td><td>8</td><td>4</td></tr><tr class="ans"><td class="op"></td><td>7</td><td>1</td><td>4</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q13</div><div class="audit-type">Subtraction</div>
+        <div class="audit-equation">7,845 − 3,212</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p13')">Show answer</button>
+        <div class="audit-answer" id="p13">
+          <div class="answer-row"><span class="estimate-badge">E: ~4,600</span><span class="actual-badge">A: 4,633</span></div>
+          <table class="pa"><tr><td class="op"></td><td>7</td><td>8</td><td>4</td><td>5</td></tr><tr><td class="op">−</td><td>3</td><td>2</td><td>1</td><td>2</td></tr><tr class="ans"><td class="op"></td><td>4</td><td>6</td><td>3</td><td>3</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q14</div><div class="audit-type">Subtraction, Trading</div>
+        <div class="audit-equation">6,312 − 2,748</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p14')">Show answer</button>
+        <div class="audit-answer" id="p14">
+          <div class="answer-row"><span class="estimate-badge">E: ~3,600</span><span class="actual-badge">A: 3,564</span></div>
+          <table class="pa"><tr><td class="op"></td><td>6</td><td>3</td><td>1</td><td>2</td></tr><tr><td class="op">−</td><td>2</td><td>7</td><td>4</td><td>8</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>5</td><td>6</td><td>4</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q5">
+        <div class="audit-num">Q15</div><div class="audit-type">Subtraction, Across Zero</div>
+        <div class="audit-equation">8,003 − 4,567</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p15')">Show answer</button>
+        <div class="audit-answer" id="p15">
+          <div class="answer-row"><span class="estimate-badge">E: ~3,400</span><span class="actual-badge">A: 3,436</span></div>
+          <table class="pa"><tr><td class="op"></td><td>8</td><td>0</td><td>0</td><td>3</td></tr><tr><td class="op">−</td><td>4</td><td>5</td><td>6</td><td>7</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>4</td><td>3</td><td>6</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q6">
+        <div class="audit-num">Q16</div><div class="audit-type">Addition, 3 numbers</div>
+        <div class="audit-equation">1,204 + 3,451 + 2,130</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p16')">Show answer</button>
+        <div class="audit-answer" id="p16">
+          <div class="answer-row"><span class="estimate-badge">E: ~6,800</span><span class="actual-badge">A: 6,785</span></div>
+          <table class="pa"><tr><td class="op"></td><td>1</td><td>2</td><td>0</td><td>4</td></tr><tr><td class="op"></td><td>3</td><td>4</td><td>5</td><td>1</td></tr><tr><td class="op">+</td><td>2</td><td>1</td><td>3</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>6</td><td>7</td><td>8</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q17</div><div class="audit-type">Addition, Varying Lengths</div>
+        <div class="audit-equation">845 + 3,206 + 72</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p17')">Show answer</button>
+        <div class="audit-answer" id="p17">
+          <div class="answer-row"><span class="estimate-badge">E: ~4,100</span><span class="actual-badge">A: 4,123</span></div>
+          <table class="pa"><tr><td class="op"></td><td></td><td>8</td><td>4</td><td>5</td></tr><tr><td class="op"></td><td>3</td><td>2</td><td>0</td><td>6</td></tr><tr><td class="op">+</td><td></td><td></td><td>7</td><td>2</td></tr><tr class="ans"><td class="op"></td><td>4</td><td>1</td><td>2</td><td>3</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q18</div><div class="audit-type">Subtraction, Multiple Zeros</div>
+        <div class="audit-equation">9,000 − 3,748</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p18')">Show answer</button>
+        <div class="audit-answer" id="p18">
+          <div class="answer-row"><span class="estimate-badge">E: ~5,200</span><span class="actual-badge">A: 5,252</span></div>
+          <table class="pa"><tr><td class="op"></td><td>9</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>3</td><td>7</td><td>4</td><td>8</td></tr><tr class="ans"><td class="op"></td><td>5</td><td>2</td><td>5</td><td>2</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q19</div><div class="audit-type">Addition, 4 numbers</div>
+        <div class="audit-equation">1,032 + 456 + 2,801 + 37</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p19')">Show answer</button>
+        <div class="audit-answer" id="p19">
+          <div class="answer-row"><span class="estimate-badge">E: ~4,300</span><span class="actual-badge">A: 4,326</span></div>
+          <table class="pa"><tr><td class="op"></td><td>1</td><td>0</td><td>3</td><td>2</td></tr><tr><td class="op"></td><td></td><td>4</td><td>5</td><td>6</td></tr><tr><td class="op"></td><td>2</td><td>8</td><td>0</td><td>1</td></tr><tr><td class="op">+</td><td></td><td></td><td>3</td><td>7</td></tr><tr class="ans"><td class="op"></td><td>4</td><td>3</td><td>2</td><td>6</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q20</div><div class="audit-type">Subtraction</div>
+        <div class="audit-equation">5,000 − 1,364</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p20')">Show answer</button>
+        <div class="audit-answer" id="p20">
+          <div class="answer-row"><span class="estimate-badge">E: ~3,600</span><span class="actual-badge">A: 3,636</span></div>
+          <table class="pa"><tr><td class="op"></td><td>5</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>1</td><td>3</td><td>6</td><td>4</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>6</td><td>3</td><td>6</td></tr></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TIER 3 ══ -->
+  <div class="practice-tier">
+    <div class="tier-header tier-3">🟠 Tier 3, Decimals &amp; Money</div>
+    <div class="audit-grid">
+
+      <div class="audit-card q5">
+        <div class="audit-num">Q21</div><div class="audit-type">Money, Addition</div>
+        <div class="audit-equation">$6.45 + $3.20</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p21')">Show answer</button>
+        <div class="audit-answer" id="p21">
+          <div class="answer-row"><span class="estimate-badge">E: ~$10</span><span class="actual-badge">A: $9.65</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>6</td><td>.</td><td>4</td><td>5</td></tr><tr><td class="op">+</td><td>$</td><td>3</td><td>.</td><td>2</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>9</td><td>.</td><td>6</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q6">
+        <div class="audit-num">Q22</div><div class="audit-type">Money, Addition with Carrying</div>
+        <div class="audit-equation">$12.75 + $8.60</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p22')">Show answer</button>
+        <div class="audit-answer" id="p22">
+          <div class="answer-row"><span class="estimate-badge">E: ~$21</span><span class="actual-badge">A: $21.35</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>1</td><td>2</td><td>.</td><td>7</td><td>5</td></tr><tr><td class="op">+</td><td>$</td><td></td><td>8</td><td>.</td><td>6</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>2</td><td>1</td><td>.</td><td>3</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q23</div><div class="audit-type">Money, Subtraction</div>
+        <div class="audit-equation">$20.00 − $7.35</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p23')">Show answer</button>
+        <div class="audit-answer" id="p23">
+          <div class="answer-row"><span class="estimate-badge">E: ~$13</span><span class="actual-badge">A: $12.65</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>2</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>$</td><td></td><td>7</td><td>.</td><td>3</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>1</td><td>2</td><td>.</td><td>6</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q24</div><div class="audit-type">Money, Different Lengths</div>
+        <div class="audit-equation">$9.5 + $14.25</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p24')">Show answer</button>
+        <div class="audit-answer" id="p24">
+          <div class="answer-row"><span class="estimate-badge">E: ~$24</span><span class="actual-badge">A: $23.75</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td></td><td>9</td><td>.</td><td>5</td><td class="ph">0</td></tr><tr><td class="op">+</td><td>$</td><td>1</td><td>4</td><td>.</td><td>2</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>2</td><td>3</td><td>.</td><td>7</td><td>5</td></tr></table>
+          <div class="anno" style="margin-top:4px;">Placeholder zero added to $9.5</div>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q25</div><div class="audit-type">Money, 3 amounts</div>
+        <div class="audit-equation">$45.00 + $32.75 + $8.50</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p25')">Show answer</button>
+        <div class="audit-answer" id="p25">
+          <div class="answer-row"><span class="estimate-badge">E: ~$86</span><span class="actual-badge">A: $86.25</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>4</td><td>5</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op"></td><td>$</td><td>3</td><td>2</td><td>.</td><td>7</td><td>5</td></tr><tr><td class="op">+</td><td>$</td><td></td><td>8</td><td>.</td><td>5</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>8</td><td>6</td><td>.</td><td>2</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q26</div><div class="audit-type">Decimal, Subtraction</div>
+        <div class="audit-equation">$50.00 − $23.85</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p26')">Show answer</button>
+        <div class="audit-answer" id="p26">
+          <div class="answer-row"><span class="estimate-badge">E: ~$26</span><span class="actual-badge">A: $26.15</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>5</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>$</td><td>2</td><td>3</td><td>.</td><td>8</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>2</td><td>6</td><td>.</td><td>1</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q5">
+        <div class="audit-num">Q27</div><div class="audit-type">Decimal, Different Lengths</div>
+        <div class="audit-equation">$73.6 − $28.45</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p27')">Show answer</button>
+        <div class="audit-answer" id="p27">
+          <div class="answer-row"><span class="estimate-badge">E: ~$45</span><span class="actual-badge">A: $45.15</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>7</td><td>3</td><td>.</td><td>6</td><td class="ph">0</td></tr><tr><td class="op">−</td><td>$</td><td>2</td><td>8</td><td>.</td><td>4</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>4</td><td>5</td><td>.</td><td>1</td><td>5</td></tr></table>
+          <div class="anno" style="margin-top:4px;">Placeholder zero added to $73.6</div>
+        </div>
+      </div>
+
+      <div class="audit-card q6">
+        <div class="audit-num">Q28</div><div class="audit-type">Money, 4 amounts</div>
+        <div class="audit-equation">$12.40 + $5.95 + $3.60 + $8.05</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p28')">Show answer</button>
+        <div class="audit-answer" id="p28">
+          <div class="answer-row"><span class="estimate-badge">E: ~$30</span><span class="actual-badge">A: $30.00</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>1</td><td>2</td><td>.</td><td>4</td><td>0</td></tr><tr><td class="op"></td><td>$</td><td></td><td>5</td><td>.</td><td>9</td><td>5</td></tr><tr><td class="op"></td><td>$</td><td></td><td>3</td><td>.</td><td>6</td><td>0</td></tr><tr><td class="op">+</td><td>$</td><td></td><td>8</td><td>.</td><td>0</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>3</td><td>0</td><td>.</td><td>0</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q29</div><div class="audit-type">Decimal, Across Zero</div>
+        <div class="audit-equation">$100.00 − $64.75</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p29')">Show answer</button>
+        <div class="audit-answer" id="p29">
+          <div class="answer-row"><span class="estimate-badge">E: ~$35</span><span class="actual-badge">A: $35.25</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>1</td><td>0</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>$</td><td></td><td>6</td><td>4</td><td>.</td><td>7</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td></td><td>3</td><td>5</td><td>.</td><td>2</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q30</div><div class="audit-type">Mixed Lengths, Tricky</div>
+        <div class="audit-equation">$204.5 + $63 + $9.85</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p30')">Show answer</button>
+        <div class="audit-answer" id="p30">
+          <div class="answer-row"><span class="estimate-badge">E: ~$277</span><span class="actual-badge">A: $277.35</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>2</td><td>0</td><td>4</td><td>.</td><td>5</td><td class="ph">0</td></tr><tr><td class="op"></td><td>$</td><td></td><td>6</td><td>3</td><td>.</td><td class="ph">0</td><td class="ph">0</td></tr><tr><td class="op">+</td><td>$</td><td></td><td></td><td>9</td><td>.</td><td>8</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>2</td><td>7</td><td>7</td><td>.</td><td>3</td><td>5</td></tr></table>
+          <div class="anno" style="margin-top:4px;">Placeholder zeros added to $204.5 and $63</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TIER 4 ══ -->
+  <div class="practice-tier">
+    <div class="tier-header tier-4">🔴 Tier 4, Ten Thousands &amp; Hundred Thousands</div>
+    <div class="audit-grid">
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q31</div><div class="audit-type">Addition</div>
+        <div class="audit-equation">24,561 + 13,204</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p31')">Show answer</button>
+        <div class="audit-answer" id="p31">
+          <div class="answer-row"><span class="estimate-badge">E: ~38,000</span><span class="actual-badge">A: 37,765</span></div>
+          <table class="pa"><tr><td class="op"></td><td>2</td><td>4</td><td>,</td><td>5</td><td>6</td><td>1</td></tr><tr><td class="op">+</td><td>1</td><td>3</td><td>,</td><td>2</td><td>0</td><td>4</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>7</td><td>,</td><td>7</td><td>6</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q32</div><div class="audit-type">Addition, Carrying</div>
+        <div class="audit-equation">47,836 + 25,497</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p32')">Show answer</button>
+        <div class="audit-answer" id="p32">
+          <div class="answer-row"><span class="estimate-badge">E: ~73,000</span><span class="actual-badge">A: 73,333</span></div>
+          <table class="pa"><tr><td class="op"></td><td>4</td><td>7</td><td>,</td><td>8</td><td>3</td><td>6</td></tr><tr><td class="op">+</td><td>2</td><td>5</td><td>,</td><td>4</td><td>9</td><td>7</td></tr><tr class="ans"><td class="op"></td><td>7</td><td>3</td><td>,</td><td>3</td><td>3</td><td>3</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q5">
+        <div class="audit-num">Q33</div><div class="audit-type">Subtraction</div>
+        <div class="audit-equation">85,300 − 34,172</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p33')">Show answer</button>
+        <div class="audit-answer" id="p33">
+          <div class="answer-row"><span class="estimate-badge">E: ~51,000</span><span class="actual-badge">A: 51,128</span></div>
+          <table class="pa"><tr><td class="op"></td><td>8</td><td>5</td><td>,</td><td>3</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>3</td><td>4</td><td>,</td><td>1</td><td>7</td><td>2</td></tr><tr class="ans"><td class="op"></td><td>5</td><td>1</td><td>,</td><td>1</td><td>2</td><td>8</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q6">
+        <div class="audit-num">Q34</div><div class="audit-type">Subtraction, Across Zeros</div>
+        <div class="audit-equation">70,000 − 28,456</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p34')">Show answer</button>
+        <div class="audit-answer" id="p34">
+          <div class="answer-row"><span class="estimate-badge">E: ~41,500</span><span class="actual-badge">A: 41,544</span></div>
+          <table class="pa"><tr><td class="op"></td><td>7</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>2</td><td>8</td><td>,</td><td>4</td><td>5</td><td>6</td></tr><tr class="ans"><td class="op"></td><td>4</td><td>1</td><td>,</td><td>5</td><td>4</td><td>4</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q35</div><div class="audit-type">Addition, Varying Lengths</div>
+        <div class="audit-equation">3,450 + 28,600 + 714</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p35')">Show answer</button>
+        <div class="audit-answer" id="p35">
+          <div class="answer-row"><span class="estimate-badge">E: ~33,000</span><span class="actual-badge">A: 32,764</span></div>
+          <table class="pa"><tr><td class="op"></td><td></td><td>3</td><td>,</td><td>4</td><td>5</td><td>0</td></tr><tr><td class="op"></td><td>2</td><td>8</td><td>,</td><td>6</td><td>0</td><td>0</td></tr><tr><td class="op">+</td><td></td><td></td><td></td><td>7</td><td>1</td><td>4</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>2</td><td>,</td><td>7</td><td>6</td><td>4</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q36</div><div class="audit-type">Addition, Hundreds of Thousands</div>
+        <div class="audit-equation">134,205 + 261,480</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p36')">Show answer</button>
+        <div class="audit-answer" id="p36">
+          <div class="answer-row"><span class="estimate-badge">E: ~396,000</span><span class="actual-badge">A: 395,685</span></div>
+          <table class="pa"><tr><td class="op"></td><td>1</td><td>3</td><td>4</td><td>,</td><td>2</td><td>0</td><td>5</td></tr><tr><td class="op">+</td><td>2</td><td>6</td><td>1</td><td>,</td><td>4</td><td>8</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>9</td><td>5</td><td>,</td><td>6</td><td>8</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q37</div><div class="audit-type">Subtraction, Hundreds of Thousands</div>
+        <div class="audit-equation">500,000 − 187,364</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p37')">Show answer</button>
+        <div class="audit-answer" id="p37">
+          <div class="answer-row"><span class="estimate-badge">E: ~312,000</span><span class="actual-badge">A: 312,636</span></div>
+          <table class="pa"><tr><td class="op"></td><td>5</td><td>0</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>1</td><td>8</td><td>7</td><td>,</td><td>3</td><td>6</td><td>4</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>1</td><td>2</td><td>,</td><td>6</td><td>3</td><td>6</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q38</div><div class="audit-type">Addition, 3 large numbers</div>
+        <div class="audit-equation">42,500 + 138,060 + 9,340</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p38')">Show answer</button>
+        <div class="audit-answer" id="p38">
+          <div class="answer-row"><span class="estimate-badge">E: ~190,000</span><span class="actual-badge">A: 189,900</span></div>
+          <table class="pa"><tr><td class="op"></td><td></td><td>4</td><td>2</td><td>,</td><td>5</td><td>0</td><td>0</td></tr><tr><td class="op"></td><td>1</td><td>3</td><td>8</td><td>,</td><td>0</td><td>6</td><td>0</td></tr><tr><td class="op">+</td><td></td><td></td><td>9</td><td>,</td><td>3</td><td>4</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>1</td><td>8</td><td>9</td><td>,</td><td>9</td><td>0</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q5">
+        <div class="audit-num">Q39</div><div class="audit-type">Subtraction, Across Multiple Zeros</div>
+        <div class="audit-equation">400,000 − 256,839</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p39')">Show answer</button>
+        <div class="audit-answer" id="p39">
+          <div class="answer-row"><span class="estimate-badge">E: ~143,000</span><span class="actual-badge">A: 143,161</span></div>
+          <table class="pa"><tr><td class="op"></td><td>4</td><td>0</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>2</td><td>5</td><td>6</td><td>,</td><td>8</td><td>3</td><td>9</td></tr><tr class="ans"><td class="op"></td><td>1</td><td>4</td><td>3</td><td>,</td><td>1</td><td>6</td><td>1</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q6">
+        <div class="audit-num">Q40</div><div class="audit-type">Varying Lengths, Large</div>
+        <div class="audit-equation">246,000 + 38,450 + 7,205</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p40')">Show answer</button>
+        <div class="audit-answer" id="p40">
+          <div class="answer-row"><span class="estimate-badge">E: ~292,000</span><span class="actual-badge">A: 291,655</span></div>
+          <table class="pa"><tr><td class="op"></td><td>2</td><td>4</td><td>6</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op"></td><td></td><td>3</td><td>8</td><td>,</td><td>4</td><td>5</td><td>0</td></tr><tr><td class="op">+</td><td></td><td></td><td>7</td><td>,</td><td>2</td><td>0</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>2</td><td>9</td><td>1</td><td>,</td><td>6</td><td>5</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TIER 5 ══ -->
+  <div class="practice-tier">
+    <div class="tier-header tier-5">⭐ Tier 5, Millions &amp; Mixed Challenge</div>
+    <div class="audit-grid">
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q41</div><div class="audit-type">Addition, Millions</div>
+        <div class="audit-equation">1,340,000 + 2,215,000</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p41')">Show answer</button>
+        <div class="audit-answer" id="p41">
+          <div class="answer-row"><span class="estimate-badge">E: ~3.5 million</span><span class="actual-badge">A: 3,555,000</span></div>
+          <table class="pa"><tr><td class="op"></td><td>1</td><td>,</td><td>3</td><td>4</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">+</td><td>2</td><td>,</td><td>2</td><td>1</td><td>5</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>3</td><td>,</td><td>5</td><td>5</td><td>5</td><td>,</td><td>0</td><td>0</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q42</div><div class="audit-type">Addition, Millions with Carrying</div>
+        <div class="audit-equation">4,867,000 + 2,543,000</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p42')">Show answer</button>
+        <div class="audit-answer" id="p42">
+          <div class="answer-row"><span class="estimate-badge">E: ~7.4 million</span><span class="actual-badge">A: 7,410,000</span></div>
+          <table class="pa"><tr><td class="op"></td><td>4</td><td>,</td><td>8</td><td>6</td><td>7</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">+</td><td>2</td><td>,</td><td>5</td><td>4</td><td>3</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>7</td><td>,</td><td>4</td><td>1</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q43</div><div class="audit-type">Subtraction, Millions</div>
+        <div class="audit-equation">8,000,000 − 3,425,600</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p43')">Show answer</button>
+        <div class="audit-answer" id="p43">
+          <div class="answer-row"><span class="estimate-badge">E: ~4.6 million</span><span class="actual-badge">A: 4,574,400</span></div>
+          <table class="pa"><tr><td class="op"></td><td>8</td><td>,</td><td>0</td><td>0</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>3</td><td>,</td><td>4</td><td>2</td><td>5</td><td>,</td><td>6</td><td>0</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>4</td><td>,</td><td>5</td><td>7</td><td>4</td><td>,</td><td>4</td><td>0</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q44</div><div class="audit-type">Millions, Varying Lengths</div>
+        <div class="audit-equation">2,400,000 + 385,200 + 47,600</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p44')">Show answer</button>
+        <div class="audit-answer" id="p44">
+          <div class="answer-row"><span class="estimate-badge">E: ~2.8 million</span><span class="actual-badge">A: 2,832,800</span></div>
+          <table class="pa"><tr><td class="op"></td><td>2</td><td>,</td><td>4</td><td>0</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op"></td><td></td><td></td><td>3</td><td>8</td><td>5</td><td>,</td><td>2</td><td>0</td><td>0</td></tr><tr><td class="op">+</td><td></td><td></td><td></td><td>4</td><td>7</td><td>,</td><td>6</td><td>0</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>2</td><td>,</td><td>8</td><td>3</td><td>2</td><td>,</td><td>8</td><td>0</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q5">
+        <div class="audit-num">Q45</div><div class="audit-type">Mixed, Money + Large Numbers</div>
+        <div class="audit-equation">$1,245.80 + $364.75 + $89.50</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p45')">Show answer</button>
+        <div class="audit-answer" id="p45">
+          <div class="answer-row"><span class="estimate-badge">E: ~$1,700</span><span class="actual-badge">A: $1,700.05</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>1</td><td>,</td><td>2</td><td>4</td><td>5</td><td>.</td><td>8</td><td>0</td></tr><tr><td class="op"></td><td>$</td><td></td><td></td><td>3</td><td>6</td><td>4</td><td>.</td><td>7</td><td>5</td></tr><tr><td class="op">+</td><td>$</td><td></td><td></td><td></td><td>8</td><td>9</td><td>.</td><td>5</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>1</td><td>,</td><td>7</td><td>0</td><td>0</td><td>.</td><td>0</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q6">
+        <div class="audit-num">Q46</div><div class="audit-type">Mixed, Large Money Subtraction</div>
+        <div class="audit-equation">$5,000.00 − $2,346.85</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p46')">Show answer</button>
+        <div class="audit-answer" id="p46">
+          <div class="answer-row"><span class="estimate-badge">E: ~$2,650</span><span class="actual-badge">A: $2,653.15</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>5</td><td>,</td><td>0</td><td>0</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>$</td><td>2</td><td>,</td><td>3</td><td>4</td><td>6</td><td>.</td><td>8</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>2</td><td>,</td><td>6</td><td>5</td><td>3</td><td>.</td><td>1</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q1">
+        <div class="audit-num">Q47</div><div class="audit-type">Challenge, 5 numbers</div>
+        <div class="audit-equation">1,204 + 36,050 + 8,400 + 125 + 3,016</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p47')">Show answer</button>
+        <div class="audit-answer" id="p47">
+          <div class="answer-row"><span class="estimate-badge">E: ~49,000</span><span class="actual-badge">A: 48,795</span></div>
+          <table class="pa"><tr><td class="op"></td><td></td><td>1</td><td>,</td><td>2</td><td>0</td><td>4</td></tr><tr><td class="op"></td><td>3</td><td>6</td><td>,</td><td>0</td><td>5</td><td>0</td></tr><tr><td class="op"></td><td></td><td>8</td><td>,</td><td>4</td><td>0</td><td>0</td></tr><tr><td class="op"></td><td></td><td></td><td></td><td>1</td><td>2</td><td>5</td></tr><tr><td class="op">+</td><td></td><td>3</td><td>,</td><td>0</td><td>1</td><td>6</td></tr><tr class="ans"><td class="op"></td><td>4</td><td>8</td><td>,</td><td>7</td><td>9</td><td>5</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q2">
+        <div class="audit-num">Q48</div><div class="audit-type">Challenge, Millions Subtraction</div>
+        <div class="audit-equation">10,000,000 − 4,382,756</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p48')">Show answer</button>
+        <div class="audit-answer" id="p48">
+          <div class="answer-row"><span class="estimate-badge">E: ~5.6 million</span><span class="actual-badge">A: 5,617,244</span></div>
+          <table class="pa"><tr><td class="op"></td><td>1</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>4</td><td>,</td><td>3</td><td>8</td><td>2</td><td>,</td><td>7</td><td>5</td><td>6</td></tr><tr class="ans"><td class="op"></td><td></td><td>5</td><td>,</td><td>6</td><td>1</td><td>7</td><td>,</td><td>2</td><td>4</td><td>4</td></tr></table>
+        </div>
+      </div>
+
+      <div class="audit-card q3">
+        <div class="audit-num">Q49</div><div class="audit-type">Challenge, Money &amp; Mixed Lengths</div>
+        <div class="audit-equation">$10,450.5 + $3,204 + $87.75</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p49')">Show answer</button>
+        <div class="audit-answer" id="p49">
+          <div class="answer-row"><span class="estimate-badge">E: ~$13,742</span><span class="actual-badge">A: $13,742.25</span></div>
+          <table class="pa"><tr><td class="op"></td><td>$</td><td>1</td><td>0</td><td>,</td><td>4</td><td>5</td><td>0</td><td>.</td><td>5</td><td class="ph">0</td></tr><tr><td class="op"></td><td>$</td><td></td><td>3</td><td>,</td><td>2</td><td>0</td><td>4</td><td>.</td><td class="ph">0</td><td class="ph">0</td></tr><tr><td class="op">+</td><td>$</td><td></td><td></td><td></td><td></td><td>8</td><td>7</td><td>.</td><td>7</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>$</td><td>1</td><td>3</td><td>,</td><td>7</td><td>4</td><td>2</td><td>.</td><td>2</td><td>5</td></tr></table>
+          <div class="anno" style="margin-top:4px;">Placeholder zeros added to $10,450.5 and $3,204</div>
+        </div>
+      </div>
+
+      <div class="audit-card q4">
+        <div class="audit-num">Q50</div><div class="audit-type">Challenge, Full Range Mix</div>
+        <div class="audit-equation">2,045,300 + 384,750 − 126,480</div>
+        <div class="audit-hint"><span class="hint-label">Two steps</span>Add first, then subtract from your total.</div>
+        <button class="audit-toggle" onclick="toggleAudit(this,'p50')">Show answer</button>
+        <div class="audit-answer" id="p50">
+          <div class="answer-row"><span class="estimate-badge">E: ~2.3 million</span><span class="actual-badge">A: 2,303,570</span></div>
+          <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Step 1: Add</div>
+          <table class="pa"><tr><td class="op"></td><td>2</td><td>,</td><td>0</td><td>4</td><td>5</td><td>,</td><td>3</td><td>0</td><td>0</td></tr><tr><td class="op">+</td><td></td><td></td><td>3</td><td>8</td><td>4</td><td>,</td><td>7</td><td>5</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>2</td><td>,</td><td>4</td><td>3</td><td>0</td><td>,</td><td>0</td><td>5</td><td>0</td></tr></table>
+          <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:12px 0 4px;">Step 2: Subtract</div>
+          <table class="pa"><tr><td class="op"></td><td>2</td><td>,</td><td>4</td><td>3</td><td>0</td><td>,</td><td>0</td><td>5</td><td>0</td></tr><tr><td class="op">−</td><td></td><td></td><td>1</td><td>2</td><td>6</td><td>,</td><td>4</td><td>8</td><td>0</td></tr><tr class="ans"><td class="op"></td><td>2</td><td>,</td><td>3</td><td>0</td><td>3</td><td>,</td><td>5</td><td>7</td><td>0</td></tr></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ WORDED PROBLEMS ══ -->
+  <div class="card" style="margin-top: 40px; border-left: 8px solid var(--purple);">
+    <h2 style="color: var(--purple); display: flex; align-items: center; gap: 10px;">
+      <span>🚀</span> Worded Problem Mission: The Radar Extension
+    </h2>
+    <p><strong>Instructions:</strong> For every problem below, you must write your <em>Radar Estimate</em> before you calculate the exact answer. Watch out for "Hidden Steps" and "Distractor Numbers"!</p>
+
+    <!-- EXEMPLAR -->
+    <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%); border: 2px solid var(--blue); border-radius: 15px; padding: 24px 28px; margin: 20px 0 28px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+        <span style="background: var(--blue); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border-radius: 20px; padding: 4px 14px;">Exemplar</span>
+        <span style="font-size: 15px; font-weight: 600; color: var(--blue);">This is what your work should look like in your book</span>
+      </div>
+
+      <p style="font-size: 16px; line-height: 1.7; margin-bottom: 16px; background: #fff; padding: 14px 18px; border-radius: 10px; border-left: 4px solid var(--blue);"><strong>The Cake Stall:</strong> A school raised $2,450 at the cake stall and $1,375 at the sausage sizzle. How much did they raise altogether?</p>
+
+      <div class="exemplar-grid">
+
+        <!-- LEFT: Bar model + Estimate -->
+        <div>
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;">Step 1, Bar Model</div>
+          <div style="background: #fff; border-radius: 10px; padding: 16px; border: 1px solid var(--border);">
+            <!-- Whole bar -->
+            <div style="text-align: center; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 4px;">Total raised = ?</div>
+            <div style="display: flex; border-radius: 8px; overflow: hidden; border: 2px solid var(--text); height: 44px;">
+              <div style="flex: 2450; background: linear-gradient(135deg, #b3d9ff, #3a7bd5); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; font-family: 'Space Mono', monospace;">$2,450</div>
+              <div style="flex: 1375; background: linear-gradient(135deg, #AD1DEB, #6E3AFF); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; font-family: 'Space Mono', monospace;">$1,375</div>
+            </div>
+            <div style="display: flex; margin-top: 4px;">
+              <div style="flex: 2450; text-align: center; font-size: 11px; color: var(--muted); font-weight: 600;">Cake stall</div>
+              <div style="flex: 1375; text-align: center; font-size: 11px; color: var(--muted); font-weight: 600;">Sausage sizzle</div>
+            </div>
+          </div>
+
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin: 16px 0 8px;">Step 2, Radar Estimate</div>
+          <div style="background: #fff; border-radius: 10px; padding: 14px; border: 1px solid var(--border); font-size: 15px; line-height: 1.8;">
+            <div>$2,450 → rounds to <span class="estimate-badge">$2,500</span></div>
+            <div>$1,375 → rounds to <span class="estimate-badge">$1,400</span></div>
+            <div style="margin-top: 6px; font-weight: 700;">$2,500 + $1,400 = <span class="estimate-badge" style="font-size: 16px;">~$3,900</span></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Algorithm -->
+        <div>
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;">Step 3, Calculate (Algorithm)</div>
+          <div style="background: #fff; border-radius: 10px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: flex-start;">
+            <table class="pa" style="font-size: 20px;">
+              <tr><td class="op"></td><td>$</td><td>2</td><td>,</td><td>4</td><td>5</td><td>0</td></tr>
+              <tr><td class="op">+</td><td>$</td><td>1</td><td>,</td><td>3</td><td>7</td><td>5</td></tr>
+              <tr class="ans"><td class="op"></td><td>$</td><td>3</td><td>,</td><td>8</td><td>2</td><td>5</td></tr>
+            </table>
+          </div>
+
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin: 16px 0 8px;">Step 4, Radar Check</div>
+          <div style="background: #e8f8f6; border-radius: 10px; padding: 14px; border: 1px solid var(--teal); font-size: 15px; line-height: 1.7;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span class="estimate-badge">E: ~$3,900</span>
+              <span class="actual-badge">A: $3,825</span>
+            </div>
+            <div style="margin-top: 8px; font-weight: 600; color: var(--teal-dark);">✓ $3,825 is close to my estimate of $3,900, my answer makes sense!</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="background: #fff; border-radius: 8px; padding: 10px 14px; margin-top: 12px; font-size: 13px; color: var(--muted); line-height: 1.6; border: 1px dashed var(--blue);">
+        <strong style="color: var(--blue);">Every question:</strong> &nbsp;Bar model → Estimate → Algorithm → Radar check. If your answer is far from your estimate, check your working!
+      </div>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+      <h3 style="color: var(--blue);">Level 1: The Foundation (Whole Numbers)</h3>
+      <ol start="1" class="audit-list">
+        <li><strong>The Stadium:</strong> A stadium holds 45,000 people. If 28,150 fans are already seated, how many more can enter?</li>
+        <li><strong>The Library:</strong> A library received 1,245 books on Monday and 892 books on Tuesday. What is the total?</li>
+        <li><strong>The Marathon:</strong> A runner has finished 14,500m of a 42,195m race. How many metres are left?</li>
+        <li><strong>The Population:</strong> Town A has 12,430 people. Town B has 9,105 people. What is the combined population?</li>
+        <li><strong>The Supplies:</strong> A school has 5,000 pencils. They give 1,245 to Year 5 and 1,110 to Year 6. How many are left?</li>
+      </ol>
+      <button class="audit-toggle" onclick="toggleAudit(this,'worded-ans-1')" style="margin-top: 12px;">Show answers</button>
+      <div id="worded-ans-1" class="audit-answer" style="background: #2D3436; color: white; padding: 16px 20px; border-radius: 10px; margin-top: 12px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
+          <div>1. 16,850</div><div>2. 2,137</div><div>3. 27,695</div><div>4. 21,535</div><div>5. 2,645</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: #fffdf0; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--amber);">
+      <h3 style="color: var(--orange);">Level 2: The Decimal Specialist (Money &amp; Measure)</h3>
+      <ol start="6" class="audit-list">
+        <li><strong>The Shop:</strong> You buy bread ($4.50), milk ($3.25), and apples ($8.20). What is the total cost?</li>
+        <li><strong>The Bank:</strong> You have $156.75. You spend $23.32 on a game. What is your new balance?</li>
+        <li><strong>The Carpenter:</strong> A 18.4m timber beam has 3.25m cut off. How much timber remains?</li>
+        <li><strong>The Rainfall:</strong> January had 15.2mm of rain. February had 4.85mm. What was the total?</li>
+        <li><strong>The Fuel:</strong> A tank holds 65.5L. If it has 12.75L now, how much more is needed to fill it?</li>
+      </ol>
+      <button class="audit-toggle" onclick="toggleAudit(this,'worded-ans-2')" style="margin-top: 12px;">Show answers</button>
+      <div id="worded-ans-2" class="audit-answer" style="background: #2D3436; color: white; padding: 16px 20px; border-radius: 10px; margin-top: 12px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
+          <div>6. $15.95</div><div>7. $133.43</div><div>8. 15.15m</div><div>9. 20.05mm</div><div>10. 52.75L</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: #fff0f5; padding: 20px; border-radius: 15px; border: 1px solid var(--pink);">
+      <h3 style="color: var(--purple);">Level 3: The Strategy Master (Multi-Step)</h3>
+      <ol start="11" class="audit-list">
+        <li><strong>The Return Trip:</strong> Alex (age 12) rides 4km to a friend's, then 12km to the beach. He then rides home the same way. Total distance?</li>
+        <li><strong>The Fete:</strong> Budget is $1,500. Hire a castle for $455.50 and buy 3 boxes of paint at $34.75 each. Remaining budget?</li>
+        <li><strong>The Relay:</strong> Lap times: 14.5s, 13.2s, and 15.05s. What was the total relay time?</li>
+        <li><strong>The Tree:</strong> A tree was 4.550m tall. It grew 0.275m in summer and 0.115m in spring. Current height?</li>
+        <li><strong>The Savings:</strong> A bike costs $899. Marco has $450.50 and gets $120 for his birthday. How much more does he need?</li>
+      </ol>
+      <button class="audit-toggle" onclick="toggleAudit(this,'worded-ans-3')" style="margin-top: 12px;">Show answers</button>
+      <div id="worded-ans-3" class="audit-answer" style="background: #2D3436; color: white; padding: 16px 20px; border-radius: 10px; margin-top: 12px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
+          <div>11. 32km</div><div>12. $940.25</div><div>13. 42.75s</div><div>14. 4.940m</div><div>15. $328.50</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GO DEEPER EXTENSION ══ -->
+  <div class="go-deeper-section" style="margin-top: 50px;">
+    <div class="go-deeper-toggle" onclick="toggleGoDeeper(this)">
+      <h3>Go Deeper: Mastering Error Detection</h3>
+      <span class="toggle-arrow">▼</span>
+    </div>
+    <div class="go-deeper-content">
+      <div class="go-deeper-card">
+        <p>You have mastered the Radar Estimate technique. Now push your thinking further. Analyse real mistakes, test your conjectures, and create your own problem situations.</p>
+
+        <!-- TASK 1: Specialising (Error Analysis) -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 1 · Specialising</div>
+          <div class="ext-task-prompt">Find the Hidden Error</div>
+          <div class="ext-task-sub">Analyse a student's working and identify the exact mistake.</div>
+
+          <p style="font-family: 'Fredoka', sans-serif; margin-bottom: 1rem; color: #2D3436;">A student calculated <span class="ext-numbers">4,328 + 2,756</span> and got this answer:</p>
+
+          <table class="pa" style="font-size: 18px; margin-bottom: 1.2rem;">
+            <tr><td class="op"></td><td>4</td><td>,</td><td>3</td><td>2</td><td>8</td></tr>
+            <tr><td class="op">+</td><td>2</td><td>,</td><td>7</td><td>5</td><td>6</td></tr>
+            <tr class="ans"><td class="op"></td><td>6</td><td>,</td><td>0</td><td>7</td><td>4</td></tr>
+          </table>
+
+          <p style="font-family: 'Fredoka', sans-serif; margin-bottom: 1rem; color: #2D3436;"><strong>First: use your Radar Estimate.</strong> Round <span class="ext-numbers">4,300 + 2,800 = <span style="background: #fffbf0; padding: 2px 6px; border-radius: 4px;">7,100</span></span>. The answer should be close to 7,100.</p>
+
+          <p style="font-family: 'Fredoka', sans-serif; margin-bottom: 1.5rem; color: #636E72;">But <span class="ext-numbers">6,074</span> is too small. Something is wrong. Can you trace through the column addition and find exactly where the student made the error? What did they forget to do?</p>
+
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+          <button class="ext-reveal-btn" onclick="toggleReveal(this, 'task1-response')">Show model response</button>
+          <div class="ext-model-response" id="task1-response">
+            <div class="model-label">Analysis</div>
+            <p>Let me trace through the column addition:</p>
+            <p><strong>Units:</strong> <span class="ext-numbers">8 + 6 = 14</span>. Write 4, carry 1. ✓</p>
+            <p><strong>Tens:</strong> <span class="ext-numbers">2 + 5 + 1(carry) = 8</span>. But wait, the student wrote 7, not 8! They got <span class="ext-numbers">2 + 5 = 7</span> and forgot to add the carry.</p>
+            <p><strong>Hundreds:</strong> <span class="ext-numbers">3 + 7 = 10</span>. Write 0, carry 1. ✓</p>
+            <p><strong>Thousands:</strong> <span class="ext-numbers">4 + 2 + 1(carry) = 7</span>. But the student wrote 6! They got <span class="ext-numbers">4 + 2 = 6</span> and didn't add the carry from the hundreds.</p>
+            <p>The correct answer is <span class="ext-numbers">7,084</span>.</p>
+            <div class="mathematician-box">
+              <strong>The error:</strong> The student forgot to carry from the <strong>tens</strong> column. This mistake cascaded, missing the carry to hundreds meant the next column was also wrong. Always check: did I carry? Did I add the carry to the next column?
+            </div>
+          </div>
+        </div>
+
+        <!-- TASK 2: Conjecturing (Always/Sometimes/Never) -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 2 · Conjecturing</div>
+          <div class="ext-task-prompt">Always, Sometimes, or Never?</div>
+          <div class="ext-task-sub">Test a mathematical claim about estimation.</div>
+
+          <p style="font-family: 'Fredoka', sans-serif; margin-bottom: 1.5rem; color: #2D3436;"><strong>Claim:</strong> "If your estimate is close to your actual answer, the calculation must be correct."</p>
+
+          <p style="font-family: 'Fredoka', sans-serif; margin-bottom: 0.5rem; color: #2D3436;">Is this Always true, Sometimes true, or Never true?</p>
+
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+          <button class="ext-reveal-btn" onclick="toggleReveal(this, 'task2-response')">Show model response</button>
+          <div class="ext-model-response" id="task2-response">
+            <div class="model-label">Answer: SOMETIMES</div>
+            <p>An estimate being close to your actual answer is a good sign, but it's not proof of correctness.</p>
+            <p><strong>Counter-example 1:</strong> <span class="ext-numbers">456 + 344</span>. Estimate: <span class="ext-numbers">500 + 300 = 800</span>. Actual: <span class="ext-numbers">800</span>. The estimate matches perfectly! But that's lucky, it doesn't mean all our calculations are correct.</p>
+            <p><strong>Counter-example 2:</strong> A student calculates <span class="ext-numbers">456 + 344 = 790</span> (wrong!). But their estimate is <span class="ext-numbers">500 + 300 = 800</span>. They might think "close enough, must be right", but they made an error.</p>
+            <p><strong>When it works:</strong> A close estimate is a useful check. If your estimate is far from your answer, you should recheck. But being close isn't a guarantee, you still need to verify the calculation itself.</p>
+            <div class="mathematician-box">
+              <strong>Key insight:</strong> The Radar Estimate is a sanity check, not a proof. Use it to spot suspicious answers. If they're far apart, something is probably wrong. But even if they're close, always double-check your carrying and place values!
+            </div>
+          </div>
+        </div>
+
+        <!-- TASK 3: Justifying (Reverse Question) -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 3 · Justifying</div>
+          <div class="ext-task-prompt">Create Your Own Error Scenario</div>
+          <div class="ext-task-sub">Design problems where a specific mistake produces an exact result.</div>
+
+          <p style="font-family: 'Fredoka', sans-serif; margin-bottom: 1.5rem; color: #2D3436;">Write an addition of two 3-digit numbers where a student who <strong>forgets to carry from the tens column</strong> would get an answer that is exactly <span class="ext-numbers">100</span> less than the correct answer. Find three different examples.</p>
+
+          <p style="font-family: 'Fredoka', sans-serif; margin-bottom: 1rem; color: #636E72; font-style: italic;">Hint: Think about what must be true of the tens digits for a carry to happen. When the tens add up to 10 or more, a carry goes to the hundreds. If that carry is forgotten, the hundreds digit will be 1 too small, that's 100 less in value.</p>
+
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+          <button class="ext-reveal-btn" onclick="toggleReveal(this, 'task3-response')">Show model response</button>
+          <div class="ext-model-response" id="task3-response">
+            <div class="model-label">Three examples</div>
+            <p><strong>Example 1:</strong> <span class="ext-numbers">156 + 283 = 439</span> (correct). Tens: <span class="ext-numbers">5 + 8 = 13</span>, so carry 1. Without carry: <span class="ext-numbers">1__ + 2__ = 3__</span> instead of <span class="ext-numbers">4__</span>. Student gets <span class="ext-numbers">339</span>. Difference: <span class="ext-numbers">439 - 339 = 100</span>. ✓</p>
+            <p><strong>Example 2:</strong> <span class="ext-numbers">275 + 164 = 439</span> (correct). Tens: <span class="ext-numbers">7 + 6 = 13</span>, so carry 1. Without carry, student gets <span class="ext-numbers">339</span>. Difference: <span class="ext-numbers">100</span>. ✓</p>
+            <p><strong>Example 3:</strong> <span class="ext-numbers">347 + 291 = 638</span> (correct). Tens: <span class="ext-numbers">4 + 9 = 13</span>, so carry 1. Without carry, student gets <span class="ext-numbers">538</span>. Difference: <span class="ext-numbers">638 - 538 = 100</span>. ✓</p>
+            <div class="mathematician-box">
+              <strong>The pattern:</strong> For a difference of exactly 100, the tens digits must add to at least 10 (so a carry is generated and "lost"). Can you find more examples? Try starting with numbers where the tens add to 10, 11, 12, etc.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleReveal(btn, id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('visible');
+  }
+
+  function revealAll(ids) {
+    ids.forEach(id => {
+      document.getElementById(id).classList.add('shown');
+    });
+  }
+
+  function toggleBtn(btn) {
+    btn.classList.toggle('green');
+    const id = btn.getAttribute('onclick').match(/'([^']+)'/g);
+    // handled by toggleReveal
+  }
+
+  function toggleAudit(btn, id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('shown');
+    btn.classList.toggle('shown');
+    btn.textContent = el.classList.contains('shown') ? 'Hide answer' : 'Show answer';
+  }
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+
+  function toggleGoDeeper(toggle) {
+    const content = toggle.nextElementSibling;
+    toggle.classList.toggle('open');
+    content.classList.toggle('open');
+  }
+</script>
+</body>
+</html>

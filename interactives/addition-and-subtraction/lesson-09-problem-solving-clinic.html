@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 9: Differentiated Problem Solving Clinic</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --pink: #FF67E7;
+    --purple: #AD1DEB;
+    --blue: #3a7bd5;
+    --blue-dark: #2c5ea8;
+    --green: #2ecc71;
+    --green-dark: #1a8a4a;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: #2D3436;
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--teal); text-transform: uppercase; margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 640px; font-weight: 500; }
+  .header-icon {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.10;
+  }
+
+  .phase-nav {
+    display: flex; gap: 10px; padding: 18px 48px;
+    background: #3d4347; flex-wrap: wrap;
+  }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 8px 20px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-heading {
+    font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; color: var(--text);
+  }
+
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 16px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 20px; }
+  .card ul li { margin-bottom: 8px; }
+  .card ol { padding-left: 20px; }
+  .card ol li { margin-bottom: 8px; }
+
+  .collapse-header {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: #2D3436;
+    padding: 16px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .collapse-header:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.18); transform: translateY(-2px); }
+  .collapse-header.blue { background: linear-gradient(135deg, #b3d9ff, #3a7bd5); color: #fff; }
+  .collapse-header.teal { background: linear-gradient(135deg, #a7f3d0, #38b2aa); color: #2D3436; }
+  .collapse-icon { font-size: 24px; transition: transform 0.3s; }
+  .collapse-header.expanded .collapse-icon { transform: rotate(180deg); }
+  .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .collapse-content.expanded { max-height: 5000px; }
+
+  .callout { border-radius: 12px; padding: 18px 22px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout p { font-size: 16px; line-height: 1.6; font-weight: 400; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; }
+  .callout-red { background: #fff4f4; border-left: 5px solid var(--red); }
+  .callout-red .label { color: #c0392b; }
+  .callout-red p { color: #5c1a1a; }
+
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.green { background: var(--teal); color: var(--text); }
+  .reveal-btn.green:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.amber { background: var(--amber); color: var(--text); }
+  .reveal-btn.amber:hover { background: var(--amber-dark); color: #fff; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Tier banners */
+  .tier-banner {
+    border-radius: 16px;
+    padding: 20px 28px;
+    margin-bottom: 20px;
+    border: 2px solid transparent;
+  }
+  .tier-banner.t1 { background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%); border-color: var(--blue); }
+  .tier-banner.t2 { background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%); border-color: var(--amber-dark); }
+  .tier-banner.t3 { background: linear-gradient(135deg, #f5eeff 0%, #ede9fe 100%); border-color: var(--purple); }
+  .tier-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .t1 .tier-label { color: var(--blue-dark); }
+  .t2 .tier-label { color: #92400e; }
+  .t3 .tier-label { color: var(--purple); }
+  .tier-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .t1 .tier-title { color: var(--blue-dark); }
+  .t2 .tier-title { color: #78350f; }
+  .t3 .tier-title { color: var(--purple); }
+  .tier-desc { font-size: 15px; line-height: 1.6; }
+  .t1 .tier-desc { color: #1e3a6e; }
+  .t2 .tier-desc { color: #78350f; }
+  .t3 .tier-desc { color: #4c1d95; }
+
+  /* Teacher action badge */
+  .teacher-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fef9c3;
+    border: 2px solid var(--amber-dark);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #78350f;
+    margin: 10px 0 4px;
+  }
+
+  /* Extraneous info highlight */
+  .useful { background: #ccfbf1; border-bottom: 2px solid var(--teal-dark); padding: 0 3px; border-radius: 3px; font-weight: 700; }
+  .useless { background: #fee2e2; border-bottom: 2px solid var(--red); padding: 0 3px; border-radius: 3px; font-weight: 700; color: #991b1b; text-decoration: line-through; }
+
+  /* Practice cards */
+  .practice-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .practice-num {
+    font-size: 12px; font-weight: 700; color: var(--teal-dark);
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .practice-problem {
+    font-size: 15px; line-height: 1.7; color: var(--text);
+    margin: 12px 0; padding: 14px 16px;
+    background: #f8f9fa; border-radius: 8px;
+  }
+  .practice-buttons { display: flex; gap: 8px; margin-top: 14px; }
+  .hint-btn, .answer-btn {
+    flex: 1; border: none; border-radius: 8px; padding: 10px 16px;
+    font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    background: var(--amber); color: var(--text);
+  }
+  .hint-btn:hover { background: var(--amber-dark); }
+  .answer-btn { background: var(--teal); }
+  .answer-btn:hover { background: var(--teal-dark); }
+  .practice-hint, .practice-answer {
+    margin-top: 12px; padding: 14px 18px; border-radius: 8px;
+    font-size: 14px; line-height: 1.6; display: none;
+  }
+  .practice-hint { background: #fffbf0; border-left: 4px solid var(--amber); color: #665500; }
+  .practice-answer { background: #f0fafa; border-left: 4px solid var(--teal); }
+  .practice-hint.shown, .practice-answer.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Missing digit puzzle */
+  .algo-table {
+    font-family: 'Space Mono', monospace; font-size: 26px;
+    border-collapse: collapse; margin: 8px auto;
+  }
+  .algo-table td {
+    padding: 2px 4px; text-align: center;
+    min-width: 28px; line-height: 1.7; color: var(--text);
+  }
+  .algo-table td.op { text-align: left; min-width: 18px; color: var(--muted); font-size: 22px; }
+  .algo-table .algo-line td { border-top: 2.5px solid var(--text); }
+  .algo-table td.blank {
+    background: #f5eeff; border: 2px solid var(--purple);
+    border-radius: 4px; color: var(--purple); font-weight: 700;
+  }
+
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--purple);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* Go Deeper Extension */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+    width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+    border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+    font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+    background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+    width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+    transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+    display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+    border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+    display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+    padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+    background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+    border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Targeted Consolidation</div>
+  <h1>Lesson 9: <span>Problem Solving Clinic</span></h1>
+  <p>Applying strategies independently and identifying extraneous information</p>
+  <div class="header-icon">🏥</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection('hook', this)">The Hook</button>
+  <button onclick="showSection('setup', this)">Clinic Setup</button>
+  <button onclick="showSection('clinic', this)">Clinic Problems</button>
+  <button onclick="showSection('plenary', this)">Plenary</button>
+</nav>
+
+<main>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to apply our chosen strategies independently while identifying extraneous (useless) information in word problems.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can ignore numbers in a word problem that do not help me solve it</li>
+            <li>I can work independently to solve problems using the most efficient strategy</li>
+            <li>I can justify why I chose a specific strategy for a specific problem</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ────────────── SECTION 1: THE HOOK ────────────── -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · The Hook, 5 mins</div>
+  <div class="section-heading">The Messy Problem</div>
+
+  <div class="card">
+    <h3>🎯 Solve this, all the information you need is here</h3>
+
+    <div style="background:#f8f9fa; border:3px solid var(--border); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:2.2; color:var(--text);">
+      John is <strong>12 years old</strong>. He has <strong>3 dogs</strong>. He goes to the shop with <strong>$20.00</strong> and buys a toy for <strong>$14.50</strong>. It takes him <strong>15 minutes</strong> to walk home.<br>
+      <strong>How much change does he have?</strong>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="reveal-btn amber" onclick="toggleReveal('messy-reveal')">▶ Reveal the answer, and the trick</button>
+    </div>
+
+    <div id="messy-reveal" class="step-reveal" style="margin-top:20px;">
+      <div style="background:#f8f9fa; border:3px solid var(--border); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:2.2; color:var(--text);">
+        John is <span class="useless">12 years old</span>. He has <span class="useless">3 dogs</span>. He goes to the shop with <span class="useful">$20.00</span> and buys a toy for <span class="useful">$14.50</span>. It takes him <span class="useless">15 minutes</span> to walk home.<br>
+        <strong>How much change does he have?</strong>
+      </div>
+
+      <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:16px;">
+        <div style="flex:1; min-width:220px; background:#ccfbf1; border:2px solid var(--teal); border-radius:12px; padding:16px 20px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--teal-dark); margin-bottom:6px;">✅ Useful numbers</div>
+          <div style="font-family:'Space Mono',monospace; font-size:18px; font-weight:700;">$20.00 and $14.50</div>
+          <div style="font-size:14px; color:#0a3832; margin-top:6px;">These are needed to find the change.</div>
+        </div>
+        <div style="flex:1; min-width:220px; background:#fee2e2; border:2px solid var(--red); border-radius:12px; padding:16px 20px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#c0392b; margin-bottom:6px;">❌ Extraneous information</div>
+          <div style="font-family:'Space Mono',monospace; font-size:18px; font-weight:700;">12, 3, 15</div>
+          <div style="font-size:14px; color:#5c1a1a; margin-top:6px;">Put there purely to distract.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-teal" style="margin-top:16px;">
+        <span class="label">✅ Answer</span>
+        <p style="font-family:'Space Mono',monospace; font-size:18px;">$20.00 − $14.50 = <strong>$5.50 change</strong></p>
+      </div>
+
+      <div class="callout callout-amber">
+        <span class="label">📚 The Term</span>
+        <p>Numbers in a word problem that do not help you solve it are called <strong>Extraneous Information</strong>. Real-world problems and test questions often include them. Your job is to identify them and cross them out before you calculate.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapse-header blue" onclick="toggleCollapse('teacher-hook')">
+    <span>📋 Teacher Notes, Running the Hook</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="teacher-hook" class="collapse-content">
+    <div class="card">
+      <ul>
+        <li style="margin-bottom:10px;">After students answer $5.50, ask: <em>"Did you use all five numbers in the problem?"</em> Most will say no. Ask: <em>"Why were those extra numbers there?"</em></li>
+        <li style="margin-bottom:10px;">Explicitly introduce the term <strong>extraneous information</strong>. Write it on the board. Ask: <em>"What does extraneous mean?"</em> (Irrelevant. Not needed. A distraction.)</li>
+        <li>Emphasise: from now on, their first job when reading a word problem is to ask, <em>"Does this number actually help me answer the question?"</em></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 2: CLINIC SETUP ────────────── -->
+<div id="setup" class="section">
+  <div class="section-title">Phase 2 · Clinic Setup (I Do), 10 mins</div>
+  <div class="section-heading">How the Clinic works</div>
+
+  <div class="card">
+    <h3>🏥 What is a Problem Solving Clinic?</h3>
+    <p style="margin-bottom:16px;">Today the class runs as three simultaneous streams. You will work on the problem set that is right for where you are. The teacher will run short, focused workshops at the front for students who need extra support.</p>
+
+    <div class="tier-banner t1" style="margin-top:20px;">
+      <div class="tier-label">Tier 1</div>
+      <div class="tier-title">🔵 Whole Number Mastery</div>
+      <div class="tier-desc">2-step word problems using whole numbers, populations, shopping scenarios, distances. Focus: clean algorithm work with trading across zeros.</div>
+      <div class="teacher-action">🎯 Teacher Action: Pull this group to the floor. Use MAB blocks for a final explicit reteach of the formal subtraction algorithm involving trading.</div>
+    </div>
+
+    <div class="tier-banner t2">
+      <div class="tier-label">Tier 2</div>
+      <div class="tier-title">🟡 Proficient Decimals</div>
+      <div class="tier-desc">Bank account-style problems using decimals to 2 places. Deposits, withdrawals, and running balances. Focus: decimal point alignment in the written algorithm.</div>
+      <div class="teacher-action">🎯 Teacher Action: Check in with this group to ensure decimal points are perfectly aligned.</div>
+    </div>
+
+    <div class="tier-banner t3">
+      <div class="tier-label">Tier 3</div>
+      <div class="tier-title">🟣 Extension</div>
+      <div class="tier-desc">Missing Digit puzzles and 3-step decimal problems. Use inverse operations to reason backwards and find unknown digits in a completed algorithm.</div>
+      <div class="teacher-action">🎯 Teacher Action: Monitor and challenge, ask students to justify each missing digit using inverse reasoning.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📌 The Non-Negotiable Rule</h3>
+    <div class="callout callout-amber">
+      <span class="label">⚠️ For Every Single Question</span>
+      <p>Regardless of which tier you are on, the <strong>Radar for Error (Estimation)</strong> must be written down before you calculate. This is not optional. Every question. Every time.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 3: CLINIC PROBLEMS ────────────── -->
+<div id="clinic" class="section">
+  <div class="section-title">Phase 3 · Clinic Rotations (We Do / You Do), 40 mins</div>
+  <div class="section-heading">Work independently on your problem set</div>
+
+  <!-- TIER 1 -->
+  <div class="tier-banner t1">
+    <div class="tier-label">Tier 1, Whole Number Mastery</div>
+    <div class="tier-title">🔵 2-Step Whole Number Problems</div>
+    <div class="tier-desc">Work through these carefully. Show your Radar estimate before you calculate. Watch out for extraneous information.</div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 1 · Problem A</div>
+    <div class="practice-problem">
+      A school has 1,205 students. At the start of Term 3, 48 students enrol and 23 students leave to move to another school. The school has 14 classrooms. How many students are at the school at the end of enrolment?
+    </div>
+    <div style="font-size:13px; color:var(--muted); margin:8px 0; font-style:italic;">⚠️ Extraneous information is hidden in this problem.</div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1a')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1a')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t1a-hint">Extraneous: 14 classrooms (not needed). Useful: 1,205 students + 48 enrolled − 23 left. Estimate: 1,200 + 50 − 20 = 1,230.</div>
+    <div class="practice-answer" id="t1a-answer">
+      <strong>1,230 students.</strong><br>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">1,205 + 48 = 1,253<br>1,253 − 23 = 1,230</span>
+    </div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 1 · Problem B</div>
+    <div class="practice-problem">
+      A fruit shop starts the week with 2,400 kg of produce. On Monday they sell 347 kg. On Tuesday they receive a delivery of 580 kg. The shop has been open for 12 years. How much produce is in the shop after Tuesday's delivery?
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1b')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1b')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t1b-hint">Extraneous: 12 years. Two steps: subtract sales, then add the delivery. Estimate first!</div>
+    <div class="practice-answer" id="t1b-answer">
+      <strong>2,633 kg.</strong><br>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">2,400 − 347 = 2,053<br>2,053 + 580 = 2,633</span>
+    </div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 1 · Problem C</div>
+    <div class="practice-problem">
+      A council has a budget of $45,000 for road repairs. They spend $18,760 fixing potholes and $9,400 repainting lines. Road works take 6 days to complete. How much budget remains?
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1c')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1c')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t1c-hint">Extraneous: 6 days. Add both expenses first, then subtract from $45,000. Or subtract twice in sequence, same result!</div>
+    <div class="practice-answer" id="t1c-answer">
+      <strong>$16,840 remaining.</strong><br>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">18,760 + 9,400 = 28,160<br>45,000 − 28,160 = 16,840</span>
+    </div>
+  </div>
+
+  <!-- TIER 2 -->
+  <div class="tier-banner t2" style="margin-top:36px;">
+    <div class="tier-label">Tier 2, Proficient Decimals</div>
+    <div class="tier-title">🟡 Bank Account Problems</div>
+    <div class="tier-desc">Keep a running balance. Remember: decimal points must line up perfectly in your algorithm. Show your Radar estimate before each calculation.</div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 2 · Problem A</div>
+    <div class="practice-problem">
+      Maya's bank account has a balance of $450.75. She deposits $120.00. Then she withdraws $35.50 to pay for a birthday present. What is her final balance?
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2a')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2a')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t2a-hint">Two steps: add the deposit, then subtract the withdrawal. Line up the decimal points. Estimate: $450 + $120 − $35 ≈ $535.</div>
+    <div class="practice-answer" id="t2a-answer">
+      <strong>$535.25</strong><br>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">$450.75 + $120.00 = $570.75<br>$570.75 − $35.50 = $535.25</span>
+    </div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 2 · Problem B</div>
+    <div class="practice-problem">
+      Tom starts with $1,250.00 in his account. He deposits his pay of $487.50. He then pays three bills: electricity $142.80, internet $59.95, and phone $45.00. What is his balance after paying all three bills?
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2b')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2b')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t2b-hint">Add the pay first. Then add all three bills together (hidden step!) and subtract the total. Or subtract each bill in sequence.</div>
+    <div class="practice-answer" id="t2b-answer">
+      <strong>$1,489.75</strong><br>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">$1,250.00 + $487.50 = $1,737.50<br>$142.80 + $59.95 + $45.00 = $247.75<br>$1,737.50 − $247.75 = $1,489.75</span>
+    </div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 2 · Problem C ⭐</div>
+    <div class="practice-problem">
+      A school fundraising account has $3,045.60. The school runs two stalls and earns $284.50 and $196.75. They spend $512.40 on new library books. How much is left in the account?
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2c')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2c')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t2c-hint">Add both stall earnings to the starting amount, then subtract the book purchase. Three decimal numbers to add, line up those points!</div>
+    <div class="practice-answer" id="t2c-answer">
+      <strong>$3,014.45</strong><br>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">$284.50 + $196.75 = $481.25<br>$3,045.60 + $481.25 = $3,526.85<br>$3,526.85 − $512.40 = $3,014.45</span>
+    </div>
+  </div>
+
+  <!-- TIER 3 -->
+  <div class="tier-banner t3" style="margin-top:36px;">
+    <div class="tier-label">Tier 3, Extension</div>
+    <div class="tier-title">🟣 Missing Digit Puzzles</div>
+    <div class="tier-desc">Each algorithm below has missing digits replaced by a box. Use inverse operations and place value reasoning to find every missing digit. Show your thinking.</div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 3 · Puzzle A</div>
+    <div style="font-size:15px; line-height:1.7; color:var(--text); margin:14px 0;">
+      Find the missing digits. Each □ is a single digit (0–9).
+    </div>
+    <div style="text-align:center; margin:20px 0; overflow-x:auto;">
+      <table class="algo-table">
+        <tr>
+          <td></td><td>3</td><td class="blank">□</td><td>7</td><td>2</td>
+        </tr>
+        <tr>
+          <td class="op">+</td><td class="blank">□</td><td>4</td><td class="blank">□</td><td>9</td>
+        </tr>
+        <tr class="algo-line">
+          <td></td><td>8</td><td>1</td><td>4</td><td>1</td>
+        </tr>
+      </table>
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3a')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3a')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t3a-hint">Start from the ones column: 2 + 9 = 11, write 1 carry 1. Ones are already given. Work column by column from right to left.</div>
+    <div class="practice-answer" id="t3a-answer">
+      <strong>3<span style="color:var(--purple);">7</span>72 + <span style="color:var(--purple);">4</span>4<span style="color:var(--purple);">6</span>9 = 8141</strong>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;margin:0.75rem 0;font-size:13px; color:var(--teal-dark);">
+        <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+          <span style="font-weight:600;min-width:4rem;">Ones:</span>
+          <span style="font-family:'Space Mono',monospace;">2+9=11</span>
+          <span style="font-weight:700;color:var(--green);">→</span>
+          <span style="font-family:'Space Mono',monospace;background:#f0f7ff;border-radius:6px;padding:0.2rem 0.5rem;">1 carry 1</span>
+          <span style="font-weight:700;color:var(--green);">✓</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+          <span style="font-weight:600;min-width:4rem;">Tens:</span>
+          <span style="font-family:'Space Mono',monospace;">7+6+1=14</span>
+          <span style="font-weight:700;color:var(--green);">→</span>
+          <span style="font-family:'Space Mono',monospace;background:#f0f7ff;border-radius:6px;padding:0.2rem 0.5rem;">4 carry 1</span>
+          <span style="font-weight:700;color:var(--green);">✓</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+          <span style="font-weight:600;min-width:4rem;">Hundreds:</span>
+          <span style="font-family:'Space Mono',monospace;">7+4+1=12</span>
+          <span style="font-weight:700;color:var(--red);">→</span>
+          <span style="font-family:'Space Mono',monospace;background:#ffe8e8;border-radius:6px;padding:0.2rem 0.5rem;">2? No</span>
+          <span style="font-size:0.95em;">,  re-check column by column</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 3 · Puzzle B</div>
+    <div style="font-size:15px; line-height:1.7; color:var(--text); margin:14px 0;">
+      A subtraction problem with missing digits.
+    </div>
+    <div style="text-align:center; margin:20px 0; overflow-x:auto;">
+      <table class="algo-table">
+        <tr>
+          <td></td><td>6</td><td class="blank">□</td><td>3</td><td>0</td>
+        </tr>
+        <tr>
+          <td class="op">−</td><td>2</td><td>8</td><td class="blank">□</td><td>4</td>
+        </tr>
+        <tr class="algo-line">
+          <td></td><td class="blank">□</td><td>7</td><td>8</td><td>6</td>
+        </tr>
+      </table>
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3b')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3b')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t3b-hint">Start at ones: 0 − 4 needs trading. Work right to left. For the missing result digit, use addition as the inverse: result + subtracted number = original.</div>
+    <div class="practice-answer" id="t3b-answer">
+      <strong>6<span style="color:var(--purple);">5</span>30 − 28<span style="color:var(--purple);">4</span>4 = <span style="color:var(--purple);">3</span>786</strong><br>
+      <span style="font-size:13px; color:var(--teal-dark);">Check: 3786 + 2844 = 6630 ✓</span>
+    </div>
+  </div>
+
+  <div class="practice-card">
+    <div class="practice-num">Tier 3 · Problem C, 3-Step Decimals</div>
+    <div class="practice-problem">
+      A landscaper has a budget of $2,500.00. She buys 3 bags of soil at $24.75 each, a garden hose for $38.90, and 4 paving stones at $15.60 each. How much of her budget remains?
+    </div>
+    <div class="practice-buttons">
+      <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3c')">Need a hint?</button>
+      <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3c')">Show answer</button>
+    </div>
+    <div class="practice-hint" id="t3c-hint">Two hidden steps: 3 × $24.75 and 4 × $15.60. Find all individual totals first, add them together, then subtract from $2,500.</div>
+    <div class="practice-answer" id="t3c-answer">
+      <strong>$2,323.85 remaining.</strong><br>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">3 × $24.75 = $74.25<br>4 × $15.60 = $62.40<br>$74.25 + $38.90 + $62.40 = $175.55<br>$2,500.00 − $175.55 = $2,324.45</span><br>
+      <span style="font-size:12px; color:var(--muted);">Note: Check your own calculation carefully step by step!</span>
+    </div>
+  </div>
+
+  <!-- GO DEEPER EXTENSION -->
+  <div class="go-deeper-section" style="margin-top:48px;">
+    <button class="go-deeper-toggle" onclick="this.classList.toggle('open'); this.nextElementSibling.style.maxHeight = this.classList.contains('open') ? '5000px' : '0';">
+      <span>⭐ Go Deeper: Problem Design & Reasoning</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="go-deeper-content">
+      <div class="ext-task">
+        <div class="ext-task-label">Task 1: Specialising, Design a Problem</div>
+        <div class="ext-task-prompt">Write a word problem that contains exactly <span class="ext-numbers">2</span> pieces of extraneous information AND <span class="ext-numbers">1</span> hidden step. Your problem must have a final answer of <span class="ext-numbers">350</span>.</div>
+        <div class="ext-task-sub">Design the problem, do not just solve one. Show your working to prove your answer is correct.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Example Response</div>
+          <p>A baker made <span class="ext-numbers">500</span> cupcakes on Monday. The shop is open <span class="ext-numbers">6</span> days a week. She sold <span class="ext-numbers">85</span> in the morning and <span class="ext-numbers">65</span> in the afternoon. Her oven can hold <span class="ext-numbers">24</span> cupcakes at a time. How many cupcakes are left?</p>
+          <div class="mathematician-box">
+            <strong>Analysis:</strong><br>
+            Extraneous: "6 days a week" and "24 cupcakes at a time" (neither helps us find how many are left).<br><br>
+            Hidden step: Finding the total sold. We must calculate <span class="ext-numbers">85</span> + <span class="ext-numbers">65</span> = <span class="ext-numbers">150</span> before we can subtract from <span class="ext-numbers">500</span>.<br><br>
+            Solution: <span class="ext-numbers">500</span> − (<span class="ext-numbers">85</span> + <span class="ext-numbers">65</span>) = <span class="ext-numbers">500</span> − <span class="ext-numbers">150</span> = <span class="ext-numbers">350</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Task 2: Conjecturing, Test Your Reasoning</div>
+        <div class="ext-task-prompt">Extraneous information always makes a word problem harder to solve. Always, sometimes, or never?</div>
+        <div class="ext-task-sub">Choose your answer and explain your reasoning.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Analysis</div>
+          <p><strong>Answer: SOMETIMES.</strong></p>
+          <p>Extraneous information usually makes problems harder because students have to decide which numbers actually matter. But not always.</p>
+          <div class="mathematician-box">
+            <strong>Example 1 (Makes it harder):</strong><br>
+            In a money problem, if you mix the relevant amount (£35) with other money amounts (£20, £50), students easily confuse which numbers to use.<br><br>
+            <strong>Example 2 (Does not confuse):</strong><br>
+            "A girl aged 12 with green eyes bought a book for £5. How much is left from £10?" The colour of her eyes is obviously irrelevant and doesn't confuse anyone.<br><br>
+            <strong>Most confusing when:</strong> The extraneous information is the same type as the relevant numbers. For example, extra money amounts in a money problem, or extra distances in a journey problem, because students cannot easily spot which numbers matter.
+          </div>
+        </div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Task 3: Justifying, Compare Two Solutions</div>
+        <div class="ext-task-prompt">Two students solved the same problem. Their answers match. But are both methods equally correct?</div>
+        <div class="ext-task-sub">Problem: A school raised £<span class="ext-numbers">1,250</span> from a cake sale and £<span class="ext-numbers">830</span> from a raffle. They spent £<span class="ext-numbers">475</span> on new books. How much money is left?</div>
+
+        <div style="background:#fff; border:2px solid #e0e0e0; border-radius:12px; padding:1.2rem; margin:1.2rem 0;">
+          <div style="font-weight:600; color:#2D3436; margin-bottom:0.75rem; font-size:0.95rem;">Student A's Method:</div>
+          <div style="font-family:'Space Mono',monospace; font-size:0.95rem; color:#636E72; background:#f8f9fa; padding:0.75rem; border-radius:8px; margin-bottom:1rem;">
+            £1,250 − £475 = £775<br>
+            £775 + £830 = £1,605
+          </div>
+          <div style="font-weight:600; color:#2D3436; margin-bottom:0.75rem; font-size:0.95rem;">Student B's Method:</div>
+          <div style="font-family:'Space Mono',monospace; font-size:0.95rem; color:#636E72; background:#f8f9fa; padding:0.75rem; border-radius:8px; margin-bottom:1rem;">
+            £1,250 + £830 = £2,080<br>
+            £2,080 − £475 = £1,605
+          </div>
+          <div style="color:#4ECDC4; font-weight:600; font-size:0.95rem;">Both got £1,605.</div>
+        </div>
+
+        <div style="border-left:4px solid #FF8400; background:#fffbf0; border-radius:0 10px 10px 0; padding:1rem 1.2rem; margin:1.2rem 0;">
+          <div style="font-weight:600; color:#665500; margin-bottom:0.5rem;">Your question:</div>
+          <p style="color:#665500; font-size:0.95rem;">Which approach would you recommend to a younger student, and why?</p>
+        </div>
+
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Analysis</div>
+          <p><strong>Both are mathematically correct. But Student B's method is better.</strong></p>
+          <div class="mathematician-box">
+            <strong>Why Student B's approach is stronger:</strong><br>
+            Student B finds the total money first (£<span class="ext-numbers">1,250</span> + £<span class="ext-numbers">830</span> = £<span class="ext-numbers">2,080</span>), then subtracts what was spent. This mirrors the bar model perfectly and matches the language of the problem: "they raised... and raised... then spent".<br><br>
+            <strong>Why Student A's method works but has a hidden risk:</strong><br>
+            Student A subtracts first from one amount, then adds. This works here, but imagine a problem with 5 money amounts instead of 2. Student A would have to remember which amounts were already included, which creates confusion and room for error.<br><br>
+            <strong>What to teach younger students:</strong><br>
+            "Find your total first, then subtract what goes out." This scales better, works for all problems, and is easier to check using a bar model.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapse-header teal" onclick="toggleCollapse('teacher-clinic')">
+    <span>📋 Teacher Notes, Clinic Management</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="teacher-clinic" class="collapse-content">
+    <div class="card">
+      <p style="margin-bottom:14px;"><strong>Timing guide for the 40-minute block:</strong></p>
+      <ul>
+        <li style="margin-bottom:10px;"><strong>Minutes 0–10:</strong> Tier 1 group to the floor with MAB blocks. Reteach formal subtraction algorithm with trading, use a concrete example like 4,003 − 1,567. Have students build the number with MABs and physically trade the blocks.</li>
+        <li style="margin-bottom:10px;"><strong>Minutes 10–20:</strong> Return Tier 1 to independent work. Move to Tier 2 and check their written algorithms. Look specifically for misaligned decimal points. Correct these immediately and privately.</li>
+        <li style="margin-bottom:10px;"><strong>Minutes 20–35:</strong> Circulate across all three groups. Tier 3 students should be attempting the missing digit puzzles by working column by column, right to left.</li>
+        <li><strong>Minutes 35–40:</strong> Signal wrap-up. Ask one student from each tier to hold up their best piece of working. Prepare the Tier 2 bank account problem for the plenary.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 4: PLENARY ────────────── -->
+<div id="plenary" class="section">
+  <div class="section-title">Phase 4 · Plenary (Wrap Up), 5 mins</div>
+  <div class="section-heading">Mental, written, or calculator, which is most efficient?</div>
+
+  <div class="card">
+    <h3>💬 Whole-Class Discussion</h3>
+    <p style="font-size:16px; line-height:1.7; margin-bottom:20px; background:#fef9c3; border-left:4px solid var(--amber-dark); border-radius:0 10px 10px 0; padding:14px 18px;">
+      Display a Tier 2 bank account problem on the board. Ask the class:
+    </p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
+      <div style="background:#dbeafe; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--blue);">
+        <div style="font-size:26px; margin-bottom:8px;">🧠</div>
+        <div style="font-weight:700; color:var(--blue-dark); font-size:15px;">Mental strategy?</div>
+        <div style="font-size:13px; color:#1e3a6e; margin-top:6px;">Who solved it in their head?</div>
+      </div>
+      <div style="background:#fef9c3; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--amber-dark);">
+        <div style="font-size:26px; margin-bottom:8px;">✏️</div>
+        <div style="font-weight:700; color:#78350f; font-size:15px;">Written algorithm?</div>
+        <div style="font-size:13px; color:#78350f; margin-top:6px;">Who used column working?</div>
+      </div>
+      <div style="background:#e8fdf0; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--green);">
+        <div style="font-size:26px; margin-bottom:8px;">🖩</div>
+        <div style="font-weight:700; color:var(--green-dark); font-size:15px;">Calculator?</div>
+        <div style="font-size:13px; color:#064e26; margin-top:6px;">Who thinks this was a calculator question?</div>
+      </div>
+    </div>
+
+    <div class="callout callout-teal">
+      <span class="label">✅ The Key Point</span>
+      <p>There is no single correct tool, the question is about <strong>efficiency and accuracy</strong>. A number like $450.75 + $120.00 can be done mentally. Three numbers with different decimal places might warrant a written algorithm. Many separate transactions are exactly what a calculator is designed for. A mathematician <em>chooses</em>, they do not just default to one method every time.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 Vocabulary Recap</h3>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:14px;">
+      <div style="flex:1; min-width:200px; background:#fff4f4; border:2px solid var(--red); border-radius:12px; padding:16px 18px;">
+        <div style="font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#c0392b; margin-bottom:6px;">New term today</div>
+        <div style="font-size:20px; font-weight:700; color:var(--text);">Extraneous Information</div>
+        <div style="font-size:14px; color:#5c1a1a; margin-top:6px; line-height:1.5;">Numbers or details in a word problem that are not needed to find the answer. Their purpose is to distract, your job is to ignore them.</div>
+      </div>
+      <div style="flex:1; min-width:200px; background:#f0fafa; border:2px solid var(--teal); border-radius:12px; padding:16px 18px;">
+        <div style="font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--teal-dark); margin-bottom:6px;">From Lesson 8</div>
+        <div style="font-size:20px; font-weight:700; color:var(--text);">Hidden Step</div>
+        <div style="font-size:14px; color:#0a3832; margin-top:6px; line-height:1.5;">A calculation buried inside the problem that must be completed before you can find the final answer. Often signalled by words like "each", "both", "same way".</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleCollapse(id) {
+    const content = document.getElementById(id);
+    const header = content.previousElementSibling;
+    content.classList.toggle('expanded');
+    header.classList.toggle('expanded');
+  }
+
+  function toggleReveal(id) {
+    document.getElementById(id).classList.toggle('shown');
+  }
+
+  function togglePractice(btn, type, questionId) {
+    const element = document.getElementById(questionId + '-' + type);
+    element.classList.toggle('shown');
+    if (element.classList.contains('shown')) {
+      btn.textContent = type === 'hint' ? 'Hide hint' : 'Hide answer';
+    } else {
+      btn.textContent = type === 'hint' ? 'Need a hint?' : 'Show answer';
+    }
+  }
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+</script>
+
+</body>
+</html>

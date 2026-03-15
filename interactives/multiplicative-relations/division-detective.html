@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Division Detective</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B5DE5;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--orange); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    width: 100%; max-width: 720px;
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+    border-top: 5px solid var(--accent);
+  }
+  .learning-card h2 {
+    font-size: 1.1rem; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* ── PHASE NAV ── */
+  .phase-nav {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    justify-content: center; width: 100%; max-width: 720px;
+  }
+  .phase-btn {
+    padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0;
+    background: white; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s;
+  }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+  /* ── SECTION ── */
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── CARD ── */
+  .card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  /* ── STEP REVEAL ── */
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+  .reveal-btn {
+    background: var(--accent); color: white; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px;
+    transition: all 0.2s;
+  }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  /* ── LEVEL BUTTONS ── */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn {
+    border: none; border-radius: 30px; padding: 8px 22px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: white;
+  }
+  .level-btn.l1 { background: var(--accent); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* ── QUESTION AREA ── */
+  .q-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border); display: none;
+  }
+  .q-card.active { display: block; animation: fadeIn 0.35s ease; }
+  .q-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px; }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── INPUTS ── */
+  .div-input-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 16px;
+  }
+  .div-label { font-size: 15px; font-weight: 600; color: var(--text-light); }
+  .div-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 12px 8px; width: 90px; outline: none;
+    transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc;
+  }
+  .div-input:focus { border-color: var(--accent); }
+  .div-input.correct { border-color: var(--green); background: var(--green-light); }
+  .div-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .div-input:disabled { opacity: 0.7; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text-dark); color: white; }
+  .btn-dark:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    border-radius: 14px; padding: 14px 18px; margin-top: 12px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+
+  /* ── PROGRESS ── */
+  .progress-area { width: 100%; max-width: 720px; margin-bottom: 16px; display: none; }
+  .progress-area.show { display: block; }
+  .progress-label { font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-align: center; }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  /* ── SUMMARY ── */
+  .summary-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; text-align: center;
+    margin-top: 16px; display: none; width: 100%; max-width: 720px;
+  }
+  .summary-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700; margin: 12px 0; }
+  .summary-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .result-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border); font-size: 14px; text-align: left;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+
+  /* ── GO DEEPER ── */
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--accent); max-width: 720px; width: 100%; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn { background: transparent; color: var(--accent-dark); border: 2px solid var(--accent); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-section { display: none; }
+  .go-deeper-section.visible { display: block; animation: fadeIn 0.35s ease; }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .card, .q-card, .learning-card { padding: 20px 18px; }
+    .div-input { width: 72px; font-size: 18px; }
+    .go-deeper-card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Division <span>Detective</span></h1>
+  <p>Divide larger numbers using partitioning and explore equivalent division</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to divide 3- and 4-digit numbers using estimation and partitioning, and to understand equivalent division.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can estimate the result of a division before I calculate.</li>
+      <li>I can partition a 3-digit number using multiples of the divisor.</li>
+      <li>I can record a short division algorithm with a remainder.</li>
+      <li>I can interpret the remainder in context.</li>
+      <li>I can explain why different division problems can give the same answer.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn" onclick="showSection('practice', this)">Practice</button>
+</div>
+
+<!-- ══════ LEARN SECTION ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>Partitioning with multiples</h3>
+    <p>To divide a larger number, peel off known multiples of the divisor one chunk at a time.</p>
+
+    <div class="callout callout-teal" style="margin-top:16px;">
+      <div class="label">Example: <strong>348</strong> &#247; <strong>4</strong></div>
+      <p style="margin-bottom:8px;">Radar first: <strong>360</strong> &#247; <strong>4</strong> = <strong>90</strong>. The answer should be near <strong>90</strong>.</p>
+    </div>
+
+    <div id="part-demo" style="margin-top:12px;">
+      <div class="step-reveal shown" id="part-1">
+        <p>Step 1: Find a large multiple of <strong>4</strong> that fits inside <strong>348</strong>.</p>
+        <p style="margin-top:4px;font-weight:700;"><strong>4</strong> x <strong>80</strong> = <strong>320</strong>. That fits.</p>
+      </div>
+      <div class="step-reveal" id="part-2">
+        <p style="margin-top:12px;">Step 2: Subtract to find what is left.</p>
+        <p style="margin-top:4px;font-weight:700;"><strong>348</strong> - <strong>320</strong> = <strong>28</strong></p>
+      </div>
+      <div class="step-reveal" id="part-3">
+        <p style="margin-top:12px;">Step 3: Divide the leftover.</p>
+        <p style="margin-top:4px;font-weight:700;"><strong>4</strong> x <strong>7</strong> = <strong>28</strong>. That fits exactly.</p>
+      </div>
+      <div class="step-reveal" id="part-4">
+        <p style="margin-top:12px;">Step 4: Add the partial quotients.</p>
+        <p style="margin-top:4px;font-weight:700;"><strong>80</strong> + <strong>7</strong> = <strong>87</strong></p>
+        <p style="margin-top:4px;font-size:14px;color:var(--text-light);">Check: <strong>4</strong> x <strong>87</strong> = <strong>348</strong>. Correct. Close to our Radar of <strong>90</strong>.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="part-btn" onclick="revealPartDemo()">Reveal next step</button>
+  </div>
+
+  <div class="card">
+    <h3>Equivalent division</h3>
+    <p>Look at these three divisions:</p>
+    <div style="display:flex;flex-direction:column;gap:0.5rem;margin:12px 0;">
+      <p style="font-weight:700;"><strong>12</strong> &#247; <strong>4</strong> = <strong>3</strong></p>
+      <p style="font-weight:700;"><strong>24</strong> &#247; <strong>8</strong> = <strong>3</strong></p>
+      <p style="font-weight:700;"><strong>6</strong> &#247; <strong>2</strong> = <strong>3</strong></p>
+    </div>
+    <p>They all give the same quotient. Why?</p>
+
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="label">The rule</div>
+      <p>If you multiply or divide both the dividend and the divisor by the same number, the quotient stays the same. From <strong>12</strong> &#247; <strong>4</strong>, doubling both gives <strong>24</strong> &#247; <strong>8</strong>. Halving both gives <strong>6</strong> &#247; <strong>2</strong>. The quotient is always <strong>3</strong>.</p>
+    </div>
+
+    <p style="margin-top:12px;">Think of it as sharing: <strong>12</strong> objects among <strong>4</strong> groups gives <strong>3</strong> each. If you double both the objects and the groups, each group still gets <strong>3</strong>.</p>
+  </div>
+</div>
+
+<!-- ══════ PRACTICE SECTION ══════ -->
+<div id="practice" class="section">
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="startLevel(1)">Level 1</button>
+    <button class="level-btn l2" onclick="startLevel(2)">Level 2</button>
+    <button class="level-btn l3" onclick="startLevel(3)">Level 3</button>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Equivalent Division Investigations</h3>
+    <p>Complete Level 3 to unlock</p>
+  </button>
+
+  <div class="progress-area" id="progress-area">
+    <div class="progress-label" id="progress-label">Question 1 of 6</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="question-area"></div>
+
+  <div class="summary-card" id="summary-card">
+    <div class="summary-label">Your Score</div>
+    <div class="summary-score" id="summary-score"></div>
+    <div class="summary-label" id="summary-message"></div>
+    <div id="summary-breakdown" style="text-align:left;margin-top:24px;"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="retryLevel()">Try Again</button>
+      <button class="btn btn-dark" id="next-level-btn" style="display:none;" onclick="goNextLevel()">Next Level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER SECTION ══════ -->
+<div class="go-deeper-section" id="go-deeper-section">
+  <div class="go-deeper-card">
+    <h2>&#x1F513; Go Deeper: Equivalent Division Investigations</h2>
+    <p>Explore the hidden patterns behind equivalent division. Think carefully, test your ideas, and reason like a mathematician.</p>
+
+    <!-- TASK 1: SPECIALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising</div>
+      <div class="ext-task-prompt">
+        Start with <span class="ext-numbers">12</span> &#247; <span class="ext-numbers">4</span> = <span class="ext-numbers">3</span>. By multiplying or dividing both numbers by the same factor, write as many equivalent divisions as you can that also give the quotient <span class="ext-numbers">3</span>.
+      </div>
+      <div class="ext-task-sub">Can you find at least 5 different equivalent divisions? Do any of the divisions involve numbers bigger than 100?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>I started with <span class="ext-numbers">12</span> &#247; <span class="ext-numbers">4</span> = <span class="ext-numbers">3</span> and tried multiplying both by different numbers:</p>
+        <p>x<span class="ext-numbers">2</span>: <span class="ext-numbers">24</span> &#247; <span class="ext-numbers">8</span> = <span class="ext-numbers">3</span><br>
+        x<span class="ext-numbers">3</span>: <span class="ext-numbers">36</span> &#247; <span class="ext-numbers">12</span> = <span class="ext-numbers">3</span><br>
+        x<span class="ext-numbers">5</span>: <span class="ext-numbers">60</span> &#247; <span class="ext-numbers">20</span> = <span class="ext-numbers">3</span><br>
+        x<span class="ext-numbers">10</span>: <span class="ext-numbers">120</span> &#247; <span class="ext-numbers">40</span> = <span class="ext-numbers">3</span><br>
+        x<span class="ext-numbers">25</span>: <span class="ext-numbers">300</span> &#247; <span class="ext-numbers">100</span> = <span class="ext-numbers">3</span></p>
+        <p>I also went the other way and divided both: <span class="ext-numbers">6</span> &#247; <span class="ext-numbers">2</span> = <span class="ext-numbers">3</span>, and <span class="ext-numbers">3</span> &#247; <span class="ext-numbers">1</span> = <span class="ext-numbers">3</span>. I first thought I might run out of equivalent facts, but I realised I can keep scaling up forever. There are infinitely many equivalent divisions for any fact.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence and build up a picture before making claims.
+      </div>
+    </div>
+
+    <!-- TASK 2: CONJECTURING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecturing</div>
+      <div class="ext-task-prompt">
+        Look at this chain: <span class="ext-numbers">200</span> &#247; <span class="ext-numbers">8</span> = <span class="ext-numbers">25</span>, then <span class="ext-numbers">100</span> &#247; <span class="ext-numbers">4</span> = <span class="ext-numbers">25</span>, then <span class="ext-numbers">50</span> &#247; <span class="ext-numbers">2</span> = <span class="ext-numbers">25</span>, then <span class="ext-numbers">25</span> &#247; <span class="ext-numbers">1</span> = <span class="ext-numbers">25</span>. Make a conjecture: can you always keep halving both numbers until the divisor reaches <span class="ext-numbers">1</span>?
+      </div>
+      <div class="ext-task-sub">Try starting with a different division. Does halving always work? When might it break?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>I tried <span class="ext-numbers">18</span> &#247; <span class="ext-numbers">6</span> = <span class="ext-numbers">3</span>. Halving: <span class="ext-numbers">9</span> &#247; <span class="ext-numbers">3</span> = <span class="ext-numbers">3</span>. Halving again: <span class="ext-numbers">4.5</span> &#247; <span class="ext-numbers">1.5</span> = <span class="ext-numbers">3</span>. It still works, but I got decimals.</p>
+        <p>I tried to halve again: <span class="ext-numbers">2.25</span> &#247; <span class="ext-numbers">0.75</span> = <span class="ext-numbers">3</span>. Still gives <span class="ext-numbers">3</span>, but the numbers are awkward. The rule still works with decimals, but the chain only stays in whole numbers if the divisor is a power of <span class="ext-numbers">2</span> (like <span class="ext-numbers">2</span>, <span class="ext-numbers">4</span>, <span class="ext-numbers">8</span>).</p>
+        <p>My conjecture: you can always keep halving and the quotient stays the same, but you will not always reach divisor <span class="ext-numbers">1</span> with whole numbers. It depends on whether the divisor can be halved down to <span class="ext-numbers">1</span> using only whole numbers.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim you believe is true, then testing it to see if it breaks anywhere.
+      </div>
+    </div>
+
+    <!-- TASK 3: JUSTIFYING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Justifying</div>
+      <div class="ext-task-prompt">
+        A student says: "Equivalent division only works when you multiply or divide both numbers by <span class="ext-numbers">2</span>." Is this always true, sometimes true, or never true? Use examples to justify your answer.
+      </div>
+      <div class="ext-task-sub">Can you find a counterexample that proves the student wrong? Can you explain the actual rule?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>I think this is never true as the only option. Let me find a counterexample.</p>
+        <p>Start with <span class="ext-numbers">15</span> &#247; <span class="ext-numbers">5</span> = <span class="ext-numbers">3</span>. Multiply both by <span class="ext-numbers">3</span>: <span class="ext-numbers">45</span> &#247; <span class="ext-numbers">15</span> = <span class="ext-numbers">3</span>. That is equivalent, and I multiplied by <span class="ext-numbers">3</span>, not <span class="ext-numbers">2</span>. So the student is wrong.</p>
+        <p>I also tried multiplying by <span class="ext-numbers">10</span>: <span class="ext-numbers">150</span> &#247; <span class="ext-numbers">50</span> = <span class="ext-numbers">3</span>. Still works. And dividing both by <span class="ext-numbers">5</span>: <span class="ext-numbers">3</span> &#247; <span class="ext-numbers">1</span> = <span class="ext-numbers">3</span>. Also works.</p>
+        <p>The actual rule: you can multiply or divide both the dividend and the divisor by <em>any</em> number (not just <span class="ext-numbers">2</span>) and the quotient stays the same. The student's claim is sometimes true (multiplying by <span class="ext-numbers">2</span> does work), but it is not the whole story.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are building an argument to prove or disprove a claim, using specific examples as evidence.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── QUESTION POOLS ──
+// Level 1: Exact 3-digit divisions (partitioning focus)
+var pool1 = [
+  {dividend:126, divisor:3, quotient:42, remainder:0},
+  {dividend:248, divisor:4, quotient:62, remainder:0},
+  {dividend:315, divisor:5, quotient:63, remainder:0},
+  {dividend:168, divisor:4, quotient:42, remainder:0},
+  {dividend:234, divisor:3, quotient:78, remainder:0},
+  {dividend:175, divisor:5, quotient:35, remainder:0},
+  {dividend:192, divisor:6, quotient:32, remainder:0},
+  {dividend:256, divisor:8, quotient:32, remainder:0},
+  {dividend:144, divisor:6, quotient:24, remainder:0},
+  {dividend:225, divisor:5, quotient:45, remainder:0},
+  {dividend:336, divisor:4, quotient:84, remainder:0},
+  {dividend:189, divisor:7, quotient:27, remainder:0},
+  {dividend:152, divisor:4, quotient:38, remainder:0},
+  {dividend:270, divisor:9, quotient:30, remainder:0},
+  {dividend:288, divisor:6, quotient:48, remainder:0}
+];
+
+// Level 2: 3-digit with possible remainders + inverse check
+var pool2 = [
+  {dividend:432, divisor:6, quotient:72, remainder:0},
+  {dividend:518, divisor:7, quotient:74, remainder:0},
+  {dividend:623, divisor:8, quotient:77, remainder:7},
+  {dividend:741, divisor:9, quotient:82, remainder:3},
+  {dividend:348, divisor:4, quotient:87, remainder:0},
+  {dividend:527, divisor:6, quotient:87, remainder:5},
+  {dividend:415, divisor:5, quotient:83, remainder:0},
+  {dividend:273, divisor:4, quotient:68, remainder:1},
+  {dividend:365, divisor:7, quotient:52, remainder:1},
+  {dividend:482, divisor:9, quotient:53, remainder:5},
+  {dividend:559, divisor:6, quotient:93, remainder:1},
+  {dividend:637, divisor:8, quotient:79, remainder:5}
+];
+
+// Level 3: Mixed - equivalent division and missing dividend
+var pool3 = [
+  {type:'equiv', stem:'<span class="mono">18 &#247; 3 = 6</span>. Write an equivalent division by doubling both numbers.', inputLabel:'Dividend', answer:36, divisorShown:6, feedback:'Doubling both: <span class="mono">18 x 2 = 36</span> and <span class="mono">3 x 2 = 6</span>. So <span class="mono">36 &#247; 6 = 6</span>.'},
+  {type:'equiv', stem:'<span class="mono">20 &#247; 4 = 5</span>. Write an equivalent division by multiplying both numbers by <span class="mono">3</span>.', inputLabel:'Dividend', answer:60, divisorShown:12, feedback:'Tripling both: <span class="mono">20 x 3 = 60</span> and <span class="mono">4 x 3 = 12</span>. So <span class="mono">60 &#247; 12 = 5</span>.'},
+  {type:'equiv', stem:'<span class="mono">48 &#247; 8 = 6</span>. Write an equivalent division by halving both numbers.', inputLabel:'Dividend', answer:24, divisorShown:4, feedback:'Halving both: <span class="mono">48 &#247; 2 = 24</span> and <span class="mono">8 &#247; 2 = 4</span>. So <span class="mono">24 &#247; 4 = 6</span>.'},
+  {type:'equiv', stem:'<span class="mono">15 &#247; 5 = 3</span>. Write an equivalent division by multiplying both numbers by <span class="mono">4</span>.', inputLabel:'Dividend', answer:60, divisorShown:20, feedback:'<span class="mono">15 x 4 = 60</span> and <span class="mono">5 x 4 = 20</span>. So <span class="mono">60 &#247; 20 = 3</span>.'},
+  {type:'missing', stem:'A number divided by <span class="mono">6</span> gives quotient <span class="mono">124</span> remainder <span class="mono">3</span>. What is the number?', answer:747, feedback:'Use the inverse: <span class="mono">6 x 124 + 3 = 744 + 3 = 747</span>.'},
+  {type:'missing', stem:'A number divided by <span class="mono">5</span> gives quotient <span class="mono">87</span> remainder <span class="mono">2</span>. What is the number?', answer:437, feedback:'Use the inverse: <span class="mono">5 x 87 + 2 = 435 + 2 = 437</span>.'},
+  {type:'missing', stem:'A number divided by <span class="mono">8</span> gives quotient <span class="mono">56</span> remainder <span class="mono">5</span>. What is the number?', answer:453, feedback:'Use the inverse: <span class="mono">8 x 56 + 5 = 448 + 5 = 453</span>.'},
+  {type:'missing', stem:'A number divided by <span class="mono">7</span> gives quotient <span class="mono">93</span> remainder <span class="mono">4</span>. What is the number?', answer:655, feedback:'Use the inverse: <span class="mono">7 x 93 + 4 = 651 + 4 = 655</span>.'}
+];
+
+// ── STATE ──
+var currentLevel = 1;
+var currentQ = 0;
+var questions = [];
+var answers = [];
+var partDemoStep = 1;
+
+// ── UTILITY ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── LEARN: STEP REVEAL ──
+function revealPartDemo() {
+  partDemoStep++;
+  var el = document.getElementById('part-' + partDemoStep);
+  if (el) el.classList.add('shown');
+  if (partDemoStep >= 4) document.getElementById('part-btn').style.display = 'none';
+}
+
+// ── NAVIGATION ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── START LEVEL ──
+function startLevel(n) {
+  currentLevel = n;
+  currentQ = 0;
+  answers = [];
+
+  document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+
+  if (n === 1) questions = shuffle(pool1).slice(0, 6);
+  else if (n === 2) questions = shuffle(pool2).slice(0, 6);
+  else questions = shuffle(pool3).slice(0, 6);
+
+  document.getElementById('progress-area').classList.add('show');
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+
+  buildQuestion();
+}
+
+// ── BUILD QUESTION ──
+function buildQuestion() {
+  var area = document.getElementById('question-area');
+  var q = questions[currentQ];
+
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+
+  var html = '<div class="q-card active">';
+  html += '<div class="q-number">Question ' + (currentQ + 1) + ' of ' + questions.length + '</div>';
+
+  if (currentLevel === 1) {
+    // Radar estimate shown, student enters quotient
+    var radarDiv = Math.round(q.dividend / 10) * 10;
+    // Make sure radar is a clean multiple
+    while (radarDiv % q.divisor !== 0) radarDiv += 10;
+    var radarQ = radarDiv / q.divisor;
+    html += '<div class="q-stem">Divide <span class="mono">' + q.dividend + ' &#247; ' + q.divisor + '</span></div>';
+    html += '<div style="font-size:14px;color:var(--text-light);margin-bottom:16px;">Radar: <span class="mono">' + radarDiv + ' &#247; ' + q.divisor + ' = ' + radarQ + '</span>. The answer should be near <span class="mono">' + radarQ + '</span>.</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Quotient</div>';
+    html += '<input type="text" class="div-input" id="inp-q" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+
+  } else if (currentLevel === 2) {
+    html += '<div class="q-stem">Divide <span class="mono">' + q.dividend + ' &#247; ' + q.divisor + '</span></div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Quotient</div>';
+    html += '<input type="text" class="div-input" id="inp-q" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '<div class="div-label" style="margin-left:8px;">Remainder</div>';
+    html += '<input type="text" class="div-input" id="inp-r" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+    html += '<div style="margin-top:4px;text-align:center;">';
+    html += '<div class="div-label" style="margin-bottom:8px;">Inverse check: <span class="mono">' + q.divisor + '</span> x quotient + remainder = ?</div>';
+    html += '<input type="text" class="div-input" id="inp-inv" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+
+  } else {
+    // Level 3: mixed types
+    html += '<div class="q-stem">' + q.stem + '</div>';
+    if (q.type === 'equiv') {
+      html += '<div class="div-input-row">';
+      html += '<div class="div-label">' + q.inputLabel + '</div>';
+      html += '<input type="text" class="div-input" id="inp-ans" inputmode="numeric" placeholder="?" autocomplete="off">';
+      html += '<div class="div-label">&#247; <span class="mono">' + q.divisorShown + '</span></div>';
+      html += '</div>';
+    } else {
+      html += '<div class="div-input-row">';
+      html += '<div class="div-label">The number is</div>';
+      html += '<input type="text" class="div-input" id="inp-ans" inputmode="numeric" placeholder="?" autocomplete="off" style="width:120px;">';
+      html += '</div>';
+    }
+  }
+
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Check Answer</button>';
+  html += '</div>';
+  html += '<div class="feedback" id="feedback"></div>';
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-dark" id="next-btn" style="display:none;margin-top:12px;" onclick="nextQuestion()">Next Question</button>';
+  html += '</div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+
+  var firstInput = document.getElementById('inp-q') || document.getElementById('inp-ans');
+  if (firstInput) setTimeout(function() { firstInput.focus(); }, 100);
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer() {
+  if (answers[currentQ] !== undefined) return;
+  var q = questions[currentQ];
+  var fb = document.getElementById('feedback');
+  var isCorrect = false;
+
+  if (currentLevel === 1) {
+    var inpQ = document.getElementById('inp-q');
+    var rawQ = inpQ.value.replace(/,/g, '').trim();
+    if (rawQ === '' || isNaN(Number(rawQ))) { inpQ.style.borderColor = 'var(--red)'; return; }
+    var studentQ = parseInt(rawQ, 10);
+    isCorrect = (studentQ === q.quotient);
+    inpQ.disabled = true;
+    inpQ.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> <span class="mono">' + q.dividend + ' &#247; ' + q.divisor + ' = ' + q.quotient + '</span>. Check: <span class="mono">' + q.divisor + ' x ' + q.quotient + ' = ' + q.dividend + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      // Show partitioning hint
+      var bigMult = Math.floor(q.quotient / 10) * 10;
+      var smallMult = q.quotient - bigMult;
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + studentQ + '</span>. Try partitioning: <span class="mono">' + q.divisor + ' x ' + bigMult + ' = ' + (q.divisor * bigMult) + '</span>. Remaining: <span class="mono">' + q.dividend + ' - ' + (q.divisor * bigMult) + ' = ' + (q.dividend - q.divisor * bigMult) + '</span>. Then <span class="mono">' + q.divisor + ' x ' + smallMult + ' = ' + (q.divisor * smallMult) + '</span>. Total: <span class="mono">' + bigMult + ' + ' + smallMult + ' = ' + q.quotient + '</span>.';
+    }
+
+  } else if (currentLevel === 2) {
+    var inpQ2 = document.getElementById('inp-q');
+    var inpR = document.getElementById('inp-r');
+    var inpInv = document.getElementById('inp-inv');
+    var rawQ2 = inpQ2.value.replace(/,/g, '').trim();
+    var rawR = inpR.value.replace(/,/g, '').trim();
+    var rawInv = inpInv.value.replace(/,/g, '').trim();
+
+    if (rawQ2 === '' || rawR === '' || rawInv === '' || isNaN(Number(rawQ2)) || isNaN(Number(rawR)) || isNaN(Number(rawInv))) {
+      if (rawQ2 === '' || isNaN(Number(rawQ2))) inpQ2.style.borderColor = 'var(--red)';
+      if (rawR === '' || isNaN(Number(rawR))) inpR.style.borderColor = 'var(--red)';
+      if (rawInv === '' || isNaN(Number(rawInv))) inpInv.style.borderColor = 'var(--red)';
+      return;
+    }
+
+    var sQ = parseInt(rawQ2, 10);
+    var sR = parseInt(rawR, 10);
+    var sInv = parseInt(rawInv, 10);
+    var qOK = (sQ === q.quotient);
+    var rOK = (sR === q.remainder);
+    var invOK = (sInv === q.dividend);
+
+    inpQ2.disabled = true; inpR.disabled = true; inpInv.disabled = true;
+    inpQ2.classList.add(qOK ? 'correct' : 'incorrect');
+    inpR.classList.add(rOK ? 'correct' : 'incorrect');
+    inpInv.classList.add(invOK ? 'correct' : 'incorrect');
+
+    isCorrect = qOK && rOK && invOK;
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> <span class="mono">' + q.dividend + ' &#247; ' + q.divisor + ' = ' + q.quotient + '</span>' + (q.remainder > 0 ? ' remainder <span class="mono">' + q.remainder + '</span>' : '') + '. Inverse: <span class="mono">' + q.divisor + ' x ' + q.quotient + ' + ' + q.remainder + ' = ' + q.dividend + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      var msg = '<strong>Not quite.</strong> ';
+      if (!qOK) msg += 'Quotient is <span class="mono">' + q.quotient + '</span>, not <span class="mono">' + sQ + '</span>. ';
+      if (!rOK) msg += 'Remainder is <span class="mono">' + q.remainder + '</span>, not <span class="mono">' + sR + '</span>. ';
+      if (!invOK) msg += 'Inverse check should be <span class="mono">' + q.dividend + '</span>, not <span class="mono">' + sInv + '</span>. ';
+      var bigM = Math.floor(q.quotient / 10) * 10;
+      msg += '<br>Partition: <span class="mono">' + q.divisor + ' x ' + bigM + ' = ' + (q.divisor * bigM) + '</span>. Left: <span class="mono">' + (q.dividend - q.divisor * bigM) + '</span>. Then <span class="mono">' + q.divisor + ' x ' + (q.quotient - bigM) + ' = ' + (q.divisor * (q.quotient - bigM)) + '</span>' + (q.remainder > 0 ? ' with <span class="mono">' + q.remainder + '</span> remaining' : '') + '.';
+      fb.innerHTML = msg;
+    }
+
+  } else {
+    // Level 3
+    var inpAns = document.getElementById('inp-ans');
+    var rawAns = inpAns.value.replace(/,/g, '').trim();
+    if (rawAns === '' || isNaN(Number(rawAns))) { inpAns.style.borderColor = 'var(--red)'; return; }
+    var studentAns = parseInt(rawAns, 10);
+    isCorrect = (studentAns === q.answer);
+    inpAns.disabled = true;
+    inpAns.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> ' + q.feedback;
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + studentAns + '</span>. ' + q.feedback;
+    }
+  }
+
+  answers[currentQ] = { correct: isCorrect };
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+// ── NEXT QUESTION ──
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showSummary(); return; }
+  buildQuestion();
+}
+
+// ── SUMMARY ──
+function showSummary() {
+  document.getElementById('question-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 5) msg = 'Excellent detective work.';
+  else if (correct >= 3) msg = 'Good progress. Review the partitioning steps.';
+  else msg = 'Keep practising. Try the Learn section again.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var breakdown = '<h3 style="font-size:16px;margin-bottom:12px;">Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    var label = '';
+    if (currentLevel <= 2) label = q.dividend + ' &#247; ' + q.divisor;
+    else label = q.stem.replace(/<[^>]*>/g, '').substring(0, 50) + '...';
+    breakdown += '<div class="result-row">';
+    breakdown += '<div class="result-icon ' + icon + '">' + symbol + '</div>';
+    breakdown += '<span>' + label + '</span>';
+    breakdown += '</div>';
+  });
+  document.getElementById('summary-breakdown').innerHTML = breakdown;
+
+  var nextBtn = document.getElementById('next-level-btn');
+  if (currentLevel < 3 && correct >= 4) nextBtn.style.display = 'inline-block';
+  else nextBtn.style.display = 'none';
+
+  if (currentLevel === 3 && correct >= 4) unlockGoDeeper();
+
+  document.getElementById('summary-card').classList.add('show');
+}
+
+function retryLevel() { startLevel(currentLevel); }
+function goNextLevel() { startLevel(currentLevel + 1); }
+
+// ── GO DEEPER ──
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card) {
+    card.classList.remove('locked');
+    card.disabled = false;
+    card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+    card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  }
+}
+
+function openGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card.classList.contains('locked')) return;
+  document.getElementById('go-deeper-section').classList.add('visible');
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var checkBtn = document.getElementById('check-btn');
+    var nextBtn = document.getElementById('next-btn');
+    if (nextBtn && nextBtn.style.display !== 'none') nextQuestion();
+    else if (checkBtn && checkBtn.style.display !== 'none') checkAnswer();
+  }
+});
+
+// ── INIT ──
+startLevel(1);
+</script>
+</body>
+</html>

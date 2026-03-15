@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Value Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--bg-cream);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--level2-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--level3-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Learning Intention & Success Criteria */
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .learning-card h2::before {
+            content: "";
+            font-size: 1.3rem;
+        }
+
+        .learning-card h2 .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .learning-content {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .learning-content.open {
+            display: block;
+        }
+
+        .learning-content h3 {
+            color: var(--text-dark);
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .learning-content p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .success-criteria {
+            list-style: none;
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+
+        .success-criteria li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .success-criteria li::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+            color: var(--primary-accent);
+        }
+
+        /* Step Cards - Single progression */
+        .step-progression {
+            margin-bottom: 2rem;
+        }
+
+        .step-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #DDD;
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: var(--primary-accent);
+            transform: scale(1.3);
+        }
+
+        .step-dot.visited {
+            background: rgba(78, 205, 196, 0.4);
+        }
+
+        .step-card {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .step-card.active {
+            display: block;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-badge {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .step-content {
+            color: #555;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .step-visual {
+            margin: 1rem 0;
+        }
+
+        /* Place Value Houses (matching Place Value Jumps style) */
+        .pv-chart {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 6px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+
+        .pv-house {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 68px;
+        }
+
+        .pv-house-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            text-align: center;
+            color: var(--house-color);
+            line-height: 1.2;
+        }
+
+        .pv-house-cell {
+            width: 68px;
+            height: 72px;
+            border-radius: 12px;
+            border: 2.5px solid var(--house-color);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+            position: relative;
+        }
+
+        .pv-house-cell .digit {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: white;
+            width: 52px;
+            height: 56px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--house-color);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .pv-house-cell .digit.dim {
+            opacity: 0.4;
+            font-size: 1.5rem;
+        }
+
+        .pv-house-cell .digit.glow {
+            box-shadow: 0 0 0 4px rgba(255,107,107,0.25), 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .pv-times {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            padding: 0 2px;
+            align-self: center;
+        }
+
+        /* Comparison visual */
+        .compare-box {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 1.25rem 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .compare-values {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .compare-digit {
+            text-align: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            min-width: 100px;
+        }
+
+        .compare-digit.bigger {
+            background: rgba(78, 205, 196, 0.12);
+            border: 2px solid var(--primary-accent);
+        }
+
+        .compare-digit.smaller {
+            background: rgba(99, 110, 114, 0.08);
+            border: 2px solid #B0BEC5;
+        }
+
+        .compare-digit .big-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .compare-digit .pos-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .compare-vs {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .compare-result {
+            display: inline-block;
+            background: var(--primary-accent);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+        }
+
+        /* Jumps table */
+        .jumps-table {
+            width: 100%;
+            max-width: 300px;
+            margin: 1rem auto;
+            border-collapse: separate;
+            border-spacing: 0 0.3rem;
+        }
+
+        .jumps-table td {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .jumps-table td:first-child {
+            background: rgba(78, 205, 196, 0.12);
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .jumps-table td:last-child {
+            background: var(--primary-accent);
+            color: white;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            text-align: center;
+        }
+
+        .step-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.25rem;
+            gap: 0.75rem;
+        }
+
+        .step-nav-btn {
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .step-nav-btn.next {
+            background: var(--primary-accent);
+            color: white;
+            margin-left: auto;
+        }
+
+        .step-nav-btn.next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .step-nav-btn.prev {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .step-nav-btn.prev:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        /* Reveal Button & Answer (used in step 5) */
+
+        .reveal-btn {
+            background: var(--level2-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .reveal-btn:hover {
+            background: #FF5252;
+            transform: scale(1.05);
+        }
+
+        .reveal-answer {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #FFE5E5;
+            border-radius: 10px;
+            border-left: 4px solid var(--level2-color);
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .reveal-answer.show {
+            display: block;
+        }
+
+        /* Vocabulary */
+        .vocab-term {
+            border-bottom: 2px dotted var(--primary-accent);
+            cursor: help;
+            position: relative;
+            color: var(--primary-accent);
+            font-weight: 500;
+        }
+
+        .vocab-tooltip {
+            display: none;
+            position: absolute;
+            background: var(--text-dark);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .vocab-tooltip.show {
+            display: block;
+        }
+
+        .vocab-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--text-dark);
+        }
+
+        /* (Thought starter removed) */
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .progress-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .progress-circle.current {
+            border-color: var(--primary-accent);
+            border-width: 4px;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .progress-circle.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .progress-circle.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .progress-circle.correct::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--correct-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.incorrect::after {
+            content: "✗";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--incorrect-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .answer-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .answer-option {
+            background: white;
+            border: 3px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .answer-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--primary-accent);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .answer-option.selected {
+            background: var(--primary-accent);
+            border-color: var(--primary-accent);
+            color: white;
+        }
+
+        .answer-option.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .answer-option.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .answer-option:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .hint-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .hint-btn {
+            background: none;
+            border: 2px solid var(--level3-color);
+            color: var(--level3-color);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .hint-btn:hover:not(.disabled) {
+            background: rgba(155, 93, 229, 0.1);
+            transform: scale(1.05);
+        }
+
+        .hint-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hint-display {
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background: #F5EFFF;
+            border-left: 4px solid var(--level3-color);
+            border-radius: 10px;
+            display: none;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .hint-display.show {
+            display: block;
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin: 2rem auto;
+            max-width: 400px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .score-label {
+            color: var(--text-light);
+        }
+
+        .score-value {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-dark);
+        }
+
+        .extension-challenges {
+            background: linear-gradient(135deg, #F0FCFB 0%, #E8F8F7 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .extension-challenges h3 {
+            color: var(--primary-accent);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .extension-list {
+            list-style: none;
+        }
+
+        .extension-list li {
+            padding: 0.75rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #555;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+        }
+
+        .extension-list li:last-child {
+            border-bottom: none;
+        }
+
+        .extension-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 1.25rem; }
+            .landing-header h1 { font-size: 2rem; }
+            .level-grid { grid-template-columns: 1fr; }
+            .progress-circle {
+                width: 36px;
+                height: 36px;
+                font-size: 0.75rem;
+            }
+            .progress-tracker {
+                padding: 0.75rem 1rem;
+            }
+            .answer-options {
+                flex-direction: column;
+            }
+            .answer-option {
+                width: 100%;
+            }
+            .step-card {
+                padding: 1.25rem;
+            }
+            .pv-house { width: 58px; }
+            .pv-house-cell { width: 58px; height: 62px; }
+            .pv-house-cell .digit { width: 42px; height: 46px; font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shapes">
+        <div class="bg-shape bg-shape-1"></div>
+        <div class="bg-shape bg-shape-2"></div>
+        <div class="bg-shape bg-shape-3"></div>
+    </div>
+
+    <div class="container">
+        <!-- LANDING PAGE -->
+        <div id="landing-page" class="page active">
+            <div class="landing-header">
+                <h1>Place Value <span>Explorer</span></h1>
+                <p class="subtitle">Understand how digits compare across place values</p>
+            </div>
+
+            <!-- Learning Intention & Success Criteria -->
+            <div class="learning-card">
+                <h2 onclick="toggleLearningSection()">
+                    Learning Intention & Success Criteria
+                    <span class="toggle-icon" id="learningToggle">▼</span>
+                </h2>
+                <div class="learning-content" id="learningContent">
+                    <h3>Learning Intention</h3>
+                    <p>We are learning to compare the value of digits in different <span class="vocab-term">place value</span> positions and describe the multiplicative relationship between them.</p>
+
+                    <h3>Success Criteria</h3>
+                    <ul class="success-criteria">
+                        <li>I can identify which <span class="vocab-term">digit</span> has a greater value based on its position</li>
+                        <li>I can explain how many times larger or smaller one <span class="vocab-term">digit</span> is compared to another</li>
+                        <li>I can use the pattern of ×10 for each <span class="vocab-term">place value</span> shift to reason about <span class="vocab-term">digit</span> relationships</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step-by-Step Teaching -->
+            <div class="step-progression" id="stepProgression">
+                <div class="step-dots" id="stepDots">
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                </div>
+
+                <!-- Step 1 -->
+                <div class="step-card active" id="step-1">
+                    <div class="step-header">
+                        <div class="step-badge">1</div>
+                        <div class="step-title">The Place Value Rule</div>
+                    </div>
+                    <div class="step-content">
+                        <p>Each <span class="vocab-term">column</span> in our number system is worth <strong>10 times more</strong> than the <span class="vocab-term">column</span> to its right.</p>
+                        <div class="step-visual">
+                            <div class="pv-chart">
+                                <div class="pv-house" style="--house-color:#d44d8a">
+                                    <div class="pv-house-label">Hundred<br>Thousands</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#d44d8a">HTh</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#7c3aed">
+                                    <div class="pv-house-label">Ten<br>Thousands</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#7c3aed">TTh</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#1d4ed8">
+                                    <div class="pv-house-label">Thousands</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#1d4ed8">Th</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#0891b2">
+                                    <div class="pv-house-label">Hundreds</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#0891b2">H</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#059669">
+                                    <div class="pv-house-label">Tens</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#059669">T</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#65a30d">
+                                    <div class="pv-house-label">Ones</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#65a30d">O</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-nav">
+                        <button class="step-nav-btn next" onclick="goToStep(2)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card" id="step-2">
+                    <div class="step-header">
+                        <div class="step-badge">2</div>
+                        <div class="step-title">Comparing the Same Digit</div>
+                    </div>
+                    <div class="step-content">
+                        <p>When the same <span class="vocab-term">digit</span> appears in two different places, we can work out how many times larger one is by <strong>counting the jumps</strong> between them.</p>
+                        <div class="step-visual">
+                            <div class="compare-box">
+                                <div class="compare-values">
+                                    <div class="compare-digit bigger">
+                                        <div class="big-num">300</div>
+                                        <div class="pos-label">3 in Hundreds</div>
+                                    </div>
+                                    <div class="compare-vs">vs</div>
+                                    <div class="compare-digit smaller">
+                                        <div class="big-num">30</div>
+                                        <div class="pos-label">3 in Tens</div>
+                                    </div>
+                                </div>
+                                <div class="compare-result">1 jump apart = ×10 larger</div>
+                            </div>
+                        </div>
+                        <p>So the 3 in 300 is <strong>10 times larger</strong> than the 3 in 30.</p>
+                    </div>
+                    <div class="step-nav">
+                        <button class="step-nav-btn prev" onclick="goToStep(1)">← Back</button>
+                        <button class="step-nav-btn next" onclick="goToStep(3)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card" id="step-3">
+                    <div class="step-header">
+                        <div class="step-badge">3</div>
+                        <div class="step-title">Counting the Jumps</div>
+                    </div>
+                    <div class="step-content">
+                        <p>Each jump to the left multiplies the value by 10:</p>
+                        <div class="step-visual">
+                            <table class="jumps-table">
+                                <tr><td>1 jump</td><td>×10</td></tr>
+                                <tr><td>2 jumps</td><td>×100</td></tr>
+                                <tr><td>3 jumps</td><td>×1,000</td></tr>
+                                <tr><td>4 jumps</td><td>×10,000</td></tr>
+                                <tr><td>5 jumps</td><td>×100,000</td></tr>
+                            </table>
+                        </div>
+                        <p>Try this: if a <span class="vocab-term">digit</span> is in the tens <span class="vocab-term">place</span> and another is in the hundreds <span class="vocab-term">place</span>, how many jumps apart are they?</p>
+                        <p><em>Answer: 1 jump = ×10 larger</em></p>
+                    </div>
+                    <div class="step-nav">
+                        <button class="step-nav-btn prev" onclick="goToStep(2)">← Back</button>
+                        <button class="step-nav-btn next" onclick="goToStep(4)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Worked Example -->
+                <div class="step-card" id="step-4">
+                    <div class="step-header">
+                        <div class="step-badge">4</div>
+                        <div class="step-title">Worked Example</div>
+                    </div>
+                    <div class="step-content">
+                        <p><strong>In 3,030, the 3 in the thousands is how many times larger than the 3 in the tens?</strong></p>
+                        <div class="step-visual">
+                            <div class="pv-chart">
+                                <div class="pv-house" style="--house-color:#1d4ed8">
+                                    <div class="pv-house-label">Thousands</div>
+                                    <div class="pv-house-cell"><span class="digit glow" style="--house-color:#1d4ed8">3</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#0891b2">
+                                    <div class="pv-house-label">Hundreds</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#0891b2">0</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#059669">
+                                    <div class="pv-house-label">Tens</div>
+                                    <div class="pv-house-cell"><span class="digit glow" style="--house-color:#059669">3</span></div>
+                                </div>
+                                <div class="pv-times">×10</div>
+                                <div class="pv-house" style="--house-color:#65a30d">
+                                    <div class="pv-house-label">Ones</div>
+                                    <div class="pv-house-cell"><span class="digit dim" style="--house-color:#65a30d">0</span></div>
+                                </div>
+                            </div>
+                            <div class="compare-box">
+                                <div class="compare-values">
+                                    <div class="compare-digit bigger">
+                                        <div class="big-num">3,000</div>
+                                        <div class="pos-label">3 in Thousands</div>
+                                    </div>
+                                    <div class="compare-vs">vs</div>
+                                    <div class="compare-digit smaller">
+                                        <div class="big-num">30</div>
+                                        <div class="pos-label">3 in Tens</div>
+                                    </div>
+                                </div>
+                                <div class="compare-result">2 jumps apart = ×100 larger</div>
+                            </div>
+                        </div>
+                        <p>The first 3 (3,000) is <strong>100 times larger</strong> than the second 3 (30).</p>
+                    </div>
+                    <div class="step-nav">
+                        <button class="step-nav-btn prev" onclick="goToStep(3)">← Back</button>
+                        <button class="step-nav-btn next" onclick="goToStep(5)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Your Turn -->
+                <div class="step-card" id="step-5">
+                    <div class="step-header">
+                        <div class="step-badge">✓</div>
+                        <div class="step-title">Your Turn</div>
+                    </div>
+                    <div class="step-content">
+                        <p><strong>In 4,840, how many times larger is the first 4 than the second 4?</strong></p>
+                        <p>Use the steps you've just learnt to work it out, then reveal the answer below.</p>
+                        <button class="reveal-btn" onclick="revealWorkedAnswer()">Show Answer</button>
+                        <div class="reveal-answer" id="workedAnswer">
+                            <strong>Answer:</strong> The first 4 is in the thousands <span class="vocab-term">place</span> (4,000). The second 4 is in the tens <span class="vocab-term">place</span> (40). That's 2 jumps, so the first 4 is <strong>×100 larger</strong>.
+                        </div>
+                    </div>
+                    <div class="step-nav">
+                        <button class="step-nav-btn prev" onclick="goToStep(4)">← Back</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="level-section-title">Choose Your Level</h3>
+            <div class="level-grid">
+                <button class="level-btn level-1" onclick="startLevel(1)">
+                    <h3>Level 1: Support</h3>
+                    <p>Ones to Hundreds</p>
+                    <div class="level-meta">
+                        <span>15 questions</span>
+                    </div>
+                </button>
+                <button class="level-btn level-2" onclick="startLevel(2)">
+                    <h3>Level 2: Core</h3>
+                    <p>Up to Ten-Thousands</p>
+                    <div class="level-meta">
+                        <span>15 questions</span>
+                    </div>
+                </button>
+                <button class="level-btn level-3" onclick="startLevel(3)">
+                    <h3>Level 3: Extension</h3>
+                    <p>Up to Hundred-Thousands</p>
+                    <div class="level-meta">
+                        <span>15 questions</span>
+                    </div>
+                </button>
+            </div>
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="index.html" class="home-btn">← Back to Maths Interactives</a>
+            </div>
+        </div>
+
+        <!-- QUESTION PAGE -->
+        <div id="question-page" class="page">
+            <div class="question-header">
+                <button class="back-btn" onclick="goToLanding()">← Back</button>
+                <a href="index.html" class="home-btn">← Back to Maths Interactives</a>
+                <div class="question-progress">
+                    Question <span id="current-q">1</span> / <span id="total-q">10</span>
+                </div>
+            </div>
+
+            <!-- Progress Tracker -->
+            <div class="progress-tracker">
+                <div class="progress-grid" id="progress-grid"></div>
+            </div>
+
+            <div id="question-card" class="question-card">
+                <div class="question-label" id="question-label">Question 1</div>
+                <div class="question-text" id="question-text"></div>
+
+                <!-- Part A: Which is larger -->
+                <div class="answer-section">
+                    <div class="answer-section-title" id="part-a-title">Which is larger?</div>
+                    <div class="answer-options" id="part-a-options"></div>
+                </div>
+
+                <!-- Part B: By how much -->
+                <div class="answer-section">
+                    <div class="answer-section-title">By how much?</div>
+                    <div class="hint-section">
+                        <button class="hint-btn" id="hint-btn" onclick="showHint()">Need a hint?</button>
+                        <div class="hint-display" id="hint-display"></div>
+                    </div>
+                    <div class="answer-options" id="part-b-options"></div>
+                </div>
+
+                <div id="feedback-box" class="feedback-box">
+                    <h4 id="feedback-title">Correct!</h4>
+                    <p id="feedback-text">Well done!</p>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()" disabled>Check Answer</button>
+                    <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPLETION PAGE -->
+        <div id="completion-page" class="page completion-page">
+            <div class="completion-icon" style="font-size:2.5rem; font-weight:700; color:var(--primary-accent);">Well Done!</div>
+            <h2>Fantastic Work!</h2>
+            <p id="completion-message">You've completed this level!</p>
+
+            <div class="score-display">
+                <div class="score-row">
+                    <span class="score-label">Questions Answered:</span>
+                    <span class="score-value" id="score-total">10</span>
+                </div>
+                <div class="score-row">
+                    <span class="score-label">Correct:</span>
+                    <span class="score-value" id="score-correct" style="color: var(--correct-colour);">0</span>
+                </div>
+                <div class="score-row">
+                    <span class="score-label">Success Rate:</span>
+                    <span class="score-value" id="score-percentage">0%</span>
+                </div>
+            </div>
+            <p class="result-sent-msg" id="result-sent-msg" style="display: none; font-size: 0.9rem; color: var(--text-light); margin-top: 0.5rem;">Your result has been sent to your teacher.</p>
+
+            <!-- Extension Challenges -->
+            <div class="extension-challenges">
+                <h3>Extension Challenges</h3>
+                <ul class="extension-list" id="extension-list"></ul>
+            </div>
+
+            <button class="btn btn-primary" onclick="goToLanding()" style="max-width: 300px; margin: 2rem auto; display: block;">Choose Another Level</button>
+            <p style="margin-top: 1.5rem;"><a href="index.html" class="home-btn">← Back to Maths Interactives</a></p>
+        </div>
+    </div>
+
+    <script src="results-to-sheet.js?v=2"></script>
+    <script>
+        // Question data - ALL questions compare the SAME digit in different positions
+        const questions = {
+            1: [
+                { question: "In 636, the 6 in the hundreds is how many times larger than the 6 in the ones?", partA: "The 6 in hundreds (600)", wrongA: "The 6 in ones (6)", partB: 100, description: "6 in H (600) vs 6 in O (6) = ×100" },
+                { question: "In 155, the 5 in the tens is how many times larger than the 5 in the ones?", partA: "The 5 in tens (50)", wrongA: "The 5 in ones (5)", partB: 10, description: "5 in T (50) vs 5 in O (5) = ×10" },
+                { question: "In 272, the first 2 is how many times larger than the last 2?", partA: "The first 2 (200)", wrongA: "The last 2 (2)", partB: 100, description: "2 in H (200) vs 2 in O (2) = ×100" },
+                { question: "In 48 and 84, which 4 has greater value? How many times greater?", partA: "The 4 in 48 (40)", wrongA: "The 4 in 84 (4)", partB: 10, description: "4 in T (40) vs 4 in O (4) = ×10" },
+                { question: "In 330, how many times larger is the 3 in the hundreds than the 3 in the tens?", partA: "The 3 in hundreds (300)", wrongA: "The 3 in tens (30)", partB: 10, description: "3 in H (300) vs 3 in T (30) = ×10" },
+                { question: "In 76 and 67, which 7 has greater value? How many times greater?", partA: "The 7 in 76 (70)", wrongA: "The 7 in 67 (7)", partB: 10, description: "7 in T (70) vs 7 in O (7) = ×10" },
+                { question: "In 505, the first 5 is how many times larger than the last 5?", partA: "The first 5 (500)", wrongA: "The last 5 (5)", partB: 100, description: "5 in H (500) vs 5 in O (5) = ×100" },
+                { question: "In 191, the first 1 is how many times larger than the last 1?", partA: "The first 1 (100)", wrongA: "The last 1 (1)", partB: 100, description: "1 in H (100) vs 1 in O (1) = ×100" },
+                { question: "In 93 and 39, which 9 has greater value? How many times greater?", partA: "The 9 in 93 (90)", wrongA: "The 9 in 39 (9)", partB: 10, description: "9 in T (90) vs 9 in O (9) = ×10" },
+                { question: "In 880, the 8 in the hundreds is how many times larger than the 8 in the tens?", partA: "The 8 in hundreds (800)", wrongA: "The 8 in tens (80)", partB: 10, description: "8 in H (800) vs 8 in T (80) = ×10" },
+                { question: "In 242, the first 2 is how many times larger than the last 2?", partA: "The first 2 (200)", wrongA: "The last 2 (2)", partB: 100, description: "2 in H (200) vs 2 in O (2) = ×100" },
+                { question: "In 35 and 53, which 5 has greater value? How many times greater?", partA: "The 5 in 53 (50)", wrongA: "The 5 in 35 (5)", partB: 10, description: "5 in T (50) vs 5 in O (5) = ×10" },
+                { question: "In 616, the 6 in the hundreds is how many times larger than the 6 in the ones?", partA: "The 6 in hundreds (600)", wrongA: "The 6 in ones (6)", partB: 100, description: "6 in H (600) vs 6 in O (6) = ×100" },
+                { question: "In 474, the 4 in the hundreds is how many times larger than the 4 in the ones?", partA: "The 4 in hundreds (400)", wrongA: "The 4 in ones (4)", partB: 100, description: "4 in H (400) vs 4 in O (4) = ×100" },
+                { question: "In 990, how many times larger is the 9 in the hundreds than the 9 in the tens?", partA: "The 9 in hundreds (900)", wrongA: "The 9 in tens (90)", partB: 10, description: "9 in H (900) vs 9 in T (90) = ×10" },
+                { question: "A local zoo has 585 animals. In this number, which 5 has a greater value: the 5 in the hundreds or the 5 in the ones? How many times greater?", partA: "The 5 in hundreds (500)", wrongA: "The 5 in ones (5)", partB: 100, description: "5 in H (500) vs 5 in O (5) = ×100 - context: zoo animals" },
+                { question: "A student says the 4 in 342 is worth 40. Are they correct? Which digit value are they describing?", partA: "The 4 in tens (40)", wrongA: "The 4 in hundreds (400)", partB: 10, description: "4 in T (40) vs 4 in H (400) = ×10 - error correction" },
+                { question: "Look at 776 and 767. Which 7 has the greatest value and how many times larger is it than the other 7?", partA: "The 7 in hundreds (700)", wrongA: "The 7 in tens (70)", partB: 10, description: "7 in H (700) vs 7 in T (70) = ×10 - comparing two 7s" }
+            ],
+            2: [
+                { question: "In 3,453, the 3 in the thousands is how many times larger than the 3 in the ones?", partA: "The 3 in thousands (3,000)", wrongA: "The 3 in ones (3)", partB: 1000, description: "3 in Th (3000) vs 3 in O (3) = ×1000" },
+                { question: "In 52,500, the 5 in the ten-thousands is how many times larger than the 5 in the hundreds?", partA: "The 5 in ten-thousands (50,000)", wrongA: "The 5 in hundreds (500)", partB: 100, description: "5 in TTh (50000) vs 5 in H (500) = ×100" },
+                { question: "In 1,534 and 8,091, which 1 has greater value? How many times greater?", partA: "The 1 in 1,534 (1,000)", wrongA: "The 1 in 8,091 (1)", partB: 1000, description: "1 in Th (1000) vs 1 in O (1) = ×1000" },
+                { question: "In 7,272, the 2 in the hundreds is how many times larger than the 2 in the ones?", partA: "The 2 in hundreds (200)", wrongA: "The 2 in ones (2)", partB: 100, description: "2 in H (200) vs 2 in O (2) = ×100" },
+                { question: "In 44,400, the 4 in the ten-thousands is how many times larger than the 4 in the hundreds?", partA: "The 4 in ten-thousands (40,000)", wrongA: "The 4 in hundreds (400)", partB: 100, description: "4 in TTh (40000) vs 4 in H (400) = ×100" },
+                { question: "In 6,036, the first 6 is how many times larger than the last 6?", partA: "The first 6 (6,000)", wrongA: "The last 6 (6)", partB: 1000, description: "6 in Th (6000) vs 6 in O (6) = ×1000" },
+                { question: "In 88,080, the 8 in the ten-thousands is how many times larger than the 8 in the tens?", partA: "The 8 in ten-thousands (80,000)", wrongA: "The 8 in tens (80)", partB: 1000, description: "8 in TTh (80000) vs 8 in T (80) = ×1000" },
+                { question: "In 19,910, the 1 in the ten-thousands is how many times larger than the 1 in the tens?", partA: "The 1 in ten-thousands (10,000)", wrongA: "The 1 in tens (10)", partB: 1000, description: "1 in TTh (10000) vs 1 in T (10) = ×1000" },
+                { question: "In 2,745 and 5,032, which 2 has greater value? How many times greater?", partA: "The 2 in 2,745 (2,000)", wrongA: "The 2 in 5,032 (2)", partB: 1000, description: "2 in Th (2000) vs 2 in O (2) = ×1000" },
+                { question: "In 95,590, the 9 in the ten-thousands is how many times larger than the 9 in the tens?", partA: "The 9 in ten-thousands (90,000)", wrongA: "The 9 in tens (90)", partB: 1000, description: "9 in TTh (90000) vs 9 in T (90) = ×1000" },
+                { question: "In 33,300, the 3 in the ten-thousands is how many times larger than the 3 in the hundreds?", partA: "The 3 in ten-thousands (30,000)", wrongA: "The 3 in hundreds (300)", partB: 100, description: "3 in TTh (30000) vs 3 in H (300) = ×100" },
+                { question: "In 5,155, the 5 in the thousands is how many times larger than the 5 in the tens?", partA: "The 5 in thousands (5,000)", wrongA: "The 5 in tens (50)", partB: 100, description: "5 in Th (5000) vs 5 in T (50) = ×100" },
+                { question: "In 72,007, the 7 in the ten-thousands is how many times larger than the 7 in the ones?", partA: "The 7 in ten-thousands (70,000)", wrongA: "The 7 in ones (7)", partB: 10000, description: "7 in TTh (70000) vs 7 in O (7) = ×10000" },
+                { question: "In 46,640, the 4 in the ten-thousands is how many times larger than the 4 in the tens?", partA: "The 4 in ten-thousands (40,000)", wrongA: "The 4 in tens (40)", partB: 1000, description: "4 in TTh (40000) vs 4 in T (40) = ×1000" },
+                { question: "In 61,216, the 6 in the ten-thousands is how many times larger than the 6 in the ones?", partA: "The 6 in ten-thousands (60,000)", wrongA: "The 6 in ones (6)", partB: 10000, description: "6 in TTh (60000) vs 6 in O (6) = ×10000" },
+                { question: "A football stadium holds 45,542 spectators. In this number, how many times larger is the value of the 4 in the ten-thousands than the value of the 4 in the thousands?", partA: "The 4 in ten-thousands (40,000)", wrongA: "The 4 in thousands (4,000)", partB: 10, description: "4 in TTh (40000) vs 4 in Th (4000) = ×10 - context: stadium capacity" },
+                { question: "A student claims that in 52,325, the 2 in the thousands is worth 20,000. Are they correct? How many times larger or smaller is the actual value?", partA: "The 2 in thousands (2,000)", wrongA: "The 2 in tens (20)", partB: 100, description: "2 in Th (2000) vs 2 in T (20) = ×100 - error analysis" },
+                { question: "A train travels 17,276 metres. In this number, how many times larger is the 7 in the thousands than the 7 in the tens?", partA: "The 7 in thousands (7,000)", wrongA: "The 7 in tens (70)", partB: 100, description: "7 in Th (7000) vs 7 in T (70) = ×100 - context: distance" }
+            ],
+            3: [
+                { question: "In 434,000, the 4 in the hundred-thousands is how many times larger than the 4 in the thousands?", partA: "The 4 in hundred-thousands (400,000)", wrongA: "The 4 in thousands (4,000)", partB: 100, description: "4 in HTh (400000) vs 4 in Th (4000) = ×100" },
+                { question: "In 808,008, the 8 in the hundred-thousands is how many times larger than the 8 in the ones?", partA: "The 8 in hundred-thousands (800,000)", wrongA: "The 8 in ones (8)", partB: 100000, description: "8 in HTh (800000) vs 8 in O (8) = ×100000" },
+                { question: "In 525,250, the 5 in the hundred-thousands is how many times larger than the 5 in the tens?", partA: "The 5 in hundred-thousands (500,000)", wrongA: "The 5 in tens (50)", partB: 10000, description: "5 in HTh (500000) vs 5 in T (50) = ×10000" },
+                { question: "In 190,019, the first 1 is how many times larger than the last 1?", partA: "The first 1 (100,000)", wrongA: "The last 1 (10)", partB: 10000, description: "1 in HTh (100000) vs 1 in T (10) = ×10000" },
+                { question: "In 363,000, the 3 in the hundred-thousands is how many times larger than the 3 in the thousands?", partA: "The 3 in hundred-thousands (300,000)", wrongA: "The 3 in thousands (3,000)", partB: 100, description: "3 in HTh (300000) vs 3 in Th (3000) = ×100" },
+                { question: "In 707,070, the 7 in the hundred-thousands is how many times larger than the 7 in the tens?", partA: "The 7 in hundred-thousands (700,000)", wrongA: "The 7 in tens (70)", partB: 10000, description: "7 in HTh (700000) vs 7 in T (70) = ×10000" },
+                { question: "In 252,025, the 2 in the hundred-thousands is how many times larger than the 2 in the tens?", partA: "The 2 in hundred-thousands (200,000)", wrongA: "The 2 in tens (20)", partB: 10000, description: "2 in HTh (200000) vs 2 in T (20) = ×10000" },
+                { question: "In 646,464, the 6 in the hundred-thousands is how many times larger than the 6 in the hundreds?", partA: "The 6 in hundred-thousands (600,000)", wrongA: "The 6 in hundreds (600)", partB: 1000, description: "6 in HTh (600000) vs 6 in H (600) = ×1000" },
+                { question: "In 919,191, the 9 in the hundred-thousands is how many times larger than the 9 in the hundreds?", partA: "The 9 in hundred-thousands (900,000)", wrongA: "The 9 in hundreds (900)", partB: 1000, description: "9 in HTh (900000) vs 9 in H (900) = ×1000" },
+                { question: "In 550,055, the 5 in the hundred-thousands is how many times larger than the 5 in the tens?", partA: "The 5 in hundred-thousands (500,000)", wrongA: "The 5 in tens (50)", partB: 10000, description: "5 in HTh (500000) vs 5 in T (50) = ×10000" },
+                { question: "In 303,003, the 3 in the hundred-thousands is how many times larger than the 3 in the ones?", partA: "The 3 in hundred-thousands (300,000)", wrongA: "The 3 in ones (3)", partB: 100000, description: "3 in HTh (300000) vs 3 in O (3) = ×100000" },
+                { question: "In 121,210, the 1 in the hundred-thousands is how many times larger than the 1 in the tens?", partA: "The 1 in hundred-thousands (100,000)", wrongA: "The 1 in tens (10)", partB: 10000, description: "1 in HTh (100000) vs 1 in T (10) = ×10000" },
+                { question: "In 484,840, the 4 in the hundred-thousands is how many times larger than the 4 in the tens?", partA: "The 4 in hundred-thousands (400,000)", wrongA: "The 4 in tens (40)", partB: 10000, description: "4 in HTh (400000) vs 4 in T (40) = ×10000" },
+                { question: "In 262,620, the 2 in the hundred-thousands is how many times larger than the 2 in the tens?", partA: "The 2 in hundred-thousands (200,000)", wrongA: "The 2 in tens (20)", partB: 10000, description: "2 in HTh (200000) vs 2 in T (20) = ×10000" },
+                { question: "In 999,009, the 9 in the hundred-thousands is how many times larger than the 9 in the ones?", partA: "The 9 in hundred-thousands (900,000)", wrongA: "The 9 in ones (9)", partB: 100000, description: "9 in HTh (900000) vs 9 in O (9) = ×100000" },
+                { question: "A wildlife park has counted 523,527 trees. In this number, the 2 in the hundred-thousands position is how many times larger than the 2 in the tens position?", partA: "The 2 in hundred-thousands (200,000)", wrongA: "The 2 in tens (20)", partB: 10000, description: "2 in HTh (200000) vs 2 in T (20) = ×10000 - context: trees" },
+                { question: "A student is asked to identify which digit is worth 5,000 in the number 356,789. Which digit are they looking for, and which place value is it in?", partA: "The 5 in thousands (5,000)", wrongA: "The 5 in hundred-thousands (500,000)", partB: 100, description: "5 in Th (5000) vs 5 in HTh (500000) = ×100 - place value identification" },
+                { question: "Look at 747,747. Compare the two 4s in this number. How many times larger is one 4 than the other?", partA: "The 4 in ten-thousands (40,000)", wrongA: "The 4 in thousands (4,000)", partB: 10, description: "4 in TTh (40000) vs 4 in Th (4000) = ×10 - comparing same digit in different places" }
+            ]
+        };
+
+        const extensionChallenges = {
+            1: [
+                "Write a 3-digit number where the hundreds digit is exactly ×100 larger than the ones digit. How many solutions are there?",
+                "If I swap the digits in 360 to make 630, which digit changed its value the most?",
+                "Find a 3-digit number where the tens digit is exactly 10 times larger than the ones digit."
+            ],
+            2: [
+                "Find a 5-digit number where the same digit appears three times, each ×10 apart from the next.",
+                "Is it possible for a digit in the tens place to be ×1,000 larger than the same digit somewhere? Why or why not?",
+                "Write a 5-digit number where the ten-thousands digit is exactly 10,000 times the ones digit."
+            ],
+            3: [
+                "Create two 6-digit numbers using the same digits where the value of the digit 5 is ×10,000 apart between the two numbers.",
+                "If you know two identical digits are ×100 apart, list all the possible pairs of place value columns they could be in.",
+                "Write a 6-digit number where three different digits are each 100 times larger than another digit in the same number."
+            ]
+        };
+
+
+        const hints = {
+            1: [
+                "Look carefully at which digit is in the bigger place value position.",
+                "Count how many columns apart the two digits are.",
+                "1 column = ×10, 2 columns = ×100. Multiply them together!"
+            ],
+            2: [
+                "Remember: moving left in place value multiplies by 10.",
+                "Count the jumps between the two place value positions.",
+                "Each jump to the left is another ×10, so keep multiplying!"
+            ],
+            3: [
+                "Identify both place values first.",
+                "Count how many positions separate the two digits.",
+                "Use the rule: 1 jump = ×10, 2 jumps = ×100, 3 jumps = ×1,000, etc."
+            ]
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let correctCount = 0;
+        let attemptedCount = 0;
+        let answered = false;
+        let questionStatus = [];
+        let initialQuestionResult = [];
+        let selectedPartA = null;
+        let selectedPartB = null;
+        let hintsUsed = 0;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            correctCount = 0;
+            attemptedCount = 0;
+            questionStatus = new Array(questions[level].length).fill(null);
+            initialQuestionResult = new Array(questions[level].length).fill(null);
+            hintsUsed = 0;
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+            // level started
+        }
+
+        function goToLanding() {
+            showPage('landing-page');
+        }
+
+        function createProgressTracker() {
+            const grid = document.getElementById('progress-grid');
+            grid.innerHTML = '';
+            const total = questions[currentLevel].length;
+            for (let i = 0; i < total; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = `progress-${i}`;
+                circle.onclick = () => jumpToQuestion(i);
+                grid.appendChild(circle);
+            }
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            const total = questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
+                const circle = document.getElementById(`progress-${i}`);
+                if (!circle) continue;
+                circle.classList.remove('current', 'correct', 'incorrect');
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[i] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[i] === 'incorrect') circle.classList.add('incorrect');
+            }
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = questionStatus[currentQuestion] !== null;
+            const q = questions[currentLevel][currentQuestion];
+            const card = document.getElementById('question-card');
+
+            card.className = `question-card level-${currentLevel}`;
+
+            const total = questions[currentLevel].length;
+            document.getElementById('question-label').textContent = `Question ${currentQuestion + 1}`;
+            document.getElementById('question-text').textContent = q.question;
+
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = total;
+
+            // Part A
+            const partA = document.getElementById('part-a-options');
+            partA.innerHTML = '';
+            const correctAnswerA = q.partA;
+            const wrongAnswerA = q.wrongA;
+            const optionsA = [correctAnswerA, wrongAnswerA].sort(() => Math.random() - 0.5);
+
+            optionsA.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-option';
+                btn.textContent = option;
+                btn.onclick = () => selectPartA(option);
+                btn.disabled = answered;
+                if (answered && option === correctAnswerA) btn.classList.add('correct');
+                partA.appendChild(btn);
+            });
+
+            // Part B
+            const partB = document.getElementById('part-b-options');
+            partB.innerHTML = '';
+            const factors = [10, 100, 1000, 10000, 100000];
+            factors.forEach(factor => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-option';
+                btn.textContent = '×' + factor.toLocaleString();
+                btn.onclick = () => selectPartB(factor);
+                btn.disabled = answered;
+                if (answered && factor === q.partB) btn.classList.add('correct');
+                partB.appendChild(btn);
+            });
+
+            selectedPartA = null;
+            selectedPartB = null;
+            hintsUsed = 0;
+
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('hint-btn').classList.remove('disabled');
+            document.getElementById('hint-btn').textContent = 'Need a hint?';
+            document.getElementById('hint-display').classList.remove('show');
+            document.getElementById('hint-display').innerHTML = '';
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = !answered;
+
+            updateProgressTracker();
+        }
+
+        function selectPartA(option) {
+            if (answered) return;
+            selectedPartA = option;
+
+            document.querySelectorAll('#part-a-options .answer-option').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === option) btn.classList.add('selected');
+            });
+
+            checkIfCanSubmit();
+        }
+
+        function selectPartB(factor) {
+            if (answered) return;
+            selectedPartB = factor;
+
+            document.querySelectorAll('#part-b-options .answer-option').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === '×' + factor.toLocaleString()) btn.classList.add('selected');
+            });
+
+            checkIfCanSubmit();
+        }
+
+        function checkIfCanSubmit() {
+            document.getElementById('check-btn').disabled = !(selectedPartA && selectedPartB !== null);
+        }
+
+        function showHint() {
+            if (answered || hintsUsed >= 3) return;
+            hintsUsed++;
+            const q = questions[currentLevel][currentQuestion];
+            const hintText = hints[currentLevel][hintsUsed - 1];
+            const display = document.getElementById('hint-display');
+            display.innerHTML = `<strong>Hint ${hintsUsed}:</strong> ${hintText}`;
+            display.classList.add('show');
+
+            const btn = document.getElementById('hint-btn');
+            if (hintsUsed >= 3) {
+                btn.classList.add('disabled');
+                btn.textContent = 'No more hints';
+            }
+        }
+
+        function checkAnswer() {
+            if (answered || !selectedPartA || selectedPartB === null) return;
+            const q = questions[currentLevel][currentQuestion];
+            const partACorrect = selectedPartA === q.partA;
+            const partBCorrect = selectedPartB === q.partB;
+            const isCorrect = partACorrect && partBCorrect;
+
+            document.querySelectorAll('#part-a-options .answer-option').forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.partA) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedPartA && !partACorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            document.querySelectorAll('#part-b-options .answer-option').forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === '×' + q.partB.toLocaleString()) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === '×' + selectedPartB.toLocaleString() && !partBCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (isCorrect) {
+                correctCount++;
+            }
+            attemptedCount++;
+            answered = true;
+
+            questionStatus[currentQuestion] = isCorrect ? 'correct' : 'incorrect';
+            if (initialQuestionResult[currentQuestion] === null) {
+                initialQuestionResult[currentQuestion] = isCorrect ? 'correct' : 'incorrect';
+            }
+
+            showFeedback(isCorrect, q, partACorrect, partBCorrect);
+            updateProgressTracker();
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function showFeedback(isCorrect, q, partACorrect, partBCorrect) {
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackText = document.getElementById('feedback-text');
+
+            feedbackBox.classList.remove('correct', 'incorrect');
+
+            if (isCorrect) {
+                feedbackBox.classList.add('correct');
+                feedbackTitle.textContent = 'Correct!';
+                feedbackText.textContent = 'Excellent! You identified the correct digit and calculated the factor perfectly.';
+            } else {
+                feedbackBox.classList.add('incorrect');
+                feedbackTitle.textContent = 'Not quite';
+
+                // Extract place value columns and values from the question parts
+                const extractColumnInfo = (text) => {
+                    const match = text.match(/in\s+(\w+)|first|last/i);
+                    const valueMatch = text.match(/\(([^)]+)\)/);
+                    let column = 'ones';
+                    if (match && match[1]) {
+                        column = match[1];
+                    }
+                    return {
+                        column: column,
+                        value: valueMatch ? valueMatch[1] : ''
+                    };
+                };
+
+                const correctInfo = extractColumnInfo(q.partA);
+                const studentInfo = extractColumnInfo(selectedPartA);
+                const correctFactor = q.partB;
+
+                let feedbackMsg = '';
+
+                if (!partACorrect && !partBCorrect) {
+                    // Both parts wrong
+                    feedbackMsg = `You picked <span style="font-family:'Space Mono',monospace"><strong>${studentInfo.value}</strong></span>, but the <span style="font-family:'Space Mono',monospace"><strong>${correctInfo.value}</strong></span> in the <strong>${correctInfo.column}</strong> column has greater value. The factor is <span style="font-family:'Space Mono',monospace"><strong>×${correctFactor.toLocaleString()}</strong></span>, not <span style="font-family:'Space Mono',monospace"><strong>×${selectedPartB.toLocaleString()}</strong></span>.`;
+                } else if (!partACorrect) {
+                    // Part A wrong only
+                    feedbackMsg = `You picked <span style="font-family:'Space Mono',monospace"><strong>${studentInfo.value}</strong></span>, but the <span style="font-family:'Space Mono',monospace"><strong>${correctInfo.value}</strong></span> in the <strong>${correctInfo.column}</strong> column has greater value.`;
+                } else if (!partBCorrect) {
+                    // Part B wrong only
+                    feedbackMsg = `The factor is <span style="font-family:'Space Mono',monospace"><strong>×${correctFactor.toLocaleString()}</strong></span>, not <span style="font-family:'Space Mono',monospace"><strong>×${selectedPartB.toLocaleString()}</strong></span>. Count the place value columns between them.`;
+                }
+
+                feedbackText.innerHTML = feedbackMsg;
+            }
+
+            feedbackBox.classList.add('visible');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= questions[currentLevel].length) {
+                showCompletionPage();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function showCompletionPage() {
+            const percentage = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
+
+            const levelNames = {
+                1: "Level 1: Ones to Hundreds",
+                2: "Level 2: Up to Ten-Thousands",
+                3: "Level 3: Up to Hundred-Thousands"
+            };
+
+            document.getElementById('completion-message').textContent =
+                `You've completed ${levelNames[currentLevel]}!`;
+            document.getElementById('score-total').textContent = attemptedCount;
+            document.getElementById('score-correct').textContent = correctCount;
+            document.getElementById('score-percentage').textContent = percentage + '%';
+
+            // Extension challenges
+            const challengeList = document.getElementById('extension-list');
+            challengeList.innerHTML = '';
+            extensionChallenges[currentLevel].forEach(challenge => {
+                const li = document.createElement('li');
+                li.textContent = challenge;
+                challengeList.appendChild(li);
+            });
+
+            if (typeof submitResult === 'function') {
+                var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                submitResult('place-value-explorer', 'Place Value Explorer', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
+                var sentMsg = document.getElementById('result-sent-msg');
+                if (sentMsg) sentMsg.style.display = 'block';
+            }
+            showPage('completion-page');
+        }
+
+        function toggleLearningSection() {
+            const content = document.getElementById('learningContent');
+            const toggle = document.getElementById('learningToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        function goToStep(stepNum) {
+            const totalSteps = 5;
+            document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('step-' + stepNum).classList.add('active');
+
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.remove('active', 'visited');
+                if (i === stepNum - 1) dot.classList.add('active');
+                else if (i < stepNum - 1) dot.classList.add('visited');
+            });
+        }
+
+        function revealWorkedAnswer() {
+            const answer = document.getElementById('workedAnswer');
+            const btn = event.target;
+            answer.classList.toggle('show');
+            btn.textContent = answer.classList.contains('show') ? 'Hide Answer' : 'Show Answer';
+        }
+
+
+        function setupVocabularyTooltips() {
+            const tooltipTerms = {
+                'place value': "The value of a digit based on its position in a number. For example, the 3 in 350 has a value of 300.",
+                'factor': "The number you multiply by. If something is ×10 larger, the factor is 10.",
+                'digit': "A single number symbol (0–9). Numbers are made up of digits in different positions.",
+                'column': "A position in a number. From right to left: ones, tens, hundreds, thousands, and so on.",
+                'place': "A position in a number. The tens place, hundreds place, etc. Same as column."
+            };
+
+            document.querySelectorAll('.vocab-term').forEach(term => {
+                const word = term.textContent.toLowerCase().trim();
+                if (tooltipTerms[word]) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'vocab-tooltip';
+                    tooltip.textContent = tooltipTerms[word];
+                    term.appendChild(tooltip);
+
+                    term.addEventListener('mouseenter', function() {
+                        this.querySelector('.vocab-tooltip').classList.add('show');
+                    });
+                    term.addEventListener('mouseleave', function() {
+                        this.querySelector('.vocab-tooltip').classList.remove('show');
+                    });
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupVocabularyTooltips();
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

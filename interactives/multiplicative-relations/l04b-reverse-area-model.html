@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4B: Reversing the Area Model</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa;
+    --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #27AE60; --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  header { background: #2D3436; color: #fff; padding: 36px 48px 28px; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%); pointer-events: none; }
+  header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  header h1 { font-size: clamp(26px, 5vw, 42px); font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 560px; font-weight: 500; }
+
+  /* ── NAV PILLS ── */
+  .phase-nav { display: flex; gap: 10px; padding: 18px 48px; background: #3d4347; flex-wrap: wrap; }
+  .phase-nav button { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: none; border-radius: 30px; padding: 8px 20px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  /* ── LISC ── */
+  .lisc-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 28px; margin-bottom: 24px; border-top: 5px solid var(--teal); }
+  .lisc-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .lisc-header h2 { font-size: 17px; font-weight: 700; }
+  .lisc-toggle { font-size: 15px; transition: transform 0.3s; }
+  .lisc-body { display: none; margin-top: 16px; }
+  .lisc-body.open { display: block; }
+  .lisc-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--teal-dark); }
+  .lisc-body p { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+  .lisc-body ul { list-style: none; margin: 0 0 12px 0; }
+  .lisc-body li { padding: 4px 0 4px 22px; position: relative; font-size: 14px; line-height: 1.5; }
+  .lisc-body li::before { content: "\2014"; position: absolute; left: 0; }
+
+  /* ── SECTIONS ── */
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 6px; }
+  .section-heading { font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; }
+
+  /* ── CARD ── */
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-blue { background: #eef6ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #1a3a5c; }
+  .callout-green { background: #e8f8e8; border-left: 5px solid var(--green); }
+  .callout-green .label { color: var(--green-dark); }
+  .callout-green p { color: #0a3820; }
+
+  /* ── I DO STEP PROGRESSION ── */
+  .ido-progression { position: relative; }
+  .ido-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .ido-dot { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; transition: all 0.3s; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.35); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%; color: white;
+    font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .step-badge.red { background: var(--red); }
+  .step-badge.amber { background: var(--amber); color: var(--text); }
+  .step-badge.green { background: var(--green); }
+  .step-badge.teal { background: var(--teal); color: var(--text); }
+  .step-badge.blue { background: var(--blue); }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 16px; }
+  .ido-step-nav button {
+    background: var(--teal); color: var(--text); border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .ido-step-nav button:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .ido-step-nav .back { background: rgba(0,0,0,0.06); color: var(--text); }
+  .ido-step-nav .back:hover { background: rgba(0,0,0,0.12); }
+
+  /* ── AREA MODEL ── */
+  .area-model-container { position: relative; margin: 40px 60px 20px 60px; }
+  .area-model { display: flex; border: 3px solid var(--text); border-radius: 6px; overflow: visible; min-height: 100px; }
+  .area-section {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px 14px; border-right: 2px dashed var(--muted); position: relative;
+    min-width: 70px; transition: all 0.4s;
+  }
+  .area-section:last-child { border-right: none; }
+  .area-section .top-label {
+    position: absolute; top: -32px; font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 16px; color: var(--text);
+    background: var(--amber); padding: 2px 10px; border-radius: 8px;
+  }
+  .area-section .top-label.mystery {
+    background: var(--muted); color: white;
+  }
+  .area-section .inner-text {
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px;
+    color: var(--blue); text-align: center; line-height: 1.4;
+  }
+  .area-section.filled { background: rgba(78, 205, 196, 0.1); }
+  .area-section.revealed { background: rgba(39, 174, 96, 0.1); }
+  .area-side-label {
+    position: absolute; left: -45px; top: 50%; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px; color: var(--text);
+    background: var(--teal); padding: 2px 10px; border-radius: 8px;
+  }
+  .area-total-label {
+    text-align: center; margin-top: 14px; font-size: 18px; font-weight: 700;
+  }
+  .area-total-label .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── 2D AREA GRID ── */
+  .area-grid-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+  .area-grid-container { position: relative; margin: 40px 20px 20px 80px; }
+  .area-grid {
+    display: grid; border: 3px solid var(--text); border-collapse: collapse;
+    background: white; border-radius: 6px; overflow: hidden;
+  }
+  .area-grid-header-cell {
+    background: var(--amber); color: var(--text); font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 15px; padding: 12px 8px; text-align: center;
+    border-right: 2px solid var(--text); border-bottom: 2px solid var(--text);
+  }
+  .area-grid-header-cell:last-child { border-right: none; }
+  .area-grid-header-cell.unknown {
+    background: var(--muted); color: white;
+  }
+  .area-grid-row-header {
+    background: var(--teal); color: var(--text); font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 15px; padding: 12px 8px; text-align: center;
+    border-right: 2px solid var(--text); border-bottom: 2px solid var(--text);
+  }
+  .area-grid-row-header:last-of-type { border-bottom: none; }
+  .area-grid-row-header.unknown {
+    background: var(--muted); color: white;
+  }
+  .area-grid-cell {
+    display: flex; align-items: center; justify-content: center; padding: 10px 8px;
+    border-right: 2px dashed var(--muted); border-bottom: 2px dashed var(--muted);
+    min-width: 70px; min-height: 70px;
+    background: #f0f4f8;
+  }
+  .area-grid-cell:last-child { border-right: none; }
+  .area-grid-cell.last-row { border-bottom: none; }
+  .grid-cell-input, .grid-header-input {
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+    width: 60px; text-align: center; padding: 6px; border: 2px solid var(--border);
+    border-radius: 8px; outline: none; transition: border-color 0.2s; background: #fff;
+  }
+  .grid-cell-input:focus, .grid-header-input:focus { border-color: var(--blue); }
+  .grid-cell-input.correct, .grid-header-input.correct { border-color: var(--green); background: var(--green-light); }
+  .grid-cell-input.wrong, .grid-header-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* ── ESTIMATE BLOCK ── */
+  .estimate-block {
+    background: linear-gradient(135deg, #fffbf0, #fff8e8); border: 2px solid var(--amber);
+    border-radius: 14px; padding: 20px 24px; margin: 16px 0; text-align: center;
+  }
+  .estimate-block .est-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--amber-dark); margin-bottom: 10px; }
+  .est-input {
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 10px 16px; width: 160px; max-width: 100%;
+    transition: border-color 0.3s ease; outline: none; background: #fff;
+  }
+  .est-input:focus { border-color: var(--amber); }
+  .est-result { margin-top: 10px; font-size: 15px; font-weight: 600; padding: 8px 16px; border-radius: 10px; display: none; }
+  .est-result.show { display: inline-block; animation: fadeIn 0.3s; }
+  .est-result.excellent { background: var(--green-light); color: var(--green-dark); border: 2px solid var(--green); }
+  .est-result.good { background: #fffbf0; color: var(--amber-dark); border: 2px solid var(--amber); }
+  .est-result.needs-work { background: var(--red-light); color: var(--red-dark); border: 2px solid var(--red); }
+
+  /* ── INTERACTIVE INPUTS ── */
+  .ia-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 100px; text-align: center; padding: 8px; border: 2px solid var(--border);
+    border-radius: 10px; outline: none; transition: border-color 0.2s;
+  }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* ── CHUNK INPUT ROW ── */
+  .chunk-row {
+    display: flex; align-items: center; gap: 10px; justify-content: center;
+    margin: 12px 0; flex-wrap: wrap; padding: 12px; background: #f8f9fa;
+    border-radius: 12px; border: 2px solid var(--border);
+  }
+  .chunk-row.completed { background: var(--green-light); border-color: var(--green); }
+  .chunk-label { font-size: 15px; font-weight: 600; }
+
+  /* ── BUTTONS ── */
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .btn-amber { background: var(--amber); color: var(--text); }
+  .btn-amber:hover { background: var(--amber-dark); transform: translateY(-2px); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover { background: var(--teal-dark); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* ── FEEDBACK ── */
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* ── DOT COUNTER ── */
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  /* ── LEVEL BAR ── */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.l4 { background: #F7B731; }
+  .level-btn.l5 { background: var(--blue); }
+  .level-btn.l6 { background: var(--green); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* ── SUMMARY ── */
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── GO DEEPER EXTENSION ── */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); max-width: 700px; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  @media (max-width: 600px) {
+    header { padding: 28px 20px 22px; }
+    .phase-nav { padding: 14px 20px; }
+    main { padding: 20px 14px 40px; }
+    .card { padding: 20px 18px; }
+    .ia-input { width: 70px; font-size: 15px; }
+    .area-model-container { margin: 30px 30px 20px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Lesson 4B &middot; Year 5 Mathematics &middot; Multiplicative Relations</div>
+  <h1>Reversing the <span>Area Model</span></h1>
+  <p>Division hiding inside a multiplication model</p>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showPhase('hook', this)">Hook</button>
+  <button onclick="showPhase('ido', this)">I Do</button>
+  <button onclick="showPhase('wedo', this)">We Do</button>
+  <button onclick="showPhase('youdo', this)">You Do</button>
+</nav>
+
+<main>
+
+<!-- LISC -->
+<div class="lisc-card">
+  <div class="lisc-header" onclick="toggleLISC()">
+    <h2>Learning Intention &amp; Success Criteria</h2>
+    <span class="lisc-toggle" id="liscToggle">&#x25BC;</span>
+  </div>
+  <div class="lisc-body" id="liscBody">
+    <h3>Learning Intention</h3>
+    <p>We are learning to use the area model in reverse: given the total area and one side, find the missing side.</p>
+    <h3>Success Criteria</h3>
+    <ul>
+      <li>I can identify when a problem requires reversing the area model.</li>
+      <li>I can choose a friendly chunk of the total that divides evenly by the known side.</li>
+      <li>I can work through the chunks step by step to find the missing side.</li>
+      <li>I can check my answer by multiplying to confirm the total.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════ HOOK ══════ -->
+<div id="hook" class="section active">
+  <div class="section-title">The Hook</div>
+  <div class="section-heading">Same model, different direction</div>
+
+  <div class="card">
+    <h3>Remember the school hall?</h3>
+    <p>In the last lesson, we found that the school hall is <strong>24</strong> metres long and <strong>6</strong> metres wide, giving a total area of <strong>144</strong> square metres.</p>
+
+    <div class="area-model-container">
+      <div class="area-model" style="min-height:80px;">
+        <div class="area-section filled" style="flex:5;">
+          <div class="top-label">20</div>
+          <div class="inner-text">20 &times; 6 = 120</div>
+        </div>
+        <div class="area-section filled" style="flex:1;">
+          <div class="top-label">4</div>
+          <div class="inner-text">4 &times; 6 = 24</div>
+        </div>
+      </div>
+      <div class="area-side-label">6</div>
+    </div>
+    <div class="area-total-label">Total: <span class="mono">120 + 24 = 144</span> square metres</div>
+  </div>
+
+  <div class="card">
+    <h3>Now flip it around</h3>
+    <p>Imagine I told you: the hall has an area of <strong>144</strong> square metres and is <strong>6</strong> metres wide. <strong>How long is it?</strong></p>
+
+    <div class="area-model-container">
+      <div class="area-model" style="min-height:80px;">
+        <div class="area-section" style="flex:1; background: rgba(255,107,107,0.08);">
+          <div class="top-label mystery">?</div>
+          <div class="inner-text" style="color:var(--muted);">Area = 144</div>
+        </div>
+      </div>
+      <div class="area-side-label">6</div>
+    </div>
+
+    <p style="margin-top:16px;">We know the total area and one side. We need to find the missing side. This is the area model working in <strong>reverse</strong>.</p>
+
+    <div class="callout callout-amber">
+      <span class="label">Big idea</span>
+      <p>This is <strong>division hiding inside a multiplication model</strong>. When we know the total area and one side, finding the missing side is division. But we can use the same area model to work it out.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ I DO ══════ -->
+<div id="ido" class="section">
+  <div class="section-title">Explicit Instruction</div>
+  <div class="section-heading">Working backwards through the area model</div>
+
+  <!-- Example 1: 144 / 6 -->
+  <div class="card">
+    <h3>Example 1: Area = 144, width = 6</h3>
+
+    <div class="ido-progression" id="rev1-progression">
+      <div class="ido-dots" id="rev1-dots">
+        <div class="ido-dot active"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+      </div>
+
+      <!-- Step 1: Set up the problem -->
+      <div class="ido-step active card" id="rev1-step-1" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge red">1</div>
+          <div style="font-size:1.15rem;font-weight:600;">Set up the problem</div>
+        </div>
+        <p>We need to find: <span class="mono">144 &divide; 6 = ?</span></p>
+        <p style="margin-top:8px;">Draw the rectangle. We know the total area (144) and one side (6). The other side is unknown.</p>
+        <div class="area-model-container">
+          <div class="area-model" style="min-height:80px;">
+            <div class="area-section" style="flex:1; background: rgba(255,107,107,0.08);">
+              <div class="top-label mystery">?</div>
+              <div class="inner-text" style="color:var(--muted);">Area = 144</div>
+            </div>
+          </div>
+          <div class="area-side-label">6</div>
+        </div>
+        <div class="ido-step-nav">
+          <span></span>
+          <button class="next" onclick="goToIdoStep('rev1', 2, 6)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Estimate -->
+      <div class="ido-step card" id="rev1-step-2" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge amber">2</div>
+          <div style="font-size:1.15rem;font-weight:600;">Radar estimate</div>
+        </div>
+        <div class="estimate-block">
+          <div class="est-label">Estimate first</div>
+          <p style="font-size:15px;margin-bottom:8px;"><span class="mono">144 &divide; 6</span>. What's a rough estimate?</p>
+          <p style="font-size:15px;"><strong>150</strong> is close to 144 and easy to work with. <span class="mono">150 &divide; 6 = 25</span>.</p>
+          <p style="font-size:14px;color:var(--muted);margin-top:6px;">So the missing side is near <strong>25</strong>. Rounded up from 144, so the real answer is a little less than 25.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev1', 1, 6)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('rev1', 3, 6)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Find a friendly chunk -->
+      <div class="ido-step card" id="rev1-step-3" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge blue">3</div>
+          <div style="font-size:1.15rem;font-weight:600;">Find a friendly chunk</div>
+        </div>
+        <p>What friendly chunk of <strong>144</strong> can I divide by 6?</p>
+        <p style="margin-top:8px;">I know <span class="mono">6 &times; 20 = 120</span>. So 120 is a good chunk.</p>
+
+        <div class="area-model-container">
+          <div class="area-model" style="min-height:80px;">
+            <div class="area-section revealed" style="flex:5;">
+              <div class="top-label">20</div>
+              <div class="inner-text">120</div>
+            </div>
+            <div class="area-section" style="flex:1; background: rgba(255,107,107,0.08);">
+              <div class="top-label mystery">?</div>
+              <div class="inner-text" style="color:var(--muted);">?</div>
+            </div>
+          </div>
+          <div class="area-side-label">6</div>
+        </div>
+
+        <div class="callout callout-teal">
+          <span class="label">Key thinking</span>
+          <p><span class="mono">120 &divide; 6 = 20</span>. The first section is <strong>20</strong> wide.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev1', 2, 6)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('rev1', 4, 6)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Work out the remainder -->
+      <div class="ido-step card" id="rev1-step-4" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge green">4</div>
+          <div style="font-size:1.15rem;font-weight:600;">What is left?</div>
+        </div>
+        <p>I have used 120 of the 144 total. How much is left?</p>
+        <div style="text-align:center; margin:12px 0; font-size:18px;">
+          <span class="mono">144 &minus; 120 = 24</span>
+        </div>
+        <p>Now divide this remainder by 6:</p>
+        <div style="text-align:center; margin:12px 0; font-size:18px;">
+          <span class="mono">24 &divide; 6 = 4</span>
+        </div>
+
+        <div class="area-model-container">
+          <div class="area-model" style="min-height:80px;">
+            <div class="area-section revealed" style="flex:5;">
+              <div class="top-label">20</div>
+              <div class="inner-text">120</div>
+            </div>
+            <div class="area-section revealed" style="flex:1;">
+              <div class="top-label">4</div>
+              <div class="inner-text">24</div>
+            </div>
+          </div>
+          <div class="area-side-label">6</div>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev1', 3, 6)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('rev1', 5, 6)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Assemble the answer -->
+      <div class="ido-step card" id="rev1-step-5" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge teal">5</div>
+          <div style="font-size:1.15rem;font-weight:600;">Assemble the answer</div>
+        </div>
+        <p>Add the widths of both sections:</p>
+        <div style="text-align:center; margin:12px 0; font-size:20px;">
+          <span class="mono">20 + 4 = 24</span>
+        </div>
+        <p>The missing side is <strong>24 metres</strong>.</p>
+        <div class="callout callout-green">
+          <span class="label">Check</span>
+          <p><span class="mono">24 &times; 6 = 144</span>. Confirmed. Our estimate was 25, and the answer is 24. Radar was spot on.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev1', 4, 6)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('rev1', 6, 6)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 6: The big idea -->
+      <div class="ido-step card" id="rev1-step-6" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge blue">6</div>
+          <div style="font-size:1.15rem;font-weight:600;">The big idea</div>
+        </div>
+        <div class="callout callout-amber">
+          <span class="label">Bidirectional thinking</span>
+          <p>The area model works both ways. Forward: you know both sides, you find the area. Reverse: you know the area and one side, you find the missing side. Same model. Different direction. This is how multiplication and division are connected.</p>
+        </div>
+        <div class="callout callout-teal">
+          <span class="label">The strategy</span>
+          <p>To reverse the area model: (1) find a friendly chunk of the total that divides evenly, (2) work out the remainder, (3) divide the remainder, (4) add the section widths together.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev1', 5, 6)">&larr; Back</button>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example 2: 372 / 3 -->
+  <div class="card">
+    <h3>Example 2: Area = 372, width = 3</h3>
+
+    <div class="ido-progression" id="rev2-progression">
+      <div class="ido-dots" id="rev2-dots">
+        <div class="ido-dot active"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+      </div>
+
+      <div class="ido-step active card" id="rev2-step-1" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge red">1</div>
+          <div style="font-size:1.15rem;font-weight:600;">Estimate and start</div>
+        </div>
+        <p><span class="mono">372 &divide; 3</span>. Estimate: <span class="mono">390 &divide; 3 = 130</span>. Answer is near 130, a little less.</p>
+        <p style="margin-top:8px;">What friendly chunk of 372 can I divide by 3? I know <span class="mono">3 &times; 100 = 300</span>.</p>
+        <div class="area-model-container">
+          <div class="area-model" style="min-height:80px;">
+            <div class="area-section revealed" style="flex:100;">
+              <div class="top-label">100</div>
+              <div class="inner-text">300</div>
+            </div>
+            <div class="area-section" style="flex:30; background: rgba(255,107,107,0.08);">
+              <div class="top-label mystery">?</div>
+              <div class="inner-text" style="color:var(--muted);">72 left</div>
+            </div>
+          </div>
+          <div class="area-side-label">3</div>
+        </div>
+        <div class="ido-step-nav">
+          <span></span>
+          <button class="next" onclick="goToIdoStep('rev2', 2, 4)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="ido-step card" id="rev2-step-2" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge amber">2</div>
+          <div style="font-size:1.15rem;font-weight:600;">Remainder: 72</div>
+        </div>
+        <p><span class="mono">372 &minus; 300 = 72</span>. Now divide 72 by 3.</p>
+        <p style="margin-top:8px;">I know <span class="mono">3 &times; 20 = 60</span>. That leaves <span class="mono">72 &minus; 60 = 12</span>.</p>
+        <div class="area-model-container">
+          <div class="area-model" style="min-height:80px;">
+            <div class="area-section revealed" style="flex:100;">
+              <div class="top-label">100</div>
+              <div class="inner-text">300</div>
+            </div>
+            <div class="area-section revealed" style="flex:20;">
+              <div class="top-label">20</div>
+              <div class="inner-text">60</div>
+            </div>
+            <div class="area-section" style="flex:5; background: rgba(255,107,107,0.08);">
+              <div class="top-label mystery">?</div>
+              <div class="inner-text" style="color:var(--muted);">12 left</div>
+            </div>
+          </div>
+          <div class="area-side-label">3</div>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev2', 1, 4)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('rev2', 3, 4)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="ido-step card" id="rev2-step-3" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge green">3</div>
+          <div style="font-size:1.15rem;font-weight:600;">Final chunk</div>
+        </div>
+        <p><span class="mono">12 &divide; 3 = 4</span>. All used up.</p>
+        <div class="area-model-container">
+          <div class="area-model" style="min-height:80px;">
+            <div class="area-section revealed" style="flex:100;">
+              <div class="top-label">100</div>
+              <div class="inner-text">300</div>
+            </div>
+            <div class="area-section revealed" style="flex:20;">
+              <div class="top-label">20</div>
+              <div class="inner-text">60</div>
+            </div>
+            <div class="area-section revealed" style="flex:4;">
+              <div class="top-label">4</div>
+              <div class="inner-text">12</div>
+            </div>
+          </div>
+          <div class="area-side-label">3</div>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev2', 2, 4)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('rev2', 4, 4)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="ido-step card" id="rev2-step-4" style="border:none;box-shadow:none;padding:16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge teal">4</div>
+          <div style="font-size:1.15rem;font-weight:600;">Answer</div>
+        </div>
+        <p>Missing side: <span class="mono">100 + 20 + 4 = 124</span></p>
+        <div class="callout callout-green">
+          <span class="label">Check</span>
+          <p><span class="mono">124 &times; 3 = 372</span>. Confirmed. Our estimate was 130, and the answer is 124. Close.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('rev2', 3, 4)">&larr; Back</button>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ WE DO ══════ -->
+<div id="wedo" class="section">
+  <div class="section-title">Guided Practice</div>
+  <div class="section-heading">Your turn, with support</div>
+
+  <div class="callout callout-amber" style="margin-bottom:20px;">
+    <span class="label">Strategy reminder</span>
+    <p><strong>1.</strong> Estimate first. <strong>2.</strong> Find a friendly chunk. <strong>3.</strong> Work out the remainder. <strong>4.</strong> Divide again. <strong>5.</strong> Add the section widths.</p>
+  </div>
+
+  <div id="wedo-container"></div>
+</div>
+
+<!-- ══════ YOU DO ══════ -->
+<div id="youdo" class="section">
+  <div class="section-title">Independent Practice</div>
+  <div class="section-heading">Reverse the area model</div>
+  <p style="font-size:16px; color:var(--muted); margin-bottom:8px;">Levels 1-3: Estimate and chunk to find missing sides. Levels 4-6: Use a 2D grid to find missing multiplication parts.</p>
+
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="setLevel(1)">Level 1 (1D)</button>
+    <button class="level-btn l2" onclick="setLevel(2)">Level 2 (1D)</button>
+    <button class="level-btn l3" onclick="setLevel(3)">Level 3 (1D)</button>
+    <button class="level-btn l4" onclick="setLevel(4)">Level 4 (2×2)</button>
+    <button class="level-btn l5" onclick="setLevel(5)">Level 5 (3×2)</button>
+    <button class="level-btn l6" onclick="setLevel(6)">Level 6 (3×3)</button>
+  </div>
+
+  <div class="dot-counter" id="yd-dots"></div>
+  <div id="yd-card" class="card" style="text-align:center;"></div>
+  <div class="summary-card" id="yd-summary">
+    <h3>Round Complete</h3>
+    <div class="summary-score" id="yd-score"></div>
+    <p id="yd-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+    <button class="btn btn-primary" onclick="startYouDo()">Try Again (New Problems)</button>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER EXTENSION ══════ -->
+<div id="go-deeper" class="section" style="display: none;">
+  <div class="section-title">Go Deeper</div>
+  <div class="section-heading">Extend your thinking</div>
+
+  <div class="go-deeper-card">
+    <h2>Challenge Tasks</h2>
+    <p>You have completed the reverse area model. Now extend your understanding with three increasingly difficult thinking tasks.</p>
+  </div>
+
+  <!-- LEVEL 1: SPECIALISING -->
+  <button class="go-deeper-level-btn locked" id="gd-level-1-btn">
+    <h3>&#x1F512; Task 1: Specialising</h3>
+    <p>Find a third way to split <span class="ext-numbers">252 ÷ 7</span></p>
+  </button>
+
+  <div id="gd-level-1-content" class="go-deeper-card" style="display: none;">
+    <h2>Task 1: Specialising</h2>
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising Task</div>
+      <div class="ext-task-prompt">Two students reversed the area model for <span class="ext-numbers">252 ÷ 7</span>:</div>
+      <div class="ext-task-sub">
+        <strong>Student A:</strong> <span class="ext-numbers">7 × 30 = 210</span>, remainder <span class="ext-numbers">42</span>, then <span class="ext-numbers">7 × 6 = 42</span>. Missing side: <span class="ext-numbers">30 + 6 = 36</span>
+      </div>
+      <div class="ext-task-sub">
+        <strong>Student B:</strong> <span class="ext-numbers">7 × 20 = 140</span>, remainder <span class="ext-numbers">112</span>, then <span class="ext-numbers">7 × 10 = 70</span>, remainder <span class="ext-numbers">42</span>, then <span class="ext-numbers">7 × 6 = 42</span>. Missing side: <span class="ext-numbers">20 + 10 + 6 = 36</span>
+      </div>
+      <div class="ext-task-prompt">Both got the same answer. Try splitting <span class="ext-numbers">252 ÷ 7</span> in a third way.</div>
+    </div>
+
+    <div style="margin: 24px 0;">
+      <label style="font-weight: 600; font-size: 14px; display: block; margin-bottom: 10px;">Show your thinking here...</label>
+      <textarea class="ext-thinking-area" id="gd-t1-input" placeholder="Show your thinking here..."></textarea>
+    </div>
+
+    <button class="ext-reveal-btn" onclick="revealGdTask(1)">Show Model Thinking</button>
+
+    <div id="gd-t1-response" class="ext-model-response">
+      <div class="model-label">Model Thinking</div>
+      <p><strong>Third way:</strong> Start with <span class="ext-numbers">7 × 35 = 245</span>, remainder <span class="ext-numbers">7</span>, then <span class="ext-numbers">7 × 1 = 7</span>. Missing side: <span class="ext-numbers">35 + 1 = 36</span></p>
+      <p><strong>Or:</strong> Start with <span class="ext-numbers">7 × 25 = 175</span>, remainder <span class="ext-numbers">77</span>, then <span class="ext-numbers">7 × 11 = 77</span>. Missing side: <span class="ext-numbers">25 + 11 = 36</span></p>
+      <p>Notice that all three ways give the same answer, <span class="ext-numbers">36</span>. The missing side does not depend on which chunks you choose, as long as they divide evenly and sum to the total.</p>
+      <div class="mathematician-box">
+        <strong>Mathematician's note:</strong> When you use different chunks, you are using the distributive property of division: (a + b) ÷ n = (a ÷ n) + (b ÷ n). As long as your chunks add up to <span class="ext-numbers">252</span> and each divides by <span class="ext-numbers">7</span>, the section widths will always sum to <span class="ext-numbers">36</span>.
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 2: CONJECTURING -->
+  <button class="go-deeper-level-btn locked" id="gd-level-2-btn">
+    <h3>&#x1F512; Task 2: Conjecturing</h3>
+    <p>Is starting with the biggest friendly chunk always most efficient?</p>
+  </button>
+
+  <div id="gd-level-2-content" class="go-deeper-card" style="display: none;">
+    <h2>Task 2: Conjecturing</h2>
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecture Task</div>
+      <div class="ext-task-prompt">When reversing the area model, starting with the biggest possible friendly chunk always gives fewer steps than starting with a smaller chunk.</div>
+      <div class="ext-task-prompt">Is this statement: Always true, sometimes true, or never true? Give an example to support your answer.</div>
+    </div>
+
+    <div style="margin: 24px 0;">
+      <label style="font-weight: 600; font-size: 14px; display: block; margin-bottom: 10px;">Show your thinking here...</label>
+      <textarea class="ext-thinking-area" id="gd-t2-input" placeholder="Show your thinking here..."></textarea>
+    </div>
+
+    <button class="ext-reveal-btn" onclick="revealGdTask(2)">Show Model Thinking</button>
+
+    <div id="gd-t2-response" class="ext-model-response">
+      <div class="model-label">Model Thinking</div>
+      <p><strong>The statement is SOMETIMES true.</strong></p>
+      <p><strong>Counterexample:</strong> Consider <span class="ext-numbers">372 ÷ 3</span>.</p>
+      <p>If you start with the biggest possible friendly chunk, <span class="ext-numbers">3 × 100 = 300</span>, you need 3 steps: <span class="ext-numbers">100, 20, 4</span>.</p>
+      <p>But if you start with <span class="ext-numbers">3 × 120 = 360</span> (a smaller chunk than 100 would give), you only need 2 steps: <span class="ext-numbers">120, 4</span>. Remainder is <span class="ext-numbers">12</span>, and <span class="ext-numbers">3 × 4 = 12</span>.</p>
+      <p>So a smaller chunk can be more efficient! The trick is to choose chunks that divide evenly AND are friendly in size, not just the biggest possible chunk.</p>
+      <div class="mathematician-box">
+        <strong>Mathematician's note:</strong> Efficiency in chunking depends on both divisibility and how quickly you can reach zero. A chunk like <span class="ext-numbers">120</span> is "friendlier" than <span class="ext-numbers">100</span> even though it's larger, because <span class="ext-numbers">372 - 360 = 12</span> is easier to divide by <span class="ext-numbers">3</span> than <span class="ext-numbers">372 - 300 = 72</span>.
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 3: JUSTIFYING -->
+  <button class="go-deeper-level-btn locked" id="gd-level-3-btn">
+    <h3>&#x1F512; Task 3: Justifying</h3>
+    <p>Can you ever get a wrong answer by choosing different chunks?</p>
+  </button>
+
+  <div id="gd-level-3-content" class="go-deeper-card" style="display: none;">
+    <h2>Task 3: Justifying</h2>
+    <div class="ext-task">
+      <div class="ext-task-label">Justifying Task</div>
+      <div class="ext-task-prompt">Does it matter which friendly chunks you choose when reversing the area model? Could you ever get a WRONG answer by choosing different chunks?</div>
+      <div class="ext-task-prompt">Justify your reasoning using the distributive property of division.</div>
+    </div>
+
+    <div style="margin: 24px 0;">
+      <label style="font-weight: 600; font-size: 14px; display: block; margin-bottom: 10px;">Show your thinking here...</label>
+      <textarea class="ext-thinking-area" id="gd-t3-input" placeholder="Show your thinking here..."></textarea>
+    </div>
+
+    <button class="ext-reveal-btn" onclick="revealGdTask(3)">Show Model Thinking</button>
+
+    <div id="gd-t3-response" class="ext-model-response">
+      <div class="model-label">Model Thinking</div>
+      <p><strong>You can NEVER get a wrong answer.</strong></p>
+      <p>As long as:</p>
+      <ul style="margin-left: 20px; margin-bottom: 12px; font-size: 15px; line-height: 1.7;">
+        <li>Every chunk divides evenly by the width</li>
+        <li>The chunks add up to the total area</li>
+      </ul>
+      <p>Then the missing side will ALWAYS be the same.</p>
+      <p><strong>Why?</strong> This is the distributive property of division over addition:</p>
+      <p style="font-family: 'Space Mono', monospace; background: #f5f5f5; padding: 12px; border-radius: 8px; font-size: 14px; margin: 12px 0;">
+        (a + b) ÷ n = (a ÷ n) + (b ÷ n)
+      </p>
+      <p>When you split <span class="ext-numbers">252</span> into <span class="ext-numbers">210 + 42</span>, you get <span class="ext-numbers">(210 ÷ 7) + (42 ÷ 7) = 30 + 6 = 36</span></p>
+      <p>When you split <span class="ext-numbers">252</span> into <span class="ext-numbers">140 + 70 + 42</span>, you get <span class="ext-numbers">(140 ÷ 7) + (70 ÷ 7) + (42 ÷ 7) = 20 + 10 + 6 = 36</span></p>
+      <p>When you split <span class="ext-numbers">252</span> into <span class="ext-numbers">245 + 7</span>, you get <span class="ext-numbers">(245 ÷ 7) + (7 ÷ 7) = 35 + 1 = 36</span></p>
+      <div class="mathematician-box">
+        <strong>Key insight:</strong> The distributive property guarantees that as long as your chunks are valid, your answer must be correct. The missing side is determined by the area and width alone, not by how you split the area into chunks.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+// ── NAV ──
+function showPhase(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.phase-nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'wedo' && !weDoBuilt) buildWeDo();
+  if (id === 'youdo' && ydProblems.length === 0) startYouDo();
+}
+
+function toggleLISC() {
+  var b = document.getElementById('liscBody');
+  var t = document.getElementById('liscToggle');
+  b.classList.toggle('open');
+  t.innerHTML = b.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── I DO STEP PROGRESSION ──
+function goToIdoStep(prefix, stepNum, totalSteps) {
+  document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+  var dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+  dots.forEach(function(dot, i) {
+    dot.classList.remove('active', 'visited');
+    if (i === stepNum - 1) dot.classList.add('active');
+    else if (i < stepNum - 1) dot.classList.add('visited');
+  });
+}
+
+// ── WE DO ──
+var weDoBuilt = false;
+var weDoData = [
+  { area: 156, side: 6, answer: 26 },
+  { area: 252, side: 4, answer: 63 }
+];
+
+function buildWeDo() {
+  weDoBuilt = true;
+  var container = document.getElementById('wedo-container');
+  container.innerHTML = '';
+
+  weDoData.forEach(function(p, idx) {
+    var card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML =
+      '<h3>Problem ' + (idx + 1) + '</h3>' +
+      '<p>A rectangle has an area of <span class="mono">' + fmtNum(p.area) + '</span> and a width of <span class="mono">' + p.side + '</span>. What is the length?</p>' +
+
+      '<div class="area-model-container" style="margin:30px auto 10px 50px; max-width:400px;">' +
+        '<div class="area-model" style="min-height:70px;">' +
+          '<div class="area-section" id="wedo-model-' + idx + '" style="flex:1; background: rgba(255,107,107,0.08);">' +
+            '<div class="top-label mystery">?</div>' +
+            '<div class="inner-text" style="color:var(--muted);">Area = ' + fmtNum(p.area) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="area-side-label">' + p.side + '</div>' +
+      '</div>' +
+
+      // Estimate
+      '<div class="estimate-block" style="margin:12px 0;">' +
+        '<div class="est-label">Step 1: Estimate</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+          '<span style="font-size:15px;font-weight:600;">My estimate:</span>' +
+          '<input type="number" class="est-input" id="wedo-est-' + idx + '" placeholder="?">' +
+        '</div>' +
+        '<div style="margin-top:8px;"><button class="btn btn-amber" id="wedo-est-btn-' + idx + '" onclick="checkWeDoEst(' + idx + ')">Check Estimate</button></div>' +
+        '<div class="est-result" id="wedo-est-result-' + idx + '"></div>' +
+      '</div>' +
+
+      // Chunk input
+      '<div id="wedo-chunk-area-' + idx + '" style="display:none;">' +
+        '<p style="font-size:15px;font-weight:600;margin-bottom:8px;">Step 2: Find the missing side</p>' +
+        '<div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">' +
+          '<span style="font-size:16px;font-weight:700;">Missing side =</span>' +
+          '<input type="number" class="ia-input" id="wedo-answer-' + idx + '" placeholder="?">' +
+        '</div>' +
+        '<div style="margin-top:10px;"><button class="check-btn" id="wedo-check-' + idx + '" onclick="checkWeDoAnswer(' + idx + ')">Check</button></div>' +
+        '<div class="feedback" id="wedo-fb-' + idx + '"></div>' +
+      '</div>';
+
+    container.appendChild(card);
+  });
+}
+
+function checkWeDoEst(idx) {
+  var p = weDoData[idx];
+  var input = document.getElementById('wedo-est-' + idx);
+  var raw = input.value.replace(/,/g, '');
+  if (raw === '' || isNaN(Number(raw))) { input.style.borderColor = 'var(--red)'; return; }
+
+  var est = parseInt(raw, 10);
+  var pct = Math.abs(est - p.answer) / p.answer * 100;
+  var result = document.getElementById('wedo-est-result-' + idx);
+  result.classList.add('show');
+  result.classList.remove('excellent', 'good', 'needs-work');
+
+  if (pct <= 15) {
+    result.classList.add('excellent');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Good estimate.';
+  } else if (pct <= 30) {
+    result.classList.add('good');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Reasonable.';
+  } else {
+    result.classList.add('needs-work');
+    result.innerHTML = '<span class="mono">' + pct.toFixed(0) + '%</span> away. Try rounding ' + fmtNum(p.area) + ' to a friendly number first.';
+  }
+
+  input.disabled = true;
+  document.getElementById('wedo-est-btn-' + idx).disabled = true;
+  document.getElementById('wedo-chunk-area-' + idx).style.display = 'block';
+}
+
+function checkWeDoAnswer(idx) {
+  var p = weDoData[idx];
+  var inp = document.getElementById('wedo-answer-' + idx);
+  var val = parseInt(inp.value, 10);
+  var fb = document.getElementById('wedo-fb-' + idx);
+  inp.disabled = true;
+
+  // Work out a chunked explanation
+  var tens = Math.floor(p.answer / 10) * 10;
+  var ones = p.answer % 10;
+
+  if (val === p.answer) {
+    inp.classList.add('correct');
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> ' +
+      '<span class="mono">' + fmtNum(tens * p.side) + ' &divide; ' + p.side + ' = ' + tens + '</span>, ' +
+      '<span class="mono">' + fmtNum(ones * p.side) + ' &divide; ' + p.side + ' = ' + ones + '</span>. ' +
+      'Missing side: <span class="mono">' + tens + ' + ' + ones + ' = ' + p.answer + '</span>. ' +
+      'Check: <span class="mono">' + p.answer + ' &times; ' + p.side + ' = ' + fmtNum(p.area) + '</span>.';
+  } else {
+    inp.classList.add('wrong');
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You answered <span class="mono">' + (isNaN(val) ? '(blank)' : val) + '</span>. ' +
+      'Try chunking: <span class="mono">' + fmtNum(tens * p.side) + ' &divide; ' + p.side + ' = ' + tens + '</span>, ' +
+      'remainder <span class="mono">' + fmtNum(ones * p.side) + ' &divide; ' + p.side + ' = ' + ones + '</span>. ' +
+      'Missing side: <span class="mono">' + tens + ' + ' + ones + ' = ' + p.answer + '</span>.';
+  }
+  document.getElementById('wedo-check-' + idx).disabled = true;
+}
+
+// ── YOU DO ──
+var ydProblems = [];
+var ydIdx = 0;
+var ydResults = [];
+var ydLevel = 1;
+var ydTotal = 6;
+
+function setLevel(lvl) {
+  ydLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i + 1 === lvl);
+  });
+  startYouDo();
+}
+
+function generateProblems() {
+  var problems = [];
+
+  if (ydLevel <= 3) {
+    // Original 1D problems
+    var sides, answers;
+    if (ydLevel === 1) {
+      sides = shuffle([3, 4, 5, 6, 7, 8]);
+      answers = shuffle([12, 14, 16, 18, 21, 23, 24, 26, 27, 32]);
+    } else if (ydLevel === 2) {
+      sides = shuffle([3, 4, 5, 6, 7, 8]);
+      answers = shuffle([34, 42, 43, 51, 53, 62, 63, 71, 73, 81]);
+    } else {
+      sides = shuffle([4, 5, 6, 7, 8, 9]);
+      answers = shuffle([124, 132, 143, 156, 167, 213, 234, 256, 312, 341]);
+    }
+
+    for (var i = 0; i < ydTotal; i++) {
+      var side = sides[i % sides.length];
+      var answer = answers[i];
+      problems.push({ area: side * answer, side: side, answer: answer, is1D: true });
+    }
+  } else if (ydLevel === 4) {
+    // 2×2 grid: find row headers given column headers and all partial products
+    problems = [
+      { a: 12, b: 13, partsA: [10, 2], partsB: [10, 3], hidePartsB: true },
+      { a: 14, b: 11, partsA: [10, 4], partsB: [10, 1], hidePartsB: true },
+      { a: 15, b: 12, partsA: [10, 5], partsB: [10, 2], hidePartsB: true },
+      { a: 23, b: 11, partsA: [20, 3], partsB: [10, 1], hidePartsB: true },
+      { a: 24, b: 13, partsA: [20, 4], partsB: [10, 3], hidePartsB: true },
+      { a: 32, b: 12, partsA: [30, 2], partsB: [10, 2], hidePartsB: true },
+    ];
+  } else if (ydLevel === 5) {
+    // 3×2 grid: find row headers given column headers and all partial products
+    problems = [
+      { a: 123, b: 12, partsA: [100, 20, 3], partsB: [10, 2], hidePartsB: true },
+      { a: 124, b: 11, partsA: [100, 20, 4], partsB: [10, 1], hidePartsB: true },
+      { a: 134, b: 12, partsA: [100, 30, 4], partsB: [10, 2], hidePartsB: true },
+      { a: 213, b: 11, partsA: [200, 10, 3], partsB: [10, 1], hidePartsB: true },
+      { a: 234, b: 12, partsA: [200, 30, 4], partsB: [10, 2], hidePartsB: true },
+      { a: 312, b: 13, partsA: [300, 10, 2], partsB: [10, 3], hidePartsB: true },
+    ];
+  } else if (ydLevel === 6) {
+    // 3×3 grid: find both row and column headers given all partial products (hardest)
+    problems = [
+      { a: 123, b: 123, partsA: [100, 20, 3], partsB: [100, 20, 3], hidePartsA: true, hidePartsB: true },
+      { a: 124, b: 112, partsA: [100, 20, 4], partsB: [100, 10, 2], hidePartsA: true, hidePartsB: true },
+      { a: 134, b: 112, partsA: [100, 30, 4], partsB: [100, 10, 2], hidePartsA: true, hidePartsB: true },
+      { a: 234, b: 123, partsA: [200, 30, 4], partsB: [100, 20, 3], hidePartsA: true, hidePartsB: true },
+      { a: 213, b: 112, partsA: [200, 10, 3], partsB: [100, 10, 2], hidePartsA: true, hidePartsB: true },
+      { a: 312, b: 123, partsA: [300, 10, 2], partsB: [100, 20, 3], hidePartsA: true, hidePartsB: true },
+    ];
+  }
+
+  return problems;
+}
+
+function startYouDo() {
+  ydProblems = generateProblems();
+  ydIdx = 0;
+  ydResults = [];
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  buildDots('yd-dots', ydTotal);
+  showYouDoProblem();
+}
+
+function buildDots(containerId, count) {
+  var c = document.getElementById(containerId);
+  c.innerHTML = '';
+  for (var i = 0; i < count; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = containerId + '-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
+  }
+}
+
+function showYouDoProblem() {
+  if (ydIdx >= ydTotal) { showYouDoSummary(); return; }
+  var p = ydProblems[ydIdx];
+  var card = document.getElementById('yd-card');
+
+  if (p.is1D) {
+    show1DProblem(p, card);
+  } else {
+    show2DProblem(p, card);
+  }
+
+  for (var j = 0; j < ydTotal; j++) {
+    var d = document.getElementById('yd-dots-' + j);
+    if (d) { d.classList.remove('current'); if (j === ydIdx) d.classList.add('current'); }
+  }
+}
+
+function show1DProblem(p, card) {
+  card.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (ydIdx + 1) + ' of ' + ydTotal + '</div>' +
+    '<p style="font-size:16px;">A rectangle has an area of <span class="mono">' + fmtNum(p.area) + '</span> and a width of <span class="mono">' + p.side + '</span>. What is the length?</p>' +
+
+    '<div class="area-model-container" style="margin:30px auto 10px 50px; max-width:400px;">' +
+      '<div class="area-model" style="min-height:70px;">' +
+        '<div class="area-section" id="yd-model" style="flex:1; background: rgba(255,107,107,0.08);">' +
+          '<div class="top-label mystery">?</div>' +
+          '<div class="inner-text" style="color:var(--muted);">Area = ' + fmtNum(p.area) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="area-side-label">' + p.side + '</div>' +
+    '</div>' +
+
+    // Estimation
+    '<div class="estimate-block" style="margin:12px 0;" id="yd-est-block">' +
+      '<div class="est-label">Step 1: Radar estimate</div>' +
+      '<p style="font-size:14px;margin-bottom:8px;">Round <span class="mono">' + fmtNum(p.area) + '</span> to a friendly number, then divide by <span class="mono">' + p.side + '</span>.</p>' +
+      '<div style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+        '<span style="font-size:15px;font-weight:600;">My estimate:</span>' +
+        '<input type="number" class="est-input" id="yd-est-input" placeholder="?">' +
+      '</div>' +
+      '<div style="margin-top:8px;"><button class="btn btn-amber" id="yd-est-btn" onclick="checkYdEst()">Check Estimate</button></div>' +
+      '<div class="est-result" id="yd-est-result"></div>' +
+    '</div>' +
+
+    // Chunking area
+    '<div id="yd-chunk-area" style="display:none;">' +
+      '<p style="font-size:15px;font-weight:600;margin-bottom:8px;">Step 2: Choose a friendly chunk</p>' +
+      '<p style="font-size:14px;color:var(--muted);margin-bottom:8px;">What chunk of <span class="mono">' + fmtNum(p.area) + '</span> divides evenly by <span class="mono">' + p.side + '</span>?</p>' +
+      '<div class="chunk-row" id="yd-chunk-row-1">' +
+        '<span class="chunk-label">Chunk 1:</span>' +
+        '<input type="number" class="ia-input" id="yd-chunk-1" placeholder="?">' +
+        '<span class="chunk-label">&divide; ' + p.side + ' =</span>' +
+        '<input type="number" class="ia-input" id="yd-chunk-result-1" placeholder="?">' +
+      '</div>' +
+      '<div id="yd-chunk-remainder" style="display:none;text-align:center;margin:8px 0;font-size:15px;font-weight:600;"></div>' +
+      '<div class="chunk-row" id="yd-chunk-row-2" style="display:none;">' +
+        '<span class="chunk-label">Chunk 2:</span>' +
+        '<input type="number" class="ia-input" id="yd-chunk-2" placeholder="?">' +
+        '<span class="chunk-label">&divide; ' + p.side + ' =</span>' +
+        '<input type="number" class="ia-input" id="yd-chunk-result-2" placeholder="?">' +
+      '</div>' +
+      '<div id="yd-chunk-remainder-2" style="display:none;text-align:center;margin:8px 0;font-size:15px;font-weight:600;"></div>' +
+      '<div class="chunk-row" id="yd-chunk-row-3" style="display:none;">' +
+        '<span class="chunk-label">Chunk 3:</span>' +
+        '<input type="number" class="ia-input" id="yd-chunk-3" placeholder="?">' +
+        '<span class="chunk-label">&divide; ' + p.side + ' =</span>' +
+        '<input type="number" class="ia-input" id="yd-chunk-result-3" placeholder="?">' +
+      '</div>' +
+      '<div style="margin-top:10px;"><button class="check-btn" id="yd-chunk-btn" onclick="checkYdChunk()">Check Chunk</button></div>' +
+      '<div class="feedback" id="yd-chunk-fb"></div>' +
+    '</div>' +
+
+    // Final answer
+    '<div id="yd-final-area" style="display:none;margin-top:16px;">' +
+      '<p style="font-size:15px;font-weight:600;margin-bottom:8px;">Step 3: What is the missing side?</p>' +
+      '<div style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+        '<span style="font-size:16px;font-weight:700;">Missing side =</span>' +
+        '<input type="number" class="ia-input" id="yd-final-input" placeholder="?">' +
+      '</div>' +
+      '<div style="margin-top:10px;"><button class="check-btn" id="yd-final-btn" onclick="checkYdFinal()">Check</button></div>' +
+      '<div class="feedback" id="yd-final-fb"></div>' +
+    '</div>' +
+
+    '<button class="btn btn-primary" id="yd-next" style="display:none;margin-top:16px;" onclick="nextYd()">Next &rarr;</button>';
+
+  // Reset state
+  ydChunkState = { chunks: [], results: [], total: 0, step: 1 };
+}
+
+function show2DProblem(p, card) {
+  var prodA = p.partsA.reduce(function(a,b) { return a+b; }, 0);
+  var prodB = p.partsB.reduce(function(a,b) { return a+b; }, 0);
+  var total = prodA * prodB;
+
+  var hidingColHeaders = p.hidePartsA ? true : false;
+  var hidingRowHeaders = p.hidePartsB ? true : false;
+  var task = 'Find the missing headers by looking at the partial products.';
+
+  if (hidingColHeaders && !hidingRowHeaders) {
+    task = 'The row headers (left side) are given. Find the column headers (top).';
+  } else if (!hidingColHeaders && hidingRowHeaders) {
+    task = 'The column headers (top) are given. Find the row headers (left side).';
+  } else {
+    task = 'Find both the column headers (top) and row headers (left side).';
+  }
+
+  card.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (ydIdx + 1) + ' of ' + ydTotal + '</div>' +
+    '<p style="font-size:16px;margin-bottom:8px;">Work out the missing headers from this completed area model.</p>' +
+    '<p style="font-size:15px;color:var(--muted);margin-bottom:16px;">' + task + '</p>';
+
+  // Build grid
+  var gridHTML = buildGrid2D(p, hidingColHeaders, hidingRowHeaders);
+  card.innerHTML += gridHTML;
+
+  // Check button
+  card.innerHTML += '<div style="margin-top:16px;text-align:center;">' +
+    '<button class="check-btn" id="yd-grid-btn" onclick="checkYd2DGrid()">Check</button>' +
+    '<div class="feedback" id="yd-grid-fb"></div>' +
+    '</div>' +
+    '<button class="btn btn-primary" id="yd-next" style="display:none;margin-top:16px;" onclick="nextYd()">Next &rarr;</button>';
+}
+
+function buildGrid2D(p, hidingColHeaders, hidingRowHeaders) {
+  var gridHTML = '<div class="area-grid-wrapper"><div class="area-grid-container"><div class="area-grid" style="';
+  var colCount = p.partsA.length;
+  var rowCount = p.partsB.length;
+  gridHTML += 'grid-template-columns: 60px ' + Array(colCount).fill('1fr').join(' ') + '; ';
+  gridHTML += 'grid-template-rows: 40px ' + Array(rowCount).fill('1fr').join(' ') + ';">';
+
+  // Top-left corner
+  gridHTML += '<div class="area-grid-header-cell" style="grid-column: 1; grid-row: 1;"></div>';
+
+  // Column headers
+  for (var col = 0; col < colCount; col++) {
+    var headerClass = 'area-grid-header-cell';
+    if (hidingColHeaders) headerClass += ' unknown';
+    if (hidingColHeaders) {
+      gridHTML += '<div class="' + headerClass + '" style="grid-column: ' + (col+2) + '; grid-row: 1;">' +
+        '<input type="number" class="grid-header-input" id="yd-col-' + col + '" placeholder="?" data-expected="' + p.partsA[col] + '">' +
+        '</div>';
+    } else {
+      gridHTML += '<div class="' + headerClass + '" style="grid-column: ' + (col+2) + '; grid-row: 1;">' + fmtNum(p.partsA[col]) + '</div>';
+    }
+  }
+
+  // Rows
+  for (var row = 0; row < rowCount; row++) {
+    var rowHeaderClass = 'area-grid-row-header';
+    if (hidingRowHeaders) rowHeaderClass += ' unknown';
+    if (hidingRowHeaders) {
+      gridHTML += '<div class="' + rowHeaderClass + '" style="grid-column: 1; grid-row: ' + (row+2) + ';">' +
+        '<input type="number" class="grid-header-input" id="yd-row-' + row + '" placeholder="?" data-expected="' + p.partsB[row] + '">' +
+        '</div>';
+    } else {
+      gridHTML += '<div class="' + rowHeaderClass + '" style="grid-column: 1; grid-row: ' + (row+2) + ';">' + fmtNum(p.partsB[row]) + '</div>';
+    }
+
+    // Cells
+    for (var col2 = 0; col2 < colCount; col2++) {
+      var expectedVal = p.partsA[col2] * p.partsB[row];
+      gridHTML += '<div class="area-grid-cell" style="grid-column: ' + (col2+2) + '; grid-row: ' + (row+2) + ';">' +
+        '<span class="mono">' + fmtNum(expectedVal) + '</span>' +
+        '</div>';
+    }
+  }
+
+  gridHTML += '</div></div></div>';
+  return gridHTML;
+}
+
+var ydChunkState = { chunks: [], results: [], total: 0, step: 1 };
+
+function checkYdEst() {
+  var p = ydProblems[ydIdx];
+  var input = document.getElementById('yd-est-input');
+  var raw = input.value.replace(/,/g, '');
+  if (raw === '' || isNaN(Number(raw))) { input.style.borderColor = 'var(--red)'; return; }
+
+  var est = parseInt(raw, 10);
+  var pct = Math.abs(est - p.answer) / p.answer * 100;
+  var result = document.getElementById('yd-est-result');
+  result.classList.add('show');
+  result.classList.remove('excellent', 'good', 'needs-work');
+
+  if (pct <= 15) {
+    result.classList.add('excellent');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Sharp Radar.';
+  } else if (pct <= 30) {
+    result.classList.add('good');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Reasonable.';
+  } else {
+    result.classList.add('needs-work');
+    result.innerHTML = '<span class="mono">' + pct.toFixed(0) + '%</span> away. Keep practising your division estimates.';
+  }
+
+  input.disabled = true;
+  document.getElementById('yd-est-btn').disabled = true;
+  document.getElementById('yd-chunk-area').style.display = 'block';
+}
+
+function checkYdChunk() {
+  var p = ydProblems[ydIdx];
+  var step = ydChunkState.step;
+  var chunkInput = document.getElementById('yd-chunk-' + step);
+  var resultInput = document.getElementById('yd-chunk-result-' + step);
+
+  var chunk = parseInt(chunkInput.value, 10);
+  var chunkResult = parseInt(resultInput.value, 10);
+
+  if (isNaN(chunk) || isNaN(chunkResult)) {
+    if (isNaN(chunk)) chunkInput.style.borderColor = 'var(--red)';
+    if (isNaN(chunkResult)) resultInput.style.borderColor = 'var(--red)';
+    return;
+  }
+
+  var fb = document.getElementById('yd-chunk-fb');
+  var remaining = p.area - ydChunkState.total;
+
+  // Check: chunk must not exceed remaining area
+  if (chunk > remaining) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = 'Your chunk (<span class="mono">' + fmtNum(chunk) + '</span>) is larger than the remaining area (<span class="mono">' + fmtNum(remaining) + '</span>). Try a smaller chunk.';
+    return;
+  }
+
+  // Check: chunk must be divisible by the side
+  if (chunk % p.side !== 0) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<span class="mono">' + fmtNum(chunk) + '</span> does not divide evenly by <span class="mono">' + p.side + '</span>. Choose a chunk that divides cleanly.';
+    return;
+  }
+
+  // Check: the result must be correct
+  var expectedResult = chunk / p.side;
+  if (chunkResult !== expectedResult) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<span class="mono">' + fmtNum(chunk) + ' &divide; ' + p.side + ' = ' + fmtNum(expectedResult) + '</span>, not <span class="mono">' + chunkResult + '</span>.';
+    resultInput.classList.add('wrong');
+    return;
+  }
+
+  // Valid chunk
+  chunkInput.classList.add('correct');
+  resultInput.classList.add('correct');
+  chunkInput.disabled = true;
+  resultInput.disabled = true;
+  document.getElementById('yd-chunk-row-' + step).classList.add('completed');
+
+  ydChunkState.chunks.push(chunk);
+  ydChunkState.results.push(chunkResult);
+  ydChunkState.total += chunk;
+
+  fb.className = 'feedback show correct';
+  fb.innerHTML = '<span class="mono">' + fmtNum(chunk) + ' &divide; ' + p.side + ' = ' + fmtNum(chunkResult) + '</span>. Good.';
+
+  var newRemaining = p.area - ydChunkState.total;
+
+  if (newRemaining === 0) {
+    // Done chunking, show final answer
+    fb.innerHTML += ' All area accounted for.';
+    document.getElementById('yd-chunk-btn').style.display = 'none';
+    document.getElementById('yd-final-area').style.display = 'block';
+  } else {
+    // Show remainder and next chunk row
+    ydChunkState.step++;
+    var remEl = document.getElementById('yd-chunk-remainder' + (step === 1 ? '' : '-' + step));
+    if (remEl) {
+      remEl.style.display = 'block';
+      remEl.innerHTML = 'Remaining: <span class="mono">' + fmtNum(p.area) + ' &minus; ' + fmtNum(ydChunkState.total) + ' = ' + fmtNum(newRemaining) + '</span>';
+    }
+
+    var nextRow = document.getElementById('yd-chunk-row-' + ydChunkState.step);
+    if (nextRow) {
+      nextRow.style.display = 'flex';
+    } else {
+      // No more rows, show final answer
+      document.getElementById('yd-chunk-btn').style.display = 'none';
+      document.getElementById('yd-final-area').style.display = 'block';
+    }
+  }
+}
+
+function checkYdFinal() {
+  var p = ydProblems[ydIdx];
+  var inp = document.getElementById('yd-final-input');
+  var val = parseInt(inp.value, 10);
+  var fb = document.getElementById('yd-final-fb');
+  inp.disabled = true;
+
+  var isCorrect = (val === p.answer);
+  if (isCorrect) {
+    inp.classList.add('correct');
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> Missing side: <span class="mono">' + fmtNum(p.answer) + '</span>. Check: <span class="mono">' + fmtNum(p.answer) + ' &times; ' + p.side + ' = ' + fmtNum(p.area) + '</span>.';
+  } else {
+    inp.classList.add('wrong');
+    fb.className = 'feedback show incorrect';
+    var sectionStr = ydChunkState.results.map(function(r) { return '<span class="mono">' + fmtNum(r) + '</span>'; }).join(' + ');
+    fb.innerHTML = '<strong>Not quite.</strong> You answered <span class="mono">' + (isNaN(val) ? '(blank)' : val) + '</span>. Add your section widths: ' + sectionStr + ' = <span class="mono">' + fmtNum(p.answer) + '</span>.';
+  }
+
+  ydResults[ydIdx] = isCorrect;
+  var dot = document.getElementById('yd-dots-' + ydIdx);
+  dot.classList.remove('current');
+  dot.classList.add(isCorrect ? 'green' : 'red');
+
+  document.getElementById('yd-final-btn').disabled = true;
+  document.getElementById('yd-next').style.display = 'inline-block';
+}
+
+function checkYd2DGrid() {
+  var p = ydProblems[ydIdx];
+  var fb = document.getElementById('yd-grid-fb');
+  var allCorrect = true;
+  var errorMsgs = [];
+
+  // Check column headers if they should be found
+  if (p.hidePartsA) {
+    for (var col = 0; col < p.partsA.length; col++) {
+      var inp = document.getElementById('yd-col-' + col);
+      var val = parseInt(inp.value, 10);
+      var expected = p.partsA[col];
+      if (val === expected) {
+        inp.classList.add('correct');
+      } else {
+        inp.classList.add('wrong');
+        allCorrect = false;
+        errorMsgs.push('Column ' + (col+1) + ': expected ' + expected + ', got ' + (isNaN(val) ? '(blank)' : val));
+      }
+      inp.disabled = true;
+    }
+  }
+
+  // Check row headers if they should be found
+  if (p.hidePartsB) {
+    for (var row = 0; row < p.partsB.length; row++) {
+      var inp2 = document.getElementById('yd-row-' + row);
+      var val2 = parseInt(inp2.value, 10);
+      var expected2 = p.partsB[row];
+      if (val2 === expected2) {
+        inp2.classList.add('correct');
+      } else {
+        inp2.classList.add('wrong');
+        allCorrect = false;
+        errorMsgs.push('Row ' + (row+1) + ': expected ' + expected2 + ', got ' + (isNaN(val2) ? '(blank)' : val2));
+      }
+      inp2.disabled = true;
+    }
+  }
+
+  fb.className = 'feedback show ' + (allCorrect ? 'correct' : 'incorrect');
+  if (allCorrect) {
+    fb.innerHTML = '<strong>Correct.</strong> You found all the headers by reasoning from the partial products. Nice work!';
+  } else {
+    fb.innerHTML = '<strong>Not quite.</strong> Check: ' + errorMsgs.join('; ') + '.';
+  }
+
+  ydResults[ydIdx] = allCorrect;
+  var dot = document.getElementById('yd-dots-' + ydIdx);
+  dot.classList.remove('current');
+  dot.classList.add(allCorrect ? 'green' : 'red');
+
+  document.getElementById('yd-grid-btn').disabled = true;
+  document.getElementById('yd-next').style.display = 'inline-block';
+}
+
+function nextYd() {
+  ydIdx++;
+  showYouDoProblem();
+}
+
+function showYouDoSummary() {
+  document.getElementById('yd-card').style.display = 'none';
+  var correct = ydResults.filter(function(r) { return r; }).length;
+  var scoreEl = document.getElementById('yd-score');
+  scoreEl.textContent = correct + ' / ' + ydTotal;
+  scoreEl.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = correct >= 5 ? 'Great work. You can reverse the area model confidently.' :
+            correct >= 3 ? 'Good start. Keep practising the reverse model.' :
+            'Review the I Do section and try again.';
+  document.getElementById('yd-message').textContent = msg;
+  document.getElementById('yd-summary').classList.add('show');
+
+  // Unlock Go Deeper if score >= 5
+  if (correct >= 5) {
+    unlockGoDeeper();
+  }
+}
+
+function unlockGoDeeper() {
+  // Show the Go Deeper section
+  document.getElementById('go-deeper').style.display = 'block';
+
+  var btn1 = document.getElementById('gd-level-1-btn');
+  var btn2 = document.getElementById('gd-level-2-btn');
+  var btn3 = document.getElementById('gd-level-3-btn');
+
+  btn1.classList.remove('locked');
+  btn1.innerHTML = '<h3>&#x1F513; Task 1: Specialising</h3><p>Find a third way to split <span class="ext-numbers">252 ÷ 7</span></p>';
+  btn1.onclick = function() { toggleGdLevel(1); };
+
+  btn2.classList.remove('locked');
+  btn2.innerHTML = '<h3>&#x1F513; Task 2: Conjecturing</h3><p>Is starting with the biggest friendly chunk always most efficient?</p>';
+  btn2.onclick = function() { toggleGdLevel(2); };
+
+  btn3.classList.remove('locked');
+  btn3.innerHTML = '<h3>&#x1F513; Task 3: Justifying</h3><p>Can you ever get a wrong answer by choosing different chunks?</p>';
+  btn3.onclick = function() { toggleGdLevel(3); };
+}
+
+function toggleGdLevel(level) {
+  var contentId = 'gd-level-' + level + '-content';
+  var btnId = 'gd-level-' + level + '-btn';
+  var content = document.getElementById(contentId);
+  var btn = document.getElementById(btnId);
+
+  if (content.style.display === 'none' || content.style.display === '') {
+    content.style.display = 'block';
+    btn.style.borderColor = 'var(--teal)';
+  } else {
+    content.style.display = 'none';
+    btn.style.borderColor = 'var(--border)';
+  }
+}
+
+function revealGdTask(taskNum) {
+  var responseId = 'gd-t' + taskNum + '-response';
+  var response = document.getElementById(responseId);
+  response.classList.add('visible');
+}
+
+// ── UTILITIES ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function fmtNum(n) { return n.toLocaleString('en-GB'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Patterns from Multiples</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B5DE5;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--orange); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+  .header .ext-badge { display: inline-block; background: var(--purple); color: white; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; }
+
+  .learning-card { width: 100%; max-width: 720px; background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--card-shadow); margin-bottom: 1.5rem; border-top: 5px solid var(--accent); }
+  .learning-card h2 { font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  .phase-nav { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 720px; }
+  .phase-btn { padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0; background: white; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s; }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+  .reveal-btn { background: var(--accent); color: white; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--accent); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  .q-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); display: none; }
+  .q-card.active { display: block; animation: fadeIn 0.35s ease; }
+  .q-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px; }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .div-input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+  .div-label { font-size: 15px; font-weight: 600; color: var(--text-light); }
+  .div-input { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; text-align: center; border: 3px solid var(--border); border-radius: 14px; padding: 12px 8px; width: 90px; outline: none; transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc; }
+  .div-input:focus { border-color: var(--accent); }
+  .div-input.correct { border-color: var(--green); background: var(--green-light); }
+  .div-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .div-input:disabled { opacity: 0.7; }
+
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text-dark); color: white; }
+  .btn-dark:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  .feedback { border-radius: 14px; padding: 14px 18px; margin-top: 12px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+
+  .progress-area { width: 100%; max-width: 720px; margin-bottom: 16px; display: none; }
+  .progress-area.show { display: block; }
+  .progress-label { font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-align: center; }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; text-align: center; margin-top: 16px; display: none; width: 100%; max-width: 720px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700; margin: 12px 0; }
+  .summary-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .result-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; text-align: left; }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; flex-shrink: 0; }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--accent); max-width: 720px; width: 100%; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn { background: transparent; color: var(--accent-dark); border: 2px solid var(--accent); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-section { display: none; }
+  .go-deeper-section.visible { display: block; animation: fadeIn 0.35s ease; }
+
+  /* ── SEQUENCE TABLE ── */
+  .seq-table { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+  .seq-cell { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border); border-radius: 10px; font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; background: white; }
+  .seq-cell.given { background: #e8f8f6; border-color: var(--accent); }
+  .seq-cell.blank { border-style: dashed; border-color: var(--accent); }
+
+  /* ── FUNCTION TABLE ── */
+  .fn-table { border-collapse: separate; border-spacing: 0; margin: 0 auto 20px; border-radius: 12px; overflow: hidden; border: 2px solid var(--border); }
+  .fn-table th { background: var(--accent); color: white; padding: 10px 20px; font-size: 14px; font-weight: 700; }
+  .fn-table td { padding: 10px 20px; font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; text-align: center; border-top: 1px solid var(--border); background: white; }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .card, .q-card, .learning-card { padding: 20px 18px; }
+    .div-input { width: 72px; font-size: 18px; }
+    .go-deeper-card { padding: 20px 18px; }
+    .seq-cell { width: 46px; height: 46px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ext-badge">Year 6 Extension</div>
+  <h1>Number <span>Patterns</span> from Multiples</h1>
+  <p>Spot patterns, complete sequences, and discover rules in tables of values</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to identify, describe, and extend number patterns built from multiplication.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can continue a pattern of multiples.</li>
+      <li>I can find a missing value in a table of values.</li>
+      <li>I can describe a pattern rule using words or a number sentence.</li>
+      <li>I can use a rule to predict values further along in a pattern.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn" onclick="showSection('practice', this)">Practice</button>
+</div>
+
+<!-- ══════ LEARN SECTION ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>Patterns in multiples</h3>
+    <p>When you list the multiples of a number, you get a pattern with a constant difference between each term.</p>
+    <div class="callout callout-teal" style="margin-top:16px;">
+      <div class="label">Example: multiples of <strong>6</strong></div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:10px;">
+        <p><strong>6</strong>, <strong>12</strong>, <strong>18</strong>, <strong>24</strong>, <strong>30</strong>, <strong>36</strong>, ...</p>
+        <p>Each number is <strong>6</strong> more than the one before. The difference between consecutive terms is always <strong>6</strong>.</p>
+      </div>
+      <p style="margin-top:8px;">You can also describe each term using its position: the 1st term is <strong>6 x 1 = 6</strong>, the 2nd term is <strong>6 x 2 = 12</strong>, and so on. The rule is: <strong>term = 6 x position</strong>.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Tables of values</h3>
+    <p>A table of values shows the relationship between an input and an output. The rule connects them.</p>
+
+    <div id="table-demo">
+      <div class="step-reveal shown" id="tbl-1">
+        <table class="fn-table" style="margin-top:16px;">
+          <tr><th>Input</th><th>Output</th></tr>
+          <tr><td>1</td><td>4</td></tr>
+          <tr><td>2</td><td>7</td></tr>
+          <tr><td>3</td><td>10</td></tr>
+          <tr><td>4</td><td>?</td></tr>
+        </table>
+        <p style="margin-top:12px;">Look at how the output changes. Each time the input goes up by <strong>1</strong>, the output goes up by <strong>3</strong>.</p>
+      </div>
+      <div class="step-reveal" id="tbl-2">
+        <p style="margin-top:12px;">The constant difference is <strong>3</strong>, so the rule involves multiplying by <strong>3</strong>. But <strong>3 x 1 = 3</strong>, not <strong>4</strong>. There is an extra <strong>1</strong> each time.</p>
+      </div>
+      <div class="step-reveal" id="tbl-3">
+        <p style="margin-top:12px;">The rule is: <strong>output = 3 x input + 1</strong>.</p>
+        <p style="margin-top:4px;">Check: <strong>3 x 4 + 1 = 13</strong>. So the missing value is <strong>13</strong>.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="tbl-btn" onclick="revealTableDemo()">Reveal next step</button>
+
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="label">Strategy</div>
+      <p>First find the constant difference (how much the output changes each step). Then check if the rule needs a "plus" or "minus" adjustment by testing your rule on the first input-output pair.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PRACTICE SECTION ══════ -->
+<div id="practice" class="section">
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="startLevel(1)">Level 1</button>
+    <button class="level-btn l2" onclick="startLevel(2)">Level 2</button>
+    <button class="level-btn l3" onclick="startLevel(3)">Level 3</button>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Pattern Investigations</h3>
+    <p>Complete Level 3 to unlock</p>
+  </button>
+
+  <div class="progress-area" id="progress-area">
+    <div class="progress-label" id="progress-label">Question 1 of 6</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="question-area"></div>
+
+  <div class="summary-card" id="summary-card">
+    <div class="summary-label">Your Score</div>
+    <div class="summary-score" id="summary-score"></div>
+    <div class="summary-label" id="summary-message"></div>
+    <div id="summary-breakdown" style="text-align:left;margin-top:24px;"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="retryLevel()">Try Again</button>
+      <button class="btn btn-dark" id="next-level-btn" style="display:none;" onclick="goNextLevel()">Next Level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER SECTION ══════ -->
+<div class="go-deeper-section" id="go-deeper-section">
+  <div class="go-deeper-card">
+    <h2>&#x1F513; Go Deeper: Pattern Investigations</h2>
+    <p>These tasks push your thinking beyond completing patterns. You will create your own rules, test conjectures, and reason about what makes a pattern interesting.</p>
+
+    <!-- TASK 1: SPECIALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising</div>
+      <div class="ext-task-prompt">
+        Create three different rules that all produce <span class="ext-numbers">20</span> as the output when the input is <span class="ext-numbers">4</span>. Write out the first six values for each rule. What do the three rules have in common? Where do they differ?
+      </div>
+      <div class="ext-task-sub">Try to find rules with different constant differences.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>Rule A: <span class="ext-numbers">5</span> x input. Outputs: <span class="ext-numbers">5</span>, <span class="ext-numbers">10</span>, <span class="ext-numbers">15</span>, <span class="ext-numbers">20</span>, <span class="ext-numbers">25</span>, <span class="ext-numbers">30</span>. Constant difference: <span class="ext-numbers">5</span>.</p>
+        <p>Rule B: <span class="ext-numbers">3</span> x input + <span class="ext-numbers">8</span>. Outputs: <span class="ext-numbers">11</span>, <span class="ext-numbers">14</span>, <span class="ext-numbers">17</span>, <span class="ext-numbers">20</span>, <span class="ext-numbers">23</span>, <span class="ext-numbers">26</span>. Constant difference: <span class="ext-numbers">3</span>.</p>
+        <p>Rule C: <span class="ext-numbers">7</span> x input - <span class="ext-numbers">8</span>. Outputs: <span class="ext-numbers">-1</span>, <span class="ext-numbers">6</span>, <span class="ext-numbers">13</span>, <span class="ext-numbers">20</span>, <span class="ext-numbers">27</span>, <span class="ext-numbers">34</span>. Constant difference: <span class="ext-numbers">7</span>.</p>
+        <p>All three rules pass through <span class="ext-numbers">20</span> at input <span class="ext-numbers">4</span>, but they have different starting values and different rates of growth. The constant difference is the number you multiply by.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are creating specific examples to investigate a question.
+      </div>
+    </div>
+
+    <!-- TASK 2: CONJECTURING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecturing</div>
+      <div class="ext-task-prompt">
+        Look at the outputs from a two-step rule (like <span class="ext-numbers">3</span> x input + <span class="ext-numbers">1</span>). Is the constant difference always equal to the multiplier? Test this with at least three different rules. Make a conjecture about why.
+      </div>
+      <div class="ext-task-sub">What happens to the constant difference if you change the "plus" part?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p><span class="ext-numbers">4</span> x input + <span class="ext-numbers">3</span>: outputs <span class="ext-numbers">7</span>, <span class="ext-numbers">11</span>, <span class="ext-numbers">15</span>, <span class="ext-numbers">19</span>. Difference: <span class="ext-numbers">4</span>.</p>
+        <p><span class="ext-numbers">4</span> x input + <span class="ext-numbers">100</span>: outputs <span class="ext-numbers">104</span>, <span class="ext-numbers">108</span>, <span class="ext-numbers">112</span>, <span class="ext-numbers">116</span>. Difference: still <span class="ext-numbers">4</span>.</p>
+        <p>Changing the "plus" part shifts all values up or down, but the gap between consecutive terms stays the same. My conjecture: the constant difference is always equal to the multiplier, no matter what you add or subtract.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim based on evidence, ready to be tested further.
+      </div>
+    </div>
+
+    <!-- TASK 3: JUSTIFYING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Justifying</div>
+      <div class="ext-task-prompt">
+        Explain why the constant difference is always equal to the multiplier. Use an example to support your argument. Could you convince a classmate who disagrees?
+      </div>
+      <div class="ext-task-sub">Think about what happens when you calculate the difference between two consecutive outputs.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>If the rule is "multiply by <span class="ext-numbers">3</span>, then add <span class="ext-numbers">1</span>", the output for input <span class="ext-numbers">5</span> is <span class="ext-numbers">3</span> x <span class="ext-numbers">5</span> + <span class="ext-numbers">1</span> = <span class="ext-numbers">16</span>, and for input <span class="ext-numbers">6</span> it is <span class="ext-numbers">3</span> x <span class="ext-numbers">6</span> + <span class="ext-numbers">1</span> = <span class="ext-numbers">19</span>.</p>
+        <p>The difference is <span class="ext-numbers">19</span> - <span class="ext-numbers">16</span> = <span class="ext-numbers">3</span>. The "+<span class="ext-numbers">1</span>" part appears in both outputs and cancels out when you subtract. Only the multiplied part matters. Since the input increased by <span class="ext-numbers">1</span>, and you multiply by <span class="ext-numbers">3</span>, the output increases by <span class="ext-numbers">3</span> x <span class="ext-numbers">1</span> = <span class="ext-numbers">3</span>.</p>
+        <p>This will always work, because the added constant never changes, so it always cancels. That is why the constant difference depends only on the multiplier.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are explaining not just what is true, but why it must be true.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── QUESTION POOLS ──
+
+// L1: Continue the sequence of multiples (find the next two terms)
+var pool1 = [
+  {given:[6,12,18,24,30], answer1:36, answer2:42, mult:6, display:'6, 12, 18, 24, 30, ?, ?'},
+  {given:[7,14,21,28,35], answer1:42, answer2:49, mult:7, display:'7, 14, 21, 28, 35, ?, ?'},
+  {given:[9,18,27,36,45], answer1:54, answer2:63, mult:9, display:'9, 18, 27, 36, 45, ?, ?'},
+  {given:[8,16,24,32,40], answer1:48, answer2:56, mult:8, display:'8, 16, 24, 32, 40, ?, ?'},
+  {given:[12,24,36,48,60], answer1:72, answer2:84, mult:12, display:'12, 24, 36, 48, 60, ?, ?'},
+  {given:[11,22,33,44,55], answer1:66, answer2:77, mult:11, display:'11, 22, 33, 44, 55, ?, ?'},
+  {given:[15,30,45,60,75], answer1:90, answer2:105, mult:15, display:'15, 30, 45, 60, 75, ?, ?'},
+  {given:[4,8,12,16,20], answer1:24, answer2:28, mult:4, display:'4, 8, 12, 16, 20, ?, ?'},
+  {given:[13,26,39,52,65], answer1:78, answer2:91, mult:13, display:'13, 26, 39, 52, 65, ?, ?'},
+  {given:[25,50,75,100,125], answer1:150, answer2:175, mult:25, display:'25, 50, 75, 100, 125, ?, ?'},
+  {given:[3,6,9,12,15], answer1:18, answer2:21, mult:3, display:'3, 6, 9, 12, 15, ?, ?'},
+  {given:[14,28,42,56,70], answer1:84, answer2:98, mult:14, display:'14, 28, 42, 56, 70, ?, ?'}
+];
+
+// L2: Table of values with one-step rule (find missing output)
+var pool2 = [
+  {inputs:[1,2,3,4,5], outputs:[3,6,9,null,15], missing:3, answer:12, rule:'3 x input', mult:3, add:0, display:'Rule: 3n, find output for 4'},
+  {inputs:[1,2,3,4,5], outputs:[5,10,15,20,null], missing:4, answer:25, rule:'5 x input', mult:5, add:0, display:'Rule: 5n, find output for 5'},
+  {inputs:[1,2,3,4,5], outputs:[4,7,10,null,16], missing:3, answer:13, rule:'3 x input + 1', mult:3, add:1, display:'Rule: 3n+1, find output for 4'},
+  {inputs:[1,2,3,4,5], outputs:[5,9,13,17,null], missing:4, answer:21, rule:'4 x input + 1', mult:4, add:1, display:'Rule: 4n+1, find output for 5'},
+  {inputs:[1,2,3,4,5], outputs:[7,12,17,null,27], missing:3, answer:22, rule:'5 x input + 2', mult:5, add:2, display:'Rule: 5n+2, find output for 4'},
+  {inputs:[1,2,3,4,5], outputs:[null,8,12,16,20], missing:0, answer:4, rule:'4 x input', mult:4, add:0, display:'Rule: 4n, find output for 1'},
+  {inputs:[1,2,3,4,5], outputs:[6,11,16,21,null], missing:4, answer:26, rule:'5 x input + 1', mult:5, add:1, display:'Rule: 5n+1, find output for 5'},
+  {inputs:[1,2,3,4,5], outputs:[3,5,7,null,11], missing:3, answer:9, rule:'2 x input + 1', mult:2, add:1, display:'Rule: 2n+1, find output for 4'},
+  {inputs:[2,4,6,8,10], outputs:[10,20,30,null,50], missing:3, answer:40, rule:'5 x input', mult:5, add:0, display:'Rule: 5n (even inputs), find for 8'},
+  {inputs:[1,2,3,4,5], outputs:[8,15,22,null,36], missing:3, answer:29, rule:'7 x input + 1', mult:7, add:1, display:'Rule: 7n+1, find output for 4'},
+  {inputs:[1,2,3,4,5], outputs:[null,10,15,20,25], missing:0, answer:5, rule:'5 x input', mult:5, add:0, display:'Rule: 5n, find output for 1'},
+  {inputs:[1,2,3,4,5], outputs:[9,17,25,33,null], missing:4, answer:41, rule:'8 x input + 1', mult:8, add:1, display:'Rule: 8n+1, find output for 5'}
+];
+
+// L3: Describe the rule (given table, state multiplier and constant)
+var pool3 = [
+  {inputs:[1,2,3,4], outputs:[3,5,7,9], mult:2, add:1, testInput:5, testAnswer:11, display:'1->3, 2->5, 3->7: find rule'},
+  {inputs:[1,2,3,4], outputs:[7,12,17,22], mult:5, add:2, testInput:5, testAnswer:27, display:'1->7, 2->12, 3->17: find rule'},
+  {inputs:[0,1,2,3], outputs:[4,7,10,13], mult:3, add:4, testInput:5, testAnswer:19, display:'0->4, 1->7, 2->10: find rule'},
+  {inputs:[1,2,3,4], outputs:[6,10,14,18], mult:4, add:2, testInput:5, testAnswer:22, display:'1->6, 2->10, 3->14: find rule'},
+  {inputs:[1,2,3,4], outputs:[5,8,11,14], mult:3, add:2, testInput:6, testAnswer:20, display:'1->5, 2->8, 3->11: find rule'},
+  {inputs:[1,2,3,4], outputs:[4,9,14,19], mult:5, add:-1, testInput:5, testAnswer:24, display:'1->4, 2->9, 3->14: find rule'},
+  {inputs:[1,2,3,4], outputs:[9,15,21,27], mult:6, add:3, testInput:5, testAnswer:33, display:'1->9, 2->15, 3->21: find rule'},
+  {inputs:[1,2,3,4], outputs:[11,19,27,35], mult:8, add:3, testInput:5, testAnswer:43, display:'1->11, 2->19, 3->27: find rule'}
+];
+
+// ── STATE ──
+var currentLevel = 1;
+var currentQ = 0;
+var questions = [];
+var answers = [];
+var tblDemoStep = 1;
+
+// ── UTILITY ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── LEARN: STEP REVEAL ──
+function revealTableDemo() {
+  tblDemoStep++;
+  var el = document.getElementById('tbl-' + tblDemoStep);
+  if (el) el.classList.add('shown');
+  if (tblDemoStep >= 3) document.getElementById('tbl-btn').style.display = 'none';
+}
+
+// ── NAVIGATION ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── START LEVEL ──
+function startLevel(n) {
+  currentLevel = n;
+  currentQ = 0;
+  answers = [];
+
+  document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+
+  if (n === 1) questions = shuffle(pool1).slice(0, 6);
+  else if (n === 2) questions = shuffle(pool2).slice(0, 6);
+  else questions = shuffle(pool3).slice(0, 6);
+
+  document.getElementById('progress-area').classList.add('show');
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+
+  buildQuestion();
+}
+
+// ── BUILD QUESTION ──
+function buildQuestion() {
+  var area = document.getElementById('question-area');
+  var q = questions[currentQ];
+
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+
+  var html = '<div class="q-card active">';
+  html += '<div class="q-number">Question ' + (currentQ + 1) + ' of ' + questions.length + '</div>';
+
+  if (currentLevel === 1) {
+    html += '<div class="q-stem">Continue the pattern. What are the next two numbers?</div>';
+    html += '<div class="seq-table">';
+    q.given.forEach(function(v) {
+      html += '<div class="seq-cell given"><span class="mono">' + v + '</span></div>';
+    });
+    html += '<div class="seq-cell blank">?</div>';
+    html += '<div class="seq-cell blank">?</div>';
+    html += '</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Next</div>';
+    html += '<input type="text" class="div-input" id="inp-a1" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '<div class="div-label">Then</div>';
+    html += '<input type="text" class="div-input" id="inp-a2" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  } else if (currentLevel === 2) {
+    html += '<div class="q-stem">Find the missing value in the table.</div>';
+    html += '<table class="fn-table"><tr><th>Input</th><th>Output</th></tr>';
+    q.inputs.forEach(function(inp, i) {
+      var out = q.outputs[i];
+      if (out === null) {
+        html += '<tr><td>' + inp + '</td><td style="color:var(--accent);font-style:italic;">?</td></tr>';
+      } else {
+        html += '<tr><td>' + inp + '</td><td>' + out + '</td></tr>';
+      }
+    });
+    html += '</table>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Missing value</div>';
+    html += '<input type="text" class="div-input" id="inp-val" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  } else {
+    html += '<div class="q-stem">Find the rule, then use it to predict a new value.</div>';
+    html += '<table class="fn-table"><tr><th>Input</th><th>Output</th></tr>';
+    q.inputs.forEach(function(inp, i) {
+      html += '<tr><td>' + inp + '</td><td>' + q.outputs[i] + '</td></tr>';
+    });
+    html += '</table>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Multiply by</div>';
+    html += '<input type="text" class="div-input" id="inp-mult" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '<div class="div-label">Then add</div>';
+    html += '<input type="text" class="div-input" id="inp-add" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Output when input is <span class="mono">' + q.testInput + '</span></div>';
+    html += '<input type="text" class="div-input" id="inp-test" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  }
+
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Check Answer</button>';
+  html += '</div>';
+  html += '<div class="feedback" id="feedback"></div>';
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-dark" id="next-btn" style="display:none;margin-top:12px;" onclick="nextQuestion()">Next Question</button>';
+  html += '</div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+
+  var firstId = currentLevel === 1 ? 'inp-a1' : currentLevel === 2 ? 'inp-val' : 'inp-mult';
+  var inp = document.getElementById(firstId);
+  if (inp) setTimeout(function() { inp.focus(); }, 100);
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer() {
+  if (answers[currentQ] !== undefined) return;
+  var q = questions[currentQ];
+  var fb = document.getElementById('feedback');
+  var isCorrect = false;
+
+  if (currentLevel === 1) {
+    var i1 = document.getElementById('inp-a1');
+    var i2 = document.getElementById('inp-a2');
+    var r1 = i1.value.replace(/,/g, '').trim();
+    var r2 = i2.value.replace(/,/g, '').trim();
+    if (r1 === '' || isNaN(Number(r1))) { i1.style.borderColor = 'var(--red)'; return; }
+    if (r2 === '' || isNaN(Number(r2))) { i2.style.borderColor = 'var(--red)'; return; }
+    var s1 = parseInt(r1, 10);
+    var s2 = parseInt(r2, 10);
+    var c1 = (s1 === q.answer1);
+    var c2 = (s2 === q.answer2);
+    i1.disabled = true; i2.disabled = true;
+    i1.classList.add(c1 ? 'correct' : 'incorrect');
+    i2.classList.add(c2 ? 'correct' : 'incorrect');
+    isCorrect = c1 && c2;
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> The pattern adds <span class="mono">' + q.mult + '</span> each time: <span class="mono">' + q.answer1 + '</span>, <span class="mono">' + q.answer2 + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> The constant difference is <span class="mono">' + q.mult + '</span>. The next two values are <span class="mono">' + q.answer1 + '</span> and <span class="mono">' + q.answer2 + '</span>.';
+    }
+  } else if (currentLevel === 2) {
+    var inp = document.getElementById('inp-val');
+    var raw = inp.value.replace(/,/g, '').trim();
+    if (raw === '' || isNaN(Number(raw))) { inp.style.borderColor = 'var(--red)'; return; }
+    var student = parseInt(raw, 10);
+    isCorrect = (student === q.answer);
+    inp.disabled = true;
+    inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    var ruleStr = q.add === 0 ? q.mult + ' x input' : q.mult + ' x input + ' + q.add;
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> The rule is <span class="mono">' + ruleStr + '</span>. The missing value is <span class="mono">' + q.answer + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + student + '</span>. The rule is <span class="mono">' + ruleStr + '</span>, giving <span class="mono">' + q.answer + '</span>.';
+    }
+  } else {
+    var iM = document.getElementById('inp-mult');
+    var iA = document.getElementById('inp-add');
+    var iT = document.getElementById('inp-test');
+    var rM = iM.value.replace(/,/g, '').trim();
+    var rA = iA.value.replace(/,/g, '').replace('+', '').trim();
+    var rT = iT.value.replace(/,/g, '').trim();
+    if (rM === '' || isNaN(Number(rM))) { iM.style.borderColor = 'var(--red)'; return; }
+    if (rA === '' || isNaN(Number(rA))) { iA.style.borderColor = 'var(--red)'; return; }
+    if (rT === '' || isNaN(Number(rT))) { iT.style.borderColor = 'var(--red)'; return; }
+    var sM = parseInt(rM, 10);
+    var sA = parseInt(rA, 10);
+    var sT = parseInt(rT, 10);
+    var cM = (sM === q.mult);
+    var cA = (sA === q.add);
+    var cT = (sT === q.testAnswer);
+    iM.disabled = true; iA.disabled = true; iT.disabled = true;
+    iM.classList.add(cM ? 'correct' : 'incorrect');
+    iA.classList.add(cA ? 'correct' : 'incorrect');
+    iT.classList.add(cT ? 'correct' : 'incorrect');
+    isCorrect = cM && cA && cT;
+
+    var addStr = q.add >= 0 ? '+ ' + q.add : '- ' + Math.abs(q.add);
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> The rule is <span class="mono">' + q.mult + '</span> x input ' + addStr + '. When input = <span class="mono">' + q.testInput + '</span>: <span class="mono">' + q.mult + ' x ' + q.testInput + ' ' + addStr + ' = ' + q.testAnswer + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> The rule is: multiply by <span class="mono">' + q.mult + '</span> ' + addStr + '. When input = <span class="mono">' + q.testInput + '</span>: <span class="mono">' + q.mult + ' x ' + q.testInput + ' ' + addStr + ' = ' + q.testAnswer + '</span>.';
+    }
+  }
+
+  answers[currentQ] = { correct: isCorrect };
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+// ── NEXT / SUMMARY ──
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showSummary(); return; }
+  buildQuestion();
+}
+
+function showSummary() {
+  document.getElementById('question-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 5) msg = 'Excellent pattern spotting.';
+  else if (correct >= 3) msg = 'Good progress. Review the patterns you missed.';
+  else msg = 'Keep practising. Go back to the Learn section if you need to.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var breakdown = '<h3 style="font-size:16px;margin-bottom:12px;">Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    breakdown += '<div class="result-row"><div class="result-icon ' + icon + '">' + symbol + '</div><span>' + q.display + '</span></div>';
+  });
+  document.getElementById('summary-breakdown').innerHTML = breakdown;
+
+  var nextBtn = document.getElementById('next-level-btn');
+  if (currentLevel < 3 && correct >= 4) nextBtn.style.display = 'inline-block';
+  else nextBtn.style.display = 'none';
+
+  if (currentLevel === 3 && correct >= 4) unlockGoDeeper();
+
+  document.getElementById('summary-card').classList.add('show');
+}
+
+function retryLevel() { startLevel(currentLevel); }
+function goNextLevel() { startLevel(currentLevel + 1); }
+
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card) {
+    card.classList.remove('locked');
+    card.disabled = false;
+    card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+    card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  }
+}
+
+function openGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card.classList.contains('locked')) return;
+  document.getElementById('go-deeper-section').classList.add('visible');
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var checkBtn = document.getElementById('check-btn');
+    var nextBtn = document.getElementById('next-btn');
+    if (nextBtn && nextBtn.style.display !== 'none') nextQuestion();
+    else if (checkBtn && checkBtn.style.display !== 'none') checkAnswer();
+  }
+});
+
+// ── INIT ──
+startLevel(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Guests Lost</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--level2-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--level3-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .learning-card h2::before {
+            content: "🏠";
+            font-size: 1.3rem;
+        }
+
+        .learning-card h2 .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .learning-content {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .learning-content.open {
+            display: block;
+        }
+
+        .learning-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .learning-content p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .success-criteria {
+            list-style: none;
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+
+        .success-criteria li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .success-criteria li::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .key-concept p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+        }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .guests-pool {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+        }
+
+        .pool-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .guests-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .guest-tile {
+            background: white;
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: move;
+            transition: all 0.2s;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .guest-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .guest-tile.dragging {
+            opacity: 0.5;
+        }
+
+        .houses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .house {
+            background: white;
+            border: 3px dashed #DDD;
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 120px;
+        }
+
+        .house.drag-over {
+            background: #E3F2FD;
+            border-color: var(--primary-accent);
+        }
+
+        .house-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .house-contents {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 60px;
+        }
+
+        .answer-section {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        /* === Go Deeper Extension Styles === */
+        .go-deeper-level-btn { grid-column: 1 / -1; background: white; border: 2px dashed #4ECDC4; border-radius: 16px; padding: 1.2rem; text-align: center; cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s ease; position: relative; }
+        .go-deeper-level-btn.locked { opacity: 0.55; cursor: not-allowed; border-color: #ccc; }
+        .go-deeper-level-btn:not(.locked):hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(78,205,196,0.25); border-color: #4ECDC4; }
+        .go-deeper-level-btn h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.3rem 0; color: #2D3436; }
+        .go-deeper-level-btn p { font-size: 0.9rem; color: #636E72; margin: 0; }
+        .go-deeper-card { background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-top: 5px solid #4ECDC4; padding: 2rem; max-width: 700px; margin: 2rem auto; }
+        .go-deeper-card h2 { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+        .go-deeper-card > p { color: #636E72; margin-bottom: 1.5rem; }
+        .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #4ECDC4; margin-bottom: 0.75rem; }
+        .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; line-height: 1.6; color: #2D3436; margin-bottom: 0.75rem; }
+        .ext-task-sub { font-family: 'Fredoka', sans-serif; font-style: italic; color: #636E72; margin-bottom: 1rem; font-size: 0.95rem; }
+        .ext-thinking-area { width: 100%; min-height: 90px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 0.8rem; font-family: 'Fredoka', sans-serif; font-size: 0.95rem; resize: vertical; transition: border-color 0.3s ease; box-sizing: border-box; }
+        .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+        .ext-reveal-btn { display: inline-block; margin-top: 0.75rem; padding: 0.5rem 1.2rem; border: 2px solid #4ECDC4; border-radius: 10px; background: white; color: #4ECDC4; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
+        .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+        .ext-model-response { display: none; background: white; border-radius: 10px; padding: 1.2rem; margin-top: 0.75rem; border: 1px solid #e0e0e0; }
+        .ext-model-response.visible { display: block; }
+        .ext-model-response .model-label { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 0.85rem; color: #4ECDC4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .ext-model-response p { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.6; color: #2D3436; margin: 0.5rem 0; }
+        .mathematician-box { margin-top: 1rem; padding: 1rem; border: 2px dashed #4ECDC4; border-radius: 10px; background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%); font-family: 'Fredoka', sans-serif; font-size: 0.9rem; line-height: 1.5; color: #2D3436; }
+        .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+        .go-deeper-back-btn { display: inline-block; margin-bottom: 1.5rem; padding: 0.5rem 1rem; border: none; border-radius: 10px; background: #f0f0f0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; color: #2D3436; }
+        .go-deeper-back-btn:hover { background: #e0e0e0; }
+
+        @media (max-width: 700px) {
+            .houses-grid {
+                grid-template-columns: 1fr;
+            }
+            .guest-tile {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+    
+        /* Progress Tracker */
+        .progress-tracker {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .progress-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .progress-circle.current {
+            border-color: var(--primary-accent);
+            border-width: 4px;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .progress-circle.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .progress-circle.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .progress-circle.correct::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--correct-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.incorrect::after {
+            content: "✗";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--incorrect-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.partial {
+            background: #F4C430;
+            border-color: #F4C430;
+            color: white;
+        }
+
+        .story-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .step-block { margin-bottom: 1.25rem; }
+        .step-block label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .hint-btn {
+            background: #FFF3E0;
+            border: 2px solid #FFB74D;
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .hint-btn:hover { background: #FFE0B2; transform: translateY(-1px); }
+        .hint-btn.revealed { opacity: 0.7; cursor: default; }
+
+        .hint-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+        .hint-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+        .hint-box strong { display: block; margin-bottom: 0.4rem; color: var(--text-dark); }
+        .hint-box p { margin: 0; font-size: 0.95rem; color: var(--text-dark); }
+
+        .pv-ref-toggle {
+            background: none;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .pv-ref-toggle:hover {
+            border-color: var(--primary-accent);
+            color: var(--primary-accent);
+        }
+
+        .pv-ref-chart {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 0.6rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .pv-ref-chart.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .pv-ref-row {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            min-width: fit-content;
+        }
+
+        .pv-ref-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 52px;
+            padding: 0.3rem 0.25rem;
+        }
+
+        .pv-ref-col .col-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: white;
+            background: var(--col-color);
+            border-radius: 6px;
+            padding: 0.2rem 0.4rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .pv-ref-divider {
+            width: 2px;
+            background: #E0E0E0;
+            margin: 0 4px;
+            align-self: stretch;
+            border-radius: 1px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <div class="landing-header">
+                    <h1>House Guests <span>Lost!</span></h1>
+                    <p class="subtitle">Sort scrambled place values into their houses</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2 onclick="toggleLearningSection()">
+                        Learning Intention &amp; Success Criteria
+                        <span class="toggle-icon" id="learningToggle">▼</span>
+                    </h2>
+                    <div class="learning-content" id="learningContent">
+                        <h3>Learning Intention</h3>
+                        <p>We are learning to use place value houses to sort number parts into their correct positions and build whole numbers.</p>
+                        <h3>Success Criteria</h3>
+                        <ul class="success-criteria">
+                            <li>I can identify which place value house a number part belongs in (ones, thousands, millions)</li>
+                            <li>I can arrange number parts in the correct order to form a complete number</li>
+                            <li>I can read and write numbers up to millions using place value houses</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2>The Place Value Houses</h2>
+                    <p>These house guests are lost! Each number part belongs in a specific "house" based on its place value. Your job is to sort them into the correct houses and find the secret number!</p>
+                    
+                    <div class="key-concept">
+                        <h3>How It Works</h3>
+                        <p>Numbers are organised into "houses" like apartments in a building. The Millions House, the Thousands House, and the Ones House. Each house has three rooms for hundreds, tens, and ones.</p>
+                        
+                        <div class="example-box">
+                            <strong>Example:</strong> If you see "6 hundred thousand" and "23 thousand", they both go in the Thousands House!<br>
+                            600 + 23 = 623 (in the Thousands House)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2>Worked Example</h2>
+                    <p>Let's sort some house guests together, step by step.</p>
+
+                    <div class="key-concept">
+                        <h3>Sort these guests into the right houses: 4 million, 50 thousand, 800, 3, 7 thousand</h3>
+
+                        <div class="example-box">
+                            <div style="display:flex;flex-direction:column;gap:1.1rem;margin-top:0.5rem;">
+                                <div><strong>Step 1:</strong> Sort each guest into its house:</div>
+                                <div style="padding-left:1rem;">Millions House: <strong>4,000,000</strong></div>
+                                <div style="padding-left:1rem;">Thousands House: <strong>50,000 + 7,000 = 57,000</strong></div>
+                                <div style="padding-left:1rem;">Ones House: <strong>800 + 3 = 803</strong></div>
+                                <div><strong>Step 2:</strong> Combine the houses from left to right:</div>
+                                <div style="padding-left:1rem;"><strong>4,000,000 + 57,000 + 803</strong></div>
+                                <div style="padding:0.6rem;background:#E8F5E9;border-radius:8px;"><strong>Answer:</strong> <strong>4,057,803</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:1rem;padding:1rem;background:#FFF3E0;border-radius:12px;border-left:4px solid #FF8400;">
+                        <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Your Turn</h3>
+                        <p style="font-size:0.95rem;">Sort these guests: <strong>2 million</strong>, <strong>30 thousand</strong>, <strong>600</strong>, <strong>5</strong></p>
+                        <p style="font-size:0.9rem;color:#636E72;">Think about it, then pick a level below to practise!</p>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose a Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>The Basic Jumble</p>
+                        <div class="level-meta">
+                            <span>Millions & Thousands</span>
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>The Zero Trap</p>
+                        <div class="level-meta">
+                            <span>Billions & Millions</span>
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>The Grandmaster Jumble</p>
+                        <div class="level-meta">
+                            <span>Trillions to Ones</span>
+                            <span>20 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-1" onclick="showWordedLevelSelect()" style="grid-column: 1 / -1;">
+                        <h3>📝 Worded Questions</h3>
+                        <p>Two-step word problems with hints (Level 1, 2 or 3)</p>
+                        <div class="level-meta">
+                            <span>10 questions per level</span>
+                            <span>2 marks per question</span>
+                        </div>
+                    </button>
+                    <button class="go-deeper-level-btn locked" id="go-deeper-card-puzzle" onclick="openGoDeeper()" disabled>
+                        <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Digit Value Investigations</h3>
+                        <p>Complete Level 3 to unlock</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- WORDED LEVEL SELECT -->
+            <div id="worded-level-select-page" class="page">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <button class="back-btn" onclick="backToLanding()">← Back</button>
+                    <a href="index.html" class="home-btn">🏠 Home</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Worded <span>Questions</span></h1>
+                    <p class="subtitle">House Guests Lost – choose your level</p>
+                </div>
+                <h2 class="level-section-title">Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="selectWordedLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Working Toward – Hundreds of Thousands</p>
+                    </button>
+                    <button class="level-btn level-2" onclick="selectWordedLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Working At – Millions</p>
+                    </button>
+                    <button class="level-btn level-3" onclick="selectWordedLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Working Beyond – Billions, Trillions &amp; Messy</p>
+                    </button>
+                    <button class="go-deeper-level-btn locked" id="go-deeper-card-worded" onclick="openGoDeeper()" disabled>
+                        <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Digit Value Investigations</h3>
+                        <p>Complete Level 3 to unlock</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="backToLanding()">← Back</button>
+                        <a href="index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">20</span>
+                    
+                <!-- Progress Tracker -->
+                <div class="progress-tracker">
+                    <div class="progress-grid" id="progress-grid">
+                        <!-- Circles will be generated by JavaScript -->
+                    </div>
+                </div>
+
+</div>
+                </div>
+
+                <button class="pv-ref-toggle" id="pv-ref-toggle" onclick="togglePVChart()">Show Place Value Chart</button>
+                <div class="pv-ref-chart" id="pv-ref-chart">
+                    <div class="pv-ref-row" id="pv-ref-row"></div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text" id="question-text">Drag the lost house guests to their correct houses!</div>
+                    
+                    <div id="standard-question-wrap">
+                        <div class="guests-pool">
+                            <div class="pool-label">🏃 Lost House Guests:</div>
+                            <div class="guests-container" id="guests-pool"></div>
+                        </div>
+                        <div class="houses-grid" id="houses-grid"></div>
+                        <div class="answer-section">
+                            <div class="answer-label">What's the secret number?</div>
+                            <input type="text" id="answer-input" class="answer-input" placeholder="Enter the number with commas..." autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div id="worded-question-wrap" style="display: none;">
+                        <div class="story-display" id="story-display"></div>
+                        <div class="step-block">
+                            <label id="step-a-label">Step A:</label>
+                            <input type="text" id="answer-step-a" class="answer-input" placeholder="" autocomplete="off">
+                        </div>
+                        <div class="step-block">
+                            <label id="step-b-label">Step B:</label>
+                            <input type="text" id="answer-step-b" class="answer-input" placeholder="" autocomplete="off">
+                        </div>
+                        <button type="button" class="hint-btn" id="hint-btn" onclick="toggleHint()">💡 Hint</button>
+                        <div class="hint-box" id="hint-box">
+                            <strong>Hint</strong>
+                            <p id="hint-text"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="feedback-box" id="feedback-box">
+                        <h4 id="feedback-title">Feedback</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+                    
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="reset-btn" onclick="resetQuestion()">Reset</button>
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GO DEEPER PAGE -->
+            <div id="go-deeper-page" class="page">
+                <div class="container">
+                    <button class="go-deeper-back-btn" onclick="backToLanding()">← Back to Levels</button>
+
+                    <div class="go-deeper-card">
+                        <h2>Go Deeper: Place Value Investigations</h2>
+                        <p>Explore how changing the position of digits affects the value of numbers. Complete the three tasks below to become a place value expert!</p>
+
+                        <!-- TASK 1: SPECIALISING -->
+                        <div class="ext-task">
+                            <div class="ext-task-label">Task 1: Specialising</div>
+                            <div class="ext-task-prompt">In the number <span class="ext-numbers">7,654,321</span>, each digit is different. If I swap the positions of two digits, how does the value of the number change?</div>
+                            <div class="ext-task-sub">Try swapping the <span class="ext-numbers">7</span> and the <span class="ext-numbers">1</span> (making <span class="ext-numbers">1,654,327</span>). How much did the number change by? Now try swapping the <span class="ext-numbers">6</span> and the <span class="ext-numbers">3</span>. What do you notice about which swaps make the biggest difference?</div>
+                            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+                            <div class="ext-model-response">
+                                <div class="model-label">A mathematician's response</div>
+                                <p>I first tried just swapping the <span class="ext-numbers">7</span> and <span class="ext-numbers">1</span> randomly, but I needed to think about which columns they're in. The <span class="ext-numbers">7</span> is in the millions place and the <span class="ext-numbers">1</span> is in the ones place.</p>
+                                <p>When I swap them, I get <span class="ext-numbers">1,654,327</span>. The original number was <span class="ext-numbers">7,654,321</span>, so the difference is <span class="ext-numbers">7,654,321 -- 1,654,327 = 5,999,994</span>. That's a huge change!</p>
+                                <p>Now for swapping <span class="ext-numbers">6</span> and <span class="ext-numbers">3</span>. The <span class="ext-numbers">6</span> is in the hundred thousands place and the <span class="ext-numbers">3</span> is in the tens place. When I swap them, I get <span class="ext-numbers">7,354,621</span>. The difference is <span class="ext-numbers">7,654,321 -- 7,354,621 = 299,700</span>.</p>
+                                <p>I notice that swapping digits that are far apart (like millions and ones) makes a much bigger difference than swapping digits that are close together. This is because the place value difference is greater when columns are far apart.</p>
+                            </div>
+                            <div class="mathematician-box">
+                                <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+                            </div>
+                        </div>
+
+                        <!-- TASK 2: CONJECTURING -->
+                        <div class="ext-task">
+                            <div class="ext-task-label">Task 2: Conjecturing</div>
+                            <div class="ext-task-prompt">Here's a conjecture to investigate:</div>
+                            <div class="mathematician-box">"Swapping two digits that are further apart in a number always changes the value more than swapping two digits that are next to each other."</div>
+                            <div class="ext-task-sub">Is this statement always, sometimes, or never true? Can you find evidence to support your answer?</div>
+                            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+                            <div class="ext-model-response">
+                                <div class="model-label">A mathematician's response</div>
+                                <p>I first thought this was always true, but then I realised I need to test it carefully with examples. Let me try some specific numbers.</p>
+                                <p>Take the number <span class="ext-numbers">1,000,002</span>. If I swap the two digits that are close together (the <span class="ext-numbers">2</span> and one of the <span class="ext-numbers">0</span>s), almost nothing changes. But if I swap the <span class="ext-numbers">1</span> and the <span class="ext-numbers">2</span> (which are far apart), I get <span class="ext-numbers">2,000,001</span> -- a change of <span class="ext-numbers">999,999</span>.</p>
+                                <p>But wait -- what if the digits next to each other are in important place value columns? Like swapping a <span class="ext-numbers">9</span> in the thousands place with an <span class="ext-numbers">8</span> in the hundreds place gives a change of <span class="ext-numbers">900 -- 80 = 820</span>. Whereas swapping a <span class="ext-numbers">1</span> in the thousands place with a <span class="ext-numbers">0</span> far away in the ones place might only change by <span class="ext-numbers">1</span>.</p>
+                                <p>The statement is sometimes true. The size of the change depends not just on how far apart the digits are, but on which place value columns they occupy. Digits in higher place value columns have bigger impacts when they move.</p>
+                            </div>
+                            <div class="mathematician-box">
+                                <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proved. Testing edge cases is how mathematicians check whether a conjecture holds up.
+                            </div>
+                        </div>
+
+                        <!-- TASK 3: JUSTIFYING -->
+                        <div class="ext-task">
+                            <div class="ext-task-label">Task 3: Justifying</div>
+                            <div class="ext-task-prompt">A student says:</div>
+                            <div class="mathematician-box">"The digit <span class="ext-numbers">5</span> is always worth the same no matter what number it's in, because <span class="ext-numbers">5</span> is just <span class="ext-numbers">5</span>."</div>
+                            <div class="ext-task-sub">Explain why this student is wrong, using specific examples.</div>
+                            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+                            <div class="ext-model-response">
+                                <div class="model-label">A mathematician's response</div>
+                                <p>I first thought about just saying "the digit value changes based on place value", but the student's statement is trickier than that. They're saying the digit <span class="ext-numbers">5</span> itself is always <span class="ext-numbers">5</span>, which is technically true -- but the place value it represents is completely different.</p>
+                                <p>In the number <span class="ext-numbers">50</span>, the digit <span class="ext-numbers">5</span> represents <span class="ext-numbers">50</span>. But in the number <span class="ext-numbers">5,000</span>, the digit <span class="ext-numbers">5</span> represents <span class="ext-numbers">5,000</span>. And in <span class="ext-numbers">500,000</span>, it represents <span class="ext-numbers">500,000</span>. The digit hasn't changed, but what it's worth has changed massively!</p>
+                                <p>So the student is confusing the digit symbol with its value. Yes, the digit symbol <span class="ext-numbers">5</span> looks the same, and it's always called "five", but the place value tells us what that <span class="ext-numbers">5</span> actually means in the context of the whole number. That's the whole point of place value -- the same digit can represent wildly different amounts depending on where it's positioned.</p>
+                            </div>
+                            <div class="mathematician-box">
+                                <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just checking whether an answer is right. You are explaining <em>why</em> something is true or false, using clear reasoning and examples.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/20</div>
+                    <div class="score-label" id="score-label">Correct Answers</div>
+                </div>
+                <p>You've mastered this level!</p>
+                <button class="btn btn-primary" id="go-deeper-btn" style="display:none; margin: 1rem auto;" onclick="openGoDeeper()">Go Deeper &#x1F513;</button>
+                <div class="button-row" style="max-width: 500px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLanding()">Choose Another Level</button>
+                    <a href="index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="results-to-sheet.js?v=2"></script>
+    <script>
+        function toggleLearningSection() {
+            const content = document.getElementById('learningContent');
+            const toggle = document.getElementById('learningToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        const questions = {
+            1: [ // Level 1: Millions & Thousands
+                { guests: ["6 hundred thousand", "2 million", "1 hundred", "23 thousand", "28"], answer: "2,623,128", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["4 million", "50 thousand", "8 hundred", "3", "7 thousand"], answer: "4,057,803", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["15 thousand", "1 million", "90", "5 hundred", "6"], answer: "1,015,596", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred thousand", "8 million", "45", "12 thousand", "7 hundred"], answer: "8,312,745", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["9 thousand", "5 hundred", "2 million", "80", "1 thousand"], answer: "2,010,580", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["7 million", "4 hundred thousand", "66", "8 hundred", "30 thousand"], answer: "7,430,866", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["50 thousand", "6 million", "2 hundred", "9", "4 thousand"], answer: "6,054,209", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["3 million", "8 hundred", "70 thousand", "5", "1 hundred thousand"], answer: "3,170,805", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["90 thousand", "4 hundred", "5 million", "20", "6 thousand"], answer: "5,096,420", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred thousand", "7", "9 million", "40 thousand", "3 hundred"], answer: "9,140,307", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred thousand", "50", "6 million", "8 thousand", "9 hundred"], answer: "6,208,950", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["4 million", "25 thousand", "3 hundred", "80", "7 hundred thousand"], answer: "4,725,380", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["8 hundred thousand", "12", "5 million", "6 hundred", "30 thousand"], answer: "5,830,612", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["1 million", "60 thousand", "4 hundred", "9", "5 thousand"], answer: "1,065,409", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred thousand", "70", "7 million", "8 hundred", "11 thousand"], answer: "7,311,870", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["6 thousand", "2 hundred", "9 million", "40", "5 hundred thousand"], answer: "9,506,240", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred", "80 thousand", "3 million", "6", "9 hundred thousand"], answer: "3,980,406", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["5 hundred thousand", "15 thousand", "8", "2 million", "70"], answer: "2,515,078", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["7 hundred", "20 thousand", "4 million", "90", "6 hundred thousand"], answer: "4,620,790", houses: ["Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred", "45 thousand", "8 million", "3 hundred thousand", "5"], answer: "8,345,105", houses: ["Millions", "Thousands", "Ones"] }
+            ],
+            2: [ // Level 2: Billions & Millions (with zeros)
+                { guests: ["40 million", "5 billion", "9 hundred", "2 thousand", "7"], answer: "5,040,002,907", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 billion", "8 hundred thousand", "50", "6 million", "4 thousand"], answer: "3,006,804,050", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["70 million", "2 billion", "9", "1 thousand", "5 hundred"], answer: "2,070,001,509", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred million", "8 billion", "12", "30 thousand", "6"], answer: "8,400,030,018", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 billion", "5 hundred", "90 million", "7 thousand", "20"], answer: "6,090,007,520", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred million", "9 billion", "8", "40 thousand", "3 hundred"], answer: "9,100,040,308", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["20 million", "7 billion", "6 hundred", "5 thousand", "90"], answer: "7,020,005,690", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred million", "4 billion", "70", "8 thousand", "1"], answer: "4,300,008,071", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["50 million", "1 billion", "4 hundred", "9 thousand", "25"], answer: "1,050,009,425", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 hundred million", "5 billion", "3", "12 thousand", "80"], answer: "5,600,012,083", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred million", "8 billion", "60", "7 thousand", "4 hundred"], answer: "8,200,007,460", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["90 million", "3 billion", "5 hundred", "1 thousand", "18"], answer: "3,090,001,518", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred million", "6 billion", "9", "25 thousand", "70"], answer: "6,400,025,079", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["80 million", "2 billion", "3 hundred", "50 thousand", "6"], answer: "2,080,050,306", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["5 hundred million", "9 billion", "40", "8 thousand", "2 hundred"], answer: "9,500,008,240", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["10 million", "7 billion", "7 hundred", "3 thousand", "55"], answer: "7,010,003,755", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["7 hundred million", "4 billion", "20", "6 thousand", "1 hundred"], answer: "4,700,006,120", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["30 million", "1 billion", "8 hundred", "90 thousand", "4"], answer: "1,030,090,804", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 hundred million", "5 billion", "6", "15 thousand", "30"], answer: "5,900,015,036", houses: ["Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["60 million", "8 billion", "4 hundred", "2 thousand", "77"], answer: "8,060,002,477", houses: ["Billions", "Millions", "Thousands", "Ones"] }
+            ],
+            3: [ // Level 3: Trillions to Ones (Grandmaster)
+                { guests: ["15 thousand", "8 hundred billion", "4 trillion", "6 hundred", "2 million", "90"], answer: "4,800,002,015,690", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 trillion", "50 billion", "7 million", "4 hundred thousand", "80", "9 hundred"], answer: "3,050,007,400,980", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 hundred billion", "2 trillion", "30 thousand", "1 million", "5 hundred", "12"], answer: "2,600,001,030,512", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 trillion", "20 billion", "8 hundred thousand", "5", "3 hundred", "60 million"], answer: "9,020,060,800,305", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred billion", "5 trillion", "4 million", "70 thousand", "9 hundred", "25"], answer: "5,100,004,070,925", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["7 trillion", "40 billion", "2 hundred million", "6 thousand", "80", "1 hundred"], answer: "7,040,200,006,180", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 hundred billion", "8 trillion", "90 million", "5 hundred thousand", "7", "40"], answer: "8,300,090,500,047", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 trillion", "70 billion", "1 million", "8 hundred thousand", "30", "4 hundred"], answer: "6,070,001,800,430", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred billion", "4 trillion", "50 million", "9 thousand", "6 hundred", "18"], answer: "4,200,050,009,618", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 trillion", "10 billion", "3 hundred million", "20 thousand", "7 hundred", "5"], answer: "9,010,300,020,705", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["5 hundred billion", "1 trillion", "60 million", "7 hundred thousand", "90", "2 hundred"], answer: "1,500,060,700,290", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["8 trillion", "80 billion", "4 million", "30 thousand", "1 hundred", "66"], answer: "8,080,004,030,166", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["3 trillion", "90 billion", "5 hundred million", "12 thousand", "8 hundred", "3"], answer: "3,090,500,012,803", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["7 hundred billion", "2 trillion", "10 million", "60 thousand", "4 hundred", "50"], answer: "2,700,010,060,450", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["6 trillion", "30 billion", "8 hundred million", "5 hundred thousand", "9", "70"], answer: "6,030,800,500,079", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["4 hundred billion", "9 trillion", "20 million", "40 thousand", "6 hundred", "11"], answer: "9,400,020,040,611", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["1 hundred billion", "5 trillion", "70 million", "8 hundred thousand", "25", "3 hundred"], answer: "5,100,070,800,325", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["8 trillion", "60 billion", "3 hundred million", "90 thousand", "7 hundred", "4"], answer: "8,060,300,090,704", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["2 hundred billion", "7 trillion", "40 million", "15 thousand", "2 hundred", "88"], answer: "7,200,040,015,288", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] },
+                { guests: ["9 trillion", "50 billion", "6 hundred million", "70 thousand", "1 hundred", "9"], answer: "9,050,600,070,109", houses: ["Trillions", "Billions", "Millions", "Thousands", "Ones"] }
+            ]
+        };
+
+        const levelNames = {
+            1: "The Basic Jumble",
+            2: "The Zero Trap",
+            3: "The Grandmaster Jumble"
+        };
+
+        const wordedQuestions = {
+            1: [
+                { title: "The Mystery Migration", stepA: "A 5-digit number. Thousands digit is 8. Hundreds digit is half the thousands. Ones digit is 3 more than the hundreds. All other digits are 0.", stepB: "Round to the nearest ten-thousand.", answerA: "8407", answerB: "10000", hint: "Start with the thousands digit (8). Half of 8 is 4, and 3 more than 4 is 7." },
+                { title: "The Hidden Hive", stepA: "A 6-digit number. Hundred-thousands digit is 2. Ten-thousands digit is triple the hundred-thousands. Hundreds digit is half the ten-thousands. All other digits are 5.", stepB: "How many tens are in this number?", answerA: "265355", answerB: "26535", hint: "Multiply 2 by 3 to get the ten-thousands. Half of 6 is 3. Fill the rest with 5s." },
+                { title: "The Ancient Turtle", stepA: "A 6-digit number. Ones digit is 9. Tens digit is 6. Thousands digit is the difference between the ones and tens. All other digits are 1.", stepB: "What is 10 times this number?", answerA: "113169", answerB: "1131690", hint: "Subtract 6 from 9 to find the thousands digit." },
+                { title: "Cactus Water Storage", stepA: "A 5-digit number. Ten-thousands digit is 4. Thousands digit is double the ten-thousands. Ones digit is the sum of the ten-thousands and thousands. All other digits are 0.", stepB: "Round to the nearest thousand.", answerA: "48012", answerB: "48000", hint: "Double 4 is 8. The sum of 4 and 8 is 12, but since 12 is two digits, the 2 stays in the ones and the 1 carries to the tens!" },
+                { title: "Snow Leopard Camouflage", stepA: "A 6-digit number. Hundred-thousands digit is 7. Thousands digit is 7 less than that. Tens digit is 9. All other digits are 2.", stepB: "How many hundreds are in this number?", answerA: "720292", answerB: "7202", hint: "7 minus 7 is 0. Put 9 in the tens and 2s everywhere else." },
+                { title: "Whale Song Frequency", stepA: "A 6-digit number. Hundred-thousands digit is 3. Hundreds digit is double that. Ones digit is half the hundreds. All other digits are 0.", stepB: "Round to the nearest ten-thousand.", answerA: "300603", answerB: "300000", hint: "Double 3 is 6. Half of 6 is 3." },
+                { title: "Seed Dispersal", stepA: "A 5-digit number. Thousands digit is 7. Tens digit is 2 less than that. Ones digit is 1. All other digits are 4.", stepB: "How many hundreds are in this number?", answerA: "47451", answerB: "474", hint: "7 minus 2 is 5. Put 5 in the tens and 1 in the ones." },
+                { title: "Elephant Herd Memory", stepA: "A 5-digit number. Ten-thousands digit is 1. Thousands digit is 9. Hundreds digit is the difference between the thousands and ten-thousands. All other digits are 0.", stepB: "What is 10 times this number?", answerA: "19800", answerB: "198000", hint: "9 minus 1 is 8. Put 8 in the hundreds." },
+                { title: "Antarctic Ice Depth", stepA: "A 6-digit number. Hundred-thousands digit is 5. Tens digit is double that. All other digits are 3.", stepB: "Round to the nearest hundred.", answerA: "533403", answerB: "533400", hint: "\"Double 5\" is 10. The 0 stays in the tens, and the 1 carries to the hundreds!" },
+                { title: "Fungi Networks", stepA: "A 6-digit number. Ten-thousands digit is 6. Thousands digit is half that. Ones digit is one-third the thousands. All other digits are 0.", stepB: "How many tens are in this total?", answerA: "63001", answerB: "6300", hint: "Half of 6 is 3. One-third of 3 is 1." }
+            ],
+            2: [
+                { title: "Blue Whale's Heartbeat", stepA: "A 7-digit number. Millions digit is 3. Thousands digit is double the millions. Tens digit is half the thousands. All other digits are 0.", stepB: "How many ten-thousands are in this number?", answerA: "3006030", answerB: "300", hint: "Double 3 is 6. Half of 6 is 3." },
+                { title: "Amazon Tree Count", stepA: "An 8-digit number. Ten-millions digit is 5. Millions digit is 2 less than that. Thousands digit is the sum of those two digits. All other digits are 4.", stepB: "Round to the nearest million.", answerA: "53008444", answerB: "53000000", hint: "5 minus 2 is 3. 5 plus 3 is 8." },
+                { title: "Deep Sea Bioluminescence", stepA: "A 7-digit number. Millions digit is 1. Hundred-thousands digit is 9. Ones digit is one-third of the hundred-thousands. All other digits are 0.", stepB: "What is one-tenth (1/10) of this number?", answerA: "1900003", answerB: "190000.3", hint: "One-third of 9 is 3." },
+                { title: "The Ant Bridge", stepA: "A 7-digit number. Millions digit is 4. Hundreds digit is 4. Tens digit is double the hundreds. Thousands digit is half the millions. All other digits are 1.", stepB: "Rename as a combination of millions and thousands.", answerA: "4102481", answerB: "4 millions and 102 thousands", hint: "Half of 4 is 2. Double 4 is 8." },
+                { title: "Coral Reef Polyps", stepA: "An 8-digit number. Ten-millions digit is 2. Millions digit is triple that. Thousands digit is 1. Hundreds digit is double the thousands. All other digits are 0.", stepB: "Round to the nearest hundred-thousand.", answerA: "26001200", answerB: "26000000", hint: "Triple 2 is 6. Double 1 is 2." },
+                { title: "Plankton Density", stepA: "A 7-digit number. Millions digit is 8. Thousands digit is half that. Hundreds digit is half the thousands. All other digits are 5.", stepB: "Round to the nearest million.", answerA: "8554255", answerB: "9000000", hint: "Half of 8 is 4. Half of 4 is 2." },
+                { title: "Tree Leaf Photosynthesis", stepA: "An 8-digit number. Ten-millions digit is 4. Millions digit is double that. Hundreds digit is 1/4 of the millions digit. All other digits are 0.", stepB: "What is one-tenth (1/10) of this number?", answerA: "48000200", answerB: "4800020", hint: "Double 4 is 8. 1/4 of 8 is 2." },
+                { title: "Great Barrier Reef Life", stepA: "A 7-digit number. Millions digit is 2. Thousands digit is triple that. Tens digit is 9. All other digits are 1.", stepB: "How many ten-thousands are in this number?", answerA: "2106191", answerB: "210", hint: "Triple 2 is 6." },
+                { title: "Amazon Rainfall", stepA: "An 8-digit number. Ten-millions digit is 9. Millions digit is one-third of that. Thousands digit is half the millions (regroup). All other digits are 0.", stepB: "Round to the nearest ten-million.", answerA: "93001500", answerB: "90000000", hint: "1/3 of 9 is 3. Half of 3 is 1.5. Since we use whole digits, use 1 in the thousands and 5 in the hundreds!" },
+                { title: "Migration Path", stepA: "A 7-digit number. Millions digit is 5. Hundred-thousands digit is 4. Tens digit is the sum of those two. All other digits are 2.", stepB: "What is 100 times this number?", answerA: "5422292", answerB: "542229200", hint: "5 plus 4 is 9." }
+            ],
+            3: [
+                { title: "The Bacteria Colony", stepA: "A 13-digit number. Trillions digit is 5. Hundreds digit is 15. Millions digit is double the trillions. All other digits are 0.", stepB: "How many millions are in this total?", answerA: "5000010001500", answerB: "5000010", hint: "\"15 hundreds\" is actually 1 thousand and 5 hundreds. Double 5 is 10, which carries to the ten-millions!" },
+                { title: "Star Systems", stepA: "A 10-digit number. Billions digit is 1. Ten-thousands digit is 12. Ones digit is half of 12 (6). All other digits are 0.", stepB: "Round to the nearest billion.", answerA: "1000120006", answerB: "1000000000", hint: "\"12 ten-thousands\" is 1 hundred-thousand and 2 ten-thousands." },
+                { title: "DNA Sequences", stepA: "A 13-digit number. Trillions digit is 8. Millions digit is half that (4). Thousands digit is 25. All other digits are 0.", stepB: "What is 100 times this number?", answerA: "8000004025000", answerB: "800000402500000", hint: "\"25 thousands\" is 2 ten-thousands and 5 thousands." },
+                { title: "Oceanic Water Drops", stepA: "A 14-digit number. Ten-trillions digit is 2. Billions digit is 4. Hundred-thousands digit is 40. Ones digit is half of 4. All other digits are 0.", stepB: "How much more to reach the next trillion?", answerA: "20004004000002", answerB: "995995999998", hint: "\"40 hundred-thousands\" is exactly 4 millions." },
+                { title: "The Insect Empire", stepA: "A 13-digit number. Trillions digit is 9. Millions digit is one-third of that. Hundreds digit is 22. All other digits are 1.", stepB: "How many billions are in this number?", answerA: "9001003113311", answerB: "9001", hint: "\"22 hundreds\" is 2 thousands and 2 hundreds. One-third of 9 is 3." },
+                { title: "Global Carbon Cycle", stepA: "A 13-digit number. Trillions digit is 4. Millions digit is 22. Thousands digit is half of 22 (11). All other digits are 0.", stepB: "Round to the nearest billion.", answerA: "4000022011000", answerB: "4000000000000", hint: "\"22 millions\" means 2 in the ten-millions and 2 in the millions." },
+                { title: "Soil Microbes", stepA: "A 14-digit number. Ten-trillions digit is 7. Billions digit is 14. Hundreds digit is 5. All other digits are 0.", stepB: "How many millions are in this number?", answerA: "70014000000500", answerB: "70014000", hint: "\"14 billions\" is 1 ten-billion and 4 billions." },
+                { title: "Insect Population", stepA: "A 13-digit number. Trillions digit is 1. Billions digit is triple that. Millions digit is 45. Ones digit is 9. All other digits are 0.", stepB: "What is 1/100th of this number?", answerA: "1003045000009", answerB: "10030450000.09", hint: "\"45 millions\" is 4 ten-millions and 5 millions." },
+                { title: "Deep Sea Biomass", stepA: "A 15-digit number. Hundred-trillions digit is 3. Trillions digit is 15. Ten-billions digit is half of the hundred-trillions. All other digits are 0.", stepB: "How much more to reach the next quadrillion?", answerA: "315015000000000", answerB: "684985000000000", hint: "\"15 trillions\" carries 1 into the ten-trillions. Half of 3 is 1.5 (use 1 in the ten-billions and 5 in the billions)." },
+                { title: "Atmospheric Molecules", stepA: "A 13-digit number. Trillions digit is 6. Billions digit is one-third of that. Hundred-thousands digit is 12. All other digits are 8.", stepB: "Round to the nearest trillion.", answerA: "6002128888888", answerB: "6000000000000", hint: "\"12 hundred-thousands\" is 1 million and 2 hundred-thousands." }
+            ]
+        };
+
+        const wordedLevelNames = { 1: "Level 1 – Working Toward", 2: "Level 2 – Working At", 3: "Level 3 – Working Beyond" };
+
+        let currentLevel = 1;
+        let isWordedMode = false;
+        let wordedLevel = 0;
+        let currentQuestion = 0;
+        let questionStatus = []; // Track: null, "correct", "incorrect"
+        let initialQuestionResult = [];
+        let score = 0;
+        let hasChecked = false;
+        let draggedElement = null;
+        let isRevisionRound = false;
+        let revisionIndices = [];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function showWordedLevelSelect() {
+            showPage('worded-level-select-page');
+        }
+
+        function selectWordedLevel(level) {
+            isWordedMode = true;
+            wordedLevel = level;
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            buildPVChart();
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function normalizeWordedAnswer(s) {
+            if (typeof s !== 'string') return '';
+            return s
+                .replace(/[–−\-]/g, ' ')       // en-dash, minus, hyphen → space
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLowerCase()
+                .replace(/,/g, '')
+                .replace(/\band\b/g, '')        // remove "and" (British English convention)
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function wordedAnswerMatch(user, correct) {
+            const u = normalizeWordedAnswer(user);
+            const c = normalizeWordedAnswer(correct);
+            if (u === c) return true;
+            const un = u.replace(/\s/g, '');
+            const cn = c.replace(/\s/g, '');
+            if (un === cn) return true;
+            const numU = parseFloat(un);
+            const numC = parseFloat(cn);
+            if (!isNaN(numU) && !isNaN(numC) && Math.abs(numU - numC) < 0.0001) return true;
+            return false;
+        }
+
+        function toggleHint() {
+            const box = document.getElementById('hint-box');
+            const btn = document.getElementById('hint-btn');
+            box.classList.toggle('visible');
+            btn.classList.add('revealed');
+            btn.textContent = box.classList.contains('visible') ? '💡 Hint (shown)' : '💡 Hint';
+        }
+
+        function createProgressTracker() {
+            const grid = document.getElementById('progress-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            const total = isWordedMode
+                ? (wordedQuestions[wordedLevel] ? wordedQuestions[wordedLevel].length : 10)
+                : (isRevisionRound ? revisionIndices.length : (questions[currentLevel] ? questions[currentLevel].length : 20));
+            if (!isRevisionRound) {
+                questionStatus = new Array(total).fill(null);
+                initialQuestionResult = new Array(total).fill(null);
+            }
+            for (let i = 0; i < total; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = `progress-${i}`;
+                circle.onclick = () => jumpToQuestion(i);
+                grid.appendChild(circle);
+            }
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
+                const circle = document.getElementById(`progress-${i}`);
+                if (!circle) continue;
+                const actualIndex = isRevisionRound ? revisionIndices[i] : i;
+                circle.classList.remove('current', 'correct', 'incorrect', 'partial');
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'partial') circle.classList.add('partial');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
+            }
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            loadQuestion();
+        }
+
+
+        function startLevel(level) {
+            isWordedMode = false;
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            buildPVChart();
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function backToLanding() {
+            showPage('landing-page');
+        }
+
+        function loadQuestion() {
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const card = document.getElementById('question-card');
+            
+            if (isWordedMode) {
+                const list = wordedQuestions[wordedLevel];
+                const q = list[actualIndex];
+                document.getElementById('standard-question-wrap').style.display = 'none';
+                document.getElementById('worded-question-wrap').style.display = 'block';
+                document.getElementById('reset-btn').style.display = 'none';
+                card.className = 'question-card level-' + wordedLevel;
+                document.getElementById('question-text').style.display = 'none';
+                document.getElementById('question-label').textContent = wordedLevelNames[wordedLevel] + ' – Question ' + (currentQuestion + 1) + ' of ' + list.length;
+                document.getElementById('story-display').textContent = q.title + '. ' + q.stepA;
+                document.getElementById('step-a-label').textContent = 'Step A (your number):';
+                document.getElementById('step-b-label').textContent = 'Step B: ' + q.stepB;
+                document.getElementById('hint-text').textContent = q.hint;
+                document.getElementById('current-q').textContent = currentQuestion + 1;
+                document.getElementById('total-q').textContent = list.length;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.value = '';
+                inputB.value = '';
+                inputA.className = 'answer-input';
+                inputB.className = 'answer-input';
+                inputA.disabled = false;
+                inputB.disabled = false;
+                document.getElementById('hint-box').classList.remove('visible');
+                document.getElementById('hint-btn').classList.remove('revealed');
+                document.getElementById('hint-btn').textContent = '💡 Hint';
+                document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+                document.getElementById('check-btn').disabled = false;
+                document.getElementById('next-btn').disabled = true;
+                hasChecked = false;
+                updateProgressTracker();
+                setTimeout(() => inputA.focus(), 100);
+                return;
+            }
+            
+            document.getElementById('standard-question-wrap').style.display = 'block';
+            document.getElementById('worded-question-wrap').style.display = 'none';
+            document.getElementById('reset-btn').style.display = '';
+            document.getElementById('question-text').style.display = 'block';
+            const q = questions[currentLevel][actualIndex];
+            
+            card.className = `question-card level-${currentLevel}`;
+            
+            const totalInRound = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
+            document.getElementById('question-label').textContent = isRevisionRound 
+                ? `Revision – Question ${currentQuestion + 1} of ${totalInRound}` 
+                : `${levelNames[currentLevel]} - Question ${currentQuestion + 1}`;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = totalInRound;
+            
+            const input = document.getElementById('answer-input');
+            input.value = '';
+            input.className = 'answer-input';
+            input.disabled = false;
+            
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('next-btn').disabled = true;
+            
+            hasChecked = false;
+            
+            // Create guest tiles
+            const guestsPool = document.getElementById('guests-pool');
+            guestsPool.innerHTML = '';
+            
+            // Shuffle guests
+            const shuffledGuests = [...q.guests].sort(() => Math.random() - 0.5);
+            
+            shuffledGuests.forEach(guest => {
+                const tile = document.createElement('div');
+                tile.className = 'guest-tile';
+                tile.textContent = guest;
+                tile.draggable = true;
+                tile.dataset.guest = guest;
+                
+                tile.addEventListener('dragstart', handleDragStart);
+                tile.addEventListener('dragend', handleDragEnd);
+                
+                guestsPool.appendChild(tile);
+            });
+            
+            // Create house boxes
+            const housesGrid = document.getElementById('houses-grid');
+            housesGrid.innerHTML = '';
+            
+            q.houses.forEach(houseName => {
+                const house = document.createElement('div');
+                house.className = 'house';
+                house.dataset.house = houseName;
+                
+                const label = document.createElement('div');
+                label.className = 'house-label';
+                label.textContent = `🏠 ${houseName}`;
+                
+                const contents = document.createElement('div');
+                contents.className = 'house-contents';
+                
+                house.appendChild(label);
+                house.appendChild(contents);
+                
+                house.addEventListener('dragover', handleDragOver);
+                house.addEventListener('drop', handleDrop);
+                house.addEventListener('dragleave', handleDragLeave);
+                
+                housesGrid.appendChild(house);
+            });
+            
+            updateProgressTracker();
+            // Focus input
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            const house = e.currentTarget.closest('.house');
+            if (house) {
+                house.classList.add('drag-over');
+            }
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            const house = e.currentTarget.closest('.house');
+            if (house) {
+                house.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            const house = e.currentTarget.closest('.house');
+            if (house) {
+                house.classList.remove('drag-over');
+                
+                if (draggedElement) {
+                    const contents = house.querySelector('.house-contents');
+                    contents.appendChild(draggedElement);
+                }
+            }
+            
+            return false;
+        }
+
+        function resetQuestion() {
+            loadQuestion();
+        }
+
+        function checkAnswer() {
+            if (hasChecked) return;
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            
+            if (isWordedMode) {
+                const q = wordedQuestions[wordedLevel][actualIndex];
+                const userA = (document.getElementById('answer-step-a').value || '').trim();
+                const userB = (document.getElementById('answer-step-b').value || '').trim();
+                const correctA = wordedAnswerMatch(userA, q.answerA);
+                const correctB = wordedAnswerMatch(userB, q.answerB);
+                const marks = (correctA ? 1 : 0) + (correctB ? 1 : 0);
+                score += marks;
+                hasChecked = true;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.className = 'answer-input ' + (correctA ? 'correct' : 'incorrect');
+                inputB.className = 'answer-input ' + (correctB ? 'correct' : 'incorrect');
+                inputA.disabled = true;
+                inputB.disabled = true;
+                if (marks === 2) questionStatus[actualIndex] = 'correct';
+                else if (marks === 1) questionStatus[actualIndex] = 'partial';
+                else questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = questionStatus[actualIndex];
+                }
+                const feedbackBox = document.getElementById('feedback-box');
+                const feedbackText = document.getElementById('feedback-text');
+                feedbackBox.classList.add('visible');
+                if (marks === 2) {
+                    feedbackBox.classList.add('correct');
+                    feedbackBox.classList.remove('incorrect');
+                    feedbackText.textContent = 'Both steps correct! You got 2 out of 2 marks. Well done.';
+                } else {
+                    feedbackBox.classList.add('incorrect');
+                    feedbackBox.classList.remove('correct');
+                    let fb = 'You scored ' + marks + ' out of 2.';
+                    if (!correctA) {
+                        fb += '<br><strong>Step A:</strong> You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userA || '(blank)') + '</span>';
+                        fb += '. The answer is <span style="font-family:\'Space Mono\',monospace;">' + q.answerA + '</span>';
+                    }
+                    if (!correctB) {
+                        fb += '<br><strong>Step B:</strong> You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userB || '(blank)') + '</span>';
+                        fb += '. The answer is <span style="font-family:\'Space Mono\',monospace;">' + q.answerB + '</span>';
+                    }
+                    feedbackText.innerHTML = fb;
+                }
+                updateProgressTracker();
+                document.getElementById('check-btn').disabled = true;
+                document.getElementById('next-btn').disabled = false;
+                return;
+            }
+            
+            const q = questions[currentLevel][actualIndex];
+            const input = document.getElementById('answer-input');
+            const userAnswer = input.value.replace(/,/g, '').replace(/\s/g, '').trim();
+            const correctAnswer = q.answer.replace(/,/g, '').replace(/\s/g, '');
+            const correct = userAnswer === correctAnswer;
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedbackBox.classList.add('visible');
+            hasChecked = true;
+            
+            if (correct) {
+                score++;
+                questionStatus[actualIndex] = 'correct';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'correct';
+                }
+                input.className = 'answer-input correct';
+                feedbackBox.classList.add('correct');
+                feedbackBox.classList.remove('incorrect');
+                feedbackText.textContent = `Perfect! The secret number is ${q.answer}`;
+            } else {
+                questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
+                input.className = 'answer-input incorrect';
+                feedbackBox.classList.add('incorrect');
+                feedbackBox.classList.remove('correct');
+                const userVal = input.value.trim();
+                let fbHTML = 'You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userVal || '(blank)') + '</span>';
+                fbHTML += '<br>The correct secret number is <span style="font-family:\'Space Mono\',monospace;font-weight:700;">' + q.answer + '</span>';
+                // Check if student got the right digits but wrong comma placement
+                const userClean = userAnswer;
+                const correctClean = q.answer.replace(/,/g, '').replace(/\s/g, '');
+                if (userClean === correctClean) {
+                    fbHTML = 'Almost! You had the right digits but check your commas: <span style="font-family:\'Space Mono\',monospace;font-weight:700;">' + q.answer + '</span>';
+                } else if (userClean.length !== correctClean.length) {
+                    fbHTML += '<br>Check you have the right number of digits. The answer has <span style="font-family:\'Space Mono\',monospace;">' + correctClean.length + '</span> digits.';
+                }
+                feedbackText.innerHTML = fbHTML;
+            }
+            
+            updateProgressTracker();
+            input.disabled = true;
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) {
+                    document.getElementById('score-label').textContent = 'Correct Answers';
+                    document.getElementById('completion-message').textContent = 
+                        `Awesome work! You've completed ${levelNames[currentLevel]}!`;
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                        submitResult('house-guests-lost', 'House Guests Lost!', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
+                    }
+                    var deeperBtn = document.getElementById('go-deeper-btn');
+                    if (currentLevel === 3) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                    showPage('completion-page');
+                } else {
+                    loadQuestion();
+                }
+                return;
+            }
+            if (isWordedMode && currentQuestion >= wordedQuestions[wordedLevel].length) {
+                const numQuestions = wordedQuestions[wordedLevel].length;
+                const totalMarks = numQuestions * 2;
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed ${wordedLevelNames[wordedLevel]}!`;
+                document.getElementById('final-score').textContent = `${score}/${totalMarks}`;
+                document.getElementById('score-label').textContent = 'Marks (2 per question)';
+                if (typeof submitResult === 'function') {
+                    var initialScore = initialQuestionResult.reduce(function (sum, s) { return sum + (s === 'correct' ? 2 : s === 'partial' ? 1 : 0); }, 0);
+                    var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, numQuestions) : [];
+                    submitResult('house-guests-lost', 'House Guests Lost!', initialScore, totalMarks, wordedLevelNames[wordedLevel], qData);
+                }
+                var deeperBtn = document.getElementById('go-deeper-btn');
+                if (wordedLevel === 3) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                showPage('completion-page');
+                return;
+            }
+            if (!isWordedMode && currentQuestion >= questions[currentLevel].length) {
+                const incorrectIndices = questions[currentLevel].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
+                if (incorrectIndices.length === 0) {
+                    document.getElementById('score-label').textContent = 'Correct Answers';
+                    document.getElementById('completion-message').textContent = 
+                        `Awesome work! You've completed ${levelNames[currentLevel]}!`;
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${questions[currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                        submitResult('house-guests-lost', 'House Guests Lost!', initialScore, questions[currentLevel].length, levelNames[currentLevel], qData);
+                    }
+                    var deeperBtn = document.getElementById('go-deeper-btn');
+                    if (currentLevel === 3) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                    showPage('completion-page');
+                } else {
+                    startRevisionRound(incorrectIndices);
+                }
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            createProgressTracker();
+            loadQuestion();
+        }
+
+        function togglePVChart() {
+            var chart = document.getElementById('pv-ref-chart');
+            var btn = document.getElementById('pv-ref-toggle');
+            chart.classList.toggle('visible');
+            btn.textContent = chart.classList.contains('visible') ? 'Hide Place Value Chart' : 'Show Place Value Chart';
+        }
+
+        function buildPVChart() {
+            var row = document.getElementById('pv-ref-row');
+            var colours = {
+                'O': '#65a30d', 'T': '#059669', 'H': '#0891b2',
+                'Th': '#1d4ed8', 'T Th': '#7c3aed', 'H Th': '#d44d8a',
+                'M': '#65a30d', 'T M': '#059669', 'H M': '#0891b2',
+                'B': '#a21caf', 'T B': '#7c3aed', 'H B': '#d44d8a'
+            };
+            // Millions, Thousands, Ones (static for house-guests-lost which only uses these)
+            var houses = [['H M', 'T M', 'M'], ['H Th', 'T Th', 'Th'], ['H', 'T', 'O']];
+
+            var html = '';
+            houses.forEach(function(house, houseIdx) {
+                house.forEach(function(col) {
+                    html += '<div class="pv-ref-col" style="--col-color:' + colours[col] + '"><div class="col-label">' + col + '</div></div>';
+                });
+                if (houseIdx < houses.length - 1) {
+                    html += '<div class="pv-ref-divider"></div>';
+                }
+            });
+            row.innerHTML = html;
+        }
+
+        // Allow Enter key to submit: always trigger the visible primary button (Check or Next)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
+
+        function unlockGoDeeper() {
+            var cards = document.querySelectorAll('.go-deeper-level-btn');
+            cards.forEach(function(card) {
+                card.classList.remove('locked');
+                card.disabled = false;
+                card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+                card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+            });
+        }
+
+        function openGoDeeper() {
+            showPage('go-deeper-page');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>

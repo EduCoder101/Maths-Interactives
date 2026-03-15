@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Ordering Detective</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --ascending-color: #27AE60;
+            --descending-color: #E74C3C;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--ascending-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--descending-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .learning-card h2::before {
+            content: "🕵️";
+            font-size: 1.3rem;
+        }
+
+        .learning-card h2 .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .learning-content {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .learning-content.open {
+            display: block;
+        }
+
+        .learning-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .learning-content p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .success-criteria {
+            list-style: none;
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+
+        .success-criteria li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .success-criteria li::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .strategy-steps {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--ascending-color);
+        }
+
+        .strategy-steps h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .strategy-steps h3::before {
+            content: "🔍";
+        }
+
+        .strategy-steps ol {
+            padding-left: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .strategy-steps li {
+            color: var(--text-light);
+            padding: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+
+        .strategy-steps strong {
+            color: var(--text-dark);
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+        }
+
+        .example-box .example-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .example-box .step {
+            padding: 0.2rem 0;
+            padding-left: 1rem;
+        }
+
+        .example-box .result {
+            margin-top: 0.5rem;
+            font-weight: 700;
+            color: var(--ascending-color);
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .mode-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .mode-card.ascending::before { background: var(--ascending-color); }
+        .mode-card.descending::before { background: var(--descending-color); }
+
+        .mode-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .mode-card h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .mode-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .mode-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: #4ECDC4; }
+        .level-btn.level-2::before { background: #FF6B6B; }
+        .level-btn.level-3::before { background: #9B5DE5; }
+        .level-btn.level-4::before { background: #F4C430; }
+        .level-btn.level-5::before { background: #E74C3C; }
+        .level-btn.level-6::before { background: #2196F3; }
+        .level-btn.level-7::before { background: #FF9800; }
+        .level-btn.level-8::before { background: #00BCD4; }
+        .level-btn.level-9::before { background: #8BC34A; }
+        .level-btn.level-10::before { background: #E91E63; }
+
+        .decimal-section-divider {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            border-left: 4px solid #2196F3;
+            grid-column: 1 / -1;
+        }
+
+        .decimal-section-divider h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .decimal-section-divider p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin: 0.25rem 0 0 0;
+        }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .level-btn p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.3;
+        }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .place-value-chart {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .pv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .pv-table th {
+            background: var(--primary-accent);
+            color: white;
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .pv-table td {
+            border: 1px solid #E0E0E0;
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+        /* Progress Tracker */
+        .progress-tracker {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .progress-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .progress-circle.current {
+            border-color: var(--primary-accent);
+            border-width: 4px;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .progress-circle.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .progress-circle.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .progress-circle.correct::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--correct-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.incorrect::after {
+            content: "✗";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--incorrect-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+
+
+        /* === Go Deeper Extension Styles === */
+        .go-deeper-level-btn {
+            grid-column: 1 / -1;
+            background: white;
+            border: 2px dashed #4ECDC4;
+            border-radius: 16px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .go-deeper-level-btn.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+            border-color: #ccc;
+        }
+        .go-deeper-level-btn:not(.locked):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(78,205,196,0.25);
+            border-color: #4ECDC4;
+        }
+        .go-deeper-level-btn h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.3rem 0;
+            color: #2D3436;
+        }
+        .go-deeper-level-btn p {
+            font-size: 0.9rem;
+            color: #636E72;
+            margin: 0;
+        }
+        .go-deeper-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border-top: 5px solid #4ECDC4;
+            padding: 2rem;
+            max-width: 700px;
+            margin: 2rem auto;
+        }
+        .go-deeper-card h2 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+        }
+        .go-deeper-card > p {
+            color: #636E72;
+            margin-bottom: 1.5rem;
+        }
+        .ext-task {
+            background: #f0fdfa;
+            border-left: 4px solid #4ECDC4;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .ext-task-label {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #4ECDC4;
+            margin-bottom: 0.75rem;
+        }
+        .ext-task-prompt {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.6;
+            color: #2D3436;
+            margin-bottom: 0.75rem;
+        }
+        .ext-task-sub {
+            font-family: 'Fredoka', sans-serif;
+            font-style: italic;
+            color: #636E72;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        .ext-thinking-area {
+            width: 100%;
+            min-height: 90px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 0.8rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        .ext-thinking-area:focus {
+            outline: none;
+            border-color: #4ECDC4;
+        }
+        .ext-reveal-btn {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.5rem 1.2rem;
+            border: 2px solid #4ECDC4;
+            border-radius: 10px;
+            background: white;
+            color: #4ECDC4;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .ext-reveal-btn:hover {
+            background: #4ECDC4;
+            color: white;
+        }
+        .ext-model-response {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 1.2rem;
+            margin-top: 0.75rem;
+            border: 1px solid #e0e0e0;
+        }
+        .ext-model-response.visible {
+            display: block;
+        }
+        .ext-model-response .model-label {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #4ECDC4;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .ext-model-response p {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #2D3436;
+            margin: 0.5rem 0;
+        }
+        .mathematician-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 2px dashed #4ECDC4;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #2D3436;
+        }
+        .ext-numbers {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+        }
+        .go-deeper-back-btn {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 10px;
+            background: #f0f0f0;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #2D3436;
+        }
+        .go-deeper-back-btn:hover {
+            background: #e0e0e0;
+        }
+
+        @media (max-width: 600px) {
+            .pv-table {
+                font-size: 0.65rem;
+            }
+            .pv-table th, .pv-table td {
+                padding: 0.4rem 0.2rem;
+            }
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.ascending { border-top-color: var(--ascending-color); }
+        .question-card.descending { border-top-color: var(--descending-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .instruction-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        /* Drag and Drop Styles */
+        .drag-container {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .drag-label {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .numbers-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            min-height: 60px;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed #DDD;
+        }
+
+        .drop-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            min-height: 80px;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed var(--primary-accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .drop-zone.drag-over {
+            background: #E3F2FD;
+            border-color: var(--ascending-color);
+        }
+
+        .number-tile {
+            background: white;
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: move;
+            transition: all 0.2s;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .number-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .number-tile.dragging {
+            opacity: 0.5;
+        }
+
+        .number-tile.in-answer {
+            border-color: var(--ascending-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .number-tile.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .number-tile.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+            line-height: 1.6;
+        }
+
+        .hint-btn {
+            background: white;
+            border: 2px solid #FF8400;
+            color: #FF8400;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .hint-btn:hover:not(:disabled) {
+            background: #FFF3E0;
+            transform: translateY(-1px);
+        }
+
+        .hint-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .hint-box {
+            background: #FFF3E0;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+            border-left: 4px solid #FF8400;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            display: none;
+        }
+
+        .hint-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .number-tile {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.8rem;
+            }
+            .drop-zone, .numbers-pool {
+                gap: 0.5rem;
+            }
+        }
+
+        .vocab-term {
+            border-bottom: 2px dotted var(--primary-accent);
+            cursor: help;
+            position: relative;
+            color: var(--primary-accent);
+            font-weight: 500;
+        }
+
+        .vocab-tooltip {
+            display: none;
+            position: fixed;
+            background: var(--text-dark);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+
+        .vocab-tooltip.show {
+            display: block;
+        }
+
+        .vocab-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Number Ordering <span>Detective</span></h1>
+                    <p class="subtitle">Master <span class="vocab-term">ascending</span> and <span class="vocab-term">descending</span> order</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2 onclick="toggleLearningSection()">
+                        Learning Intention &amp; Success Criteria
+                        <span class="toggle-icon" id="learningToggle">▼</span>
+                    </h2>
+                    <div class="learning-content" id="learningContent">
+                        <h3>Learning Intention</h3>
+                        <p>We are learning to compare and order whole numbers and decimals by reading them from left to right and comparing digits in each place value column.</p>
+                        <h3>Success Criteria</h3>
+                        <ul class="success-criteria">
+                            <li>I can arrange numbers in <span class="vocab-term">ascending order</span> (smallest to largest)</li>
+                            <li>I can arrange numbers in <span class="vocab-term">descending order</span> (largest to smallest)</li>
+                            <li>I can compare digits column by column to determine which number is larger or smaller</li>
+                            <li>I can compare and order decimal numbers with up to five decimal places</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2>The Detective Strategy</h2>
+                    <p>To order large numbers correctly, you must be a place value detective. Follow these three steps:</p>
+                    
+                    <div class="strategy-steps">
+                        <h3>The Three Steps</h3>
+                        <ol>
+                            <li><strong>The Digit Count:</strong> Check how many digits are in the number. More digits always means a larger value.</li>
+                            <li><strong>Left-to-Right:</strong> If two numbers have the same amount of digits, start at the far left and compare.</li>
+                            <li><strong>The Tie-Breaker:</strong> Move one column to the right until you find a digit that is different.</li>
+                        </ol>
+                        
+                        <div class="example-box">
+                            <div class="example-title">Detective Example: Which is larger: 4,567,800 or 4,562,999?</div>
+                            <div class="step">1. Both have 7 digits.</div>
+                            <div class="step">2. Millions: Both are 4.</div>
+                            <div class="step">3. Hundred Thousands: Both are 5.</div>
+                            <div class="step">4. Ten Thousands: Both are 6.</div>
+                            <div class="step">5. Thousands: One has 7, the other has 2.</div>
+                            <div class="result">Result: 4,567,800 is larger because 7,000 > 2,000.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:1rem;margin-bottom:1.5rem;padding:1rem;background:#FFF3E0;border-radius:12px;border-left:4px solid #FF8400;">
+                    <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Your Turn</h3>
+                    <p style="font-size:0.95rem;">Put these in <span class="vocab-term">ascending order</span>: <strong>34,500</strong> &nbsp; <strong>345,000</strong> &nbsp; <strong>34,050</strong></p>
+                    <p style="font-size:0.9rem;color:#636E72;">Use the detective strategy, then pick a challenge below!</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2 onclick="toggleVocab()">
+                        Key Vocabulary
+                        <span class="toggle-icon" id="vocabToggle">▼</span>
+                    </h2>
+                    <div class="learning-content" id="vocabContent">
+                        <p><strong><span class="vocab-term">Ascending order</span></strong> means arranging numbers from smallest to largest.</p>
+                        <p><strong><span class="vocab-term">Descending order</span></strong> means arranging numbers from largest to smallest.</p>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose Your Challenge</h2>
+                <div class="mode-selection">
+                    <button class="mode-card ascending" onclick="selectMode('ascending')">
+                        <div class="mode-icon">📈</div>
+                        <h3>Ascending Order</h3>
+                        <p>Arrange numbers from smallest to largest</p>
+                    </button>
+                    <button class="mode-card descending" onclick="selectMode('descending')">
+                        <div class="mode-icon">📉</div>
+                        <h3>Descending Order</h3>
+                        <p>Arrange numbers from largest to smallest</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODE SELECTION PAGE -->
+            <div id="mode-page" class="page">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <button class="back-btn" onclick="showPage('landing-page')">← Back to Home</button>
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                
+                <div class="landing-header">
+                    <h1 id="mode-title"></h1>
+                    <p class="subtitle" id="mode-subtitle"></p>
+                </div>
+
+                <h2 class="level-section-title">Select a Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Hundreds and Thousands</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Thousands and Ten Thousands</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Millions (The Detective Phase)</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-4" onclick="startLevel(4)">
+                        <h3>Level 4</h3>
+                        <p>Billions</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-5" onclick="startLevel(5)">
+                        <h3>Level 5</h3>
+                        <p>Trillions (Grandmaster)</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+
+                    <div class="decimal-section-divider">
+                        <h3>Decimal Ordering</h3>
+                        <p>Compare and order decimal numbers by examining digits after the decimal point</p>
+                    </div>
+
+                    <button class="level-btn level-6" onclick="startLevel(6)">
+                        <h3>Level 6</h3>
+                        <p>Tenths</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-7" onclick="startLevel(7)">
+                        <h3>Level 7</h3>
+                        <p>Hundredths</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-8" onclick="startLevel(8)">
+                        <h3>Level 8</h3>
+                        <p>Thousandths</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-9" onclick="startLevel(9)">
+                        <h3>Level 9</h3>
+                        <p>Ten-thousandths</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-10" onclick="startLevel(10)">
+                        <h3>Level 10</h3>
+                        <p>Hundred-thousandths</p>
+                        <div class="level-meta">
+                            <span>7 questions</span>
+                        </div>
+                    </button>
+
+                    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+                        <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Ordering Investigations</h3>
+                        <p>Complete Level 5 or Level 10 to unlock</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="backToLevels()">← Back to Levels</button>
+                        <a href="index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">7</span>
+                    </div>
+                </div>
+
+                <div class="place-value-chart">
+                    <table class="pv-table">
+                        <thead>
+                            <tr>
+                                <th>Trillions</th>
+                                <th>H-Billions</th>
+                                <th>T-Billions</th>
+                                <th>Billions</th>
+                                <th>H-Millions</th>
+                                <th>T-Millions</th>
+                                <th>Millions</th>
+                                <th>H-Thous</th>
+                                <th>T-Thous</th>
+                                <th>Thous</th>
+                                <th>Hund</th>
+                                <th>Tens</th>
+                                <th>Ones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1,000,000,000,000</td>
+                                <td>100,000,000,000</td>
+                                <td>10,000,000,000</td>
+                                <td>1,000,000,000</td>
+                                <td>100,000,000</td>
+                                <td>10,000,000</td>
+                                <td>1,000,000</td>
+                                <td>100,000</td>
+                                <td>10,000</td>
+                                <td>1,000</td>
+                                <td>100</td>
+                                <td>10</td>
+                                <td>1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                
+                <!-- Progress Tracker -->
+                <div class="progress-tracker">
+                    <div class="progress-grid" id="progress-grid">
+                        <!-- Circles will be generated by JavaScript -->
+                    </div>
+                </div>
+
+</div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text" id="question-text">Drag the numbers into the correct order:</div>
+                    <div class="instruction-text" id="instruction-text">Drag and drop the numbers below into the answer zone</div>
+                    
+                    <div class="drag-container">
+                        <div class="drag-label">Numbers to Order:</div>
+                        <div class="numbers-pool" id="numbers-pool"></div>
+                    </div>
+
+                    <div class="drag-label">Your Answer:</div>
+                    <div class="drop-zone" id="drop-zone"></div>
+
+                    <div class="hint-box" id="hint-box"></div>
+
+                    <div class="feedback-box" id="feedback-box">
+                        <h4 id="feedback-title">Feedback</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="hint-btn" id="hint-btn" onclick="showHint()">Show Hint</button>
+                        <button class="btn btn-secondary" id="reset-btn" onclick="resetQuestion()">Reset</button>
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()" disabled>Check Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GO DEEPER PAGE -->
+            <div id="go-deeper-page" class="page">
+                <button class="go-deeper-back-btn" onclick="backToLevels()">← Back to Levels</button>
+                <div class="go-deeper-card">
+                    <h2>&#x1F513; Go Deeper: Ordering Investigations</h2>
+                    <p>These tasks will push your thinking beyond finding answers. You'll explore, make conjectures, and reason like a mathematician.</p>
+
+                    <!-- TASK 1: Specialising -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Specialising</div>
+                        <div class="ext-task-prompt">
+                            Put these numbers in ascending order:<br><br>
+                            <span class="ext-numbers">5,300,000</span> &nbsp; <span class="ext-numbers">530,000</span> &nbsp; <span class="ext-numbers">5,030,000</span> &nbsp; <span class="ext-numbers">503,000</span> &nbsp; <span class="ext-numbers">5,300</span> &nbsp; <span class="ext-numbers">53,000,000</span><br><br>
+                            Now look at your sorted list. Every number uses only the digits <span class="ext-numbers">5</span>, <span class="ext-numbers">3</span>, and <span class="ext-numbers">0</span>. What made this set tricky to order? What did you have to pay attention to?
+                        </div>
+                        <div class="ext-task-sub">Try making your own set of 5 numbers using only the digits 2, 4, and 0. Can you make a set that would be tricky for a friend to order?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>The correct order is: <span class="ext-numbers">5,300</span>, <span class="ext-numbers">503,000</span>, <span class="ext-numbers">530,000</span>, <span class="ext-numbers">5,030,000</span>, <span class="ext-numbers">5,300,000</span>, <span class="ext-numbers">53,000,000</span>.</p>
+                            <p>At first glance I thought <span class="ext-numbers">5,300,000</span> and <span class="ext-numbers">530,000</span> might be close together because they both start with <span class="ext-numbers">53</span>. But then I checked: <span class="ext-numbers">5,300,000</span> is about <span class="ext-numbers">10</span> times bigger than <span class="ext-numbers">530,000</span>. The digits looked similar but the number of digits was completely different.</p>
+                            <p>I nearly got confused by <span class="ext-numbers">5,030,000</span> and <span class="ext-numbers">503,000</span> too. They use the same digits in the same order, but the zeros are in different positions, making one about <span class="ext-numbers">10</span> times bigger.</p>
+                            <p>What I noticed: the number of digits matters more than which digits you see first. Two numbers can use exactly the same digits but be wildly different in size if they have different numbers of digits. The zeros are what make it tricky because they change how many digits there are without changing which non-zero digits you see.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+                        </div>
+                    </div>
+
+                    <!-- TASK 2: Conjecturing -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Conjecturing</div>
+                        <div class="ext-task-prompt">
+                            "When comparing two whole numbers, the number with more digits is always the bigger number."
+                        </div>
+                        <div class="ext-task-sub">Is this always true, sometimes true, or never true? Test it with at least 5 different pairs of numbers. Try to find a pair where it breaks.</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>I tested this with several pairs:</p>
+                            <p><span class="ext-numbers">45</span> (2 digits) vs <span class="ext-numbers">8</span> (1 digit). <span class="ext-numbers">45</span> is bigger. More digits wins.</p>
+                            <p><span class="ext-numbers">999</span> (3 digits) vs <span class="ext-numbers">1,000</span> (4 digits). <span class="ext-numbers">1,000</span> is bigger. More digits wins again.</p>
+                            <p><span class="ext-numbers">50,000</span> (5 digits) vs <span class="ext-numbers">123,456</span> (6 digits). <span class="ext-numbers">123,456</span> is bigger. Still working.</p>
+                            <p>I tried hard to find one that breaks. What about <span class="ext-numbers">100</span> (3 digits) vs <span class="ext-numbers">99</span> (2 digits)? <span class="ext-numbers">100</span> is still bigger. What about <span class="ext-numbers">1,000,000</span> vs <span class="ext-numbers">999,999</span>? <span class="ext-numbers">1,000,000</span> has more digits and is bigger.</p>
+                            <p>My conjecture: <strong>always true</strong> for whole numbers. The smallest number with, say, 4 digits is <span class="ext-numbers">1,000</span>, and the biggest number with 3 digits is <span class="ext-numbers">999</span>. So a 4-digit number is always at least <span class="ext-numbers">1,000</span>, which is always bigger than any 3-digit number. This works for every number of digits.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true based on your evidence, but you know it still needs to be proved.
+                        </div>
+                    </div>
+
+                    <!-- TASK 3: Justifying -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Justifying</div>
+                        <div class="ext-task-prompt">
+                            A student put these numbers in ascending order:<br><br>
+                            <span class="ext-numbers">34,500</span> &nbsp; <span class="ext-numbers">340,500</span> &nbsp; <span class="ext-numbers">345,000</span> &nbsp; <span class="ext-numbers">3,450,000</span> &nbsp; <span class="ext-numbers">3,405,000</span><br><br>
+                            Their teacher said one pair of numbers is in the wrong order. Which pair, and why?
+                        </div>
+                        <div class="ext-task-sub">Find the mistake, explain exactly what the student got confused about, and write the correct order.</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>First I checked each number's value:</p>
+                            <p><span class="ext-numbers">34,500</span> = thirty-four thousand five hundred. That's the smallest, so good start.</p>
+                            <p><span class="ext-numbers">340,500</span> = three hundred and forty thousand five hundred. Next I see <span class="ext-numbers">345,000</span> = three hundred and forty-five thousand. Is <span class="ext-numbers">340,500</span> smaller than <span class="ext-numbers">345,000</span>? Yes, because both are in the hundred-thousands but <span class="ext-numbers">340,500</span> &lt; <span class="ext-numbers">345,000</span>. So far so good.</p>
+                            <p>Now the last two: <span class="ext-numbers">3,450,000</span> and <span class="ext-numbers">3,405,000</span>. Both are 7-digit numbers starting with <span class="ext-numbers">3</span>. The student put <span class="ext-numbers">3,450,000</span> before <span class="ext-numbers">3,405,000</span>. But <span class="ext-numbers">3,405,000</span> is less than <span class="ext-numbers">3,450,000</span> because in the ten-thousands column, <span class="ext-numbers">0</span> is less than <span class="ext-numbers">5</span>.</p>
+                            <p>The student probably looked at the digits <span class="ext-numbers">3,4,5</span> in <span class="ext-numbers">3,450,000</span> and <span class="ext-numbers">3,4,0,5</span> in <span class="ext-numbers">3,405,000</span> and thought the <span class="ext-numbers">5</span> appearing earlier made it smaller. But position matters: you have to compare column by column from left to right.</p>
+                            <p>Correct order: <span class="ext-numbers">34,500</span>, <span class="ext-numbers">340,500</span>, <span class="ext-numbers">345,000</span>, <span class="ext-numbers">3,405,000</span>, <span class="ext-numbers">3,450,000</span>.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just checking whether an answer is right. You are examining the reasoning behind a mistake and explaining exactly where it went wrong.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/7</div>
+                    <div class="score-label">Correct Answers</div>
+                </div>
+                <p>You've mastered this level!</p>
+                <button class="btn btn-primary" id="go-deeper-btn" style="display:none; margin: 1rem auto;" onclick="openGoDeeper()">Go Deeper &#x1F513;</button>
+                <div class="button-row" style="max-width: 500px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLevels()">Choose Another Level</button>
+                    <a href="index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="results-to-sheet.js?v=2"></script>
+    <script>
+        function toggleLearningSection() {
+            const content = document.getElementById('learningContent');
+            const toggle = document.getElementById('learningToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        function toggleVocab() {
+            const content = document.getElementById('vocabContent');
+            const toggle = document.getElementById('vocabToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        const questions = {
+            ascending: {
+                1: [
+                    { numbers: [450, 3200, 120, 8900, 1050, 75, 2300], answer: [75, 120, 450, 1050, 2300, 3200, 8900] },
+                    { numbers: [990, 9900, 99, 9090, 909, 9990, 9009], answer: [99, 909, 990, 9009, 9090, 9900, 9990] },
+                    { numbers: [1250, 850, 1520, 520, 2150, 250, 1205], answer: [250, 520, 850, 1205, 1250, 1520, 2150] },
+                    { numbers: [6700, 670, 6070, 7600, 760, 6007, 7060], answer: [670, 760, 6007, 6070, 6700, 7060, 7600] },
+                    { numbers: [3440, 4330, 340, 4300, 3400, 430, 3040], answer: [340, 430, 3040, 3400, 3440, 4300, 4330] },
+                    { numbers: [5120, 512, 5210, 1520, 2510, 5012, 152], answer: [152, 512, 1520, 2510, 5012, 5120, 5210] },
+                    { numbers: [8800, 808, 8080, 880, 8008, 8880, 8088], answer: [808, 880, 8008, 8080, 8088, 8800, 8880] }
+                ],
+                2: [
+                    { numbers: [24500, 2450, 24050, 25400, 4250, 24550, 24005], answer: [2450, 4250, 24005, 24050, 24500, 24550, 25400] },
+                    { numbers: [10100, 1010, 11000, 10010, 1100, 11100, 10001], answer: [1010, 1100, 10001, 10010, 10100, 11000, 11100] },
+                    { numbers: [56780, 5678, 56078, 65780, 56870, 5786, 56708], answer: [5678, 5786, 56078, 56708, 56780, 56870, 65780] },
+                    { numbers: [88200, 8820, 82800, 88020, 8280, 88220, 82008], answer: [8280, 8820, 82008, 82800, 88020, 88200, 88220] },
+                    { numbers: [13456, 31456, 13546, 3145, 13465, 31546, 13046], answer: [3145, 13046, 13456, 13465, 13546, 31456, 31546] },
+                    { numbers: [77070, 7707, 70770, 77700, 7077, 77007, 70077], answer: [7077, 7707, 70077, 70770, 77007, 77070, 77700] },
+                    { numbers: [45600, 54600, 4560, 45066, 54066, 45660, 54660], answer: [4560, 45066, 45600, 45660, 54066, 54600, 54660] }
+                ],
+                3: [
+                    { numbers: [4560230, 456999, 4506800, 4560099, 4561000, 45600, 4056000], answer: [45600, 456999, 4056000, 4506800, 4560099, 4560230, 4561000] },
+                    { numbers: [1200500, 120500, 1020500, 1200050, 1220000, 1200550, 12000], answer: [12000, 120500, 1020500, 1200050, 1200500, 1200550, 1220000] },
+                    { numbers: [7890000, 7089000, 789000, 7890900, 7809000, 7899000, 7900000], answer: [789000, 7089000, 7809000, 7890000, 7890900, 7899000, 7900000] },
+                    { numbers: [3303300, 330300, 3033300, 3330000, 3303030, 33300, 3300333], answer: [33300, 330300, 3033300, 3300333, 3303030, 3303300, 3330000] },
+                    { numbers: [6000600, 6600000, 606000, 6060600, 6006000, 6606000, 66000], answer: [66000, 606000, 6000600, 6006000, 6060600, 6600000, 6606000] },
+                    { numbers: [9123456, 912345, 9123000, 9213456, 9103456, 9123465, 9000123], answer: [912345, 9000123, 9103456, 9123000, 9123456, 9123465, 9213456] },
+                    { numbers: [2442442, 244244, 2244244, 2442000, 2424442, 24442, 2444222], answer: [24442, 244244, 2244244, 2424442, 2442000, 2442442, 2444222] }
+                ],
+                4: [
+                    { numbers: [12450600000, 9800750000, 12450099000, 12500000000, 12450600100, 1245000000, 12045000000], answer: [1245000000, 9800750000, 12045000000, 12450099000, 12450600000, 12450600100, 12500000000] },
+                    { numbers: [50000000000, 5000000000, 50500000000, 50050000000, 500000000, 50000500000, 55000000000], answer: [500000000, 5000000000, 50000000000, 50000500000, 50050000000, 50500000000, 55000000000] },
+                    { numbers: [23456000000, 23456700000, 2345600000, 23045600000, 23456000700, 23465000000, 23456070000], answer: [2345600000, 23045600000, 23456000000, 23456000700, 23456070000, 23456700000, 23465000000] },
+                    { numbers: [81000200000, 8100020000, 81200000000, 81000000200, 81002000000, 810000000, 81000002000], answer: [810000000, 8100020000, 81000000200, 81000002000, 81000200000, 81002000000, 81200000000] },
+                    { numbers: [67677000000, 6767700000, 67767000000, 67677677000, 67000677000, 67670000000, 67677000677], answer: [6767700000, 67000677000, 67670000000, 67677000000, 67677000677, 67677677000, 67767000000] },
+                    { numbers: [10010100000, 1010100000, 10101000000, 10010010000, 10010100100, 10001000000, 101000000], answer: [101000000, 1010100000, 10001000000, 10010010000, 10010100000, 10010100100, 10101000000] },
+                    { numbers: [44404444000, 4440444400, 44044444000, 44444444000, 44404044000, 44404444444, 44404440000], answer: [4440444400, 44044444000, 44404044000, 44404440000, 44404444000, 44404444444, 44444444000] }
+                ],
+                5: [
+                    { numbers: [3450000000000, 345900000000, 3450080000000, 3045000000000, 3450000000500, 34500000000, 3450000050000], answer: [34500000000, 345900000000, 3045000000000, 3450000000000, 3450000000500, 3450000050000, 3450080000000] },
+                    { numbers: [9000000000000, 900000000000, 9000000000900, 9000900000000, 9090000000000, 9000000090000, 9900000000000], answer: [900000000000, 9000000000000, 9000000000900, 9000000090000, 9000900000000, 9090000000000, 9900000000000] },
+                    { numbers: [1111000000000, 111111000000, 1111111000000, 1011000000000, 1111000000111, 1101000000000, 11111000000], answer: [11111000000, 111111000000, 1011000000000, 1101000000000, 1111000000000, 1111000000111, 1111111000000] },
+                    { numbers: [5600560000000, 560056000000, 5600000560000, 5656000000000, 5000560000000, 5600560560000, 5600500000000], answer: [560056000000, 5000560000000, 5600000560000, 5600500000000, 5600560000000, 5600560560000, 5656000000000] },
+                    { numbers: [7777777000000, 777777777000, 7777000777000, 7000777777000, 7777777777777, 7777777000777, 7707777000000], answer: [777777777000, 7000777777000, 7707777000000, 7777000777000, 7777777000000, 7777777000777, 7777777777777] },
+                    { numbers: [2000000002000, 200000002000, 2002000000000, 2000002000000, 2000000000002, 2200000000000, 22000000000], answer: [22000000000, 200000002000, 2000000000002, 2000000002000, 2000002000000, 2002000000000, 2200000000000] },
+                    { numbers: [8123456789000, 812345678900, 8123456000000, 8132456789000, 8123000789000, 8123456789999, 8100456789000], answer: [812345678900, 8100456789000, 8123000789000, 8123456000000, 8123456789000, 8123456789999, 8132456789000] }
+                ],
+                6: [
+                    { numbers: [3.5, 0.8, 3.2, 5.1, 0.3, 2.9, 1.7], answer: [0.3, 0.8, 1.7, 2.9, 3.2, 3.5, 5.1] },
+                    { numbers: [4.1, 4.9, 0.4, 9.4, 1.4, 9.1, 4.6], answer: [0.4, 1.4, 4.1, 4.6, 4.9, 9.1, 9.4] },
+                    { numbers: [7.6, 6.7, 7.1, 0.7, 6.3, 0.6, 7.7], answer: [0.6, 0.7, 6.3, 6.7, 7.1, 7.6, 7.7] },
+                    { numbers: [1.1, 11.1, 0.1, 11.3, 1.3, 10.1, 10.3], answer: [0.1, 1.1, 1.3, 10.1, 10.3, 11.1, 11.3] },
+                    { numbers: [8.3, 3.8, 8.8, 3.3, 0.8, 0.3, 8.1], answer: [0.3, 0.8, 3.3, 3.8, 8.1, 8.3, 8.8] },
+                    { numbers: [5.5, 15.5, 5.2, 15.2, 0.5, 50.5, 50.2], answer: [0.5, 5.2, 5.5, 15.2, 15.5, 50.2, 50.5] },
+                    { numbers: [2.4, 4.2, 2.2, 4.4, 0.2, 20.4, 0.4], answer: [0.2, 0.4, 2.2, 2.4, 4.2, 4.4, 20.4] }
+                ],
+                7: [
+                    { numbers: [0.45, 0.6, 0.54, 0.05, 1.04, 0.99, 0.5], answer: [0.05, 0.45, 0.5, 0.54, 0.6, 0.99, 1.04] },
+                    { numbers: [3.72, 3.27, 3.07, 3.7, 3.02, 3.77, 3.2], answer: [3.02, 3.07, 3.2, 3.27, 3.7, 3.72, 3.77] },
+                    { numbers: [0.18, 0.81, 1.08, 0.8, 1.8, 0.01, 0.1], answer: [0.01, 0.1, 0.18, 0.8, 0.81, 1.08, 1.8] },
+                    { numbers: [5.55, 5.05, 0.55, 5.15, 0.05, 5.51, 5.01], answer: [0.05, 0.55, 5.01, 5.05, 5.15, 5.51, 5.55] },
+                    { numbers: [2.34, 2.43, 2.03, 2.4, 2.3, 2.04, 0.23], answer: [0.23, 2.03, 2.04, 2.3, 2.34, 2.4, 2.43] },
+                    { numbers: [0.67, 6.07, 0.76, 6.7, 0.07, 7.06, 7.6], answer: [0.07, 0.67, 0.76, 6.07, 6.7, 7.06, 7.6] },
+                    { numbers: [9.91, 9.19, 9.09, 9.9, 1.99, 9.01, 1.09], answer: [1.09, 1.99, 9.01, 9.09, 9.19, 9.9, 9.91] }
+                ],
+                8: [
+                    { numbers: [0.345, 0.354, 0.035, 0.503, 0.305, 0.34, 0.3], answer: [0.035, 0.3, 0.305, 0.34, 0.345, 0.354, 0.503] },
+                    { numbers: [1.234, 1.243, 1.023, 1.2, 1.032, 1.24, 1.203], answer: [1.023, 1.032, 1.2, 1.203, 1.234, 1.24, 1.243] },
+                    { numbers: [0.999, 0.099, 0.9, 0.09, 0.909, 0.99, 0.009], answer: [0.009, 0.09, 0.099, 0.9, 0.909, 0.99, 0.999] },
+                    { numbers: [2.105, 2.015, 2.501, 2.051, 2.5, 2.15, 2.01], answer: [2.01, 2.015, 2.051, 2.105, 2.15, 2.5, 2.501] },
+                    { numbers: [0.678, 0.687, 0.068, 0.608, 0.67, 0.68, 0.6], answer: [0.068, 0.6, 0.608, 0.67, 0.678, 0.68, 0.687] },
+                    { numbers: [4.444, 4.044, 4.404, 0.444, 4.4, 0.044, 4.04], answer: [0.044, 0.444, 4.04, 4.044, 4.4, 4.404, 4.444] },
+                    { numbers: [3.001, 3.01, 3.1, 0.301, 0.031, 0.31, 3.101], answer: [0.031, 0.301, 0.31, 3.001, 3.01, 3.1, 3.101] }
+                ],
+                9: [
+                    { numbers: [0.3456, 0.3465, 0.0345, 0.3054, 0.345, 0.34, 0.3], answer: [0.0345, 0.3, 0.3054, 0.34, 0.345, 0.3456, 0.3465] },
+                    { numbers: [1.2345, 1.2354, 1.0234, 1.2, 1.23, 1.235, 1.2034], answer: [1.0234, 1.2, 1.2034, 1.23, 1.2345, 1.235, 1.2354] },
+                    { numbers: [0.5001, 0.501, 0.51, 0.5, 0.0501, 0.0051, 0.5101], answer: [0.0051, 0.0501, 0.5, 0.5001, 0.501, 0.51, 0.5101] },
+                    { numbers: [7.7777, 7.0777, 7.7077, 7.7707, 0.7777, 7.777, 7.07], answer: [0.7777, 7.07, 7.0777, 7.7077, 7.7707, 7.777, 7.7777] },
+                    { numbers: [2.4681, 2.4618, 2.0468, 2.468, 2.46, 2.4, 0.2468], answer: [0.2468, 2.0468, 2.4, 2.46, 2.4618, 2.468, 2.4681] },
+                    { numbers: [0.1234, 0.1243, 0.1324, 0.1342, 0.1, 0.12, 0.1032], answer: [0.1, 0.1032, 0.12, 0.1234, 0.1243, 0.1324, 0.1342] },
+                    { numbers: [6.0001, 6.001, 6.01, 6.1, 0.6001, 0.0601, 6.1001], answer: [0.0601, 0.6001, 6.0001, 6.001, 6.01, 6.1, 6.1001] }
+                ],
+                10: [
+                    { numbers: [0.34567, 0.34576, 0.03456, 0.34, 0.345, 0.3456, 0.34507], answer: [0.03456, 0.34, 0.345, 0.34507, 0.3456, 0.34567, 0.34576] },
+                    { numbers: [1.23456, 1.23465, 1.02345, 1.234, 1.23, 1.2345, 1.23405], answer: [1.02345, 1.23, 1.234, 1.23405, 1.2345, 1.23456, 1.23465] },
+                    { numbers: [0.99999, 0.09999, 0.9999, 0.999, 0.99, 0.9, 0.09], answer: [0.09, 0.09999, 0.9, 0.99, 0.999, 0.9999, 0.99999] },
+                    { numbers: [5.00001, 5.0001, 5.001, 5.01, 5.1, 0.50001, 5.10001], answer: [0.50001, 5.00001, 5.0001, 5.001, 5.01, 5.1, 5.10001] },
+                    { numbers: [2.46813, 2.46831, 2.04681, 2.4681, 2.468, 2.46, 0.24681], answer: [0.24681, 2.04681, 2.46, 2.468, 2.4681, 2.46813, 2.46831] },
+                    { numbers: [0.12345, 0.12354, 0.12435, 0.10234, 0.1, 0.12, 0.12305], answer: [0.1, 0.10234, 0.12, 0.12305, 0.12345, 0.12354, 0.12435] },
+                    { numbers: [8.88881, 8.88818, 8.88188, 8.81888, 8.18888, 0.88888, 8.88888], answer: [0.88888, 8.18888, 8.81888, 8.88188, 8.88818, 8.88881, 8.88888] }
+                ]
+            },
+            descending: {
+                1: [
+                    { numbers: [3405, 345, 3450, 4001, 999, 410, 3045], answer: [4001, 3450, 3405, 3045, 999, 410, 345] },
+                    { numbers: [7800, 8700, 780, 870, 7080, 8070, 7008], answer: [8700, 8070, 7800, 7080, 7008, 870, 780] },
+                    { numbers: [2100, 1200, 210, 120, 2010, 1020, 2111], answer: [2111, 2100, 2010, 1200, 1020, 210, 120] },
+                    { numbers: [5505, 505, 5550, 5005, 55, 5555, 5055], answer: [5555, 5550, 5505, 5055, 5005, 505, 55] },
+                    { numbers: [9100, 1900, 9010, 1090, 9110, 1990, 910], answer: [9110, 9100, 9010, 1990, 1900, 1090, 910] },
+                    { numbers: [6300, 3600, 630, 360, 6030, 3060, 6330], answer: [6330, 6300, 6030, 3600, 3060, 630, 360] },
+                    { numbers: [4400, 440, 4040, 4004, 44, 4440, 4044], answer: [4440, 4400, 4044, 4040, 4004, 440, 44] }
+                ],
+                2: [
+                    { numbers: [67800, 6780, 67088, 67880, 7001, 60780, 7680], answer: [67880, 67800, 67088, 60780, 7680, 7001, 6780] },
+                    { numbers: [15150, 51510, 1515, 15510, 51150, 15015, 5151], answer: [51510, 51150, 15510, 15150, 15015, 5151, 1515] },
+                    { numbers: [90900, 9900, 90090, 99000, 9090, 90909, 9999], answer: [99000, 90909, 90900, 90090, 9999, 9900, 9090] },
+                    { numbers: [32320, 23230, 3232, 32032, 23023, 33220, 2323], answer: [33220, 32320, 32032, 23230, 23023, 3232, 2323] },
+                    { numbers: [84000, 48000, 8400, 84400, 48800, 80400, 4800], answer: [84400, 84000, 80400, 48800, 48000, 8400, 4800] },
+                    { numbers: [11011, 1101, 11110, 10111, 1011, 11100, 1111], answer: [11110, 11100, 11011, 10111, 1111, 1101, 1011] },
+                    { numbers: [50505, 5505, 50050, 55000, 5050, 50555, 5555], answer: [55000, 50555, 50505, 50050, 5555, 5505, 5050] }
+                ],
+                3: [
+                    { numbers: [8122300, 812999, 8200100, 8122099, 8122305, 81223, 8000999], answer: [8200100, 8122305, 8122300, 8122099, 8000999, 812999, 81223] },
+                    { numbers: [5500500, 550500, 5050500, 5550000, 5505050, 5500055, 55500], answer: [5550000, 5505050, 5500500, 5500055, 5050500, 550500, 55500] },
+                    { numbers: [2002002, 202202, 2200200, 2020202, 2222000, 22202, 2000222], answer: [2222000, 2200200, 2020202, 2002002, 2000222, 202202, 22202] },
+                    { numbers: [9876543, 987654, 9876000, 9876555, 9786543, 9870000, 98765], answer: [9876555, 9876543, 9876000, 9870000, 9786543, 987654, 98765] },
+                    { numbers: [1001001, 110110, 1101101, 1011011, 1111111, 101001, 1000111], answer: [1111111, 1101101, 1011011, 1001001, 1000111, 110110, 101001] },
+                    { numbers: [4321000, 432100, 4321432, 4312000, 4321001, 4000321, 43210], answer: [4321432, 4321001, 4321000, 4312000, 4000321, 432100, 43210] },
+                    { numbers: [7650000, 765000, 7650765, 7560000, 7605000, 7655000, 76500], answer: [7655000, 7650765, 7650000, 7605000, 7560000, 765000, 76500] }
+                ],
+                4: [
+                    { numbers: [56780000000, 5678000000, 56780900000, 56099000000, 56780000400, 567800000, 56870000000], answer: [56870000000, 56780900000, 56780000400, 56780000000, 56099000000, 5678000000, 567800000] },
+                    { numbers: [10000100000, 1000000000, 10100000000, 10001000000, 100000000, 10000000100, 11000000000], answer: [11000000000, 10100000000, 10001000000, 10000100000, 10000000100, 1000000000, 100000000] },
+                    { numbers: [42000420000, 4200000000, 42420000000, 42000000420, 42042000000, 420000000, 42000420420], answer: [42420000000, 42042000000, 42000420420, 42000420000, 42000000420, 4200000000, 420000000] },
+                    { numbers: [88808000000, 8880800000, 88880000000, 88088000000, 88808808000, 888000000, 88808000088], answer: [88880000000, 88808808000, 88808000088, 88808000000, 88088000000, 8880800000, 888000000] },
+                    { numbers: [25250000000, 2525000000, 25250250000, 25520000000, 25205000000, 252500000, 25250000025], answer: [25520000000, 25250250000, 25250000025, 25250000000, 25205000000, 2525000000, 252500000] },
+                    { numbers: [70000700000, 7000000000, 70700000000, 70007000000, 700000000, 70000000700, 77000000000], answer: [77000000000, 70700000000, 70007000000, 70000700000, 70000000700, 7000000000, 700000000] },
+                    { numbers: [31311000000, 3131100000, 31311311000, 31113000000, 31311000311, 313110000, 31000311000], answer: [31311311000, 31311000311, 31311000000, 31113000000, 31000311000, 3131100000, 313110000] }
+                ],
+                5: [
+                    { numbers: [9012000000000, 90120000000, 9012500000000, 9012000600000, 9012000000070, 901200000000, 9120000000000], answer: [9120000000000, 9012500000000, 9012000600000, 9012000000070, 9012000000000, 901200000000, 90120000000] },
+                    { numbers: [4444000000000, 444400000000, 4444444000000, 4440000000000, 4444000000444, 44440000000, 4044000000000], answer: [4444444000000, 4444000000444, 4444000000000, 4440000000000, 4044000000000, 444400000000, 44440000000] },
+                    { numbers: [6000000600000, 600000600000, 6000600000000, 6600000000000, 6000000000006, 60000000000, 6060000000000], answer: [6600000000000, 6060000000000, 6000600000000, 6000000600000, 6000000000006, 600000600000, 60000000000] },
+                    { numbers: [1234567000000, 123456700000, 1234567890000, 1324567000000, 1234000000000, 1234567000567, 12345670000], answer: [1324567000000, 1234567890000, 1234567000567, 1234567000000, 1234000000000, 123456700000, 12345670000] },
+                    { numbers: [8808808000000, 880880800000, 8888888000000, 8088808000000, 8808808808808, 88088000000, 8800000000000], answer: [8888888000000, 8808808808808, 8808808000000, 8800000000000, 8088808000000, 880880800000, 88088000000] },
+                    { numbers: [2500000000000, 250000000000, 2500250000000, 2050000000000, 2500000000250, 25000000000, 2550000000000], answer: [2550000000000, 2500250000000, 2500000000250, 2500000000000, 2050000000000, 250000000000, 25000000000] },
+                    { numbers: [5000000000001, 500000000001, 5000001000000, 5001000000000, 5000000001000, 50000000000, 5100000000000], answer: [5100000000000, 5001000000000, 5000001000000, 5000000001000, 5000000000001, 500000000001, 50000000000] }
+                ],
+                6: [
+                    { numbers: [5.3, 3.5, 5.1, 0.5, 3.1, 0.3, 5.5], answer: [5.5, 5.3, 5.1, 3.5, 3.1, 0.5, 0.3] },
+                    { numbers: [8.2, 2.8, 8.4, 0.8, 2.4, 0.2, 8.8], answer: [8.8, 8.4, 8.2, 2.8, 2.4, 0.8, 0.2] },
+                    { numbers: [1.5, 15.1, 5.1, 51.1, 1.1, 11.5, 5.5], answer: [51.1, 15.1, 11.5, 5.5, 5.1, 1.5, 1.1] },
+                    { numbers: [9.9, 0.9, 9.3, 90.9, 99.1, 90.1, 9.1], answer: [99.1, 90.9, 90.1, 9.9, 9.3, 9.1, 0.9] },
+                    { numbers: [4.7, 7.4, 4.4, 7.7, 0.7, 0.4, 47.4], answer: [47.4, 7.7, 7.4, 4.7, 4.4, 0.7, 0.4] },
+                    { numbers: [6.2, 2.6, 6.6, 2.2, 26.2, 0.6, 0.2], answer: [26.2, 6.6, 6.2, 2.6, 2.2, 0.6, 0.2] },
+                    { numbers: [3.9, 9.3, 3.3, 9.9, 0.9, 0.3, 30.9], answer: [30.9, 9.9, 9.3, 3.9, 3.3, 0.9, 0.3] }
+                ],
+                7: [
+                    { numbers: [0.82, 0.28, 0.08, 8.02, 2.08, 0.8, 2.8], answer: [8.02, 2.8, 2.08, 0.82, 0.8, 0.28, 0.08] },
+                    { numbers: [4.56, 4.65, 4.06, 4.6, 4.05, 4.66, 4.5], answer: [4.66, 4.65, 4.6, 4.56, 4.5, 4.06, 4.05] },
+                    { numbers: [1.23, 1.32, 1.02, 1.3, 1.2, 0.13, 0.31], answer: [1.32, 1.3, 1.23, 1.2, 1.02, 0.31, 0.13] },
+                    { numbers: [7.89, 7.98, 7.08, 7.9, 7.8, 0.79, 0.97], answer: [7.98, 7.9, 7.89, 7.8, 7.08, 0.97, 0.79] },
+                    { numbers: [0.33, 3.03, 3.3, 0.03, 3.33, 0.3, 30.3], answer: [30.3, 3.33, 3.3, 3.03, 0.33, 0.3, 0.03] },
+                    { numbers: [6.15, 6.51, 6.01, 6.5, 6.1, 1.65, 1.56], answer: [6.51, 6.5, 6.15, 6.1, 6.01, 1.65, 1.56] },
+                    { numbers: [0.94, 9.04, 9.4, 0.49, 4.09, 4.9, 0.09], answer: [9.4, 9.04, 4.9, 4.09, 0.94, 0.49, 0.09] }
+                ],
+                8: [
+                    { numbers: [0.876, 0.867, 0.086, 0.806, 0.87, 0.8, 0.68], answer: [0.876, 0.87, 0.867, 0.806, 0.8, 0.68, 0.086] },
+                    { numbers: [3.456, 3.465, 3.046, 3.45, 3.4, 3.064, 3.006], answer: [3.465, 3.456, 3.45, 3.4, 3.064, 3.046, 3.006] },
+                    { numbers: [0.555, 0.505, 5.055, 5.5, 0.05, 5.005, 0.5], answer: [5.5, 5.055, 5.005, 0.555, 0.505, 0.5, 0.05] },
+                    { numbers: [2.222, 2.022, 2.202, 0.222, 2.2, 0.022, 2.02], answer: [2.222, 2.202, 2.2, 2.022, 2.02, 0.222, 0.022] },
+                    { numbers: [1.009, 1.09, 1.9, 0.109, 0.019, 0.19, 1.901], answer: [1.901, 1.9, 1.09, 1.009, 0.19, 0.109, 0.019] },
+                    { numbers: [7.654, 7.645, 7.064, 7.6, 7.065, 0.765, 7.06], answer: [7.654, 7.645, 7.6, 7.065, 7.064, 7.06, 0.765] },
+                    { numbers: [4.001, 4.01, 4.1, 0.401, 0.041, 0.41, 4.101], answer: [4.101, 4.1, 4.01, 4.001, 0.41, 0.401, 0.041] }
+                ],
+                9: [
+                    { numbers: [0.5678, 0.5687, 0.0567, 0.567, 0.56, 0.5, 0.5607], answer: [0.5687, 0.5678, 0.567, 0.5607, 0.56, 0.5, 0.0567] },
+                    { numbers: [2.3456, 2.3465, 2.0345, 2.345, 2.34, 2.3, 0.2345], answer: [2.3465, 2.3456, 2.345, 2.34, 2.3, 2.0345, 0.2345] },
+                    { numbers: [8.8888, 8.0888, 8.8088, 8.8808, 0.8888, 8.888, 8.08], answer: [8.8888, 8.888, 8.8808, 8.8088, 8.0888, 8.08, 0.8888] },
+                    { numbers: [3.0001, 3.001, 3.01, 3.1, 0.3001, 0.0301, 3.1001], answer: [3.1001, 3.1, 3.01, 3.001, 3.0001, 0.3001, 0.0301] },
+                    { numbers: [1.5432, 1.5423, 1.0543, 1.543, 1.54, 1.5, 0.1543], answer: [1.5432, 1.543, 1.5423, 1.54, 1.5, 1.0543, 0.1543] },
+                    { numbers: [6.7891, 6.7819, 6.0789, 6.789, 6.78, 6.7, 0.6789], answer: [6.7891, 6.789, 6.7819, 6.78, 6.7, 6.0789, 0.6789] },
+                    { numbers: [4.4444, 4.0444, 4.4044, 4.4404, 0.4444, 4.444, 4.04], answer: [4.4444, 4.444, 4.4404, 4.4044, 4.0444, 4.04, 0.4444] }
+                ],
+                10: [
+                    { numbers: [0.56789, 0.56798, 0.05678, 0.567, 0.56, 0.5678, 0.56709], answer: [0.56798, 0.56789, 0.5678, 0.56709, 0.567, 0.56, 0.05678] },
+                    { numbers: [2.34567, 2.34576, 2.03456, 2.345, 2.34, 2.3456, 2.34506], answer: [2.34576, 2.34567, 2.3456, 2.34506, 2.345, 2.34, 2.03456] },
+                    { numbers: [0.11111, 0.01111, 0.1111, 0.111, 0.11, 0.1, 0.01], answer: [0.11111, 0.1111, 0.111, 0.11, 0.1, 0.01111, 0.01] },
+                    { numbers: [7.00001, 7.0001, 7.001, 7.01, 7.1, 0.70001, 7.10001], answer: [7.10001, 7.1, 7.01, 7.001, 7.0001, 7.00001, 0.70001] },
+                    { numbers: [3.57913, 3.57931, 3.05791, 3.5791, 3.579, 3.57, 0.35791], answer: [3.57931, 3.57913, 3.5791, 3.579, 3.57, 3.05791, 0.35791] },
+                    { numbers: [0.24689, 0.24698, 0.02468, 0.2468, 0.246, 0.24, 0.24609], answer: [0.24698, 0.24689, 0.2468, 0.24609, 0.246, 0.24, 0.02468] },
+                    { numbers: [9.99991, 9.99919, 9.99199, 9.91999, 9.19999, 0.99999, 9.99999], answer: [9.99999, 9.99991, 9.99919, 9.99199, 9.91999, 9.19999, 0.99999] }
+                ]
+            }
+        };
+
+        const levelNames = {
+            1: "Hundreds and Thousands",
+            2: "Thousands and Ten Thousands",
+            3: "Millions (The Detective Phase)",
+            4: "Billions",
+            5: "Trillions (Grandmaster)",
+            6: "Tenths",
+            7: "Hundredths",
+            8: "Thousandths",
+            9: "Ten-thousandths",
+            10: "Hundred-thousandths"
+        };
+
+        let currentMode = 'ascending';
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let questionStatus = []; // Track: null, "correct", "incorrect"
+        let initialQuestionResult = [];
+        let userAnswer = [];
+        let score = 0;
+        let isRevisionRound = false;
+        let revisionIndices = [];
+        let hintLevel = 0;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function createProgressTracker() {
+            const grid = document.getElementById('progress-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            if (!isRevisionRound) {
+                const len = questions[currentMode][currentLevel] ? questions[currentMode][currentLevel].length : 7;
+                questionStatus = new Array(len).fill(null);
+                initialQuestionResult = new Array(len).fill(null);
+            }
+            const total = isRevisionRound ? revisionIndices.length : (questions[currentMode][currentLevel] ? questions[currentMode][currentLevel].length : 7);
+            for (let i = 0; i < total; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = `progress-${i}`;
+                circle.onclick = () => jumpToQuestion(i);
+                grid.appendChild(circle);
+            }
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
+                const circle = document.getElementById(`progress-${i}`);
+                if (!circle) continue;
+                const actualIndex = isRevisionRound ? revisionIndices[i] : i;
+                circle.classList.remove('current', 'correct', 'incorrect');
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
+            }
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            loadQuestion();
+        }
+
+
+        function selectMode(mode) {
+            currentMode = mode;
+            score = 0;
+            const modeTitle = mode === 'ascending' ? '📈 Ascending Order' : '📉 Descending Order';
+            const modeSubtitle = mode === 'ascending' ? 'Smallest to Largest' : 'Largest to Smallest';
+            
+            document.getElementById('mode-title').textContent = modeTitle;
+            document.getElementById('mode-subtitle').textContent = modeSubtitle;
+            
+            showPage('mode-page');
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            updatePVChart();
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function backToLevels() {
+            showPage('mode-page');
+        }
+
+        function formatNumber(num) {
+            if (Number.isInteger(num) && currentLevel <= 5) {
+                return num.toLocaleString();
+            }
+            if (currentLevel >= 6) {
+                var str = num.toString();
+                if (str.indexOf('.') === -1) {
+                    str += '.0';
+                }
+                var parts = str.split('.');
+                var whole = parseInt(parts[0]).toLocaleString();
+                return whole + '.' + parts[1];
+            }
+            return num.toLocaleString();
+        }
+
+        function updatePVChart() {
+            var table = document.querySelector('.pv-table');
+            if (!table) return;
+            var thead = table.querySelector('thead tr');
+            var tbody = table.querySelector('tbody tr');
+            if (currentLevel >= 6) {
+                thead.innerHTML = '<th>Tens</th><th>Ones</th><th style="background:#636E72;padding:0.5rem 0.15rem;">.</th><th>Tenths</th><th>Hundredths</th><th>Thousandths</th><th>Ten-Thous</th><th>Hund-Thous</th>';
+                tbody.innerHTML = '<td>10</td><td>1</td><td style="font-weight:700;font-size:1.1rem;">.</td><td>0.1</td><td>0.01</td><td>0.001</td><td>0.0001</td><td>0.00001</td>';
+            } else {
+                thead.innerHTML = '<th>Trillions</th><th>H-Billions</th><th>T-Billions</th><th>Billions</th><th>H-Millions</th><th>T-Millions</th><th>Millions</th><th>H-Thous</th><th>T-Thous</th><th>Thous</th><th>Hund</th><th>Tens</th><th>Ones</th>';
+                tbody.innerHTML = '<td>1,000,000,000,000</td><td>100,000,000,000</td><td>10,000,000,000</td><td>1,000,000,000</td><td>100,000,000</td><td>10,000,000</td><td>1,000,000</td><td>100,000</td><td>10,000</td><td>1,000</td><td>100</td><td>10</td><td>1</td>';
+            }
+        }
+
+        function loadQuestion() {
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentMode][currentLevel][actualIndex];
+            const card = document.getElementById('question-card');
+            
+            card.className = `question-card ${currentMode}`;
+            
+            const questionPrefix = currentMode === 'ascending' 
+                ? 'Drag the numbers into ascending order (smallest to largest):' 
+                : 'Drag the numbers into descending order (largest to smallest):';
+            
+            const totalInRound = isRevisionRound ? revisionIndices.length : questions[currentMode][currentLevel].length;
+            document.getElementById('question-label').textContent = isRevisionRound 
+                ? `Revision – Question ${currentQuestion + 1} of ${totalInRound}` 
+                : `${levelNames[currentLevel]} - Question ${currentQuestion + 1}`;
+            document.getElementById('question-text').textContent = questionPrefix;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = totalInRound;
+            
+            // Reset state
+            userAnswer = [];
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = true;
+            
+            // Create number tiles
+            const numbersPool = document.getElementById('numbers-pool');
+            const dropZone = document.getElementById('drop-zone');
+            numbersPool.innerHTML = '';
+            dropZone.innerHTML = '';
+            
+            // Shuffle numbers for display
+            const shuffled = [...q.numbers].sort(() => Math.random() - 0.5);
+            
+            shuffled.forEach(num => {
+                const tile = createNumberTile(num);
+                numbersPool.appendChild(tile);
+            });
+
+            setupDragAndDrop();
+
+            hintLevel = 0;
+            document.getElementById('hint-box').classList.remove('visible');
+            document.getElementById('hint-box').innerHTML = '';
+            document.getElementById('hint-btn').disabled = false;
+        }
+
+        function createNumberTile(number) {
+            const tile = document.createElement('div');
+            tile.className = 'number-tile';
+            tile.textContent = formatNumber(number);
+            tile.draggable = true;
+            tile.dataset.value = number;
+            return tile;
+        }
+
+        function setupDragAndDrop() {
+            const tiles = document.querySelectorAll('.number-tile');
+            const dropZone = document.getElementById('drop-zone');
+            const numbersPool = document.getElementById('numbers-pool');
+            
+            tiles.forEach(tile => {
+                tile.addEventListener('dragstart', handleDragStart);
+                tile.addEventListener('dragend', handleDragEnd);
+            });
+            
+            [dropZone, numbersPool].forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+                zone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (draggedElement) {
+                e.currentTarget.appendChild(draggedElement);
+                
+                if (e.currentTarget.id === 'drop-zone') {
+                    draggedElement.classList.add('in-answer');
+                } else {
+                    draggedElement.classList.remove('in-answer');
+                }
+                
+                updateUserAnswer();
+            }
+            
+            return false;
+        }
+
+        function updateUserAnswer() {
+            const dropZone = document.getElementById('drop-zone');
+            const tiles = dropZone.querySelectorAll('.number-tile');
+            userAnswer = Array.from(tiles).map(tile => parseFloat(tile.dataset.value));
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentMode][currentLevel][actualIndex];
+            document.getElementById('check-btn').disabled = userAnswer.length !== q.answer.length;
+        }
+
+        function showHint() {
+            var hintBtn = document.getElementById('hint-btn');
+            if (hintBtn.disabled) return;
+            hintLevel++;
+            var actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            var q = questions[currentMode][currentLevel][actualIndex];
+            var hintBox = document.getElementById('hint-box');
+            var sortedAnswer = q.answer;
+            var isAscending = currentMode === 'ascending';
+
+            var hints;
+            if (currentLevel >= 6) {
+                hints = [
+                    'Compare the whole number part first. A number with a larger whole number part is always larger.',
+                    'If the whole number parts are the same, compare the tenths digit, then hundredths, then thousandths, and so on.',
+                    'The ' + (isAscending ? 'smallest' : 'largest') + ' number is <strong>' + formatNumber(sortedAnswer[0]) + '</strong>.'
+                ];
+            } else {
+                hints = [
+                    'Start by checking how many digits each number has. More digits means a larger number.',
+                    'For numbers with the same number of digits, compare the leftmost digit first.',
+                    'The ' + (isAscending ? 'smallest' : 'largest') + ' number starts with <strong>' + sortedAnswer[0].toLocaleString() + '</strong>.'
+                ];
+            }
+
+            if (hintLevel <= hints.length) {
+                hintBox.innerHTML = '<strong>Hint ' + hintLevel + ':</strong> ' + hints[hintLevel - 1];
+                hintBox.classList.add('visible');
+            }
+            if (hintLevel >= hints.length) {
+                hintBtn.disabled = true;
+            }
+        }
+
+        function checkAnswer() {
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentMode][currentLevel][actualIndex];
+            const correct = JSON.stringify(userAnswer) === JSON.stringify(q.answer);
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            const dropZone = document.getElementById('drop-zone');
+            const tiles = dropZone.querySelectorAll('.number-tile');
+            
+            feedbackBox.classList.add('visible');
+            
+            if (correct) {
+                score++;
+                questionStatus[actualIndex] = 'correct';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'correct';
+                }
+                feedbackBox.classList.add('correct');
+                feedbackBox.classList.remove('incorrect');
+                feedbackText.textContent = '🎉 Perfect! You got it right!';
+                
+                tiles.forEach(tile => {
+                    tile.classList.add('correct');
+                    tile.classList.remove('incorrect');
+                });
+            } else {
+                questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
+                feedbackBox.classList.add('incorrect');
+                feedbackBox.classList.remove('correct');
+                const correctOrder = q.answer.map(formatNumber).join('; ');
+                feedbackText.textContent = `Not quite. The correct order is: ${correctOrder}`;
+                
+                // Mark each tile
+                tiles.forEach((tile, index) => {
+                    const isCorrect = parseFloat(tile.dataset.value) === q.answer[index];
+                    if (isCorrect) {
+                        tile.classList.add('correct');
+                        tile.classList.remove('incorrect');
+                    } else {
+                        tile.classList.add('incorrect');
+                        tile.classList.remove('correct');
+                    }
+                });
+            }
+            
+            updateProgressTracker();
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('hint-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function resetQuestion() {
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) {
+                    const modeText = currentMode === 'ascending' ? 'Ascending Order' : 'Descending Order';
+                    document.getElementById('completion-message').textContent = 
+                        `Awesome work! You've completed Level ${currentLevel}: ${levelNames[currentLevel]} (${modeText})`;
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${questions[currentMode][currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentMode][currentLevel].length) : [];
+                        submitResult('number-ordering', 'Number Ordering Detective', initialScore, questions[currentMode][currentLevel].length, 'Level ' + currentLevel + ': ' + levelNames[currentLevel] + ' (' + modeText + ')', qData);
+                    }
+                    var deeperBtn = document.getElementById('go-deeper-btn');
+                    if (currentLevel === 5 || currentLevel === 10) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                    showPage('completion-page');
+                } else {
+                    loadQuestion();
+                }
+                return;
+            }
+            if (currentQuestion >= questions[currentMode][currentLevel].length) {
+                const incorrectIndices = questions[currentMode][currentLevel].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
+                if (incorrectIndices.length === 0) {
+                    const modeText = currentMode === 'ascending' ? 'Ascending Order' : 'Descending Order';
+                    document.getElementById('completion-message').textContent =
+                        `Awesome work! You've completed Level ${currentLevel}: ${levelNames[currentLevel]} (${modeText})`;
+                    document.getElementById('final-score').textContent =
+                        `${score}/${questions[currentMode][currentLevel].length}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentMode][currentLevel].length) : [];
+                        submitResult('number-ordering', 'Number Ordering Detective', initialScore, questions[currentMode][currentLevel].length, 'Level ' + currentLevel + ': ' + levelNames[currentLevel] + ' (' + modeText + ')', qData);
+                    }
+                    var deeperBtn = document.getElementById('go-deeper-btn');
+                    if (currentLevel === 5 || currentLevel === 10) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                    showPage('completion-page');
+                } else {
+                    startRevisionRound(incorrectIndices);
+                }
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            createProgressTracker();
+            loadQuestion();
+        }
+
+        function unlockGoDeeper() {
+            var card = document.getElementById('go-deeper-card');
+            if (card) {
+                card.classList.remove('locked');
+                card.disabled = false;
+                card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+                card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+            }
+        }
+
+        function openGoDeeper() {
+            showPage('go-deeper-page');
+            window.scrollTo(0, 0);
+        }
+
+        // Setup vocabulary tooltips
+        function setupVocabularyTooltips() {
+            var tooltipTerms = {
+                'ascending': 'Smallest to largest. Numbers go up.',
+                'ascending order': 'Arranging numbers from smallest to largest.',
+                'descending': 'Largest to smallest. Numbers go down.',
+                'descending order': 'Arranging numbers from largest to smallest.'
+            };
+
+            document.querySelectorAll('.vocab-term').forEach(function(term) {
+                var word = term.textContent.toLowerCase().trim();
+                if (tooltipTerms[word]) {
+                    var tooltip = document.createElement('div');
+                    tooltip.className = 'vocab-tooltip';
+                    tooltip.textContent = tooltipTerms[word];
+                    term.appendChild(tooltip);
+
+                    term.addEventListener('mouseenter', function() {
+                        var tooltip = this.querySelector('.vocab-tooltip');
+                        tooltip.classList.add('show');
+                        // Position tooltip above the term using fixed positioning
+                        var rect = this.getBoundingClientRect();
+                        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+                        tooltip.style.top = (rect.top - 10) + 'px';
+                        tooltip.style.transform = 'translate(-50%, -100%)';
+                    });
+                    term.addEventListener('mouseleave', function() {
+                        this.querySelector('.vocab-tooltip').classList.remove('show');
+                    });
+                }
+            });
+        }
+
+        // Allow Enter key to submit: always trigger the visible primary button (Check or Next)
+        document.addEventListener('DOMContentLoaded', function() {
+            setupVocabularyTooltips();
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

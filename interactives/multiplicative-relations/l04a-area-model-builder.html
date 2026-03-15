@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4: The Area Model</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa;
+    --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #27AE60; --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  header { background: #2D3436; color: #fff; padding: 36px 48px 28px; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%); pointer-events: none; }
+  header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  header h1 { font-size: clamp(26px, 5vw, 42px); font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 560px; font-weight: 500; }
+
+  /* ── NAV PILLS ── */
+  .phase-nav { display: flex; gap: 10px; padding: 18px 48px; background: #3d4347; flex-wrap: wrap; }
+  .phase-nav button { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: none; border-radius: 30px; padding: 8px 20px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  /* ── LISC ── */
+  .lisc-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 28px; margin-bottom: 24px; border-top: 5px solid var(--teal); }
+  .lisc-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .lisc-header h2 { font-size: 17px; font-weight: 700; }
+  .lisc-toggle { font-size: 15px; transition: transform 0.3s; }
+  .lisc-body { display: none; margin-top: 16px; }
+  .lisc-body.open { display: block; }
+  .lisc-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--teal-dark); }
+  .lisc-body p { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+  .lisc-body ul { list-style: none; margin: 0 0 12px 0; }
+  .lisc-body li { padding: 4px 0 4px 22px; position: relative; font-size: 14px; line-height: 1.5; }
+  .lisc-body li::before { content: "\2014"; position: absolute; left: 0; }
+
+  /* ── SECTIONS ── */
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 6px; }
+  .section-heading { font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; }
+
+  /* ── CARD ── */
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-blue { background: #eef6ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #1a3a5c; }
+  .callout-green { background: #e8f8e8; border-left: 5px solid var(--green); }
+  .callout-green .label { color: var(--green-dark); }
+  .callout-green p { color: #0a3820; }
+
+  /* ── ALGORITHM DISPLAY ── */
+  .algorithm-box {
+    background: #fafbfc; border: 2px solid var(--border); border-radius: 14px;
+    padding: 20px 28px; margin: 16px 0; display: inline-block; min-width: 180px;
+    text-align: right; font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: 22px; line-height: 2;
+  }
+  .algorithm-box .algo-label {
+    font-size: 11px; letter-spacing: 2px; color: var(--muted);
+    text-transform: uppercase; font-family: 'Fredoka', sans-serif;
+    display: block; margin-bottom: 8px; font-weight: 600; text-align: left;
+  }
+  .algorithm-box .algo-line { display: block; }
+  .algorithm-box .algo-multiply { border-bottom: 2px solid var(--text); padding-bottom: 4px; }
+  .algorithm-box .algo-carry { font-size: 13px; color: var(--red); vertical-align: super; }
+
+  /* ── ESTIMATION BLOCK ── */
+  .estimate-block {
+    background: linear-gradient(135deg, #fffbf0, #fff8e8); border: 2px solid var(--amber);
+    border-radius: 14px; padding: 20px 24px; margin: 16px 0; text-align: center;
+  }
+  .estimate-block .est-label {
+    font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--amber-dark); margin-bottom: 10px;
+  }
+  .estimate-block .est-rounding {
+    display: flex; flex-direction: column; gap: 6px; align-items: center; margin: 10px 0;
+  }
+  .est-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .est-original { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; }
+  .est-arrow { font-weight: 700; color: var(--teal-dark); font-size: 18px; }
+  .est-rounded { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; background: var(--amber); color: var(--text); border-radius: 8px; padding: 2px 12px; }
+  .est-input {
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 10px 16px; width: 160px; max-width: 100%;
+    transition: border-color 0.3s ease; outline: none; background: #fff;
+  }
+  .est-input:focus { border-color: var(--amber); }
+  .est-result {
+    margin-top: 10px; font-size: 15px; font-weight: 600; padding: 8px 16px;
+    border-radius: 10px; display: none;
+  }
+  .est-result.show { display: inline-block; animation: fadeIn 0.3s; }
+  .est-result.excellent { background: var(--green-light); color: var(--green-dark); border: 2px solid var(--green); }
+  .est-result.good { background: #fffbf0; color: var(--amber-dark); border: 2px solid var(--amber); }
+  .est-result.needs-work { background: var(--red-light); color: var(--red-dark); border: 2px solid var(--red); }
+
+  /* ── AREA MODEL VISUAL ── */
+  .area-model-wrap { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+  .area-model-container { position: relative; margin: 40px 60px 20px 60px; }
+  .area-model { display: flex; border: 3px solid var(--text); border-radius: 6px; overflow: visible; min-height: 100px; }
+  .area-section {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px 14px; border-right: 2px dashed var(--muted); position: relative;
+    min-width: 70px; transition: background 0.4s;
+  }
+  .area-section:last-child { border-right: none; }
+  .area-section .top-label {
+    position: absolute; top: -32px; font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 16px; color: var(--text);
+    background: var(--amber); padding: 2px 10px; border-radius: 8px;
+  }
+  .area-section .inner-calc {
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px;
+    color: var(--blue); text-align: center; line-height: 1.4;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .area-section .inner-calc.show { opacity: 1; }
+  .area-section .inner-calc .calc-result {
+    display: block; font-size: 20px; margin-top: 4px; color: var(--blue-dark);
+  }
+  .area-section.filled { background: rgba(78, 205, 196, 0.1); }
+  .area-side-label {
+    position: absolute; left: -45px; top: 50%; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px; color: var(--text);
+    background: var(--teal); padding: 2px 10px; border-radius: 8px;
+  }
+  .area-total {
+    text-align: center; margin-top: 14px; font-size: 18px; font-weight: 700;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .area-total.show { opacity: 1; }
+
+  /* ── AREA MODEL STAGED REVEAL ── */
+  .area-top-full {
+    position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px;
+    background: var(--amber); color: var(--text);
+    padding: 2px 12px; border-radius: 8px; white-space: nowrap;
+    opacity: 0; transition: opacity 0.4s; z-index: 2;
+  }
+  .area-top-full.show { opacity: 1; }
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+    display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .area-total .mono { color: var(--green-dark); font-size: 22px; font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── 2D AREA GRID MODEL ── */
+  .area-grid-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+  .area-grid-container { position: relative; margin: 40px 20px 20px 80px; }
+  .area-grid {
+    display: grid; border: 3px solid var(--text); border-collapse: collapse;
+    background: white; border-radius: 6px; overflow: hidden;
+  }
+  .area-grid-header-cell {
+    background: var(--amber); color: var(--text); font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 15px; padding: 12px 8px; text-align: center;
+    border-right: 2px solid var(--text); border-bottom: 2px solid var(--text);
+  }
+  .area-grid-header-cell:last-child { border-right: none; }
+  .area-grid-row-header {
+    background: var(--teal); color: var(--text); font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 15px; padding: 12px 8px; text-align: center;
+    border-right: 2px solid var(--text); border-bottom: 2px solid var(--text);
+  }
+  .area-grid-row-header:last-of-type { border-bottom: none; }
+  .area-grid-cell {
+    display: flex; align-items: center; justify-content: center; padding: 10px 8px;
+    border-right: 2px dashed var(--muted); border-bottom: 2px dashed var(--muted);
+    min-width: 70px; min-height: 70px;
+  }
+  .area-grid-cell:last-child { border-right: none; }
+  .area-grid-cell:nth-child(3n) { border-right: none; }
+  .area-grid-row-header + .area-grid-cell:nth-child(3n+1) { border-bottom: none; }
+  .grid-cell-input {
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+    width: 60px; text-align: center; padding: 6px; border: 2px solid var(--border);
+    border-radius: 8px; outline: none; transition: border-color 0.2s; background: #fff;
+  }
+  .grid-cell-input:focus { border-color: var(--blue); }
+  .grid-cell-input.correct { border-color: var(--green); background: var(--green-light); }
+  .grid-cell-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* ── I DO STEP PROGRESSION ── */
+  .ido-progression { position: relative; }
+  .ido-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .ido-dot { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; transition: all 0.3s; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.35); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%; color: white;
+    font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .step-badge.red { background: var(--red); }
+  .step-badge.amber { background: var(--amber); color: var(--text); }
+  .step-badge.green { background: var(--green); }
+  .step-badge.teal { background: var(--teal); color: var(--text); }
+  .step-badge.blue { background: var(--blue); }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 16px; }
+  .ido-step-nav button {
+    background: var(--teal); color: var(--text); border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .ido-step-nav button:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .ido-step-nav .back { background: rgba(0,0,0,0.06); color: var(--text); }
+  .ido-step-nav .back:hover { background: rgba(0,0,0,0.12); }
+
+  /* ── INTERACTIVE INPUTS ── */
+  .ia-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 80px; text-align: center; padding: 8px; border: 2px solid var(--border);
+    border-radius: 10px; outline: none; transition: border-color 0.2s;
+  }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* ── BUTTONS ── */
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .btn-amber { background: var(--amber); color: var(--text); }
+  .btn-amber:hover { background: var(--amber-dark); transform: translateY(-2px); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover { background: var(--teal-dark); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* ── FEEDBACK ── */
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* ── DOT COUNTER ── */
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  /* ── LEVEL BAR ── */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: #F7B731; }
+  .level-btn.l4 { background: var(--orange); }
+  .level-btn.l5 { background: var(--blue); }
+  .level-btn.l6 { background: var(--green); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* ── SUMMARY ── */
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  /* ── DECOMPOSITION INPUT ── */
+  .decomp-row {
+    display: flex; align-items: center; gap: 10px; justify-content: center;
+    margin: 12px 0; flex-wrap: wrap;
+  }
+  .decomp-label { font-size: 16px; font-weight: 600; }
+  .decomp-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 80px; text-align: center; padding: 8px; border: 2px solid var(--amber);
+    border-radius: 10px; outline: none; transition: border-color 0.2s; background: #fffbf0;
+  }
+  .decomp-input:focus { border-color: var(--amber-dark); }
+  .decomp-input.correct { border-color: var(--green); background: var(--green-light); }
+  .decomp-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* ── MONO ── */
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── GO DEEPER ── */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); max-width: 700px; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    header { padding: 28px 20px 22px; }
+    .phase-nav { padding: 14px 20px; }
+    main { padding: 20px 14px 40px; }
+    .card { padding: 20px 18px; }
+    .ia-input, .decomp-input { width: 60px; font-size: 15px; }
+    .area-model-container { margin: 30px 30px 20px 50px; }
+    .algorithm-box { font-size: 18px; padding: 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Lesson 4 &middot; Year 5 Mathematics &middot; Multiplicative Relations</div>
+  <h1>The <span>Area Model</span></h1>
+  <p>Understanding how the area model reveals the structure inside multiplication</p>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showPhase('hook', this)">Hook</button>
+  <button onclick="showPhase('ido', this)">I Do</button>
+  <button onclick="showPhase('wedo', this)">We Do</button>
+  <button onclick="showPhase('youdo', this)">You Do</button>
+</nav>
+
+<main>
+
+<!-- LISC -->
+<div class="lisc-card">
+  <div class="lisc-header" onclick="toggleLISC()">
+    <h2>Learning Intention &amp; Success Criteria</h2>
+    <span class="lisc-toggle" id="liscToggle">&#x25BC;</span>
+  </div>
+  <div class="lisc-body" id="liscBody">
+    <h3>Learning Intention</h3>
+    <p>We are learning to use the area model to partition and multiply 2- and 3-digit numbers by a one-digit number.</p>
+    <h3>Success Criteria</h3>
+    <ul>
+      <li>I can draw and label an area model to represent a multiplication.</li>
+      <li>I can partition a number into hundreds, tens, and ones and multiply each part separately.</li>
+      <li>I can add the partial products to find the final answer.</li>
+      <li>I can explain how the area model connects to the formal algorithm.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════ HOOK ══════ -->
+<div id="hook" class="section active">
+  <div class="section-title">The Hook</div>
+  <div class="section-heading">The Tiled Floor Problem</div>
+
+  <div class="card">
+    <h3>The school hall</h3>
+    <p>The school hall is <strong>24</strong> metres long and <strong>6</strong> metres wide. How many square metres of tiles are needed?</p>
+    <p style="margin-top:10px;">Most of you would try <strong>24 &times; 6</strong> straight away. But what if we could see what this looks like as a shape?</p>
+
+    <div style="text-align:center; margin:20px 0;">
+      <button class="am-reveal-btn" id="hook-reveal-btn" onclick="nextHookReveal()">Picture this as a rectangle &rarr;</button>
+    </div>
+
+    <div id="hook-area-reveal" style="display:none;">
+      <div class="area-model-container">
+        <!-- Unsplit rectangle (stages 1-2) -->
+        <div id="hook-am-unsplit" class="area-model" style="min-height:90px;">
+          <div class="area-section filled" style="flex:1; border-right:none;"></div>
+          <div class="area-top-full" id="hook-top-full">24</div>
+        </div>
+        <!-- Split rectangle (stages 3-4) -->
+        <div id="hook-am-split" class="area-model" style="min-height:90px; display:none;">
+          <div class="area-section filled" style="flex:5;">
+            <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="hook-top-20">20</div>
+            <div class="inner-calc" id="hook-calc-left">20 &times; 6<span class="calc-result">= 120</span></div>
+          </div>
+          <div class="area-section filled" style="flex:1;">
+            <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="hook-top-4">4</div>
+            <div class="inner-calc" id="hook-calc-right">4 &times; 6<span class="calc-result">= 24</span></div>
+          </div>
+        </div>
+        <div class="area-side-label" id="hook-side-label" style="opacity:0;transition:opacity 0.4s;">6</div>
+      </div>
+      <div class="area-total" id="hook-total" style="margin-top:16px;">Total: <span class="mono">120 + 24 = 144</span> square metres</div>
+    </div>
+  </div>
+
+  <div class="card" id="hook-card-2" style="display:none;">
+    <h3>The distributive property</h3>
+    <p>What we just did has a formal name: the <strong>distributive property</strong>.</p>
+    <p style="margin-top:8px;">We distributed the multiplication across a sum:</p>
+    <div style="text-align:center; margin:16px 0; font-size:17px; line-height:2;">
+      <div><strong>6 &times; 24</strong> = <strong>6 &times; (20 + 4)</strong></div>
+      <div>= <span class="mono">120</span> + <span class="mono">24</span></div>
+      <div>= <span class="mono">144</span></div>
+    </div>
+    <p>Instead of one hard multiplication, we get two easy ones.</p>
+
+    <div class="callout callout-teal">
+      <span class="label">Key vocabulary</span>
+      <p>Each smaller product (<strong>120</strong> and <strong>24</strong>) is called a <strong>partial product</strong>. We add all the partial products to get the final product.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ I DO ══════ -->
+<div id="ido" class="section">
+  <div class="section-title">Explicit Instruction</div>
+  <div class="section-heading">How the area model works</div>
+
+  <!-- Example 1: 47 x 8 -->
+  <div class="card">
+    <h3>Example 1: 2-digit by 1-digit</h3>
+
+    <div class="ido-progression" id="ex1-progression">
+      <div class="ido-dots" id="ex1-dots">
+        <div class="ido-dot active"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+      </div>
+
+      <!-- Step 1: Show the algorithm -->
+      <div class="ido-step active card" id="ex1-step-1" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge red">1</div>
+          <div style="font-size:1.15rem;font-weight:600;">The formal algorithm</div>
+        </div>
+        <p>Here is <span class="mono">47 &times; 8</span> solved with the formal written algorithm:</p>
+        <div style="text-align:center; margin:16px 0;">
+          <div class="algorithm-box">
+            <span class="algo-label">Written algorithm</span>
+            <span class="algo-line">&nbsp;&nbsp;4 7</span>
+            <span class="algo-line algo-multiply">&times;&nbsp;&nbsp;8</span>
+            <span class="algo-line">3 7 6</span>
+          </div>
+        </div>
+        <p>The answer is <span class="mono">376</span>. But <strong>why</strong> does this work? What is actually happening at each step?</p>
+        <div class="ido-step-nav">
+          <span></span>
+          <button class="next" onclick="goToIdoStep('ex1', 2, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Estimation -->
+      <div class="ido-step card" id="ex1-step-2" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge amber">2</div>
+          <div style="font-size:1.15rem;font-weight:600;">Radar estimate</div>
+        </div>
+        <div class="estimate-block">
+          <div class="est-label">Estimate first</div>
+          <div class="est-rounding">
+            <div class="est-row">
+              <span class="est-original">47</span>
+              <span class="est-arrow">&rarr;</span>
+              <span class="est-rounded">50</span>
+            </div>
+          </div>
+          <p style="margin:10px 0;font-size:15px;font-weight:600;">50 &times; 8 = <span class="mono">400</span></p>
+          <p style="font-size:14px;color:var(--muted);">Rounded up from 47, so the real answer is a little less than 400. Our algorithm answer of <span class="mono">376</span> is close. Radar confirmed.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex1', 1, 5)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('ex1', 3, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 3: The question -->
+      <div class="ido-step card" id="ex1-step-3" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge blue">3</div>
+          <div style="font-size:1.15rem;font-weight:600;">Think about it</div>
+        </div>
+        <div class="callout callout-blue">
+          <span class="label">Discussion</span>
+          <p>How could you work out <strong>47 &times; 8</strong> without using the formal algorithm? What if you broke 47 apart into friendlier numbers?</p>
+        </div>
+        <p style="margin-top:12px;">47 is made up of <strong>40</strong> and <strong>7</strong>. What if we multiplied each part by 8 separately?</p>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex1', 2, 5)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('ex1', 4, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Reveal the area model (staged build-up) -->
+      <div class="ido-step card" id="ex1-step-4" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge green">4</div>
+          <div style="font-size:1.15rem;font-weight:600;">The area model</div>
+        </div>
+        <p>Let's build the area model for <strong>47 &times; 8</strong>, one piece at a time.</p>
+        <div class="area-model-container">
+          <!-- Unsplit (stages 1-2) -->
+          <div id="ex1-am-unsplit" class="area-model" style="min-height:90px;">
+            <div class="area-section filled" style="flex:1; border-right:none;"></div>
+            <div class="area-top-full" id="ex1-top-full">47</div>
+          </div>
+          <!-- Split (stages 3-4) -->
+          <div id="ex1-am-split" class="area-model" style="min-height:90px; display:none;">
+            <div class="area-section filled" style="flex:40;">
+              <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex1-top-l">40</div>
+              <div class="inner-calc" id="ex1-calc-l">40 &times; 8<span class="calc-result">= 320</span></div>
+            </div>
+            <div class="area-section filled" style="flex:7;">
+              <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex1-top-r">7</div>
+              <div class="inner-calc" id="ex1-calc-r">7 &times; 8<span class="calc-result">= 56</span></div>
+            </div>
+          </div>
+          <div class="area-side-label" id="ex1-side" style="opacity:0;transition:opacity 0.4s;">8</div>
+        </div>
+        <div class="area-total" id="ex1-total">Total: <span class="mono">320 + 56 = 376</span></div>
+        <div style="text-align:center; margin:12px 0;">
+          <button class="am-reveal-btn" id="ex1-am-btn" onclick="nextAmReveal('ex1')">Show the dimensions &rarr;</button>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex1', 3, 5)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('ex1', 5, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Connect back to algorithm -->
+      <div class="ido-step card" id="ex1-step-5" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge teal">5</div>
+          <div style="font-size:1.15rem;font-weight:600;">Connecting the two</div>
+        </div>
+        <div class="callout callout-teal">
+          <span class="label">The connection</span>
+          <p>The algorithm is a <strong>compressed version</strong> of the area model. In the algorithm, when you multiply 8 &times; 7 = 56, that is the right-hand section of the area model. When you multiply 8 &times; 40 = 320, that is the left-hand section. The algorithm just writes it more compactly.</p>
+        </div>
+        <div style="display:flex; gap:20px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:16px;">
+          <div class="algorithm-box" style="font-size:18px;">
+            <span class="algo-label">Algorithm</span>
+            <span class="algo-line">&nbsp;&nbsp;4 7</span>
+            <span class="algo-line algo-multiply">&times;&nbsp;&nbsp;8</span>
+            <span class="algo-line">3 7 6</span>
+          </div>
+          <div style="font-size:16px; text-align:left; padding-top:20px;">
+            <div style="margin-bottom:6px;"><strong>8 &times; 7 = 56</strong> &rarr; right box</div>
+            <div><strong>8 &times; 40 = 320</strong> &rarr; left box</div>
+          </div>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex1', 4, 5)">&larr; Back</button>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example 2: 236 x 4 -->
+  <div class="card">
+    <h3>Example 2: 3-digit by 1-digit</h3>
+
+    <div class="ido-progression" id="ex2-progression">
+      <div class="ido-dots" id="ex2-dots">
+        <div class="ido-dot active"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+        <div class="ido-dot"></div>
+      </div>
+
+      <!-- Step 1: Algorithm -->
+      <div class="ido-step active card" id="ex2-step-1" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge red">1</div>
+          <div style="font-size:1.15rem;font-weight:600;">The formal algorithm</div>
+        </div>
+        <p>Here is <span class="mono">236 &times; 4</span> solved with the algorithm:</p>
+        <div style="text-align:center; margin:16px 0;">
+          <div class="algorithm-box">
+            <span class="algo-label">Written algorithm</span>
+            <span class="algo-line">&nbsp;2 3 6</span>
+            <span class="algo-line algo-multiply">&times;&nbsp;&nbsp;&nbsp;4</span>
+            <span class="algo-line">&nbsp;9 4 4</span>
+          </div>
+        </div>
+        <p>The answer is <span class="mono">944</span>. Let's check this with an estimate, then see what the algorithm is actually doing.</p>
+        <div class="ido-step-nav">
+          <span></span>
+          <button class="next" onclick="goToIdoStep('ex2', 2, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Estimation -->
+      <div class="ido-step card" id="ex2-step-2" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge amber">2</div>
+          <div style="font-size:1.15rem;font-weight:600;">Radar estimate</div>
+        </div>
+        <div class="estimate-block">
+          <div class="est-label">Estimate first</div>
+          <div class="est-rounding">
+            <div class="est-row">
+              <span class="est-original">236</span>
+              <span class="est-arrow">&rarr;</span>
+              <span class="est-rounded">240</span>
+            </div>
+          </div>
+          <p style="margin:10px 0;font-size:15px;font-weight:600;">240 &times; 4 = <span class="mono">960</span></p>
+          <p style="font-size:14px;color:var(--muted);">Rounded up slightly, so the real answer is a little less than 960. Our answer of <span class="mono">944</span> is very close. Radar confirmed.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex2', 1, 5)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('ex2', 3, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 3: The question -->
+      <div class="ido-step card" id="ex2-step-3" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge blue">3</div>
+          <div style="font-size:1.15rem;font-weight:600;">Think about it</div>
+        </div>
+        <div class="callout callout-blue">
+          <span class="label">Discussion</span>
+          <p>236 has three place values: <strong>200</strong>, <strong>30</strong>, and <strong>6</strong>. What if we multiplied each part by 4 separately?</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex2', 2, 5)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('ex2', 4, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Area model (staged build-up) -->
+      <div class="ido-step card" id="ex2-step-4" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge green">4</div>
+          <div style="font-size:1.15rem;font-weight:600;">The area model</div>
+        </div>
+        <p>Let's build the area model for <strong>236 &times; 4</strong>, one piece at a time.</p>
+        <div class="area-model-container">
+          <!-- Unsplit (stages 1-2) -->
+          <div id="ex2-am-unsplit" class="area-model" style="min-height:90px;">
+            <div class="area-section filled" style="flex:1; border-right:none;"></div>
+            <div class="area-top-full" id="ex2-top-full">236</div>
+          </div>
+          <!-- Split (stages 3-4) -->
+          <div id="ex2-am-split" class="area-model" style="min-height:90px; display:none;">
+            <div class="area-section filled" style="flex:200;">
+              <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex2-top-l">200</div>
+              <div class="inner-calc" id="ex2-calc-l">200 &times; 4<span class="calc-result">= 800</span></div>
+            </div>
+            <div class="area-section filled" style="flex:30;">
+              <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex2-top-m">30</div>
+              <div class="inner-calc" id="ex2-calc-m">30 &times; 4<span class="calc-result">= 120</span></div>
+            </div>
+            <div class="area-section filled" style="flex:6;">
+              <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex2-top-r">6</div>
+              <div class="inner-calc" id="ex2-calc-r">6 &times; 4<span class="calc-result">= 24</span></div>
+            </div>
+          </div>
+          <div class="area-side-label" id="ex2-side" style="opacity:0;transition:opacity 0.4s;">4</div>
+        </div>
+        <div class="area-total" id="ex2-total">Total: <span class="mono">800 + 120 + 24 = 944</span></div>
+        <div style="text-align:center; margin:12px 0;">
+          <button class="am-reveal-btn" id="ex2-am-btn" onclick="nextAmReveal('ex2')">Show the dimensions &rarr;</button>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex2', 3, 5)">&larr; Back</button>
+          <button class="next" onclick="goToIdoStep('ex2', 5, 5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Connection -->
+      <div class="ido-step card" id="ex2-step-5" style="border: none; box-shadow: none; padding: 16px 0;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div class="step-badge teal">5</div>
+          <div style="font-size:1.15rem;font-weight:600;">The connection</div>
+        </div>
+        <div class="callout callout-teal">
+          <span class="label">Algorithm = compressed area model</span>
+          <p>In the algorithm, multiplying the ones digit (4 &times; 6 = 24) gives the right box. Multiplying the tens (4 &times; 30 = 120) gives the middle box. Multiplying the hundreds (4 &times; 200 = 800) gives the left box. Same maths, different layout.</p>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top:12px;">
+          <span class="label">Estimation check</span>
+          <p>We estimated <span class="mono">960</span>. Our answer is <span class="mono">944</span>. The difference is only <span class="mono">16</span>. Radar confirmed.</p>
+        </div>
+        <div class="ido-step-nav">
+          <button class="back" onclick="goToIdoStep('ex2', 4, 5)">&larr; Back</button>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ WE DO ══════ -->
+<div id="wedo" class="section">
+  <div class="section-title">Guided Practice</div>
+  <div class="section-heading">Your turn, with support</div>
+
+  <div class="callout callout-amber" style="margin-bottom:20px;">
+    <span class="label">Rule</span>
+    <p>Write your <strong>Radar estimate</strong> before every calculation. No estimate, no calculation.</p>
+  </div>
+
+  <div id="wedo-container"></div>
+</div>
+
+<!-- ══════ YOU DO ══════ -->
+<div id="youdo" class="section">
+  <div class="section-title">Independent Practice</div>
+  <div class="section-heading">Build the area model yourself</div>
+  <p style="font-size:16px; color:var(--muted); margin-bottom:8px;">For each problem: estimate first, then split the number into parts, fill in the partial products, and find the total.</p>
+
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="setYouDoLevel(1)">Level 1 (2-digit)</button>
+    <button class="level-btn l2" onclick="setYouDoLevel(2)">Level 2 (3-digit)</button>
+    <button class="level-btn l3" onclick="setYouDoLevel(3)">Level 3 (2×2)</button>
+    <button class="level-btn l4" onclick="setYouDoLevel(4)">Level 4 (3×2)</button>
+    <button class="level-btn l5" onclick="setYouDoLevel(5)">Level 5 (3×3)</button>
+    <button class="level-btn l6" onclick="setYouDoLevel(6)">Level 6 (4×3)</button>
+  </div>
+
+  <div class="dot-counter" id="yd-dots"></div>
+
+  <div id="yd-card" class="card" style="text-align:center;"></div>
+
+  <div class="summary-card" id="yd-summary">
+    <h3>Round Complete</h3>
+    <div class="summary-score" id="yd-score"></div>
+    <p id="yd-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+    <button class="go-deeper-level-btn locked" id="yd-godeeper-btn" onclick="unlockGoDeeper()">
+      <h3>&#x1F512; Go Deeper</h3>
+      <p>Complete this round successfully to unlock deeper thinking tasks.</p>
+    </button>
+    <button class="btn btn-primary" onclick="startYouDo()">Try Again (New Problems)</button>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER ══════ -->
+<div id="go-deeper-section" style="display:none;">
+  <div class="go-deeper-card">
+    <h2>Go Deeper</h2>
+    <p>You're ready to think like a mathematician. These tasks will help you spot errors, test conjecture, and justify your reasoning.</p>
+  </div>
+
+  <!-- TASK 1: Specialising -->
+  <div class="go-deeper-card">
+    <h3 style="font-size:18px; font-weight:700; margin-bottom:16px; color:var(--teal-dark);">Task 1: Specialising</h3>
+    <div class="ext-task">
+      <div class="ext-task-label">Your Challenge</div>
+      <div class="ext-task-prompt">A student split <span class="ext-numbers">47 × 8</span> into <span class="ext-numbers">(40 × 8) + (7 × 8)</span> and got:</div>
+      <div style="background:#fff; border-left:5px solid var(--amber); padding:14px; margin:12px 0; border-radius:8px; font-family:'Space Mono',monospace; font-size:14px;">
+        40 × 8 = <strong>360</strong><br>
+        7 × 8 = 56<br>
+        Total = 416
+      </div>
+      <div class="ext-task-sub">Is the area model correct? Find and explain any error.</div>
+      <textarea class="ext-thinking-area" id="task1-thinking" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="revealTask1()">Check with model answer</button>
+      <div class="ext-model-response" id="task1-response">
+        <div class="model-label">Model Answer</div>
+        <p>The error is in the first partial product. <span class="ext-numbers">40 × 8 = 320</span>, not 360. You might have multiplied 45 × 8 by mistake, or added 40 + 8 instead of multiplying them.</p>
+        <p>The correct calculation is:</p>
+        <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+          40 × 8 = 320<br>
+          7 × 8 = 56<br>
+          Total = 320 + 56 = <span class="ext-numbers">376</span>
+        </div>
+        <div class="mathematician-box">
+          <strong>Mathematician's Tip:</strong> Always double-check each partial product. A small multiplication error gets carried through to the final answer!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK 2: Conjecturing -->
+  <div class="go-deeper-card">
+    <h3 style="font-size:18px; font-weight:700; margin-bottom:16px; color:var(--teal-dark);">Task 2: Conjecturing</h3>
+    <div class="ext-task">
+      <div class="ext-task-label">Your Challenge</div>
+      <div class="ext-task-prompt">"Splitting a number into more parts in the area model always gives a different final answer."</div>
+      <div class="ext-task-sub">Is this statement <strong>Always true</strong>, <strong>Sometimes true</strong>, or <strong>Never true</strong>? Use <span class="ext-numbers">47 × 8</span> to show your thinking.</div>
+      <textarea class="ext-thinking-area" id="task2-thinking" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="revealTask2()">Check with model answer</button>
+      <div class="ext-model-response" id="task2-response">
+        <div class="model-label">Model Answer</div>
+        <p><strong>Never true.</strong> The total is always the same regardless of how you partition the numbers. Here's why:</p>
+        <p>Let me try <span class="ext-numbers">47 × 8</span> three different ways:</p>
+        <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+          (40 + 7) × 8 = (40 × 8) + (7 × 8) = 320 + 56 = <span class="ext-numbers">376</span><br><br>
+          (30 + 17) × 8 = (30 × 8) + (17 × 8) = 240 + 136 = <span class="ext-numbers">376</span><br><br>
+          (20 + 20 + 7) × 8 = (20 × 8) + (20 × 8) + (7 × 8) = 160 + 160 + 56 = <span class="ext-numbers">376</span>
+        </div>
+        <p>Every way gives <span class="ext-numbers">376</span>! The partition doesn't matter. Only the original numbers (47 and 8) determine the answer.</p>
+        <div class="mathematician-box">
+          <strong>Big Idea:</strong> This is because multiplication is distributive. <span class="ext-numbers">47 × 8</span> equals the same thing no matter how you split 47.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK 3: Justifying -->
+  <div class="go-deeper-card">
+    <h3 style="font-size:18px; font-weight:700; margin-bottom:16px; color:var(--teal-dark);">Task 3: Justifying</h3>
+    <div class="ext-task">
+      <div class="ext-task-label">Your Challenge</div>
+      <div class="ext-task-prompt">A student says that <span class="ext-numbers">99 × 7</span> is easier to solve with the area model by splitting it as <span class="ext-numbers">(100 - 1) × 7</span> instead of <span class="ext-numbers">(90 + 9) × 7</span>.</div>
+      <div class="ext-task-sub">Do you agree? Justify your reasoning by showing the calculation both ways.</div>
+      <textarea class="ext-thinking-area" id="task3-thinking" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="revealTask3()">Check with model answer</button>
+      <div class="ext-model-response" id="task3-response">
+        <div class="model-label">Model Answer</div>
+        <p>I agree that the first method is easier. Both ways give the same answer, but <span class="ext-numbers">(100 - 1) × 7</span> is faster for mental maths.</p>
+        <p><strong>Method 1: (100 - 1) × 7</strong></p>
+        <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+          (100 - 1) × 7 = (100 × 7) - (1 × 7) = 700 - 7 = <span class="ext-numbers">693</span>
+        </div>
+        <p><strong>Method 2: (90 + 9) × 7</strong></p>
+        <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+          (90 + 9) × 7 = (90 × 7) + (9 × 7) = 630 + 63 = <span class="ext-numbers">693</span>
+        </div>
+        <p>Both equal <span class="ext-numbers">693</span>, but Method 1 is faster because <span class="ext-numbers">100 × 7</span> is easier to calculate mentally than <span class="ext-numbers">90 × 7</span>. For numbers close to 100 or 1000, this trick is very handy!</p>
+        <div class="mathematician-box">
+          <strong>Mathematician's Tip:</strong> Look for numbers that are close to a "friendly" number like 10, 100, or 1000. Splitting using complementary subtraction can be faster than addition.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── NAV ──
+function showPhase(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.phase-nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'wedo' && !weDoBuilt) buildWeDo();
+  if (id === 'youdo' && ydProblems.length === 0) startYouDo();
+}
+
+function toggleLISC() {
+  var b = document.getElementById('liscBody');
+  var t = document.getElementById('liscToggle');
+  b.classList.toggle('open');
+  t.innerHTML = b.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── HOOK STAGED REVEAL ──
+var hookStage = 0;
+function nextHookReveal() {
+  hookStage++;
+  var btn = document.getElementById('hook-reveal-btn');
+  if (hookStage === 1) {
+    // Show empty rectangle
+    document.getElementById('hook-area-reveal').style.display = 'block';
+    btn.textContent = 'Add the dimensions \u2192';
+  } else if (hookStage === 2) {
+    // Show 24 on top, 6 on side
+    document.getElementById('hook-top-full').classList.add('show');
+    document.getElementById('hook-side-label').style.opacity = '1';
+    btn.textContent = 'Split 24 into friendlier numbers \u2192';
+  } else if (hookStage === 3) {
+    // Split into 20 and 4
+    document.getElementById('hook-am-unsplit').style.display = 'none';
+    document.getElementById('hook-am-split').style.display = 'flex';
+    document.getElementById('hook-top-20').style.opacity = '1';
+    document.getElementById('hook-top-4').style.opacity = '1';
+    btn.textContent = 'Calculate 20 \u00d7 6 \u2192';
+  } else if (hookStage === 4) {
+    // Show first partial product
+    document.getElementById('hook-calc-left').classList.add('show');
+    btn.textContent = 'Calculate 4 \u00d7 6 \u2192';
+  } else if (hookStage === 5) {
+    // Show second partial product
+    document.getElementById('hook-calc-right').classList.add('show');
+    btn.textContent = 'Add the parts \u2192';
+  } else if (hookStage === 6) {
+    // Show total
+    document.getElementById('hook-total').classList.add('show');
+    btn.style.display = 'none';
+    document.getElementById('hook-card-2').style.display = 'block';
+  }
+}
+
+// ── I DO AREA MODEL STAGED REVEAL ──
+var amStage = {};
+// Config: list of calc element IDs and button labels for each section, per prefix
+var amCalcConfig = {
+  'ex1': {
+    calcIds: ['ex1-calc-l', 'ex1-calc-r'],
+    labels: ['Calculate 40 \u00d7 8 \u2192', 'Calculate 7 \u00d7 8 \u2192', 'Add the parts \u2192']
+  },
+  'ex2': {
+    calcIds: ['ex2-calc-l', 'ex2-calc-m', 'ex2-calc-r'],
+    labels: ['Calculate 200 \u00d7 4 \u2192', 'Calculate 30 \u00d7 4 \u2192', 'Calculate 6 \u00d7 4 \u2192', 'Add the parts \u2192']
+  }
+};
+
+function nextAmReveal(prefix) {
+  if (!amStage[prefix]) amStage[prefix] = 0;
+  amStage[prefix]++;
+  var stage = amStage[prefix];
+  var btn = document.getElementById(prefix + '-am-btn');
+  var config = amCalcConfig[prefix];
+  var numCalcs = config ? config.calcIds.length : 0;
+
+  if (stage === 1) {
+    // Show dimensions
+    document.getElementById(prefix + '-top-full').classList.add('show');
+    document.getElementById(prefix + '-side').style.opacity = '1';
+    btn.textContent = 'Split into parts \u2192';
+  } else if (stage === 2) {
+    // Split
+    document.getElementById(prefix + '-am-unsplit').style.display = 'none';
+    document.getElementById(prefix + '-am-split').style.display = 'flex';
+    document.querySelectorAll('#' + prefix + '-am-split .top-label').forEach(function(el) { el.style.opacity = '1'; });
+    btn.textContent = config.labels[0];
+  } else if (stage > 2 && stage <= 2 + numCalcs) {
+    // Reveal one calculation at a time
+    var calcIdx = stage - 3;
+    document.getElementById(config.calcIds[calcIdx]).classList.add('show');
+    btn.textContent = config.labels[calcIdx + 1];
+  } else if (stage === 3 + numCalcs) {
+    // Show total
+    document.getElementById(prefix + '-total').classList.add('show');
+    btn.style.display = 'none';
+  }
+}
+
+// ── I DO STEP PROGRESSION ──
+function goToIdoStep(prefix, stepNum, totalSteps) {
+  document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+  var dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+  dots.forEach(function(dot, i) {
+    dot.classList.remove('active', 'visited');
+    if (i === stepNum - 1) dot.classList.add('active');
+    else if (i < stepNum - 1) dot.classList.add('visited');
+  });
+}
+
+// ── WE DO ──
+var weDoBuilt = false;
+var weDoData = [
+  { a: 63, b: 5, parts: [60, 3], partials: [300, 15], answer: 315, roundA: 60, est: 300 },
+  { a: 124, b: 3, parts: [100, 20, 4], partials: [300, 60, 12], answer: 372, roundA: 120, est: 360 },
+  { a: 347, b: 6, parts: [300, 40, 7], partials: [1800, 240, 42], answer: 2082, roundA: 350, est: 2100 }
+];
+
+function buildWeDo() {
+  weDoBuilt = true;
+  var container = document.getElementById('wedo-container');
+  container.innerHTML = '';
+
+  weDoData.forEach(function(p, idx) {
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'wedo-card-' + idx;
+
+    var sectionsHTML = '';
+    for (var i = 0; i < p.parts.length; i++) {
+      sectionsHTML += '<div class="area-section" style="flex:' + Math.max(p.parts[i], 10) + ';">' +
+        '<div class="top-label">' + p.parts[i] + '</div>' +
+        '<input type="number" class="ia-input" id="wedo-pp-' + idx + '-' + i + '" placeholder="?">' +
+        '</div>';
+    }
+
+    card.innerHTML = '<h3>Problem ' + (idx + 1) + '</h3>' +
+      '<p><span class="mono" style="font-size:22px;">' + fmtNum(p.a) + ' &times; ' + p.b + '</span></p>' +
+      '<div class="estimate-block" style="margin:12px 0;">' +
+        '<div class="est-label">Radar estimate</div>' +
+        '<div class="est-rounding"><div class="est-row">' +
+          '<span class="est-original">' + fmtNum(p.a) + '</span>' +
+          '<span class="est-arrow">&rarr;</span>' +
+          '<span class="est-rounded">' + fmtNum(p.roundA) + '</span>' +
+        '</div></div>' +
+        '<p style="margin:8px 0;font-size:14px;font-weight:600;">' + fmtNum(p.roundA) + ' &times; ' + p.b + ' = <span class="mono">' + fmtNum(p.est) + '</span></p>' +
+      '</div>' +
+      '<p style="margin-top:8px;">Fill in each partial product, then the total.</p>' +
+      '<div class="area-model-container" style="margin:30px auto 10px 50px; max-width:500px;"><div class="area-model" style="min-height:80px;">' + sectionsHTML + '</div><div class="area-side-label">' + p.b + '</div></div>' +
+      '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
+        '<span style="font-size:16px;font-weight:700;">Total:</span>' +
+        '<input type="number" class="ia-input" id="wedo-total-' + idx + '" placeholder="?">' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(' + idx + ')">Check</button></div>' +
+      '<div class="feedback" id="wedo-fb-' + idx + '"></div>';
+
+    container.appendChild(card);
+  });
+}
+
+function checkWeDo(idx) {
+  var p = weDoData[idx];
+  var fb = document.getElementById('wedo-fb-' + idx);
+  var allCorrect = true;
+
+  for (var i = 0; i < p.parts.length; i++) {
+    var inp = document.getElementById('wedo-pp-' + idx + '-' + i);
+    var val = parseInt(inp.value, 10);
+    if (val === p.partials[i]) {
+      inp.classList.add('correct'); inp.classList.remove('wrong');
+    } else {
+      inp.classList.add('wrong'); inp.classList.remove('correct');
+      allCorrect = false;
+    }
+    inp.disabled = true;
+  }
+
+  var totalInp = document.getElementById('wedo-total-' + idx);
+  var totalVal = parseInt(totalInp.value, 10);
+  if (totalVal === p.answer) {
+    totalInp.classList.add('correct'); totalInp.classList.remove('wrong');
+  } else {
+    totalInp.classList.add('wrong'); totalInp.classList.remove('correct');
+    allCorrect = false;
+  }
+  totalInp.disabled = true;
+
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> ' + p.parts.map(function(v, i) {
+      return '<span class="mono">' + fmtNum(v) + ' &times; ' + p.b + ' = ' + fmtNum(p.partials[i]) + '</span>';
+    }).join(' + ') + ' = <span class="mono">' + fmtNum(p.answer) + '</span>. Your estimate was <span class="mono">' + fmtNum(p.est) + '</span>. Close.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The partial products are: ' + p.parts.map(function(v, i) {
+      return '<span class="mono">' + fmtNum(v) + ' &times; ' + p.b + ' = ' + fmtNum(p.partials[i]) + '</span>';
+    }).join(', ') + '. Total: <span class="mono">' + fmtNum(p.answer) + '</span>.';
+  }
+}
+
+// ── YOU DO ──
+var ydProblems = [];
+var ydIdx = 0;
+var ydResults = [];
+var ydLevel = 1;
+var ydTotal = 8;
+
+function setYouDoLevel(lvl) {
+  ydLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i + 1 === lvl);
+  });
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  startYouDo();
+}
+
+function generateYouDoProblems() {
+  var problems = [];
+  if (ydLevel === 1) {
+    var pool = shuffle([23, 34, 42, 53, 61, 72, 45, 56, 67, 38, 47, 83, 64, 76, 91, 28]);
+    var mults = [3, 4, 5, 6, 7, 8, 9];
+    for (var i = 0; i < ydTotal; i++) {
+      var a = pool[i];
+      var b = mults[Math.floor(Math.random() * mults.length)];
+      var tens = Math.floor(a / 10) * 10;
+      var ones = a % 10;
+      var roundA = Math.round(a / 10) * 10;
+      problems.push({
+        a: a, b: b,
+        aParts: [tens, ones],
+        bParts: [b],
+        answer: a * b,
+        roundA: roundA,
+        est: roundA * b,
+        numAParts: 2,
+        numBParts: 1
+      });
+    }
+  } else if (ydLevel === 2) {
+    var pool3 = shuffle([124, 213, 236, 312, 347, 428, 156, 245, 367, 423, 512, 634, 271, 183, 329, 451]);
+    var mults3 = [3, 4, 5, 6, 7, 8];
+    for (var j = 0; j < ydTotal; j++) {
+      var a3 = pool3[j];
+      var b3 = mults3[Math.floor(Math.random() * mults3.length)];
+      var h = Math.floor(a3 / 100) * 100;
+      var t = Math.floor((a3 % 100) / 10) * 10;
+      var o = a3 % 10;
+      var parts3 = [h];
+      if (t > 0) parts3.push(t);
+      if (o > 0) parts3.push(o);
+      var roundA3 = Math.round(a3 / 10) * 10;
+      problems.push({
+        a: a3, b: b3,
+        aParts: parts3,
+        bParts: [b3],
+        answer: a3 * b3,
+        roundA: roundA3,
+        est: roundA3 * b3,
+        numAParts: parts3.length,
+        numBParts: 1
+      });
+    }
+  } else if (ydLevel === 3) {
+    // Level 3: 2-digit × 2-digit
+    var pool2x2a = shuffle([12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28]);
+    var pool2x2b = shuffle([12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 31]);
+    for (var k = 0; k < ydTotal; k++) {
+      var a2x2 = pool2x2a[k];
+      var b2x2 = pool2x2b[k];
+      var t1 = Math.floor(a2x2 / 10) * 10;
+      var o1 = a2x2 % 10;
+      var t2 = Math.floor(b2x2 / 10) * 10;
+      var o2 = b2x2 % 10;
+      var roundA2x2 = Math.round(a2x2 / 10) * 10;
+      problems.push({
+        a: a2x2, b: b2x2,
+        aParts: [t1, o1],
+        bParts: [t2, o2],
+        answer: a2x2 * b2x2,
+        roundA: roundA2x2,
+        est: roundA2x2 * b2x2,
+        numAParts: 2,
+        numBParts: 2
+      });
+    }
+  } else if (ydLevel === 4) {
+    // Level 4: 3-digit × 2-digit
+    var pool3x2a = shuffle([124, 156, 213, 236, 245, 267, 312, 324, 347, 356, 367, 423, 436, 451, 512, 567]);
+    var pool3x2b = shuffle([12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 31]);
+    for (var m = 0; m < ydTotal; m++) {
+      var a3x2 = pool3x2a[m];
+      var b3x2 = pool3x2b[m];
+      var h1 = Math.floor(a3x2 / 100) * 100;
+      var t1a = Math.floor((a3x2 % 100) / 10) * 10;
+      var o1a = a3x2 % 10;
+      var t2a = Math.floor(b3x2 / 10) * 10;
+      var o2a = b3x2 % 10;
+      var roundA3x2 = Math.round(a3x2 / 10) * 10;
+      problems.push({
+        a: a3x2, b: b3x2,
+        aParts: [h1, t1a, o1a],
+        bParts: [t2a, o2a],
+        answer: a3x2 * b3x2,
+        roundA: roundA3x2,
+        est: roundA3x2 * b3x2,
+        numAParts: 3,
+        numBParts: 2
+      });
+    }
+  } else if (ydLevel === 5) {
+    // Level 5: 3-digit × 3-digit
+    var pool3x3a = shuffle([124, 156, 213, 236, 245, 267, 312, 324, 347, 156, 145, 267, 312, 234, 125, 267]);
+    var pool3x3b = shuffle([123, 124, 132, 134, 142, 143, 145, 152, 154, 162, 165, 172, 174, 182, 183, 214]);
+    for (var n = 0; n < ydTotal; n++) {
+      var a3x3 = pool3x3a[n];
+      var b3x3 = pool3x3b[n];
+      var h2 = Math.floor(a3x3 / 100) * 100;
+      var t2 = Math.floor((a3x3 % 100) / 10) * 10;
+      var o2 = a3x3 % 10;
+      var h3 = Math.floor(b3x3 / 100) * 100;
+      var t3 = Math.floor((b3x3 % 100) / 10) * 10;
+      var o3 = b3x3 % 10;
+      var roundA3x3 = Math.round(a3x3 / 10) * 10;
+      problems.push({
+        a: a3x3, b: b3x3,
+        aParts: [h2, t2, o2],
+        bParts: [h3, t3, o3],
+        answer: a3x3 * b3x3,
+        roundA: roundA3x3,
+        est: roundA3x3 * b3x3,
+        numAParts: 3,
+        numBParts: 3
+      });
+    }
+  } else if (ydLevel === 6) {
+    // Level 6: 4-digit × 3-digit
+    var pool4x3a = shuffle([1234, 1356, 1567, 1892, 2145, 2156, 2345, 2367, 2456, 3124, 3254, 3412, 4123, 4156, 4234, 4567]);
+    var pool4x3b = shuffle([123, 124, 132, 134, 142, 143, 145, 152, 154, 162, 165, 172, 174, 182, 183, 214]);
+    for (var p = 0; p < ydTotal; p++) {
+      var a4x3 = pool4x3a[p];
+      var b4x3 = pool4x3b[p];
+      var th = Math.floor(a4x3 / 1000) * 1000;
+      var h4 = Math.floor((a4x3 % 1000) / 100) * 100;
+      var t4 = Math.floor((a4x3 % 100) / 10) * 10;
+      var o4 = a4x3 % 10;
+      var h5 = Math.floor(b4x3 / 100) * 100;
+      var t5 = Math.floor((b4x3 % 100) / 10) * 10;
+      var o5 = b4x3 % 10;
+      var roundA4x3 = Math.round(a4x3 / 10) * 10;
+      problems.push({
+        a: a4x3, b: b4x3,
+        aParts: [th, h4, t4, o4],
+        bParts: [h5, t5, o5],
+        answer: a4x3 * b4x3,
+        roundA: roundA4x3,
+        est: roundA4x3 * b4x3,
+        numAParts: 4,
+        numBParts: 3
+      });
+    }
+  }
+  return problems;
+}
+
+function startYouDo() {
+  ydProblems = generateYouDoProblems();
+  ydIdx = 0;
+  ydResults = [];
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  buildDots('yd-dots', ydTotal);
+  showYouDoProblem();
+}
+
+function buildDots(containerId, count) {
+  var c = document.getElementById(containerId);
+  c.innerHTML = '';
+  for (var i = 0; i < count; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = containerId + '-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
+  }
+}
+
+function showYouDoProblem() {
+  if (ydIdx >= ydTotal) { showYouDoSummary(); return; }
+  var p = ydProblems[ydIdx];
+  var card = document.getElementById('yd-card');
+
+  // Phase 1: Estimation + Decomposition
+  var decompInputsA = '';
+  for (var i = 0; i < p.numAParts; i++) {
+    decompInputsA += '<input type="number" class="decomp-input" id="yd-decomp-a-' + i + '" placeholder="?">';
+    if (i < p.numAParts - 1) decompInputsA += '<span style="font-size:18px;font-weight:700;">+</span>';
+  }
+
+  var decompInputsB = '';
+  for (var ii = 0; ii < p.numBParts; ii++) {
+    decompInputsB += '<input type="number" class="decomp-input" id="yd-decomp-b-' + ii + '" placeholder="?">';
+    if (ii < p.numBParts - 1) decompInputsB += '<span style="font-size:18px;font-weight:700;">+</span>';
+  }
+
+  var decompSection = '';
+  if (ydLevel <= 2) {
+    // Levels 1-2: only split first number
+    decompSection =
+      '<p style="font-size:15px;font-weight:600;margin-bottom:8px;">Step 2: Split <span class="mono">' + fmtNum(p.a) + '</span> into parts</p>' +
+      '<div class="decomp-row">' +
+        '<span class="decomp-label">' + fmtNum(p.a) + ' =</span>' +
+        decompInputsA +
+      '</div>';
+  } else {
+    // Levels 3-6: split both numbers
+    decompSection =
+      '<p style="font-size:15px;font-weight:600;margin-bottom:12px;">Step 2: Split both numbers</p>' +
+      '<div class="decomp-row">' +
+        '<span class="decomp-label">' + fmtNum(p.a) + ' =</span>' +
+        decompInputsA +
+      '</div>' +
+      '<div class="decomp-row">' +
+        '<span class="decomp-label">' + fmtNum(p.b) + ' =</span>' +
+        decompInputsB +
+      '</div>';
+  }
+
+  card.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (ydIdx + 1) + ' of ' + ydTotal + '</div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:28px;font-weight:700;margin-bottom:16px;">' + fmtNum(p.a) + ' &times; ' + fmtNum(p.b) + '</div>' +
+
+    // Estimation step
+    '<div class="estimate-block" style="margin-bottom:16px;" id="yd-est-block">' +
+      '<div class="est-label">Step 1: Radar estimate</div>' +
+      '<p style="font-size:14px;margin-bottom:8px;">Round <span class="mono">' + fmtNum(p.a) + '</span> to a friendly number, then multiply.</p>' +
+      '<div style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+        '<span style="font-size:15px;font-weight:600;">My estimate:</span>' +
+        '<input type="number" class="est-input" id="yd-est-input" placeholder="?">' +
+      '</div>' +
+      '<div style="margin-top:10px;"><button class="btn btn-amber" id="yd-est-btn" onclick="checkYouDoEstimate()">Check Estimate</button></div>' +
+      '<div class="est-result" id="yd-est-result"></div>' +
+    '</div>' +
+
+    // Decomposition step
+    '<div id="yd-decomp-block" style="display:none;">' +
+      decompSection +
+      '<div style="margin-top:10px;"><button class="check-btn" id="yd-decomp-btn" onclick="checkYouDoDecomp()">Check Split</button></div>' +
+      '<div class="feedback" id="yd-decomp-fb"></div>' +
+    '</div>' +
+
+    // Area model + partial products step
+    '<div id="yd-area-block" style="display:none;"></div>' +
+
+    // Next button
+    '<button class="btn btn-primary" id="yd-next" style="display:none;margin-top:16px;" onclick="nextYouDo()">Next &rarr;</button>';
+
+  // Update dots
+  for (var j = 0; j < ydTotal; j++) {
+    var d = document.getElementById('yd-dots-' + j);
+    if (d) { d.classList.remove('current'); if (j === ydIdx) d.classList.add('current'); }
+  }
+}
+
+function checkYouDoEstimate() {
+  var p = ydProblems[ydIdx];
+  var input = document.getElementById('yd-est-input');
+  var raw = input.value.replace(/,/g, '').replace(/\s/g, '');
+  if (raw === '' || isNaN(Number(raw))) { input.style.borderColor = 'var(--red)'; return; }
+
+  var studentEst = parseInt(raw, 10);
+  var actual = p.answer;
+  var pct = Math.abs(studentEst - actual) / actual * 100;
+
+  var result = document.getElementById('yd-est-result');
+  result.classList.add('show');
+  result.classList.remove('excellent', 'good', 'needs-work');
+
+  if (pct <= 10) {
+    result.classList.add('excellent');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Sharp Radar.';
+  } else if (pct <= 20) {
+    result.classList.add('good');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Reasonable estimate.';
+  } else {
+    result.classList.add('needs-work');
+    result.innerHTML = '<span class="mono">' + pct.toFixed(0) + '%</span> away. Try rounding to the nearest ' + (p.a < 100 ? '10' : '100') + '.';
+  }
+
+  input.disabled = true;
+  document.getElementById('yd-est-btn').disabled = true;
+  document.getElementById('yd-decomp-block').style.display = 'block';
+}
+
+function checkYouDoDecomp() {
+  var p = ydProblems[ydIdx];
+  var partsA = [];
+  var partsB = [];
+  var allValid = true;
+
+  // Get parts for first number
+  for (var i = 0; i < p.numAParts; i++) {
+    var inp = document.getElementById('yd-decomp-a-' + i);
+    var val = parseInt(inp.value, 10);
+    if (isNaN(val)) { allValid = false; inp.style.borderColor = 'var(--red)'; continue; }
+    partsA.push(val);
+  }
+
+  // Get parts for second number (only for levels 3-6)
+  if (ydLevel > 2) {
+    for (var ii = 0; ii < p.numBParts; ii++) {
+      var inp2 = document.getElementById('yd-decomp-b-' + ii);
+      var val2 = parseInt(inp2.value, 10);
+      if (isNaN(val2)) { allValid = false; inp2.style.borderColor = 'var(--red)'; continue; }
+      partsB.push(val2);
+    }
+  } else {
+    partsB = [p.b];
+  }
+
+  if (!allValid) return;
+
+  // Check: parts must sum to the original numbers
+  var sumA = partsA.reduce(function(a, b) { return a + b; }, 0);
+  var sumB = partsB.reduce(function(a, b) { return a + b; }, 0);
+  var fb = document.getElementById('yd-decomp-fb');
+
+  if (sumA !== p.a) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> Your parts for <span class="mono">' + fmtNum(p.a) + '</span> add up to <span class="mono">' + fmtNum(sumA) + '</span>, but they need to add up to <span class="mono">' + fmtNum(p.a) + '</span>. Try splitting into place value parts.';
+    for (var k = 0; k < p.numAParts; k++) {
+      document.getElementById('yd-decomp-a-' + k).classList.add('wrong');
+    }
+    return;
+  }
+
+  if (ydLevel > 2 && sumB !== p.b) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> Your parts for <span class="mono">' + fmtNum(p.b) + '</span> add up to <span class="mono">' + fmtNum(sumB) + '</span>, but they need to add up to <span class="mono">' + fmtNum(p.b) + '</span>. Try splitting into place value parts.';
+    for (var kk = 0; kk < p.numBParts; kk++) {
+      document.getElementById('yd-decomp-b-' + kk).classList.add('wrong');
+    }
+    return;
+  }
+
+  // Mark as correct
+  for (var j = 0; j < p.numAParts; j++) {
+    document.getElementById('yd-decomp-a-' + j).classList.add('correct');
+    document.getElementById('yd-decomp-a-' + j).disabled = true;
+  }
+  for (var jj = 0; jj < p.numBParts; jj++) {
+    document.getElementById('yd-decomp-b-' + jj).classList.add('correct');
+    document.getElementById('yd-decomp-b-' + jj).disabled = true;
+  }
+
+  fb.className = 'feedback show correct';
+  var msg = '<strong>Good split.</strong> ' + partsA.map(function(v) { return '<span class="mono">' + fmtNum(v) + '</span>'; }).join(' + ') + ' = <span class="mono">' + fmtNum(p.a) + '</span>';
+  if (ydLevel > 2) {
+    msg += ' and ' + partsB.map(function(v) { return '<span class="mono">' + fmtNum(v) + '</span>'; }).join(' + ') + ' = <span class="mono">' + fmtNum(p.b) + '</span>';
+  }
+  fb.innerHTML = msg;
+
+  document.getElementById('yd-decomp-btn').disabled = true;
+
+  // Now show the area model with partial product inputs
+  showYouDoAreaModel(partsA, partsB, p);
+}
+
+function showYouDoAreaModel(partsA, partsB, p) {
+  var areaBlock = document.getElementById('yd-area-block');
+  areaBlock.style.display = 'block';
+
+  var isMultiDim = ydLevel > 2;
+
+  if (!isMultiDim) {
+    // Levels 1-2: 1D area strip
+    var sectionsHTML = '';
+    for (var i = 0; i < partsA.length; i++) {
+      sectionsHTML += '<div class="area-section filled" style="flex:' + Math.max(partsA[i], 10) + ';">' +
+        '<div class="top-label">' + fmtNum(partsA[i]) + '</div>' +
+        '<input type="number" class="ia-input" id="yd-pp-' + i + '" placeholder="?">' +
+        '</div>';
+    }
+
+    areaBlock.innerHTML =
+      '<p style="font-size:15px;font-weight:600;margin:16px 0 8px;">Step 3: Fill in the partial products</p>' +
+      '<div class="area-model-container" style="margin:30px auto 10px 50px; max-width:500px;">' +
+        '<div class="area-model" style="min-height:80px;">' + sectionsHTML + '</div>' +
+        '<div class="area-side-label">' + partsB[0] + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
+        '<span style="font-size:16px;font-weight:700;">Total:</span>' +
+        '<input type="number" class="ia-input" id="yd-total" placeholder="?">' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:12px;"><button class="check-btn" id="yd-area-btn" onclick="checkYouDoArea()">Check</button></div>' +
+      '<div class="feedback" id="yd-area-fb"></div>';
+
+    // Store the student's parts for checking
+    ydProblems[ydIdx].studentPartsA = partsA;
+    ydProblems[ydIdx].studentPartsB = partsB;
+  } else {
+    // Levels 3-6: 2D grid
+    var gridHTML = '';
+    var cellId = 0;
+
+    // Top row with column headers
+    gridHTML += '<div class="area-grid-header-cell" style="grid-column: 1; grid-row: 1;"></div>';
+    for (var col = 0; col < partsA.length; col++) {
+      gridHTML += '<div class="area-grid-header-cell" style="grid-column: ' + (col + 2) + '; grid-row: 1;">' + fmtNum(partsA[col]) + '</div>';
+    }
+
+    // Left column with row headers + grid cells
+    for (var row = 0; row < partsB.length; row++) {
+      gridHTML += '<div class="area-grid-row-header" style="grid-column: 1; grid-row: ' + (row + 2) + ';">' + fmtNum(partsB[row]) + '</div>';
+      for (var col2 = 0; col2 < partsA.length; col2++) {
+        var expectedVal = partsA[col2] * partsB[row];
+        gridHTML += '<div class="area-grid-cell" style="grid-column: ' + (col2 + 2) + '; grid-row: ' + (row + 2) + ';">' +
+          '<input type="number" class="grid-cell-input" id="yd-grid-' + row + '-' + col2 + '" placeholder="?" data-expected="' + expectedVal + '">' +
+          '</div>';
+        cellId++;
+      }
+    }
+
+    var gridStyles = 'grid-template-columns: 60px ' + Array(partsA.length).fill('1fr').join(' ') + '; grid-template-rows: 40px ' + Array(partsB.length).fill('1fr').join(' ') + ';';
+
+    areaBlock.innerHTML =
+      '<p style="font-size:15px;font-weight:600;margin:16px 0 12px;">Step 3: Fill in the area grid</p>' +
+      '<div class="area-grid-container">' +
+        '<div class="area-grid" style="' + gridStyles + '">' + gridHTML + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap;">' +
+        '<span style="font-size:16px;font-weight:700;">Total:</span>' +
+        '<input type="number" class="ia-input" id="yd-total" placeholder="?">' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:12px;"><button class="check-btn" id="yd-area-btn" onclick="checkYouDoArea()">Check</button></div>' +
+      '<div class="feedback" id="yd-area-fb"></div>';
+
+    // Store the student's parts for checking
+    ydProblems[ydIdx].studentPartsA = partsA;
+    ydProblems[ydIdx].studentPartsB = partsB;
+  }
+}
+
+function checkYouDoArea() {
+  var p = ydProblems[ydIdx];
+  var partsA = p.studentPartsA;
+  var partsB = p.studentPartsB;
+  var allCorrect = true;
+  var isMultiDim = ydLevel > 2;
+
+  if (!isMultiDim) {
+    // Levels 1-2: 1D grid checking
+    for (var i = 0; i < partsA.length; i++) {
+      var inp = document.getElementById('yd-pp-' + i);
+      var expected = partsA[i] * partsB[0];
+      var val = parseInt(inp.value, 10);
+      if (val === expected) {
+        inp.classList.add('correct'); inp.classList.remove('wrong');
+      } else {
+        inp.classList.add('wrong'); inp.classList.remove('correct');
+        allCorrect = false;
+      }
+      inp.disabled = true;
+    }
+  } else {
+    // Levels 3-6: 2D grid checking
+    for (var r = 0; r < partsB.length; r++) {
+      for (var c = 0; c < partsA.length; c++) {
+        var inp2d = document.getElementById('yd-grid-' + r + '-' + c);
+        var expected2d = partsA[c] * partsB[r];
+        var val2d = parseInt(inp2d.value, 10);
+        if (val2d === expected2d) {
+          inp2d.classList.add('correct'); inp2d.classList.remove('wrong');
+        } else {
+          inp2d.classList.add('wrong'); inp2d.classList.remove('correct');
+          allCorrect = false;
+        }
+        inp2d.disabled = true;
+      }
+    }
+  }
+
+  var totalInp = document.getElementById('yd-total');
+  var totalVal = parseInt(totalInp.value, 10);
+  if (totalVal === p.answer) {
+    totalInp.classList.add('correct'); totalInp.classList.remove('wrong');
+  } else {
+    totalInp.classList.add('wrong'); totalInp.classList.remove('correct');
+    allCorrect = false;
+  }
+  totalInp.disabled = true;
+
+  var fb = document.getElementById('yd-area-fb');
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    if (!isMultiDim) {
+      // 1D: list as simple products
+      fb.innerHTML = '<strong>Correct.</strong> ' + partsA.map(function(v, i) {
+        return '<span class="mono">' + fmtNum(v) + ' &times; ' + partsB[0] + ' = ' + fmtNum(v * partsB[0]) + '</span>';
+      }).join(' + ') + ' = <span class="mono">' + fmtNum(p.answer) + '</span>';
+    } else {
+      // 2D: describe grid structure
+      fb.innerHTML = '<strong>Correct.</strong> All ' + (partsA.length * partsB.length) + ' cells filled correctly. Total: <span class="mono">' + fmtNum(p.answer) + '</span>';
+    }
+  } else {
+    fb.className = 'feedback show incorrect';
+    if (!isMultiDim) {
+      fb.innerHTML = '<strong>Not quite.</strong> The partial products are: ' + partsA.map(function(v, i) {
+        return '<span class="mono">' + fmtNum(v) + ' &times; ' + partsB[0] + ' = ' + fmtNum(v * partsB[0]) + '</span>';
+      }).join(', ') + '. Total: <span class="mono">' + fmtNum(p.answer) + '</span>.';
+    } else {
+      fb.innerHTML = '<strong>Not quite.</strong> Check each cell carefully. Each cell should be the column part times the row part. Total should be <span class="mono">' + fmtNum(p.answer) + '</span>.';
+    }
+  }
+
+  ydResults[ydIdx] = allCorrect;
+  var dot = document.getElementById('yd-dots-' + ydIdx);
+  dot.classList.remove('current');
+  dot.classList.add(allCorrect ? 'green' : 'red');
+
+  document.getElementById('yd-area-btn').disabled = true;
+  document.getElementById('yd-next').style.display = 'inline-block';
+}
+
+function nextYouDo() {
+  ydIdx++;
+  showYouDoProblem();
+}
+
+function showYouDoSummary() {
+  document.getElementById('yd-card').style.display = 'none';
+  var correct = ydResults.filter(function(r) { return r; }).length;
+  var scoreEl = document.getElementById('yd-score');
+  scoreEl.textContent = correct + ' / ' + ydTotal;
+  scoreEl.style.color = correct >= 7 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = correct >= 7 ? 'Excellent. You understand the area model well.' :
+            correct >= 5 ? 'Good progress. Check which partial products tripped you up.' :
+            'Keep practising. Review the I Do section.';
+  document.getElementById('yd-message').textContent = msg;
+
+  // Unlock Go Deeper if score is 7 or higher
+  if (correct >= 7) {
+    var gdBtn = document.getElementById('yd-godeeper-btn');
+    gdBtn.classList.remove('locked');
+    gdBtn.onclick = function() { showGoDeeper(); };
+    gdBtn.innerHTML = '<h3>&#x1F513; Go Deeper</h3><p>Explore deeper thinking tasks about area models.</p>';
+  }
+
+  document.getElementById('yd-summary').classList.add('show');
+}
+
+// ── UTILITIES ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function fmtNum(n) { return n.toLocaleString('en-GB'); }
+
+// ── GO DEEPER ──
+function showGoDeeper() {
+  document.getElementById('go-deeper-section').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function unlockGoDeeper() {
+  // This function is called if user tries to click before unlocking
+  alert('Complete this round with 7 or more correct answers to unlock Go Deeper.');
+}
+
+function revealTask1() {
+  var resp = document.getElementById('task1-response');
+  resp.classList.toggle('visible');
+}
+
+function revealTask2() {
+  var resp = document.getElementById('task2-response');
+  resp.classList.toggle('visible');
+}
+
+function revealTask3() {
+  var resp = document.getElementById('task3-response');
+  resp.classList.toggle('visible');
+}
+</script>
+</body>
+</html>

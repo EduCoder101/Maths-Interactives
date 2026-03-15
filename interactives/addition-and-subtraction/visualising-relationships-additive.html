@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 2: Visualising Relationships</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --cream: #FFF8F0;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #2D3436;
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(52,152,219,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--blue); text-transform: uppercase; margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 900px; font-weight: 500; }
+  .header-icon {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.10;
+  }
+
+  /* ── NAV ── */
+  .phase-nav {
+    display: flex; gap: 10px; padding: 18px 48px;
+    background: #3d4347; flex-wrap: wrap;
+  }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 10px 26px;
+    font-family: 'Fredoka', sans-serif; font-size: 17px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--blue); color: #fff; }
+
+  /* ── MAIN ── */
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--blue-dark);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-heading {
+    font-size: clamp(24px, 3vw, 36px); font-weight: 700; margin-bottom: 20px; color: var(--text);
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 18px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 20px; }
+  .card ul li { margin-bottom: 6px; }
+
+  /* ── CLICKABLE REASONING CARD ── */
+  .reasoning-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); border: 2px solid var(--border);
+    margin-top: 16px; overflow: hidden; transition: box-shadow 0.2s;
+  }
+  .reasoning-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.14); }
+  .reasoning-toggle {
+    width: 100%; background: none; border: none; cursor: pointer;
+    padding: 20px 28px; display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Fredoka', sans-serif; font-size: 17px; font-weight: 700; color: var(--text);
+    text-align: left; transition: background 0.15s;
+  }
+  .reasoning-toggle:hover { background: #f8faff; }
+  .reasoning-toggle .rt-left { display: flex; align-items: center; gap: 12px; }
+  .reasoning-toggle .rt-icon {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--teal);
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .reasoning-toggle .rt-chevron {
+    font-size: 20px; color: var(--muted); transition: transform 0.25s;
+  }
+  .reasoning-toggle.open .rt-chevron { transform: rotate(180deg); }
+  .reasoning-body {
+    display: none; padding: 0 28px 24px;
+    animation: fadeIn 0.25s ease;
+  }
+  .reasoning-body.shown { display: block; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: 12px; padding: 18px 22px; margin: 16px 0;
+  }
+  .callout .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 6px; display: block;
+  }
+  .callout p { font-size: 17px; line-height: 1.6; font-weight: 400; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-red { background: #fff4f4; border-left: 5px solid var(--red); }
+  .callout-red .label { color: #c0392b; }
+  .callout-red p { color: #7a0000; }
+
+  /* ── REVEAL BUTTONS ── */
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: var(--blue-dark); }
+  .reveal-btn.blue { background: var(--blue); color: #fff; }
+  .reveal-btn.blue:hover { background: var(--blue-dark); }
+  .reveal-btn.teal { background: var(--teal); color: var(--text); }
+  .reveal-btn.teal:hover { background: var(--teal-dark); color: #fff; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* ── QUESTION SCENARIO ── */
+  .scenario {
+    background: #f0f7ff; border-radius: 14px;
+    padding: 20px 24px; margin: 16px 0;
+    font-size: 20px; font-weight: 600; color: var(--text);
+    border: 2px solid #d0e8ff;
+    font-family: 'Space Mono', monospace;
+    line-height: 1.6;
+  }
+
+  /* ── BAR MODEL BOX ── */
+  .bar-model-box {
+    background: #f4f8ff;
+    border: 2px solid #d0e8ff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin: 20px 0;
+  }
+  .bar-model-box .bm-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--blue-dark);
+    text-transform: uppercase; margin-bottom: 16px; font-family: 'Fredoka', sans-serif;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .bar-model-box .bm-title::before {
+    content: '';
+    display: inline-block; width: 14px; height: 14px;
+    background: var(--blue); border-radius: 3px;
+  }
+
+  /* ── BAR MODEL ELEMENTS ── */
+  .bar-model { font-family: 'Space Mono', monospace; }
+  .bar-model .bm-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 8px; font-family: 'Fredoka', sans-serif;
+  }
+  .bm-whole {
+    background: linear-gradient(135deg, #3498DB, #2176ae);
+    border-radius: 10px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px; font-weight: 700;
+    margin-bottom: 6px; width: 100%;
+    box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+    font-family: 'Space Mono', monospace;
+  }
+  .bm-parts { display: flex; gap: 6px; width: 100%; }
+  .bm-part {
+    height: 64px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    transition: all 0.4s ease;
+    font-family: 'Space Mono', monospace;
+    padding: 0 8px; text-align: center;
+  }
+  .bm-part.known { background: linear-gradient(135deg, #4ECDC4, #38b2aa); color: #fff; }
+  .bm-part.unknown {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: var(--text);
+    border: 3px dashed rgba(0,0,0,0.2);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.72; }
+  }
+  .bm-arrow { text-align: center; font-size: 22px; margin: 6px 0; color: var(--muted); }
+
+  /* ── GOLDEN RULE ── */
+  .golden-rule {
+    background: linear-gradient(135deg, #FFD93D 0%, #FF8400 100%);
+    border-radius: 14px; padding: 24px 30px; margin: 24px 0;
+    text-align: center;
+  }
+  .golden-rule .gr-title {
+    font-size: 13px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: rgba(0,0,0,0.5); margin-bottom: 10px;
+  }
+  .golden-rule .gr-rules { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .gr-rule {
+    background: rgba(255,255,255,0.7); border-radius: 10px;
+    padding: 16px 24px; font-size: 17px; font-weight: 700; color: var(--text);
+    flex: 1; min-width: 200px;
+  }
+  .gr-rule span { display: block; font-size: 20px; margin-bottom: 4px; }
+
+  /* ── WORKED ANSWER TOGGLE ── */
+  .worked-toggle {
+    width: 100%; background: #f4f8ff; border: 2px solid #d0e8ff; border-radius: 12px;
+    cursor: pointer; padding: 16px 22px; margin-top: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; color: var(--blue-dark);
+    transition: all 0.2s;
+  }
+  .worked-toggle:hover { background: #e4f0ff; }
+  .worked-toggle .wt-chevron { font-size: 18px; color: var(--muted); transition: transform 0.25s; }
+  .worked-toggle.open .wt-chevron { transform: rotate(180deg); }
+  .worked-body { display: none; margin-top: 14px; animation: fadeIn 0.25s ease; }
+  .worked-body.shown { display: block; }
+
+  /* ── DECIMAL WHEEL ── */
+  .wheel-container {
+    display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .wheel-wrap { position: relative; flex-shrink: 0; }
+  canvas.wheel-canvas {
+    display: block; border-radius: 50%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  .wheel-legend { flex: 1; min-width: 200px; }
+  .wheel-legend h4 { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px; font-size: 15px; font-weight: 500;
+  }
+  .legend-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+  .wheel-controls { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .wheel-btn {
+    padding: 8px 18px; border-radius: 30px; border: 2px solid var(--border);
+    font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; background: white; color: var(--text); transition: all 0.2s;
+  }
+  .wheel-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+  .wheel-btn:hover { border-color: var(--blue); }
+  .wheel-total {
+    font-family: 'Space Mono', monospace; font-size: 32px; font-weight: 700;
+    margin-top: 14px; color: var(--text);
+    background: #f8faff; border-radius: 10px; padding: 10px 20px;
+    display: inline-block; border: 2px solid var(--border);
+  }
+
+  /* ── WE DO PAGER ── */
+  .wedo-slides { position: relative; }
+  .wedo-slide { display: none; animation: fadeIn 0.3s ease; }
+  .wedo-slide.active { display: block; }
+
+  .wedo-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 24px; gap: 12px;
+  }
+  .wedo-nav-btn {
+    background: var(--blue); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+  }
+  .wedo-nav-btn:hover { background: var(--blue-dark); }
+  .wedo-nav-btn:disabled { background: var(--border); color: var(--muted); cursor: default; }
+  .wedo-counter {
+    font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700;
+    color: var(--muted); background: #f8faff; border-radius: 20px;
+    padding: 8px 18px; border: 2px solid var(--border);
+  }
+  .wedo-dots {
+    display: flex; gap: 8px; justify-content: center; margin-top: 16px;
+  }
+  .wedo-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--border); transition: background 0.2s;
+  }
+  .wedo-dot.active { background: var(--blue); }
+
+  /* ── WE DO BAR MODEL (full size, consistent colours) ── */
+  .wedo-bar-model {
+    background: #f4f8ff; border: 2px solid #d0e8ff;
+    border-radius: 16px; padding: 24px 28px; margin: 20px 0;
+  }
+  .wedo-bar-model .bm-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--blue-dark);
+    text-transform: uppercase; margin-bottom: 16px; font-family: 'Fredoka', sans-serif;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .wedo-bar-model .bm-title::before {
+    content: '';
+    display: inline-block; width: 14px; height: 14px;
+    background: var(--blue); border-radius: 3px;
+  }
+
+  /* ── WHITEBOARD PROMPT ── */
+  .whiteboard-prompt {
+    background: #ffffff; color: var(--text); font-family: 'Space Mono', monospace;
+    border-radius: 14px; border: 2px solid var(--border);
+    padding: 28px 36px; font-size: 22px;
+    line-height: 2.2; margin: 16px 0;
+    display: block; width: 100%;
+  }
+  .whiteboard-prompt .wlabel {
+    font-size: 11px; letter-spacing: 2px; color: var(--muted);
+    text-transform: uppercase; font-family: 'Fredoka', sans-serif;
+    display: block; margin-bottom: 10px; font-weight: 600;
+  }
+
+  /* ── TOGGLE WORKED OUT (wedo) ── */
+  .wedo-worked-toggle {
+    width: 100%; background: #f4f8ff; border: 2px solid #d0e8ff; border-radius: 12px;
+    cursor: pointer; padding: 14px 20px; margin-top: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; color: var(--blue-dark);
+    transition: all 0.2s;
+  }
+  .wedo-worked-toggle:hover { background: #e4f0ff; }
+  .wedo-worked-toggle .wt-chevron { font-size: 18px; color: var(--muted); transition: transform 0.25s; }
+  .wedo-worked-toggle.open .wt-chevron { transform: rotate(180deg); }
+  .wedo-worked-body { display: none; margin-top: 14px; animation: fadeIn 0.25s ease; }
+  .wedo-worked-body.shown { display: block; }
+
+  /* ── PRACTICE CARDS ── */
+  .practice-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 18px; margin-top: 8px;
+  }
+  .practice-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); border: 2px solid var(--border);
+    padding: 24px 26px; position: relative; overflow: hidden;
+  }
+  .practice-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .pc-blue::before   { background: linear-gradient(135deg, #3498DB, #2176ae); }
+  .pc-teal::before   { background: linear-gradient(135deg, #4ECDC4, #38b2aa); }
+  .pc-amber::before  { background: linear-gradient(135deg, #FFD93D, #FF8400); }
+  .pc-red::before    { background: linear-gradient(135deg, #FF6B6B, #c0392b); }
+  .pc-purple::before { background: linear-gradient(135deg, #AD1DEB, #6E3AFF); }
+
+  .pc-num   { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .pc-type  { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+  .pc-problem {
+    font-size: 17px; line-height: 1.7; color: var(--text); margin: 10px 0 14px;
+    background: #f8faff; border-radius: 10px; padding: 14px 18px;
+    border: 2px solid var(--border); font-weight: 500;
+  }
+
+  /* Answer visibility steps */
+  .pc-bm-section { display: none; }
+  .pc-bm-section.shown { display: block; animation: fadeIn 0.25s ease; }
+  .pc-ans-section { display: none; margin-top: 12px; }
+  .pc-ans-section.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  .pc-toggle {
+    background: none; border: 2px solid var(--border); border-radius: 30px;
+    padding: 7px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    font-weight: 600; color: var(--muted); cursor: pointer; margin-top: 8px;
+    transition: all 0.2s;
+  }
+  .pc-toggle:hover { border-color: var(--text); color: var(--text); }
+  .pc-toggle.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .estimate-badge {
+    display: inline-block; background: var(--amber); color: var(--text);
+    font-weight: 700; font-size: 16px; border-radius: 8px;
+    padding: 4px 14px; margin: 4px 4px 4px 0; font-family: 'Space Mono', monospace;
+  }
+  .actual-badge {
+    display: inline-block; background: var(--teal); color: var(--text);
+    font-weight: 700; font-size: 16px; border-radius: 8px;
+    padding: 4px 14px; margin: 4px; font-family: 'Space Mono', monospace;
+  }
+  .op-badge {
+    display: inline-block; font-weight: 700; font-size: 16px; border-radius: 8px;
+    padding: 4px 14px; margin: 4px 4px 4px 0; font-family: 'Space Mono', monospace;
+  }
+  .op-add { background: #d4f7e0; color: #1a5c35; }
+  .op-sub { background: #ffd4d4; color: #7a0000; }
+
+  /* ── SETTING-OUT TABLE ── */
+  .pa {
+    font-family: 'Space Mono', monospace; font-size: 20px;
+    border-collapse: collapse; margin: 10px 0 4px;
+    background: #f8faff; border: 2px solid var(--border);
+    border-radius: 10px; padding: 10px; display: inline-table;
+  }
+  .pa td { padding: 2px 7px; text-align: center; min-width: 26px; line-height: 1.9; color: var(--text); }
+  .pa td.op { text-align: left; min-width: 18px; color: var(--muted); padding-right: 4px; }
+  .pa td.ph { color: var(--orange); font-weight: 700; }
+  .pa tr.ans td { color: var(--teal-dark); font-weight: 700; border-top: 2px solid var(--text); }
+  .anno { color: var(--muted); font-size: 13px; display: block; margin-top: 4px; font-style: italic; font-family: 'Fredoka', sans-serif; }
+
+  /* ── PRACTICE BAR MODEL (consistent with I Do) ── */
+  .mini-bm { margin: 12px 0; }
+  .mini-whole {
+    background: linear-gradient(135deg, #3498DB, #2176ae);
+    border-radius: 8px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 15px;
+    font-family: 'Space Mono', monospace; margin-bottom: 4px;
+    box-shadow: 0 3px 10px rgba(52,152,219,0.25);
+  }
+  .mini-parts { display: flex; gap: 4px; }
+  .mini-part {
+    height: 46px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+    font-family: 'Space Mono', monospace; padding: 0 6px; text-align: center;
+  }
+  .mini-known { background: linear-gradient(135deg, #4ECDC4, #38b2aa); color: #fff; }
+  .mini-unknown {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: var(--text); border: 2px dashed rgba(0,0,0,0.2);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  /* ── TIER HEADERS ── */
+  .tier-header {
+    font-family: 'Fredoka', sans-serif; font-size: 19px; font-weight: 700;
+    padding: 14px 24px; border-radius: 12px; margin-bottom: 16px;
+    display: inline-block;
+  }
+  .tier-1 { background: #d4f7e0; color: #1a5c35; }
+  .tier-2 { background: #d4e8ff; color: #0a2f6e; }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block; background: var(--text); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    border-radius: 20px; padding: 3px 12px; margin-right: 6px; margin-bottom: 6px;
+    font-family: 'Fredoka', sans-serif;
+  }
+  .tag.blue  { background: var(--blue); color: #fff; }
+  .tag.teal  { background: var(--teal); color: var(--text); }
+  .tag.amber { background: var(--amber); color: var(--text); }
+
+
+  .tier-3 { background: #ffe8cc; color: #7a3000; }
+  .tier-4 { background: #ffd4d4; color: #7a0000; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    header { padding: 24px 20px; }
+    .phase-nav { padding: 12px 16px; }
+    main { padding: 24px 12px 60px; }
+    .card { padding: 20px 18px; }
+    .practice-grid { grid-template-columns: 1fr; }
+    .header-icon { display: none; }
+    .wheel-container { flex-direction: column; }
+    .gr-rules { flex-direction: column; }
+    .wedo-nav { flex-wrap: wrap; justify-content: center; }
+  }
+
+  /* ── WHEEL QUESTION STYLES ── */
+  .wq-card { }
+  .wq-qnum { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .wq-qtext { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1.6; margin-bottom: 4px; }
+  .wq-wheels-row { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; align-items: flex-start; }
+  .wq-wheel-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .wq-wheel-label { font-size: 14px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; font-family: 'Fredoka', sans-serif; }
+  .wq-canvas { cursor: crosshair; border-radius: 50%; box-shadow: 0 6px 20px rgba(0,0,0,0.12); display: block; }
+  .wq-slice-count { font-family: 'Space Mono', monospace; font-size: 15px; color: var(--text); font-weight: 700; }
+  .wq-slider { width: 200px; accent-color: var(--blue); cursor: pointer; }
+  .wq-submit-row { display: flex; align-items: center; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+  .wq-submit-btn {
+    background: var(--blue); color: #fff; border: none;
+    border-radius: 30px; padding: 14px 34px;
+    font-family: 'Fredoka', sans-serif; font-size: 18px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .wq-submit-btn:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(52,152,219,0.35); }
+  .wq-submit-btn:active { transform: translateY(0); }
+  .wq-total-display {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    color: var(--muted); background: #f8faff; border: 2px solid var(--border);
+    border-radius: 10px; padding: 8px 18px;
+  }
+  .wq-total-display span { color: var(--text); }
+  .wq-feedback { display: none; border-radius: 10px; padding: 14px 20px; font-size: 17px; font-weight: 600; margin-top: 8px; }
+  .wq-ok { background: #d4f7e0; color: #1a5c35; display: block !important; }
+  .wq-no { background: #ffd4d4; color: #7a0000; display: block !important; }
+  .wq-solution { animation: fadeIn 0.25s ease; }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--blue);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* === Go Deeper Extension Styles === */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle { background: white; border: 2px dashed #4ECDC4; border-radius: 16px; padding: 1.2rem 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-family: 'Fredoka', sans-serif; transition: all 0.3s ease; width: 100%; }
+  .go-deeper-toggle:hover { border-color: #4ECDC4; box-shadow: 0 4px 16px rgba(78,205,196,0.25); transform: translateY(-2px); }
+  .go-deeper-toggle h3 { font-size: 1.15rem; font-weight: 600; margin: 0; color: #2D3436; }
+  .go-deeper-toggle .toggle-arrow { font-size: 1.2rem; transition: transform 0.3s ease; color: #4ECDC4; }
+  .go-deeper-toggle.open .toggle-arrow { transform: rotate(180deg); }
+  .go-deeper-content { display: none; padding-top: 1rem; }
+  .go-deeper-content.open { display: block; }
+  .go-deeper-card { background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-top: 5px solid #4ECDC4; padding: 2rem; }
+  .go-deeper-card > p { color: #636E72; margin-bottom: 1.5rem; font-family: 'Fredoka', sans-serif; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #4ECDC4; margin-bottom: 0.75rem; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; line-height: 1.6; color: #2D3436; margin-bottom: 0.75rem; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-style: italic; color: #636E72; margin-bottom: 1rem; font-size: 0.95rem; }
+  .ext-thinking-area { width: 100%; min-height: 90px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 0.8rem; font-family: 'Fredoka', sans-serif; font-size: 0.95rem; resize: vertical; transition: border-color 0.3s ease; box-sizing: border-box; }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn { display: inline-block; margin-top: 0.75rem; padding: 0.5rem 1.2rem; border: 2px solid #4ECDC4; border-radius: 10px; background: white; color: #4ECDC4; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response { display: none; background: white; border-radius: 10px; padding: 1.2rem; margin-top: 0.75rem; border: 1px solid #e0e0e0; }
+  .ext-model-response.visible { display: block; }
+  .ext-model-response .model-label { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 0.85rem; color: #4ECDC4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .ext-model-response p { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.6; color: #2D3436; margin: 0.5rem 0; }
+  .mathematician-box { margin-top: 1rem; padding: 1rem; border: 2px dashed #4ECDC4; border-radius: 10px; background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%); font-family: 'Fredoka', sans-serif; font-size: 0.9rem; line-height: 1.5; color: #2D3436; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 Mathematics · Addition &amp; Subtraction · Lesson 2</div>
+  <h1>Visualising <span>Relationships</span></h1>
+  <p>Bar Models &amp; Decimal Wheels, draw the maths before you calculate</p>
+  <p style="margin-top:12px;"><a href="index.html" style="color:var(--blue);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a></p>
+  <div class="header-icon">🧩</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection('hook', this)">🪤 The Hook</button>
+  <button onclick="showSection('ido', this)">🎯 I Do</button> <button onclick="showSection('wedo', this)">🤝 We Do</button>
+  <button onclick="showSection('practice', this)">✏️ Practice</button>
+  <button onclick="showSection('wheel', this)">🎡 Decimal Wheel</button>
+</nav>
+
+<main>
+
+<!-- ────────────── LEARNING INTENTION & SUCCESS CRITERIA ────────────── -->
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use visual models to understand the relationship between numbers in a word problem before calculating an answer.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can identify if a word problem is asking me to find a missing part or the total whole</li>
+            <li>I can draw a bar model to represent a whole number equation</li>
+            <li>I can use a visual model to determine the correct operation (addition or subtraction)</li>
+        </ul>
+    </div>
+</div>
+
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · The Hook</div>
+  <div class="section-heading">Can you spot the trap?</div>
+
+  <div class="card">
+    <h3>🪤 Word problems love to trick us</h3>
+    <p>Figuring out whether you need to add or subtract can be tricky. A great strategy is to draw the maths first. Once you can see it, you can't be tricked.</p>
+  </div>
+
+  <div class="card">
+    <h3>📍 Read this problem</h3>
+    <div class="scenario">
+      Byron Shire had a population of 35,084.<br>
+      14,230 people lived in the town centre.<br>
+      The rest lived in the surrounding hills.<br><br>
+      <strong>How many people lived in the hills?</strong>
+    </div>
+
+    <div class="callout callout-amber" style="margin-top:16px;">
+      <span class="label">💬 Think about it</span>
+      <p>Don't calculate yet. Do you <strong>add</strong> these numbers or <strong>subtract</strong> them? How do you know?</p>
+    </div>
+
+    <div class="reasoning-card">
+      <button class="reasoning-toggle" onclick="toggleReasoning(this, 'hook-reasoning')">
+        <div class="rt-left">
+          <div class="rt-icon">💡</div>
+          <span>The Reasoning</span>
+        </div>
+        <span class="rt-chevron">▾</span>
+      </button>
+      <div class="reasoning-body" id="hook-reasoning">
+        <div class="callout callout-teal" style="margin-bottom:0;">
+          <span class="label">✅ The reasoning</span>
+          <p>We know the <strong>total (whole)</strong>, 35,084, and we know <strong>one part</strong>, 14,230. We're looking for the <strong>other part</strong>. That means we subtract.</p>
+          <p style="margin-top:8px;">If you draw this before calculating, it becomes obvious. That's exactly what we're going to learn to do.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ido" class="section">
+  <div class="section-title">Phase 2 · Explicit Instruction</div>
+  <div class="section-heading">The Bar Model</div>
+
+  <div class="card">
+    <div class="tag blue">The Bar Model</div>
+    <h3 style="margin-top:10px;">Part-Part-Whole</h3>
+    <p>Every addition or subtraction problem has the same structure: a <strong>whole</strong> made up of two <strong>parts</strong>. The Bar Model makes this visible.</p>
+
+    <div class="bar-model-box">
+      <div class="bm-title">Bar Model, Byron Shire problem</div>
+      <div class="bar-model">
+        <div class="bm-label">The Whole (top bar)</div>
+        <div class="bm-whole">35,084</div>
+        <div class="bm-arrow">↕</div>
+        <div class="bm-label">The Parts (underneath)</div>
+        <div class="bm-parts">
+          <div class="bm-part known" style="flex:14230;">14,230</div>
+          <div class="bm-part unknown" style="flex:20854;">?</div>
+        </div>
+        <div class="anno" style="margin-top:10px;">We have the whole and one part. We need to find the missing part → subtract.</div>
+      </div>
+    </div>
+
+    <div class="golden-rule">
+      <div class="gr-title">⭐ The Golden Rule</div>
+      <div class="gr-rules">
+        <div class="gr-rule">
+          <span>➕</span> We know both <strong>parts</strong><br>→ Add to find the whole
+        </div>
+        <div class="gr-rule">
+          <span>➖</span> We know the <strong>whole</strong> and one part<br>→ Subtract to find the missing part
+        </div>
+      </div>
+    </div>
+
+    <button class="worked-toggle" onclick="toggleWorked(this, 'byron-worked')">
+      <span>✅ Worked answer, Byron Shire</span>
+      <span class="wt-chevron">▾</span>
+    </button>
+    <div class="worked-body" id="byron-worked">
+      <div class="callout callout-teal">
+        <span class="label">Worked answer</span>
+        <p>Operation: <strong>Subtraction</strong>, whole minus known part</p>
+      </div>
+      <table class="pa" style="margin-top:10px;">
+        <tr><td class="op"></td><td>3</td><td>5</td><td>,</td><td>0</td><td>8</td><td>4</td></tr>
+        <tr><td class="op">−</td><td>1</td><td>4</td><td>,</td><td>2</td><td>3</td><td>0</td></tr>
+        <tr class="ans"><td class="op"></td><td>2</td><td>0</td><td>,</td><td>8</td><td>5</td><td>4</td></tr>
+      </table>
+      <div class="anno">20,854 people lived in the hills</div>
+    </div>
+  </div>
+</div>
+
+<div id="wedo" class="section">
+  <div class="section-title">Phase 3 · Guided Practice</div>
+  <div class="section-heading">Mini whiteboards, draw the model first</div>
+
+  <div class="card">
+    <p style="font-size:16px; line-height:1.7;">For each scenario: sketch a Bar Model on your whiteboard. Put the <strong>question mark</strong> in the right place, are we looking for a part or the whole? Then decide: <strong>add or subtract?</strong></p>
+  </div>
+
+  <div class="wedo-slides">
+    <div class="wedo-slide active" id="wedo-slide-1">
+      <div class="card">
+        <div class="tag amber">Scenario 1 of 2</div>
+        <div class="scenario" style="margin-top:12px;">
+          I had some money.<br>
+          I spent $45.<br>
+          I have $12 left.
+        </div>
+        <div class="whiteboard-prompt">
+          <span class="wlabel">Sketch on your whiteboard:</span>
+          Draw the Bar Model.<br>
+          Where is the ?<br>
+          Add or subtract?
+        </div>
+
+        <button class="wedo-worked-toggle" onclick="toggleWedoWorked(this, 'wd1-model')">
+          <span>📊 Show the Bar Model</span>
+          <span class="wt-chevron">▾</span>
+        </button>
+        <div class="wedo-worked-body" id="wd1-model">
+          <div class="wedo-bar-model">
+            <div class="bm-title">Bar Model, Scenario 1</div>
+            <div class="bm-whole">?, how much I started with</div>
+            <div class="bm-arrow">↕</div>
+            <div class="bm-parts">
+              <div class="bm-part known" style="flex:45;">$45 spent</div>
+              <div class="bm-part known" style="flex:12;">$12 left</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="wedo-worked-toggle" onclick="toggleWedoWorked(this, 'wd1-reason')" style="margin-top:10px;">
+          <span>💡 Show the reasoning &amp; operation</span>
+          <span class="wt-chevron">▾</span>
+        </button>
+        <div class="wedo-worked-body" id="wd1-reason">
+          <div class="callout callout-teal" style="margin-top:12px;">
+            <span class="label">Reasoning</span>
+            <p>We have <strong>both parts</strong> ($45 and $12). The <strong>whole</strong> is missing. → <strong>Add</strong> the parts.</p>
+          </div>
+        </div>
+
+        <button class="wedo-worked-toggle" onclick="toggleWedoWorked(this, 'wd1-calc')" style="margin-top:10px;">
+          <span>🔢 Show the working out</span>
+          <span class="wt-chevron">▾</span>
+        </button>
+        <div class="wedo-worked-body" id="wd1-calc">
+          <table class="pa" style="margin-top:10px;">
+            <tr><td class="op"></td><td>4</td><td>5</td></tr>
+            <tr><td class="op">+</td><td>1</td><td>2</td></tr>
+            <tr class="ans"><td class="op"></td><td>5</td><td>7</td></tr>
+          </table>
+          <div class="anno">I started with $57</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wedo-slide" id="wedo-slide-2">
+      <div class="card">
+        <div class="tag amber">Scenario 2 of 2</div>
+        <div class="scenario" style="margin-top:12px;">
+          A school had 520 students.<br>
+          310 students were in primary.<br>
+          The rest were in secondary.
+        </div>
+        <div class="whiteboard-prompt">
+          <span class="wlabel">Sketch on your whiteboard:</span>
+          Draw the Bar Model.<br>
+          Where is the ?<br>
+          Add or subtract?
+        </div>
+
+        <button class="wedo-worked-toggle" onclick="toggleWedoWorked(this, 'wd2-model')">
+          <span>📊 Show the Bar Model</span>
+          <span class="wt-chevron">▾</span>
+        </button>
+        <div class="wedo-worked-body" id="wd2-model">
+          <div class="wedo-bar-model">
+            <div class="bm-title">Bar Model, Scenario 2</div>
+            <div class="bm-whole">520 students</div>
+            <div class="bm-arrow">↕</div>
+            <div class="bm-parts">
+              <div class="bm-part known" style="flex:310;">310 primary</div>
+              <div class="bm-part unknown" style="flex:210;">? secondary</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="wedo-worked-toggle" onclick="toggleWedoWorked(this, 'wd2-reason')" style="margin-top:10px;">
+          <span>💡 Show the reasoning &amp; operation</span>
+          <span class="wt-chevron">▾</span>
+        </button>
+        <div class="wedo-worked-body" id="wd2-reason">
+          <div class="callout callout-teal" style="margin-top:12px;">
+            <span class="label">Reasoning</span>
+            <p>We have the <strong>whole</strong> (520) and <strong>one part</strong> (310). A <strong>part</strong> is missing. → <strong>Subtract</strong> to find it.</p>
+          </div>
+        </div>
+
+        <button class="wedo-worked-toggle" onclick="toggleWedoWorked(this, 'wd2-calc')" style="margin-top:10px;">
+          <span>🔢 Show the working out</span>
+          <span class="wt-chevron">▾</span>
+        </button>
+        <div class="wedo-worked-body" id="wd2-calc">
+          <table class="pa" style="margin-top:10px;">
+            <tr><td class="op"></td><td>5</td><td>2</td><td>0</td></tr>
+            <tr><td class="op">−</td><td>3</td><td>1</td><td>0</td></tr>
+            <tr class="ans"><td class="op"></td><td>2</td><td>1</td><td>0</td></tr>
+          </table>
+          <div class="anno">There were 210 secondary students</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wedo-nav">
+    <button class="wedo-nav-btn" id="wedo-prev" onclick="changeWedo(-1)" disabled>← Previous Scenario</button>
+    <div class="wedo-counter">Scenario <span id="wedo-current">1</span> of 2</div>
+    <button class="wedo-nav-btn" id="wedo-next" onclick="changeWedo(1)">Next Scenario →</button>
+  </div>
+  <div class="wedo-dots">
+    <div class="wedo-dot active"></div>
+    <div class="wedo-dot"></div>
+  </div>
+</div>
+
+<div id="practice" class="section">
+  <div class="section-title">Phase 4 · Independent Practice</div>
+  <div class="section-heading">Try these on your own</div>
+
+  <div class="tier-header tier-1">Tier 1: Up to 10,000</div>
+  <div class="practice-grid">
+    <div class="practice-card pc-blue">
+      <div class="pc-num">Question 1</div>
+      <div class="pc-type">Finding a Part</div>
+      <div class="pc-problem">There are 8,450 books in the library. 3,210 are fiction. How many are non-fiction?</div>
+      
+      <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p1', 'bm')">📊 Show Bar Model</button>
+      
+      <div id="p1-bm" class="pc-bm-section">
+        <div class="mini-bm">
+          <div class="mini-whole">8,450</div>
+          <div class="mini-parts">
+            <div class="mini-part mini-known" style="flex:3210;">3,210</div>
+            <div class="mini-part mini-unknown" style="flex:5240;">?</div>
+          </div>
+        </div>
+        <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p1', 'ans')">✅ Show Answer</button>
+      </div>
+
+      <div id="p1-ans" class="pc-ans-section">
+        <div class="op-badge op-sub">SUBTRACT (part is missing)</div>
+        <table class="pa">
+          <tr><td class="op"></td><td>8</td><td>,</td><td>4</td><td>5</td><td>0</td></tr>
+          <tr><td class="op">−</td><td>3</td><td>,</td><td>2</td><td>1</td><td>0</td></tr>
+          <tr class="ans"><td class="op"></td><td>5</td><td>,</td><td>2</td><td>4</td><td>0</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="practice-card pc-teal">
+      <div class="pc-num">Question 2</div>
+      <div class="pc-type">Finding the Whole</div>
+      <div class="pc-problem">A farmer has 1,450 sheep and 2,320 cows. How many animals does he have in total?</div>
+      
+      <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p2', 'bm')">📊 Show Bar Model</button>
+      
+      <div id="p2-bm" class="pc-bm-section">
+        <div class="mini-bm">
+          <div class="mini-whole">?</div>
+          <div class="mini-parts">
+            <div class="mini-part mini-known" style="flex:1450;">1,450</div>
+            <div class="mini-part mini-known" style="flex:2320;">2,320</div>
+          </div>
+        </div>
+        <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p2', 'ans')">✅ Show Answer</button>
+      </div>
+
+      <div id="p2-ans" class="pc-ans-section">
+        <div class="op-badge op-add">ADD (whole is missing)</div>
+        <table class="pa">
+          <tr><td class="op"></td><td>1</td><td>,</td><td>4</td><td>5</td><td>0</td></tr>
+          <tr><td class="op">+</td><td>2</td><td>,</td><td>3</td><td>2</td><td>0</td></tr>
+          <tr class="ans"><td class="op"></td><td>3</td><td>,</td><td>7</td><td>7</td><td>0</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier-header tier-2" style="margin-top:32px;">Tier 2: Up to 1,000,000</div>
+  <div class="practice-grid">
+    <div class="practice-card pc-amber">
+      <div class="pc-num">Question 3</div>
+      <div class="pc-type">Finding a Part</div>
+      <div class="pc-problem">A city has a population of 845,312. 123,587 people live in the north. How many live elsewhere?</div>
+
+      <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p3', 'bm')">📊 Show Bar Model</button>
+
+      <div id="p3-bm" class="pc-bm-section">
+        <div class="mini-bm">
+          <div class="mini-whole">845,312</div>
+          <div class="mini-parts">
+            <div class="mini-part mini-known" style="flex:123587;">123,587</div>
+            <div class="mini-part mini-unknown" style="flex:721725;">?</div>
+          </div>
+        </div>
+        <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p3', 'ans')">✅ Show Answer</button>
+      </div>
+
+      <div id="p3-ans" class="pc-ans-section">
+        <div class="op-badge op-sub">SUBTRACT (part is missing)</div>
+        <table class="pa">
+          <tr><td class="op"></td><td>8</td><td>4</td><td>5</td><td>,</td><td>3</td><td>1</td><td>2</td></tr>
+          <tr><td class="op">−</td><td>1</td><td>2</td><td>3</td><td>,</td><td>5</td><td>8</td><td>7</td></tr>
+          <tr class="ans"><td class="op"></td><td>7</td><td>2</td><td>1</td><td>,</td><td>7</td><td>2</td><td>5</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="practice-card pc-red">
+      <div class="pc-num">Question 4</div>
+      <div class="pc-type">Finding the Whole</div>
+      <div class="pc-problem">An airline flew 451,238 km in June and 327,549 km in July. What was the total distance?</div>
+
+      <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p4', 'bm')">📊 Show Bar Model</button>
+
+      <div id="p4-bm" class="pc-bm-section">
+        <div class="mini-bm">
+          <div class="mini-whole">?</div>
+          <div class="mini-parts">
+            <div class="mini-part mini-known" style="flex:451238;">451,238</div>
+            <div class="mini-part mini-known" style="flex:327549;">327,549</div>
+          </div>
+        </div>
+        <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p4', 'ans')">✅ Show Answer</button>
+      </div>
+
+      <div id="p4-ans" class="pc-ans-section">
+        <div class="op-badge op-add">ADD (whole is missing)</div>
+        <table class="pa">
+          <tr><td class="op"></td><td>4</td><td>5</td><td>1</td><td>,</td><td>2</td><td>3</td><td>8</td></tr>
+          <tr><td class="op">+</td><td>3</td><td>2</td><td>7</td><td>,</td><td>5</td><td>4</td><td>9</td></tr>
+          <tr class="ans"><td class="op"></td><td>7</td><td>7</td><td>8</td><td>,</td><td>7</td><td>8</td><td>7</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="wheel" class="section">
+  <div class="section-title">Phase 5 · Decimals</div>
+  <div class="section-heading">The Decimal Wheel</div>
+
+  <div class="card">
+    <p>Decimals work the same way as whole numbers. A "whole" can be the number <strong>1.00</strong>. We can use a Decimal Wheel to see how different parts make up one whole.</p>
+
+    <div class="wheel-container">
+      <div class="wheel-wrap">
+        <canvas id="mainWheel" class="wheel-canvas" width="300" height="300"></canvas>
+      </div>
+      <div class="wheel-legend">
+        <h4>The Parts:</h4>
+        <div id="legendItems"></div>
+        <div class="wheel-total">Total: <span id="wheelTotal">0.00 / 1.00</span></div>
+
+        <div class="wheel-controls">
+          <button class="wheel-btn active" onclick="setWheel('halves')">Halves (0.50)</button>
+          <button class="wheel-btn" onclick="setWheel('quarters')">Quarters (0.25)</button>
+          <button class="wheel-btn" onclick="setWheel('tenths')">Tenths (0.10)</button>
+          <button class="wheel-btn" onclick="setWheel('mixed')">Mixed Parts</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag teal">Challenge</div>
+    <h3>Missing Parts Challenge</h3>
+    <p>Look at the wheels below. Some pieces are missing. Can you calculate the decimal value of the missing piece?</p>
+
+    <div class="wq-card" style="margin-top:20px;">
+      <div class="wq-qnum">Challenge 1</div>
+      <div class="wq-qtext">The wheel has two parts: <strong>0.35</strong> and <strong>0.40</strong>. What is the value of the missing part?</div>
+      
+      <div class="wq-submit-row">
+        <div class="wq-total-display">Current: <span>0.75</span></div>
+        <button class="wq-submit-btn" onclick="toggleReasoning(this, 'wheel-sol-1')">Show Solution</button>
+      </div>
+
+      <div class="reasoning-body wq-solution" id="wheel-sol-1">
+        <div class="callout callout-teal">
+          <span class="label">Solution</span>
+          <p>1. Add the known parts: 0.35 + 0.40 = 0.75</p>
+          <p>2. Subtract from the whole (1.00): 1.00 - 0.75 = <strong>0.25</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (id === 'wheel') initWheel();
+    window.scrollTo(0,0);
+  }
+
+  function toggleReasoning(btn, id) {
+    const body = document.getElementById(id);
+    const isShown = body.classList.toggle('shown');
+    btn.classList.toggle('open', isShown);
+  }
+
+  function toggleWorked(btn, id) {
+    const body = document.getElementById(id);
+    const isShown = body.classList.toggle('shown');
+    btn.classList.toggle('open', isShown);
+  }
+
+  function toggleWedoWorked(btn, id) {
+    const body = document.getElementById(id);
+    const isShown = body.classList.toggle('shown');
+    btn.classList.toggle('open', isShown);
+  }
+
+  /* Modified Practice Toggle for 2-step process */
+  function togglePractice(btn, qId, type) {
+    const bmSection = document.getElementById(qId + '-bm');
+    const ansSection = document.getElementById(qId + '-ans');
+    const bmBtn = btn.closest('.practice-card').querySelector('.bm-btn');
+    const ansBtn = btn.closest('.practice-card').querySelector('.ans-btn');
+
+    if (type === 'bm') {
+      const isShown = bmSection.classList.toggle('shown');
+      bmBtn.classList.toggle('active', isShown);
+      bmBtn.textContent = isShown ? "Hide Bar Model" : "📊 Show Bar Model";
+      
+      // If we hide the bar model, we must hide the answer too
+      if (!isShown) {
+        ansSection.classList.remove('shown');
+        ansBtn.classList.remove('active');
+        ansBtn.textContent = "✅ Show Answer";
+      }
+    } else if (type === 'ans') {
+      const isShown = ansSection.classList.toggle('shown');
+      ansBtn.classList.toggle('active', isShown);
+      ansBtn.textContent = isShown ? "Hide Answer" : "✅ Show Answer";
+    }
+  }
+
+  // WE DO SLIDER LOGIC
+  let currentWedo = 1;
+  const totalWedo = 2;
+
+  function changeWedo(dir) {
+    currentWedo += dir;
+    if (currentWedo < 1) currentWedo = 1;
+    if (currentWedo > totalWedo) currentWedo = totalWedo;
+    updateWedo();
+  }
+
+  function updateWedo() {
+    document.querySelectorAll('.wedo-slide').forEach((s, i) => {
+      s.classList.toggle('active', (i + 1) === currentWedo);
+    });
+    document.getElementById('wedo-current').textContent = currentWedo;
+    document.getElementById('wedo-prev').disabled = (currentWedo === 1);
+    document.getElementById('wedo-next').disabled = (currentWedo === totalWedo);
+    document.querySelectorAll('.wedo-dot').forEach((d, i) => {
+      d.classList.toggle('active', (i + 1) === currentWedo);
+    });
+  }
+
+  // WHEEL LOGIC
+  const COLORS = ['#4ECDC4', '#FFD93D', '#FF6B6B', '#3498DB', '#AD1DEB', '#FF8400'];
+  let wheelState = 'halves';
+  const states = {
+    halves: { slices: [50, 50], total: 1.00 },
+    quarters: { slices: [25, 25, 25, 25], total: 1.00 },
+    tenths: { slices: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], total: 1.00 },
+    mixed: { slices: [40, 35, 25], total: 1.00 }
+  };
+
+  function initWheel() {
+    setWheel('halves');
+  }
+
+  function drawWheel(slices) {
+    const canvas = document.getElementById('mainWheel');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const cx = 150, cy = 150, r = 130;
+    ctx.clearRect(0,0,300,300);
+    
+    let start = -Math.PI/2;
+    slices.forEach((count, i) => {
+      const angle = (count/100)*2*Math.PI;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, start, start+angle);
+      ctx.closePath(); ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+      start += angle;
+    });
+
+    // Draw ticks
+    for (let i = 0; i < 100; i++) {
+      const a = -Math.PI/2 + (i/100)*2*Math.PI;
+      const big = i%10===0; const inner = big ? r*0.75 : r*0.88;
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=big?2.5:1;
+      ctx.beginPath();
+      ctx.moveTo(cx+inner*Math.cos(a), cy+inner*Math.sin(a));
+      ctx.lineTo(cx+r*Math.cos(a), cy+r*Math.sin(a));
+      ctx.stroke();
+    }
+    // Border
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI);
+    ctx.strokeStyle='#ccd'; ctx.lineWidth=3; ctx.stroke();
+  }
+
+  function setWheel(state) {
+    wheelState = state;
+    const s = states[state];
+    drawWheel(s.slices);
+    document.getElementById('wheelTotal').textContent = s.total.toFixed(2) + ' / 1.00';
+    
+    // Update legend
+    const leg = document.getElementById('legendItems');
+    leg.innerHTML = '';
+    s.slices.forEach((val, i) => {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `<div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div><span>Part ${i+1}: ${(val/100).toFixed(2)}</span>`;
+      leg.appendChild(item);
+    });
+
+    // Update buttons
+    document.querySelectorAll('.wheel-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.toLowerCase().includes(state));
+    });
+  }
+  // ── PRACTICE QUESTION GENERATOR (20 per tier) ──
+  (function(){
+    var el = document.getElementById('practice');
+    el.querySelectorAll('.tier-header,.practice-grid').forEach(function(e){e.remove()});
+    var fmt = function(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')};
+    var colors = ['pc-blue','pc-teal','pc-amber','pc-red'];
+    var gq = 0;
+
+    function bar(q){
+      if(q.t==='p'){
+        var u=q.w-q.k;
+        return '<div class="mini-bm"><div class="mini-whole">'+fmt(q.w)+'</div><div class="mini-parts">'+
+          '<div class="mini-part mini-known" style="flex:'+q.k+';">'+fmt(q.k)+'</div>'+
+          '<div class="mini-part mini-unknown" style="flex:'+u+';">?</div></div></div>';
+      }
+      return '<div class="mini-bm"><div class="mini-whole">?</div><div class="mini-parts">'+
+        '<div class="mini-part mini-known" style="flex:'+q.a+';">'+fmt(q.a)+'</div>'+
+        '<div class="mini-part mini-known" style="flex:'+q.b+';">'+fmt(q.b)+'</div></div></div>';
+    }
+
+    function tbl(n1,n2,op){
+      var ans=op==='+'?n1+n2:n1-n2, sym=op==='+'?'+':'\u2212';
+      var s=[fmt(n1),fmt(n2),fmt(ans)], mx=Math.max(s[0].length,s[1].length,s[2].length);
+      s=s.map(function(x){while(x.length<mx)x=' '+x;return x});
+      function row(str,o,a){
+        var c='';for(var i=0;i<str.length;i++)c+='<td>'+(str[i]===' '?'':str[i])+'</td>';
+        return '<tr'+(a?' class="ans"':'')+'><td class="op">'+o+'</td>'+c+'</tr>';
+      }
+      return '<table class="pa">'+row(s[0],'')+row(s[1],sym)+row(s[2],'',true)+'</table>';
+    }
+
+    var tiers=[
+      {label:'Tier 1: Up to 10,000', cls:'tier-1', qs:[
+        {t:'p',w:8450,k:3210,q:'There are 8,450 books in the library. 3,210 are fiction. How many are non-fiction?'},
+        {t:'p',w:6500,k:2340,q:'A school has 6,500 students. 2,340 are in the junior school. How many are in the senior school?'},
+        {t:'p',w:9200,k:4150,q:'A farmer harvested 9,200 apples. 4,150 were green. How many were red?'},
+        {t:'p',w:7800,k:3600,q:'7,800 tickets were sold for a concert. 3,600 were pre-sale. How many were sold at the door?'},
+        {t:'p',w:5430,k:2110,q:'There are 5,430 people at a sports game. 2,110 are children. How many are adults?'},
+        {t:'p',w:3800,k:1250,q:'A car park holds 3,800 cars. 1,250 spaces are taken. How many spaces are empty?'},
+        {t:'p',w:6820,k:2540,q:'A pet store has 6,820 fish. 2,540 are goldfish. How many are other types?'},
+        {t:'p',w:4960,k:2730,q:'There are 4,960 students at a university. 2,730 are full-time. How many are part-time?'},
+        {t:'p',w:7250,k:3480,q:'A garden has 7,250 flowers. 3,480 are roses. How many are other flowers?'},
+        {t:'p',w:4800,k:1950,q:'A playlist has 4,800 songs. 1,950 are pop songs. How many are other genres?'},
+        {t:'w',a:1450,b:2320,q:'A farmer has 1,450 sheep and 2,320 cows. How many animals does he have in total?'},
+        {t:'w',a:3200,b:1840,q:'A shop sold 3,200 red shirts and 1,840 blue shirts. How many shirts were sold altogether?'},
+        {t:'w',a:2650,b:1430,q:'A zoo had 2,650 adult visitors and 1,430 child visitors. How many visitors altogether?'},
+        {t:'w',a:4120,b:3250,q:'A warehouse has 4,120 boxes in one room and 3,250 in another. How many boxes in total?'},
+        {t:'w',a:1870,b:2130,q:'A school has 1,870 boys and 2,130 girls. How many students altogether?'},
+        {t:'w',a:2400,b:1600,q:'A market sold 2,400 apples and 1,600 oranges. How many pieces of fruit in total?'},
+        {t:'w',a:2750,b:1360,q:'An animal shelter has 2,750 cats and 1,360 dogs. How many animals altogether?'},
+        {t:'w',a:1620,b:3380,q:'A bakery made 1,620 muffins in the morning and 3,380 in the afternoon. How many muffins in total?'},
+        {t:'w',a:4100,b:2900,q:'4,100 local fans and 2,900 away fans attended a match. What was the total attendance?'},
+        {t:'w',a:3450,b:2550,q:'A library has 3,450 fiction books and 2,550 non-fiction books. How many books in total?'}
+      ]},
+      {label:'Tier 2: Up to 1,000,000', cls:'tier-2', qs:[
+        {t:'p',w:845312,k:123587,q:'A city has a population of 845,312. 123,587 people live in the north. How many live elsewhere?'},
+        {t:'p',w:653478,k:234165,q:'A factory produced 653,478 items. 234,165 were exported. How many were sold locally?'},
+        {t:'p',w:921543,k:415328,q:'A forest has 921,543 trees. 415,328 are pine trees. How many are other types?'},
+        {t:'p',w:784629,k:361457,q:'A streaming service has 784,629 subscribers. 361,457 have premium accounts. How many are free users?'},
+        {t:'p',w:547832,k:213619,q:'A company sent 547,832 emails. 213,619 were opened. How many were unopened?'},
+        {t:'p',w:816245,k:372918,q:'An airport handled 816,245 passengers. 372,918 were domestic. How many were international?'},
+        {t:'p',w:682174,k:254836,q:'A university enrolled 682,174 students. 254,836 are part-time. How many are full-time?'},
+        {t:'p',w:973256,k:431829,q:'A warehouse stores 973,256 items. 431,829 have been shipped. How many remain?'},
+        {t:'p',w:725491,k:342768,q:'There are 725,491 registered voters. 342,768 voted in the election. How many did not vote?'},
+        {t:'p',w:486253,k:197831,q:'A courier company has 486,253 packages. 197,831 have been delivered. How many are still pending?'},
+        {t:'w',a:451238,b:327549,q:'An airline flew 451,238 km in June and 327,549 km in July. What was the total distance?'},
+        {t:'w',a:324165,b:183728,q:'A factory made 324,165 widgets in Term 1 and 183,728 in Term 2. How many widgets were made in total?'},
+        {t:'w',a:267438,b:145329,q:'A theme park had 267,438 adult visitors and 145,329 child visitors. How many visitors in total?'},
+        {t:'w',a:415236,b:327148,q:'A publisher printed 415,236 books and 327,148 magazines. How many publications in total?'},
+        {t:'w',a:189347,b:215628,q:'A district has 189,347 boys and 215,628 girls enrolled in school. How many students altogether?'},
+        {t:'w',a:342816,b:265173,q:'A farm harvested 342,816 apples and 265,173 oranges. How many pieces of fruit in total?'},
+        {t:'w',a:275314,b:423658,q:'A city has 275,314 registered cats and 423,658 registered dogs. How many pets in total?'},
+        {t:'w',a:163847,b:335129,q:'A bus network carried 163,847 morning passengers and 335,129 afternoon passengers. How many in total?'},
+        {t:'w',a:413256,b:285731,q:'413,256 locals and 285,731 tourists visited a festival. What was the total attendance?'},
+        {t:'w',a:345172,b:253614,q:'A national library has 345,172 fiction and 253,614 non-fiction books. How many books in total?'}
+      ]}
+    ];
+
+    tiers.forEach(function(tier){
+      var h=document.createElement('div');
+      h.className='tier-header '+tier.cls;
+      if(tier.cls!=='tier-1') h.style.marginTop='32px';
+      h.textContent=tier.label;
+      el.appendChild(h);
+      var g=document.createElement('div');
+      g.className='practice-grid';
+      tier.qs.forEach(function(q,i){
+        gq++;
+        var id='p'+gq, col=colors[(gq-1)%4];
+        var typ=q.t==='p'?'Finding a Part':'Finding the Whole';
+        var badge,table;
+        if(q.t==='p'){
+          badge='<div class="op-badge op-sub">SUBTRACT (part is missing)</div>';
+          table=tbl(q.w,q.k,'-');
+        } else {
+          badge='<div class="op-badge op-add">ADD (whole is missing)</div>';
+          table=tbl(q.a,q.b,'+');
+        }
+        var c=document.createElement('div');
+        c.className='practice-card '+col;
+        c.innerHTML=
+          '<div class="pc-num">Question '+(i+1)+'</div>'+
+          '<div class="pc-type">'+typ+'</div>'+
+          '<div class="pc-problem">'+q.q+'</div>'+
+          '<button class="pc-toggle bm-btn" onclick="togglePractice(this,\''+id+'\',\'bm\')">\uD83D\uDCCA Show Bar Model</button>'+
+          '<div id="'+id+'-bm" class="pc-bm-section">'+bar(q)+
+            '<button class="pc-toggle ans-btn" onclick="togglePractice(this,\''+id+'\',\'ans\')">\u2705 Show Answer</button>'+
+          '</div>'+
+          '<div id="'+id+'-ans" class="pc-ans-section">'+badge+table+'</div>';
+        g.appendChild(c);
+      });
+      el.appendChild(g);
+    });
+
+    // Add Go Deeper Section
+    const goDeeper = document.createElement('div');
+    goDeeper.className = 'go-deeper-section';
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'go-deeper-toggle';
+    toggleBtn.onclick = function() {
+      this.classList.toggle('open');
+      content.classList.toggle('open');
+    };
+    toggleBtn.innerHTML = '<h3>Go Deeper: Challenge Tasks</h3><span class="toggle-arrow">▼</span>';
+
+    const content = document.createElement('div');
+    content.className = 'go-deeper-content';
+    content.innerHTML = `
+      <div class="go-deeper-card">
+        <p>Push your understanding of additive relationships by working through these mathematical thinking tasks. Explore patterns, make conjectures, and justify your reasoning.</p>
+
+        <div class="ext-task">
+          <div class="ext-task-label">Task 1: Specialising</div>
+          <div class="ext-task-prompt">The whole bar in a bar model is worth <span class="ext-numbers">1,000</span>. It is split into exactly <span class="ext-numbers">3</span> parts. Each part is a whole number of hundreds (so <span class="ext-numbers">100</span>, <span class="ext-numbers">200</span>, <span class="ext-numbers">300</span>, etc.). Find all the different ways you can split the bar into <span class="ext-numbers">3</span> parts.</div>
+          <div class="ext-task-sub">How do you know you have found them all? Is there a system?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="toggleModelResponse(this)">Reveal Model Response</button>
+          <div class="ext-model-response">
+            <div class="model-label">Model Response</div>
+            <p>I started just guessing: <span class="ext-numbers">100 + 100 + 800 = 1,000</span>. Then <span class="ext-numbers">100 + 200 + 700</span>. Then I realised I should be systematic. If the smallest part is <span class="ext-numbers">100</span>, the other two must add to <span class="ext-numbers">900</span>: <span class="ext-numbers">(100, 100, 800)</span>, <span class="ext-numbers">(100, 200, 700)</span>, <span class="ext-numbers">(100, 300, 600)</span>, <span class="ext-numbers">(100, 400, 500)</span>. If the smallest is <span class="ext-numbers">200</span>: <span class="ext-numbers">(200, 200, 600)</span>, <span class="ext-numbers">(200, 300, 500)</span>, <span class="ext-numbers">(200, 400, 400)</span>. If the smallest is <span class="ext-numbers">300</span>: <span class="ext-numbers">(300, 300, 400)</span>. That is <span class="ext-numbers">8</span> ways. I initially thought there would be loads more, but being systematic showed there are exactly <span class="ext-numbers">8</span>. (Note: we treat different orderings as the same split, since the bar model does not care about order.)</p>
+          </div>
+        </div>
+
+        <div class="ext-task">
+          <div class="ext-task-label">Task 2: Conjecturing</div>
+          <div class="ext-task-prompt">If you know the whole and one part of a bar model, you can always work out the missing part. Is this always, sometimes, or never true?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="toggleModelResponse(this)">Reveal Model Response</button>
+          <div class="ext-model-response">
+            <div class="model-label">Model Response</div>
+            <p><strong>Answer: Always.</strong> If whole = part1 + part2, then part2 = whole - part1. This always works because subtraction is the inverse of addition. There is exactly one answer. I wondered if there might be a case where you cannot work it out. What if the part is bigger than the whole? Like whole = <span class="ext-numbers">500</span> and part = <span class="ext-numbers">700</span>? But that cannot happen in a real bar model; the part can never be bigger than the whole. So: always.</p>
+          </div>
+        </div>
+
+        <div class="ext-task">
+          <div class="ext-task-label">Task 3: Justifying</div>
+          <div class="ext-task-prompt">A student says: "Bar models only work for addition. You cannot use them for subtraction." Explain why this student is wrong. Use an example with the numbers <span class="ext-numbers">8,450</span> and <span class="ext-numbers">3,200</span> to show how the <strong>same bar model</strong> can represent both an addition AND a subtraction.</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="toggleModelResponse(this)">Reveal Model Response</button>
+          <div class="ext-model-response">
+            <div class="model-label">Model Response</div>
+            <p>The student is wrong because addition and subtraction are two ways of looking at the same relationship. If I draw a bar model where the whole is <span class="ext-numbers">8,450</span> and the parts are <span class="ext-numbers">3,200</span> and <span class="ext-numbers">5,250</span>, this one model shows:</p>
+            <p style="margin-left: 1rem;">• <span class="ext-numbers">3,200 + 5,250 = 8,450</span> (addition, finding the whole)</p>
+            <p style="margin-left: 1rem;">• <span class="ext-numbers">8,450 - 3,200 = 5,250</span> (subtraction, finding a missing part)</p>
+            <p style="margin-left: 1rem;">• <span class="ext-numbers">8,450 - 5,250 = 3,200</span> (subtraction, finding the other missing part)</p>
+            <p>I initially thought maybe subtraction needed a different diagram. But the bar model does not show an operation. It shows a <strong>relationship</strong> between a whole and its parts. The operation depends on which piece is missing.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    goDeeper.appendChild(toggleBtn);
+    goDeeper.appendChild(content);
+    el.appendChild(goDeeper);
+  })();
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+
+  function toggleModelResponse(btn) {
+    const response = btn.nextElementSibling;
+    response.classList.toggle('visible');
+    btn.textContent = response.classList.contains('visible') ? 'Hide Model Response' : 'Reveal Model Response';
+  }
+</script>
+
+</body>
+</html>

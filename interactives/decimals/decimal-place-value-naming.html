@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<!-- saved from url=(0100)file:///C:/Users/pell/OneDrive%20-%20Roseville%20College/Downloads/decimal-place-value-naming_2.html -->
+<html lang="en-GB" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Place Value Naming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+            --level4-color: #F7B731;
+            --level5-color: #26de81;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+
+        .bg-shape { position: absolute; border-radius: 50%; opacity: 0.1; }
+        .bg-shape-1 { width: 250px; height: 250px; background: var(--primary-accent); top: -80px; right: -50px; }
+        .bg-shape-2 { width: 180px; height: 180px; background: var(--level2-color); bottom: 10%; left: -50px; }
+        .bg-shape-3 { width: 120px; height: 120px; background: var(--level3-color); top: 50%; right: 5%; }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 960px; margin: 0 auto; padding: 1.5rem;
+        }
+
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── LANDING PAGE ─────────────────────────────── */
+        .landing-header { text-align: center; margin-bottom: 2rem; }
+        .landing-header h1 { font-size: 2.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.3rem; letter-spacing: -0.5px; }
+        .landing-header h1 span { color: var(--primary-accent); }
+        .landing-header .subtitle { font-size: 1.1rem; color: var(--text-light); font-weight: 500; }
+
+
+        /* ─── LEVEL SELECTION ──────────────────────────── */
+        .level-section-title { font-size: 1.15rem; margin-bottom: 1rem; color: var(--text-dark); }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 5px;
+        }
+
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+        .level-btn.level-4::before { background: var(--level4-color); }
+        .level-btn.level-5::before { background: var(--level5-color); }
+
+        .level-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .level-btn h3 { font-size: 1.05rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .level-btn p { font-size: 0.85rem; color: var(--text-light); line-height: 1.3; }
+
+        .level-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        /* ─── QUESTION PAGE ────────────────────────────── */
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover { transform: translateY(-2px); border-color: var(--text-dark); }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover { background: #3db8b0; border-color: #3db8b0; transform: translateY(-2px); }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* ─── PROGRESS TRACKER ─────────────────────────── */
+        .progress-tracker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .progress-dot.current { background: #2196F3; box-shadow: 0 0 0 3px rgba(33,150,243,0.3); }
+        .progress-dot.correct { background: var(--correct-color); }
+        .progress-dot.incorrect { background: var(--incorrect-color); }
+        .progress-dot.partial { background: #F7B731; }
+
+        /* ─── QUESTION CARD ────────────────────────────── */
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+        .question-card.level-4 { border-top-color: var(--level4-color); }
+        .question-card.level-5 { border-top-color: var(--level5-color); }
+
+        .question-type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .question-type-badge.type-written { background: #F3E5F5; color: #6A1B9A; }
+        .question-type-badge.type-convert { background: #E8F5E9; color: #2E7D32; }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .decimal-display {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: center;
+            padding: 1rem;
+            background: #F8F9FA;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── MULTIPLE CHOICE ──────────────────────────── */
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .choice-btn {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            color: var(--text-dark);
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .choice-btn .choice-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #F0F0F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .choice-btn:hover:not(:disabled) { border-color: var(--primary-accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .choice-btn:hover:not(:disabled) .choice-letter { background: var(--primary-accent); color: white; }
+
+        .choice-btn.selected { border-color: var(--primary-accent); background: #E0F7F6; }
+        .choice-btn.selected .choice-letter { background: var(--primary-accent); color: white; }
+
+        .choice-btn.correct-choice { border-color: var(--correct-color); background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+        .choice-btn.correct-choice .choice-letter { background: var(--correct-color); color: white; }
+
+        .choice-btn.wrong-choice { border-color: var(--incorrect-color); background: linear-gradient(135deg, #FFEBEE, #FFCDD2); }
+        .choice-btn.wrong-choice .choice-letter { background: var(--incorrect-color); color: white; }
+
+        .choice-btn:disabled { cursor: default; }
+
+        /* ─── TYPE ANSWER ──────────────────────────────── */
+        .answer-section {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .answer-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1); }
+
+        .answer-input.correct { border-color: var(--correct-color); background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+        .answer-input.incorrect { border-color: var(--incorrect-color); background: linear-gradient(135deg, #FFEBEE, #FFCDD2); }
+
+        .answer-hint {
+            font-size: 0.85rem;
+            color: #6A1B9A;
+            background: #F3E5F5;
+            border-left: 3px solid #9B5DE5;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* ─── REMINDER BOX ─────────────────────────────── */
+        .reminder-box {
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.25rem;
+            border-left: 4px solid #F7B731;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reminder-box::before { content: "💡"; font-size: 1.1rem; }
+
+        /* ─── FEEDBACK ─────────────────────────────────── */
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+
+        .feedback-box.correct { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-left-color: var(--correct-color); }
+        .feedback-box.incorrect { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border-left-color: var(--incorrect-color); }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before { content: "✓"; color: var(--correct-color); font-size: 1.2rem; }
+        .feedback-box.incorrect h4::before { content: "✗"; color: var(--incorrect-color); font-size: 1.2rem; }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* ─── BUTTONS ──────────────────────────────────── */
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--primary-accent); color: white; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(78,205,196,0.3); }
+
+        .btn-secondary { background: white; color: var(--text-dark); border: 2px solid var(--text-light); }
+        .btn-secondary:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--text-dark); }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ─── COMPLETION ───────────────────────────────── */
+        .completion-page { text-align: center; padding: 2rem 0; }
+        .completion-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .completion-page h2 { font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem; }
+        .completion-page p { font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem; }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number { font-size: 3rem; font-weight: 700; color: var(--primary-accent); font-family: 'Space Mono', monospace; }
+        .score-label { font-size: 0.9rem; color: var(--text-light); margin-top: 0.3rem; }
+
+
+        /* ─── REVISION ROUND ───────────────────────────── */
+        .revision-banner {
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #F7B731;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+        .learning-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .learning-card h2 .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        .learning-content {
+            display: none;
+            margin-top: 1rem;
+        }
+        .learning-content.open {
+            display: block;
+        }
+        .learning-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .learning-content p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+        .success-criteria {
+            list-style: none;
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+        .success-criteria li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        .success-criteria li::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+        }
+
+        /* === Go Deeper Extension Styles === */
+        .go-deeper-level-btn { grid-column: 1 / -1; background: white; border: 2px dashed #4ECDC4; border-radius: 16px; padding: 1.2rem; text-align: center; cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s ease; }
+        .go-deeper-level-btn.locked { opacity: 0.55; cursor: not-allowed; border-color: #ccc; }
+        .go-deeper-level-btn:not(.locked):hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(78,205,196,0.25); border-color: #4ECDC4; }
+        .go-deeper-level-btn h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.3rem 0; color: #2D3436; }
+        .go-deeper-level-btn p { font-size: 0.9rem; color: #636E72; margin: 0; }
+        .go-deeper-card { background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-top: 5px solid #4ECDC4; padding: 2rem; max-width: 700px; margin: 2rem auto; }
+        .go-deeper-card h2 { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+        .go-deeper-card > p { color: #636E72; margin-bottom: 1.5rem; }
+        .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #4ECDC4; margin-bottom: 0.75rem; }
+        .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; line-height: 1.6; color: #2D3436; margin-bottom: 0.75rem; }
+        .ext-task-sub { font-family: 'Fredoka', sans-serif; font-style: italic; color: #636E72; margin-bottom: 1rem; font-size: 0.95rem; }
+        .ext-thinking-area { width: 100%; min-height: 90px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 0.8rem; font-family: 'Fredoka', sans-serif; font-size: 0.95rem; resize: vertical; transition: border-color 0.3s ease; box-sizing: border-box; }
+        .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+        .ext-reveal-btn { display: inline-block; margin-top: 0.75rem; padding: 0.5rem 1.2rem; border: 2px solid #4ECDC4; border-radius: 10px; background: white; color: #4ECDC4; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
+        .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+        .ext-model-response { display: none; background: white; border-radius: 10px; padding: 1.2rem; margin-top: 0.75rem; border: 1px solid #e0e0e0; }
+        .ext-model-response.visible { display: block; }
+        .ext-model-response .model-label { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 0.85rem; color: #4ECDC4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .ext-model-response p { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.6; color: #2D3436; margin: 0.5rem 0; }
+        .mathematician-box { margin-top: 1rem; padding: 1rem; border: 2px dashed #4ECDC4; border-radius: 10px; background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%); font-family: 'Fredoka', sans-serif; font-size: 0.9rem; line-height: 1.5; color: #2D3436; }
+        .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+        .go-deeper-back-btn { display: inline-block; margin-bottom: 1.5rem; padding: 0.5rem 1rem; border: none; border-radius: 10px; background: #f0f0f0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; color: #2D3436; }
+        .go-deeper-back-btn:hover { background: #e0e0e0; }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .choices-grid { grid-template-columns: 1fr; }
+            .landing-header h1 { font-size: 1.8rem; }
+            .decimal-display { font-size: 1.8rem; }
+            .pv-chart { min-width: 520px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="bg-shapes">
+        <div class="bg-shape bg-shape-1"></div>
+        <div class="bg-shape bg-shape-2"></div>
+        <div class="bg-shape bg-shape-3"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!--  LANDING PAGE                               -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div id="landing-page" class="page active">
+            <div class="landing-header">
+                <h1>Decimal <span>Place Value</span> Naming</h1>
+                <p class="subtitle">Name the value of each decimal, from tenths to hundred-thousandths!</p>
+            </div>
+
+            <div class="learning-card">
+                <h2 onclick="toggleLearningSection()">
+                    Learning Intention &amp; Success Criteria
+                    <span class="toggle-icon" id="learningToggle">▼</span>
+                </h2>
+                <div class="learning-content" id="learningContent">
+                    <h3>Learning Intention</h3>
+                    <p>We are learning to practise naming decimals accurately using the Last Name Rule.</p>
+                    <h3>Success Criteria</h3>
+                    <ul class="success-criteria">
+                        <li>I can read a decimal and identify its correct name based on the final digit's place value</li>
+                        <li>I can match a decimal to its word form</li>
+                        <li>I can distinguish between similar-sounding names (e.g. four tenths vs four hundredths)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="learning-card">
+                <h2>Worked Example</h2>
+                <p>Let's name a decimal step by step using the <strong>Last Name Rule</strong>.</p>
+
+                <div class="key-concept">
+                    <h3>What is the value of <strong>0.25</strong>?</h3>
+
+                    <div class="example-box">
+                        <div style="display:flex;flex-direction:column;gap:1.1rem;margin-top:0.5rem;">
+                            <div><strong>Step 1:</strong> Read the digits after the decimal point: <strong>25</strong></div>
+                            <div><strong>Step 2:</strong> Find the last digit's column. The <strong>5</strong> is in the <strong>hundredths</strong> column.</div>
+                            <div><strong>Step 3:</strong> Use the last digit's column as the "surname" for the whole number: twenty-five <strong>hundredths</strong>.</div>
+                            <div style="padding:0.6rem;background:#E8F5E9;border-radius:8px;"><strong>Answer:</strong> <strong>0.25</strong> = twenty-five hundredths</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:1rem;padding:1rem;background:#FFF3E0;border-radius:12px;border-left:4px solid #FF8400;">
+                    <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Your Turn</h3>
+                    <p style="font-size:0.95rem;">What is the value of <strong>0.045</strong>? What column is the last digit in?</p>
+                    <p style="font-size:0.9rem;color:#636E72;">Think about it, then pick a level below to practise!</p>
+                </div>
+            </div>
+
+            <div class="learning-card">
+                <h2 onclick="toggleVocab()">
+                    Key Vocabulary
+                    <span class="toggle-icon" id="vocabToggle">▼</span>
+                </h2>
+                <div class="learning-content" id="vocabContent">
+                    <p><strong>Tenths</strong> are the first column after the decimal point. In 0.3, the 3 is in the tenths column.</p>
+                    <p><strong>Hundredths</strong> are the second column after the decimal point. In 0.25, the 5 is in the hundredths column.</p>
+                    <p><strong>Thousandths</strong> are the third column after the decimal point. In 0.125, the 5 is in the thousandths column.</p>
+                </div>
+            </div>
+
+            <p class="level-section-title">Choose your level:</p>
+            <div class="level-grid">
+                <button class="level-btn level-1" onclick="startLevel(0)">
+                    <h3>🟢 Level 1, Tenths</h3>
+                    <p>Numbers like 0.4, 0.7, 0.1</p>
+                    <div class="level-meta"><span>15 questions</span><span>Multiple choice + typed</span></div>
+                </button>
+                <button class="level-btn level-2" onclick="startLevel(1)">
+                    <h3>🔴 Level 2, Hundredths</h3>
+                    <p>Numbers like 0.25, 0.04, 0.89</p>
+                    <div class="level-meta"><span>15 questions</span><span>Multiple choice + typed</span></div>
+                </button>
+                <button class="level-btn level-3" onclick="startLevel(2)">
+                    <h3>🟣 Level 3, Thousandths</h3>
+                    <p>Numbers like 0.125, 4.008, 15.045</p>
+                    <div class="level-meta"><span>15 questions</span><span>Multiple choice + typed</span></div>
+                </button>
+                <button class="level-btn level-4" onclick="startLevel(3)">
+                    <h3>🟡 Level 4, Ten-Thousandths</h3>
+                    <p>Numbers like 0.0123, 2.0005, 12.0042</p>
+                    <div class="level-meta"><span>15 questions</span><span>Multiple choice + typed</span></div>
+                </button>
+                <button class="level-btn level-5" onclick="startLevel(4)">
+                    <h3>🟢 Level 5, Hundred-Thousandths</h3>
+                    <p>Numbers like 0.00025, 1.12345</p>
+                    <div class="level-meta"><span>15 questions</span><span>Multiple choice + typed</span></div>
+                </button>
+                <button class="go-deeper-level-btn locked" id="go-deeper-btn" onclick="openGoDeeper()" disabled>
+                    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Decimal Place Value Investigations</h3>
+                    <p>Complete Level 5 to unlock</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!--  QUESTION PAGE                              -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div id="question-page" class="page">
+            <div class="question-header">
+                <button class="back-btn" onclick="showPage(&#39;landing-page&#39;)">← Back to Levels</button>
+                <a href="index.html" class="home-btn">🏠 Home</a>
+            </div>
+
+            <div id="revision-banner" class="revision-banner" style="display:none">
+                🔄 <strong>Revision Round!</strong> Let's go back over the ones you missed.
+            </div>
+
+            <div class="progress-tracker" id="progress-tracker"></div>
+
+            <div id="question-card" class="question-card">
+                <div class="reminder-box" id="reminder-box"></div>
+
+                <div class="question-progress" id="question-counter"></div>
+                <div id="question-type-badge" class="question-type-badge"></div>
+                <div class="decimal-display" id="decimal-display"></div>
+                <div class="question-text" id="question-text"></div>
+
+                <!-- Multiple choice -->
+                <div id="choices-grid" class="choices-grid"></div>
+
+                <!-- Typed answer -->
+                <div id="answer-section" class="answer-section" style="display:none">
+                    <div class="answer-label" id="answer-label">Your answer:</div>
+                    <input type="text" class="answer-input" id="answer-input" placeholder="Type your answer here…" autocomplete="off">
+                    <div class="answer-hint" id="answer-hint"></div>
+                </div>
+
+                <div class="feedback-box" id="feedback-box">
+                    <h4 id="feedback-heading">Result</h4>
+                    <p id="feedback-text"></p>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                    <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled="">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!--  COMPLETION PAGE                            -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div id="completion-page" class="page">
+            <div class="completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Well done!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">, </div>
+                    <div class="score-label" id="score-label">Correct Answers</div>
+                </div>
+                <button class="btn btn-primary" id="go-deeper-completion-btn" onclick="openGoDeeper()" style="display:none;margin-bottom:1rem;">Go Deeper: Decimal Place Value Investigations &#x1F513;</button>
+                <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                    <button class="back-btn" onclick="showPage(&#39;landing-page&#39;)" style="margin-bottom:0">Try Another Level</button>
+                    <a href="index.html" class="home-btn">🏠 Home</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!--  GO DEEPER EXTENSION PAGE                   -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div id="go-deeper-page" class="page">
+            <button class="go-deeper-back-btn" onclick="showPage(&#39;landing-page&#39;)">← Back to Levels</button>
+
+            <div class="go-deeper-card">
+                <h2>Decimal Place Value Investigations</h2>
+                <p>You've mastered the names of decimal place value columns. Now let's investigate the patterns and connections that make decimals work.</p>
+
+                <!-- Task 1: Specialising -->
+                <div class="ext-task">
+                    <div class="ext-task-label">Task 1: Specialising</div>
+                    <div class="ext-task-prompt">In whole numbers, each column is <span class="ext-numbers">10</span> times bigger than the one to its right. Ones, tens, hundreds, thousands... Now look at decimal columns going the other way from the decimal point: tenths, hundredths, thousandths. Write down what each column is worth as a fraction AND as a decimal. What pattern connects the whole number columns to the decimal columns?</div>
+                    <div class="ext-task-sub">Can you describe the pattern in your own words? What happens each time you move one column to the right of the decimal point?</div>
+                    <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                    <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                    <div class="ext-model-response">
+                        <div class="model-label">A mathematician's response</div>
+                        <p>Each column to the right is <span class="ext-numbers">10</span> times SMALLER (or you divide by <span class="ext-numbers">10</span>). Let me show this:</p>
+                        <p>Ones = <span class="ext-numbers">1</span></p>
+                        <p>Tenths = <span class="ext-numbers">0.1</span> (which is <span class="ext-numbers">1/10</span>)</p>
+                        <p>Hundredths = <span class="ext-numbers">0.01</span> (which is <span class="ext-numbers">1/100</span>)</p>
+                        <p>Thousandths = <span class="ext-numbers">0.001</span> (which is <span class="ext-numbers">1/1000</span>)</p>
+                        <p>Ten-thousandths = <span class="ext-numbers">0.0001</span> (which is <span class="ext-numbers">1/10000</span>)</p>
+                        <p>Hundred-thousandths = <span class="ext-numbers">0.00001</span> (which is <span class="ext-numbers">1/100000</span>)</p>
+                        <p>The pattern is: moving right always divides by <span class="ext-numbers">10</span>, whether you are in the whole number side or the decimal side. The decimal point is not a wall; it is just a marker for the ones column. At first I thought the pattern might be different for decimals because they are smaller numbers, but the division pattern is exactly the same!</p>
+                    </div>
+                    <div class="mathematician-box">
+                        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+                    </div>
+                </div>
+
+                <!-- Task 2: Conjecturing -->
+                <div class="ext-task">
+                    <div class="ext-task-label">Task 2: Always, Sometimes, or Never?</div>
+                    <div class="ext-task-prompt">"A decimal with more digits after the decimal point is always a smaller number."</div>
+                    <div class="ext-task-sub">Is this always true, sometimes true, or never true? Test with examples and explain your thinking.</div>
+                    <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                    <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                    <div class="ext-model-response">
+                        <div class="model-label">A mathematician's response</div>
+                        <p>This is SOMETIMES true. Let me test some examples:</p>
+                        <p><span class="ext-numbers">0.5</span> (one digit) compared to <span class="ext-numbers">0.25</span> (two digits): <span class="ext-numbers">0.5 > 0.25</span>, so more digits IS smaller here.</p>
+                        <p>But <span class="ext-numbers">0.5</span> (one digit) compared to <span class="ext-numbers">0.75</span> (two digits): <span class="ext-numbers">0.75 > 0.5</span>, so more digits is BIGGER in this case!</p>
+                        <p>And <span class="ext-numbers">0.9</span> (one digit) compared to <span class="ext-numbers">0.123</span> (three digits): <span class="ext-numbers">0.9 > 0.123</span>, so one digit is bigger.</p>
+                        <p>At first I was tempted to say "always" after the first example, but that was too quick! The number of decimal digits tells you nothing about the size. The actual VALUES in those columns matter much more.</p>
+                    </div>
+                    <div class="mathematician-box">
+                        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, and then testing it carefully. Finding one counterexample is enough to prove an "always" statement false.
+                    </div>
+                </div>
+
+                <!-- Task 3: Justifying -->
+                <div class="ext-task">
+                    <div class="ext-task-label">Task 3: Justifying</div>
+                    <div class="ext-task-prompt">A student says: "Hundredths are bigger than tenths because a hundred is bigger than ten." Explain carefully why this student's thinking is wrong. Use examples to prove it.</div>
+                    <div class="ext-task-sub">Think about what the "-ths" ending means. What happens when you split something into more pieces?</div>
+                    <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                    <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                    <div class="ext-model-response">
+                        <div class="model-label">A mathematician's response</div>
+                        <p>The student is confusing the NAME of the column with its VALUE. You are right that a hundred is bigger than ten, so that part of their thinking is correct. But hundredths (<span class="ext-numbers">1/100 = 0.01</span>) are SMALLER than tenths (<span class="ext-numbers">1/10 = 0.1</span>).</p>
+                        <p>The "-ths" ending flips it around! When you add "-ths" to a number, it means you have split <span class="ext-numbers">1</span> into that many pieces. So:</p>
+                        <p>Tenths = split <span class="ext-numbers">1</span> into <span class="ext-numbers">10</span> pieces = each piece is <span class="ext-numbers">0.1</span></p>
+                        <p>Hundredths = split <span class="ext-numbers">1</span> into <span class="ext-numbers">100</span> pieces = each piece is <span class="ext-numbers">0.01</span></p>
+                        <p>It is like sharing a pizza: if you share it among <span class="ext-numbers">100</span> people, you give each person much less than if you share among just <span class="ext-numbers">10</span> people!</p>
+                    </div>
+                    <div class="mathematician-box">
+                        <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just saying the student is wrong. You are explaining <em>why</em> their reasoning does not work, using clear examples and logic.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div><!-- /container -->
+</div><!-- /wrapper -->
+
+<script>
+
+// ─────────────────────────────────────────────
+//  QUESTION DATA
+// ─────────────────────────────────────────────
+const levels = [
+    // Level 1: Tenths (15 Qs)
+    {
+        name: 'Level 1, Tenths',
+        questions: [
+            { type:'mc', number:'0.4', text:'What is the value of 0.4?', choices:['four hundredths','four tenths','forty'], answer:1 },
+            { type:'mc', number:'0.1', text:'What is the value of 0.1?', choices:['one tenth','ten','one hundredth'], answer:0 },
+            { type:'mc', number:'0.8', text:'What is the value of 0.8?', choices:['eight units','eight tenths','eighty'], answer:1 },
+            { type:'mc', number:'0.5', text:'What is the value of 0.5?', choices:['five tenths','fifty','five thousandths'], answer:0 },
+            { type:'mc', number:'0.2', text:'What is the value of 0.2?', choices:['twenty','two hundredths','two tenths'], answer:2 },
+            { type:'mc', number:'0.9', text:'What is the value of 0.9?', choices:['nine tenths','ninety','nine thousandths'], answer:0 },
+            { type:'mc', number:'0.3', text:'What is the value of 0.3?', choices:['thirty','three tenths','three hundredths'], answer:1 },
+            { type:'mc', number:'0.6', text:'What is the value of 0.6?', choices:['six tenths','sixty','six hundredths'], answer:0 },
+            { type:'mc', number:'0.7', text:'What is the value of 0.7?', choices:['seventy','seven tenths','seven'], answer:1 },
+            { type:'mc', number:'0.4', text:'What is the value of 0.4?', choices:['four tenths','four','forty'], answer:0 },
+            { type:'mc', number:'0.1', text:'What is the value of 0.1?', choices:['one','one tenth','ten'], answer:1 },
+            { type:'mc', number:'0.5', text:'What is the value of 0.5?', choices:['fifty','five tenths','five hundredths'], answer:1 },
+            { type:'typed', number:'0.8', text:'Write the value of 0.8 in words:', answer:'eight tenths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'0.2', text:'Write the value of 0.2 in words:', answer:'two tenths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'0.6', text:'Write the value of 0.6 in words:', answer:'six tenths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'comparison', text:'Which is larger: 0.3 or 0.03? Explain why.', choices:['0.3 is larger because the 3 is in the tenths place, not hundredths','0.03 is larger because 3 is a bigger digit','They are the same size'], answer:0 },
+            { type:'true-false', text:'True or false: 0.50 is the same as 0.5', choices:['True, they both equal five tenths','False, 0.50 is larger'], answer:0 },
+            { type:'reverse', text:'I am a decimal. My tenths digit is 4. What number am I? (0._)', choices:['0.4','0.04','4.0'], answer:0 }
+        ]
+    },
+    // Level 2: Hundredths (15 Qs)
+    {
+        name: 'Level 2, Hundredths',
+        questions: [
+            { type:'mc', number:'0.25', text:'What is the value of 0.25?', choices:['25 tenths','25 hundredths','25 units'], answer:1 },
+            { type:'mc', number:'0.04', text:'What is the value of 0.04?', choices:['4 tenths','4 units','4 hundredths'], answer:2 },
+            { type:'mc', number:'0.89', text:'What is the value of 0.89?', choices:['89 hundredths','89 tenths','89 thousandths'], answer:0 },
+            { type:'mc', number:'0.11', text:'What is the value of 0.11?', choices:['11 tenths','11 hundredths','11'], answer:1 },
+            { type:'mc', number:'0.50', text:'What is the value of 0.50?', choices:['50 tenths','50 units','50 hundredths'], answer:2 },
+            { type:'mc', number:'0.07', text:'What is the value of 0.07?', choices:['7 hundredths','7 tenths','70'], answer:0 },
+            { type:'mc', number:'0.15', text:'What is the value of 0.15?', choices:['15 thousandths','15 hundredths','15 units'], answer:1 },
+            { type:'mc', number:'0.33', text:'What is the value of 0.33?', choices:['33 tenths','33 hundredths','33'], answer:1 },
+            { type:'mc', number:'0.01', text:'What is the value of 0.01?', choices:['1 tenth','1 unit','1 hundredth'], answer:2 },
+            { type:'mc', number:'0.72', text:'What is the value of 0.72?', choices:['72 hundredths','72 thousandths','72 tenths'], answer:0 },
+            { type:'typed', number:'0.45', text:'Write the value of 0.45 in words:', answer:'forty-five hundredths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'0.09', text:'Write the value of 0.09 in words:', answer:'nine hundredths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'0.18', text:'Write the value of 0.18 in words:', answer:'eighteen hundredths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'twelve hundredths', text:'Give the decimal number for twelve hundredths:', answer:'0.12', hint:'Write as a decimal e.g. 0.25', answerLabel:'Write as a decimal:' },
+            { type:'typed', number:'six hundredths', text:'Give the decimal number for six hundredths:', answer:'0.06', hint:'Write as a decimal e.g. 0.07', answerLabel:'Write as a decimal:' },
+            { type:'comparison', text:'Which is larger: 0.09 or 0.9?', choices:['0.9 is larger, the 9 is in the tenths place, not hundredths','0.09 is larger because 09 is bigger','They are the same'], answer:0 },
+            { type:'reverse', text:'I am a decimal. My tenths digit is 2 and my hundredths digit is 5. What number am I?', choices:['0.25','0.52','2.5'], answer:0 },
+            { type:'context', text:'A pencil is 0.18 metres long. What is the value of the 1 in this measurement?', choices:['one tenth of a metre','one hundredth of a metre','one metre'], answer:0 }
+        ]
+    },
+    // Level 3: Thousandths (15 Qs)
+    {
+        name: 'Level 3, Thousandths',
+        questions: [
+            { type:'mc', number:'0.125', text:'What is the value of 0.125?', choices:['125 hundredths','125 thousandths','125 tenths'], answer:1 },
+            { type:'mc', number:'4.008', text:'What is the value of 4.008?', choices:['4 and 8 thousandths','4 and 8 hundredths','4008 thousandths'], answer:0 },
+            { type:'mc', number:'0.012', text:'What is the value of 0.012?', choices:['12 hundredths','12 tenths','12 thousandths'], answer:2 },
+            { type:'mc', number:'15.045', text:'What is the value of 15.045?', choices:['15 and 45 thousandths','15 and 45 hundredths'], answer:0 },
+            { type:'mc', number:'0.999', text:'What is the value of 0.999?', choices:['999 thousandths','999 hundredths','999 ten-thousandths'], answer:0 },
+            { type:'mc', number:'2.102', text:'What is the value of 2.102?', choices:['2 and 102 thousandths','2 and 102 hundredths'], answer:0 },
+            { type:'mc', number:'0.001', text:'What is the value of 0.001?', choices:['1 hundredth','1 thousandth','1 tenth'], answer:1 },
+            { type:'mc', number:'7.070', text:'What is the value of 7.070?', choices:['7 and 70 thousandths','7 and 70 hundredths'], answer:0 },
+            { type:'typed', number:'0.342', text:'Write the value of 0.342 in words:', answer:'three hundred forty-two thousandths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'1.005', text:'Write the value of 1.005 in words:', answer:'one and five thousandths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'0.019', text:'Write the value of 0.019 in words:', answer:'nineteen thousandths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'10.225', text:'Write the value of 10.225 in words:', answer:'ten and two hundred twenty-five thousandths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'six hundred twenty-one thousandths', text:'Give the decimal for six hundred twenty-one thousandths:', answer:'0.621', hint:'Write as a decimal e.g. 0.125', answerLabel:'Write as a decimal:' },
+            { type:'typed', number:'four and nine thousandths', text:'Give the decimal for four and nine thousandths:', answer:'4.009', hint:'Write as a decimal e.g. 4.008', answerLabel:'Write as a decimal:' },
+            { type:'typed', number:'eighty thousandths', text:'Give the decimal for eighty thousandths:', answer:'0.080', hint:'Write as a decimal e.g. 0.070', answerLabel:'Write as a decimal:' },
+            { type:'reverse', text:'I am a decimal. My ones digit is 3, my tenths digit is 7, and my thousandths digit is 2. What number am I?', choices:['3.702','3.072','37.2'], answer:0 },
+            { type:'context', text:'A raindrop weighs 0.052 grams. What is the value of the 5 in this measurement?', choices:['five tenths of a gram','five hundredths of a gram','five thousandths of a gram'], answer:1 },
+            { type:'comparison', text:'Put these in order from smallest to largest: 0.09, 0.9, 0.009', choices:['0.009, 0.09, 0.9','0.9, 0.09, 0.009','0.09, 0.009, 0.9'], answer:0 }
+        ]
+    },
+    // Level 4: Ten-Thousandths (15 Qs - mix of naming and reasoning)
+    {
+        name: 'Level 4, Ten-Thousandths',
+        questions: [
+            { type:'mc', number:'0.0123', text:'What is the value of 0.0123?', choices:['123 thousandths','123 ten-thousandths'], answer:1 },
+            { type:'mc', number:'2.0005', text:'What is the value of 2.0005?', choices:['2 and 5 thousandths','2 and 5 ten-thousandths'], answer:1 },
+            { type:'mc', number:'0.0001', text:'What is the value of 0.0001?', choices:['1 thousandth','1 ten-thousandth'], answer:1 },
+            { type:'typed', number:'0.0456', text:'Write the value of 0.0456 in words:', answer:'four hundred fifty-six ten-thousandths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'seventy-two ten-thousandths', text:'Give the decimal for seventy-two ten-thousandths:', answer:'0.0072', hint:'Write as a decimal e.g. 0.0123', answerLabel:'Write as a decimal:' },
+            { type:'true-false', text:'True or false: 0.0500 is the same as 0.05', choices:['True, they are both 5 hundredths','False, they are different'], answer:0 },
+            { type:'typed', number:'nine ten-thousandths', text:'Give the decimal for nine ten-thousandths:', answer:'0.0009', hint:'Write as a decimal e.g. 0.0001', answerLabel:'Write as a decimal:' },
+            { type:'mc', number:'0.5555', text:'What is the value of 0.5555?', choices:['5,555 ten-thousandths','5,555 tenths'], answer:0 },
+            { type:'typed', text:'What must you add to 0.0036 to make 0.01?', number:'0.01 - 0.0036', answer:'0.0064', hint:'Think about what is missing. Write as a decimal.', answerLabel:'Write your answer:' },
+            { type:'comparison', text:'Which is larger: 0.001 or 0.0001? Explain why.', choices:['0.001 is larger because the 1 is in the thousandths place, not ten-thousandths','0.0001 is larger because it has more zeros','They are the same size'], answer:0 },
+            { type:'mc', text:'How many times larger is 0.01 than 0.0001?', number:'Multiplicative comparison', choices:['10 times','100 times','1,000 times'], answer:1 },
+            { type:'context', text:'A grain of sand weighs 0.0025 grams. What is the value of the 2 in this measurement?', choices:['two tenths of a gram','two thousandths of a gram','two ten-thousandths of a gram'], answer:1 },
+            { type:'reverse', text:'I am a decimal. My ones digit is 5, my tenths digit is 6, and my ten-thousandths digit is 3. What number am I?', choices:['5.6003','5.0063','56.003'], answer:0 },
+            { type:'typed', text:'What must you add to 0.0005 to make 0.001?', number:'0.001 - 0.0005', answer:'0.0005', hint:'Think about what is missing. Write as a decimal.', answerLabel:'Write your answer:' },
+            { type:'true-false', text:'True or false: 0.005 is the same as five ten-thousandths', choices:['True, they are equal','False, 0.005 is five thousandths'], answer:1 }
+        ]
+    },
+    // Level 5: Hundred-Thousandths (15 Qs - mix of naming and reasoning)
+    {
+        name: 'Level 5, Hundred-Thousandths',
+        questions: [
+            { type:'mc', number:'0.00025', text:'What is the value of 0.00025?', choices:['25 hundred-thousandths','25 ten-thousandths'], answer:0 },
+            { type:'mc', number:'1.12345', text:'What is the value of 1.12345?', choices:['1 and 12,345 hundred-thousandths','1 and 12,345 thousandths'], answer:0 },
+            { type:'mc', number:'0.00001', text:'What is the value of 0.00001?', choices:['1 millionth','1 hundred-thousandth'], answer:1 },
+            { type:'typed', number:'0.01234', text:'Write the value of 0.01234 in words:', answer:'one thousand two hundred thirty-four hundred-thousandths', hint:'Type the full name, e.g. 0.45 → "forty five hundredths"', answerLabel:'Write in words:' },
+            { type:'typed', number:'three hundred-thousandths', text:'Give the decimal for three hundred-thousandths:', answer:'0.00003', hint:'Write as a decimal e.g. 0.00025', answerLabel:'Write as a decimal:' },
+            { type:'true-false', text:'True or false: 0.00100 equals 0.001 equals one thousandth', choices:['True, they are all equal','False, they are different'], answer:0 },
+            { type:'mc', number:'0.10001', text:'What is the value of 0.10001?', choices:['10,001 ten-thousandths','10,001 hundred-thousandths'], answer:1 },
+            { type:'typed', number:'nine hundred-thousandths', text:'Give the decimal for nine hundred-thousandths:', answer:'0.00009', hint:'Write as a decimal e.g. 0.00001', answerLabel:'Write as a decimal:' },
+            { type:'typed', text:'What must you add to 0.00008 to make 0.0001?', number:'0.0001 - 0.00008', answer:'0.00002', hint:'Think about what is missing. Write as a decimal.', answerLabel:'Write your answer:' },
+            { type:'mc', text:'How many hundred-thousandths are in one tenth?', number:'Scaling comparison', choices:['100','1,000','10,000'], answer:2 },
+            { type:'context', text:'A bacterium is 0.00045 metres long. What is the value of the 4 in this measurement?', choices:['four tenths of a metre','four ten-thousandths of a metre','four hundred-thousandths of a metre'], answer:1 },
+            { type:'comparison', text:'Put these in order from largest to smallest: 0.00001, 0.0001, 0.001', choices:['0.001, 0.0001, 0.00001','0.00001, 0.0001, 0.001','0.0001, 0.001, 0.00001'], answer:0 },
+            { type:'reverse', text:'I am a decimal. My tens digit is 1, my tenths digit is 2, and my hundred-thousandths digit is 7. What number am I?', choices:['12.00007','10.20007','1.20007'], answer:0 },
+            { type:'typed', text:'What must you add to 0.00045 to make 0.001?', number:'0.001 - 0.00045', answer:'0.00055', hint:'Think about what is missing. Write as a decimal.', answerLabel:'Write your answer:' },
+            { type:'true-false', text:'True or false: 10,000 hundred-thousandths equal one whole', choices:['True, 10,000 x 0.00001 = 0.1','False, they equal one tenth'], answer:1 }
+        ]
+    }
+];
+
+const reminderTexts = [
+    'Look at the very last digit to name the decimal\'s value!',
+    'Look at the very last digit to name the decimal\'s value!',
+    'Look at the very last digit, and include whole number parts if there\'s a digit before the decimal!',
+    'Look at the very last digit, ten-thousandths go four places after the decimal point.',
+    'Look at the very last digit, hundred-thousandths go five places after the decimal point.'
+];
+
+const levelColors = ['level-1','level-2','level-3','level-4','level-5'];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let currentLevel = 0;
+let currentQuestion = 0;
+let score = 0;
+let questionStatus = [];
+let initialQuestionResult = [];
+let hasChecked = false;
+let isRevisionRound = false;
+let revisionIndices = [];
+let selectedChoiceIndex = null;
+
+// ─────────────────────────────────────────────
+//  PAGE NAVIGATION
+// ─────────────────────────────────────────────
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function startLevel(levelIndex) {
+    currentLevel = levelIndex;
+    currentQuestion = 0;
+    score = 0;
+    isRevisionRound = false;
+    revisionIndices = [];
+    const n = levels[levelIndex].questions.length;
+    questionStatus = Array(n).fill(null);
+    initialQuestionResult = Array(n).fill(null);
+    createProgressTracker();
+    loadQuestion();
+    showPage('question-page');
+}
+
+// ─────────────────────────────────────────────
+//  PROGRESS TRACKER
+// ─────────────────────────────────────────────
+function createProgressTracker() {
+    const tracker = document.getElementById('progress-tracker');
+    tracker.innerHTML = '';
+    const total = isRevisionRound ? revisionIndices.length : levels[currentLevel].questions.length;
+    for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        dot.textContent = i + 1;
+        dot.id = `dot-${i}`;
+        tracker.appendChild(dot);
+    }
+}
+
+function updateProgressTracker() {
+    const total = isRevisionRound ? revisionIndices.length : levels[currentLevel].questions.length;
+    for (let i = 0; i < total; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        if (!dot) continue;
+        const actualIdx = isRevisionRound ? revisionIndices[i] : i;
+        dot.className = 'progress-dot';
+        if (i === currentQuestion) dot.classList.add('current');
+        if (questionStatus[actualIdx] === 'correct') dot.classList.add('correct');
+        else if (questionStatus[actualIdx] === 'incorrect') dot.classList.add('incorrect');
+    }
+}
+
+// ─────────────────────────────────────────────
+//  LOAD QUESTION
+// ─────────────────────────────────────────────
+function loadQuestion() {
+    hasChecked = false;
+    selectedChoiceIndex = null;
+
+    const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+    const q = levels[currentLevel].questions[actualIndex];
+    const total = isRevisionRound ? revisionIndices.length : levels[currentLevel].questions.length;
+
+    // Revision banner
+    document.getElementById('revision-banner').style.display = isRevisionRound ? 'block' : 'none';
+
+    // Card level colour
+    const card = document.getElementById('question-card');
+    card.className = `question-card ${levelColors[currentLevel]}`;
+
+    // Counter
+    document.getElementById('question-counter').textContent = `Question ${currentQuestion + 1} of ${total}`;
+
+    // Reminder
+    document.getElementById('reminder-box').textContent = reminderTexts[currentLevel];
+
+
+    // Badge
+    const badge = document.getElementById('question-type-badge');
+    if (q.type === 'mc') {
+        badge.textContent = 'Multiple Choice';
+        badge.className = 'question-type-badge';
+    } else if (q.type === 'comparison') {
+        badge.textContent = 'Comparison';
+        badge.className = 'question-type-badge type-comparison';
+    } else if (q.type === 'true-false') {
+        badge.textContent = 'True or False';
+        badge.className = 'question-type-badge type-truefalse';
+    } else if (q.type === 'reverse') {
+        badge.textContent = 'Build the Number';
+        badge.className = 'question-type-badge type-reverse';
+    } else if (q.type === 'context') {
+        badge.textContent = 'Real-World';
+        badge.className = 'question-type-badge type-context';
+    } else {
+        badge.textContent = q.answerLabel && q.answerLabel.includes('decimal') ? 'Convert to Decimal' : 'Write in Words';
+        badge.className = 'question-type-badge ' + (q.answerLabel && q.answerLabel.includes('decimal') ? 'type-convert' : 'type-written');
+    }
+
+    // Decimal display
+    document.getElementById('decimal-display').textContent = q.number;
+
+    // Question text
+    document.getElementById('question-text').textContent = q.text;
+
+    // Reset feedback
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+    fb.style.display = '';
+
+    // Show/hide sections
+    const choicesGrid = document.getElementById('choices-grid');
+    const answerSection = document.getElementById('answer-section');
+
+    if (q.type === 'mc' || q.type === 'comparison' || q.type === 'true-false' || q.type === 'reverse' || q.type === 'context') {
+        choicesGrid.style.display = 'grid';
+        answerSection.style.display = 'none';
+        renderChoices(q);
+    } else {
+        choicesGrid.style.display = 'none';
+        answerSection.style.display = 'block';
+        const input = document.getElementById('answer-input');
+        input.value = '';
+        input.className = 'answer-input';
+        input.disabled = false;
+        input.placeholder = 'Type your answer here…';
+        document.getElementById('answer-label').textContent = q.answerLabel || 'Your answer:';
+        document.getElementById('answer-hint').textContent = q.hint || '';
+        setTimeout(() => input.focus(), 100);
+    }
+
+    // Buttons
+    const checkBtn = document.getElementById('check-btn');
+    const nextBtn = document.getElementById('next-btn');
+    checkBtn.disabled = (q.type === 'mc' || q.type === 'comparison' || q.type === 'true-false' || q.type === 'reverse' || q.type === 'context');
+    nextBtn.disabled = true;
+
+    if (q.type === 'mc' || q.type === 'comparison' || q.type === 'true-false' || q.type === 'reverse' || q.type === 'context') {
+        checkBtn.textContent = 'Select an answer';
+    } else {
+        checkBtn.textContent = 'Check Answer';
+        checkBtn.disabled = false;
+    }
+
+    updateProgressTracker();
+}
+
+function renderChoices(q) {
+    const grid = document.getElementById('choices-grid');
+    grid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    // Shuffle choices and track new answer index
+    const shuffled = shuffleChoices(q);
+    const newAnswer = shuffled.newAnswerIndex;
+
+    shuffled.choices.forEach((choice, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = `<span class="choice-letter">${letters[i]}</span> ${choice}`;
+        btn.onclick = () => selectChoice(i, q, newAnswer);
+        grid.appendChild(btn);
+    });
+}
+
+function shuffleChoices(q) {
+    // Create array of {choice, originalIndex} pairs
+    const indexed = q.choices.map((choice, idx) => ({ choice, originalIndex: idx }));
+
+    // Fisher-Yates shuffle
+    for (let i = indexed.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+    }
+
+    // Find where the correct answer ended up
+    const newAnswerIndex = indexed.findIndex(item => item.originalIndex === q.answer);
+
+    return {
+        choices: indexed.map(item => item.choice),
+        newAnswerIndex: newAnswerIndex
+    };
+}
+
+function selectChoice(index, q, correctIndex) {
+    if (hasChecked) return;
+    selectedChoiceIndex = index;
+    const btns = document.querySelectorAll('.choice-btn');
+    btns.forEach((b, i) => {
+        b.className = 'choice-btn' + (i === index ? ' selected' : '');
+    });
+    // Auto-check on selection
+    checkMCAnswer(index, q, correctIndex);
+}
+
+function checkMCAnswer(index, q, correctIndex) {
+    if (hasChecked) return;
+    hasChecked = true;
+
+    const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+    const correct = index === correctIndex;
+
+    const btns = document.querySelectorAll('.choice-btn');
+    btns.forEach((b, i) => {
+        b.disabled = true;
+        if (i === correctIndex) b.classList.add('correct-choice');
+        else if (i === index && !correct) b.classList.add('wrong-choice');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    const fh = document.getElementById('feedback-heading');
+    const ft = document.getElementById('feedback-text');
+    fb.className = 'feedback-box visible ' + (correct ? 'correct' : 'incorrect');
+    fh.textContent = correct ? 'Correct! ✓' : 'Not quite…';
+    if (correct) {
+        ft.textContent = 'Great work! The answer is "' + q.choices[q.answer] + '".';
+    } else {
+        let fbText = 'You chose "' + q.choices[index] + '"';
+        fbText += '<br>The correct answer is <strong>"' + q.choices[q.answer] + '"</strong>';
+        const chosen = q.choices[index].toLowerCase();
+        const right = q.choices[q.answer].toLowerCase();
+        if ((chosen.includes('tenth') && right.includes('hundredth')) || (chosen.includes('hundredth') && right.includes('tenth'))) {
+            fbText += '<br>Remember: the first column after the decimal point is <strong>tenths</strong>, the second is <strong>hundredths</strong>.';
+        } else if ((chosen.includes('tenth') && right.includes('thousandth')) || (chosen.includes('thousandth') && right.includes('tenth'))) {
+            fbText += '<br>Remember: tenths are the first column after the decimal point, thousandths are the third.';
+        } else if ((chosen.includes('hundredth') && right.includes('thousandth')) || (chosen.includes('thousandth') && right.includes('hundredth'))) {
+            fbText += '<br>Remember: hundredths are the second column after the decimal point, thousandths are the third.';
+        }
+        ft.innerHTML = fbText;
+    }
+
+    if (correct) {
+        score++;
+        questionStatus[actualIndex] = 'correct';
+    } else {
+        questionStatus[actualIndex] = 'incorrect';
+    }
+    if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+        initialQuestionResult[actualIndex] = questionStatus[actualIndex];
+    }
+
+    document.getElementById('check-btn').disabled = true;
+    document.getElementById('check-btn').textContent = correct ? '✓ Correct' : '✗ Incorrect';
+    document.getElementById('next-btn').disabled = false;
+    updateProgressTracker();
+}
+
+// ─────────────────────────────────────────────
+//  CHECK TYPED ANSWER
+// ─────────────────────────────────────────────
+function normalise(str) {
+    return str
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, ' ')
+        .replace(/,/g, '')
+        .replace(/[–−\-]/g, ' ')   // en-dash, minus sign, hyphen → space
+        .replace(/\s+/g, ' ')      // re-collapse double spaces
+        .trim();
+}
+
+// Convert integers 0-99999 to words (for digit-word mix acceptance)
+function intToWords(n) {
+    if (n === 0) return 'zero';
+    var ones = ['','one','two','three','four','five','six','seven','eight','nine',
+        'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+    var tens = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+    var result = '';
+    if (n >= 1000) { result += ones[Math.floor(n/1000)] + ' thousand'; n %= 1000; if (n > 0) result += ' '; }
+    if (n >= 100) { result += ones[Math.floor(n/100)] + ' hundred'; n %= 100; if (n > 0) result += ' '; }
+    if (n >= 20) { result += tens[Math.floor(n/10)]; n %= 10; if (n > 0) result += ' '; }
+    if (n > 0 && n < 20) result += ones[n];
+    return result.trim();
+}
+
+// Replace leading digits in a string with their word form
+// e.g. "45 hundredths" -> "forty five hundredths"
+function expandDigitsToWords(s) {
+    return s.replace(/^(\d+)\s+/, function(match, digits) {
+        var num = parseInt(digits);
+        if (num >= 0 && num <= 99999) return intToWords(num) + ' ';
+        return match;
+    });
+}
+
+function answersMatch(userStr, correctStr) {
+    const u = normalise(userStr);
+    const c = normalise(correctStr);
+    if (u === c) return true;
+
+    // Numeric comparison for decimal answers (handles trailing/leading zeros)
+    if (/^\d*\.?\d+$/.test(u) && /^\d*\.?\d+$/.test(c)) {
+        return parseFloat(u) === parseFloat(c);
+    }
+
+    // Flexible text comparison
+    function flex(s) {
+        return s
+            .replace(/\bfourty\b/g, 'forty')           // common misspelling
+            .replace(/\bninty\b/g, 'ninety')            // common misspelling
+            .replace(/\bhundered\b/g, 'hundred')        // common misspelling
+            .replace(/\bthousnad\b/g, 'thousand')       // common misspelling
+            .replace(/\b(hundred|thousand)\s+and\s+/g, '$1 ')  // optional "and"
+            .replace(/\b(tenth|hundredth|thousandth)s?\b/g, '$1s'); // singular → plural
+    }
+    if (flex(u) === flex(c)) return true;
+
+    // Digit-word mix: convert leading digits to words, then re-compare
+    // e.g. "45 hundredths" -> "forty five hundredths" matches "forty five hundredths"
+    var uExpanded = expandDigitsToWords(u);
+    if (uExpanded !== u) {
+        if (flex(uExpanded) === flex(c)) return true;
+    }
+
+    return false;
+}
+
+function checkAnswer() {
+    if (hasChecked) return;
+
+    const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+    const q = levels[currentLevel].questions[actualIndex];
+
+    if (q.type === 'mc' || q.type === 'comparison' || q.type === 'true-false' || q.type === 'reverse' || q.type === 'context') return;
+
+    const input = document.getElementById('answer-input');
+    const correct = answersMatch(input.value, q.answer);
+
+    hasChecked = true;
+    input.className = 'answer-input ' + (correct ? 'correct' : 'incorrect');
+    input.disabled = true;
+
+    const fb = document.getElementById('feedback-box');
+    const fh = document.getElementById('feedback-heading');
+    const ft = document.getElementById('feedback-text');
+    fb.className = 'feedback-box visible ' + (correct ? 'correct' : 'incorrect');
+    fh.textContent = correct ? 'Correct! ✓' : 'Not quite…';
+    if (correct) {
+        ft.textContent = 'Perfect! "' + q.answer + '" is right.';
+    } else {
+        const userVal = input.value.trim();
+        let fbText = 'You wrote <span style="font-family:\'Space Mono\',monospace;">"' + (userVal || '(blank)') + '"</span>';
+        fbText += '<br>The correct answer is <span style="font-family:\'Space Mono\',monospace;font-weight:700;">"' + q.answer + '"</span>';
+        ft.innerHTML = fbText;
+    }
+
+    if (correct) {
+        score++;
+        questionStatus[actualIndex] = 'correct';
+    } else {
+        questionStatus[actualIndex] = 'incorrect';
+    }
+    if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+        initialQuestionResult[actualIndex] = questionStatus[actualIndex];
+    }
+
+    document.getElementById('check-btn').disabled = true;
+    document.getElementById('next-btn').disabled = false;
+    updateProgressTracker();
+}
+
+// ─────────────────────────────────────────────
+//  NEXT QUESTION
+// ─────────────────────────────────────────────
+function nextQuestion() {
+    currentQuestion++;
+    const qs = levels[currentLevel].questions;
+
+    if (isRevisionRound) {
+        if (currentQuestion >= revisionIndices.length) {
+            finishLevel();
+        } else {
+            loadQuestion();
+        }
+        return;
+    }
+
+    if (currentQuestion >= qs.length) {
+        const incorrectIndices = qs.map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
+        if (incorrectIndices.length === 0) {
+            finishLevel();
+        } else {
+            startRevisionRound(incorrectIndices);
+        }
+    } else {
+        loadQuestion();
+    }
+}
+
+function startRevisionRound(incorrectIndices) {
+    isRevisionRound = true;
+    revisionIndices = incorrectIndices;
+    currentQuestion = 0;
+    createProgressTracker();
+    loadQuestion();
+}
+
+function finishLevel() {
+    const total = levels[currentLevel].questions.length;
+    const finalScore = questionStatus.filter(s => s === 'correct').length;
+    document.getElementById('completion-message').textContent =
+        `Well done! You've completed ${levels[currentLevel].name}!`;
+    document.getElementById('final-score').textContent = `${finalScore} / ${total}`;
+    document.getElementById('score-label').textContent = 'Correct Answers';
+    if (currentLevel === 4) {
+        unlockGoDeeper();
+    }
+    showPage('completion-page');
+}
+
+// ─────────────────────────────────────────────
+//  KEYBOARD ENTER SUPPORT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        const nextBtn = document.querySelector('.page.active #next-btn');
+        const checkBtn = document.querySelector('.page.active #check-btn');
+        if (nextBtn && !nextBtn.disabled) {
+            e.preventDefault();
+            nextBtn.click();
+        } else if (checkBtn && !checkBtn.disabled) {
+            e.preventDefault();
+            checkBtn.click();
+        }
+    });
+});
+
+/* LEARNING CARD TOGGLE */
+function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+function toggleVocab() {
+    const content = document.getElementById('vocabContent');
+    const toggle = document.getElementById('vocabToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+// ─────────────────────────────────────────────
+//  GO DEEPER EXTENSION
+// ─────────────────────────────────────────────
+function unlockGoDeeper() {
+    const btn = document.getElementById('go-deeper-btn');
+    const completionBtn = document.getElementById('go-deeper-completion-btn');
+    if (btn) {
+        btn.classList.remove('locked');
+        btn.disabled = false;
+        if (btn.querySelector('.lock-icon')) {
+            btn.querySelector('.lock-icon').textContent = '&#x1F513;';
+        }
+    }
+    if (completionBtn) {
+        completionBtn.style.display = 'block';
+    }
+}
+
+function openGoDeeper() {
+    showPage('go-deeper-page');
+}
+
+</script>
+
+
+</body></html>

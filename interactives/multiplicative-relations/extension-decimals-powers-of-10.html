@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decimals and Powers of 10</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B5DE5;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before { content: ''; position: fixed; width: 250px; height: 250px; border-radius: 50%; background: var(--accent); opacity: 0.08; top: -80px; right: -50px; pointer-events: none; z-index: 0; }
+  body::after { content: ''; position: fixed; width: 180px; height: 180px; border-radius: 50%; background: var(--orange); opacity: 0.08; bottom: 10%; left: -50px; pointer-events: none; z-index: 0; }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+  .header .ext-badge { display: inline-block; background: var(--purple); color: white; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; }
+
+  .learning-card { width: 100%; max-width: 720px; background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--card-shadow); margin-bottom: 1.5rem; border-top: 5px solid var(--accent); }
+  .learning-card h2 { font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  .phase-nav { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 720px; }
+  .phase-btn { padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0; background: white; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s; }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+  .reveal-btn { background: var(--accent); color: white; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--accent); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  .q-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); display: none; }
+  .q-card.active { display: block; animation: fadeIn 0.35s ease; }
+  .q-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px; }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .expression-display { text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 20px; line-height: 1.6; }
+
+  .div-input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+  .div-label { font-size: 15px; font-weight: 600; color: var(--text-light); }
+  .div-input { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; text-align: center; border: 3px solid var(--border); border-radius: 14px; padding: 12px 8px; width: 110px; outline: none; transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc; }
+  .div-input:focus { border-color: var(--accent); }
+  .div-input.correct { border-color: var(--green); background: var(--green-light); }
+  .div-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .div-input:disabled { opacity: 0.7; }
+
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text-dark); color: white; }
+  .btn-dark:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  .feedback { border-radius: 14px; padding: 14px 18px; margin-top: 12px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+
+  .progress-area { width: 100%; max-width: 720px; margin-bottom: 16px; display: none; }
+  .progress-area.show { display: block; }
+  .progress-label { font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-align: center; }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; text-align: center; margin-top: 16px; display: none; width: 100%; max-width: 720px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700; margin: 12px 0; }
+  .summary-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .result-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; text-align: left; }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; flex-shrink: 0; }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--accent); max-width: 720px; width: 100%; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn { background: transparent; color: var(--accent-dark); border: 2px solid var(--accent); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-section { display: none; }
+  .go-deeper-section.visible { display: block; animation: fadeIn 0.35s ease; }
+
+  /* ── PLACE VALUE ARROW ── */
+  .pv-arrow { display: flex; align-items: center; gap: 12px; justify-content: center; margin: 12px 0; }
+  .pv-arrow .from, .pv-arrow .to { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; }
+  .pv-arrow .arrow { font-size: 20px; color: var(--accent-dark); font-weight: 700; }
+  .pv-arrow .shift { font-size: 13px; color: var(--accent-dark); font-weight: 600; }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .card, .q-card, .learning-card { padding: 20px 18px; }
+    .div-input { width: 90px; font-size: 18px; }
+    .go-deeper-card { padding: 20px 18px; }
+    .expression-display { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ext-badge">Year 6 Extension</div>
+  <h1>Decimals and <span>Powers of 10</span></h1>
+  <p>Multiply and divide decimals by 10, 100, and 1,000</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to multiply and divide decimal numbers by powers of 10 by understanding how the decimal point shifts.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can multiply a decimal by 10, 100, or 1,000.</li>
+      <li>I can divide a whole number or decimal by 10, 100, or 1,000.</li>
+      <li>I can explain the pattern: multiplying moves digits left, dividing moves digits right.</li>
+      <li>I can solve problems that mix multiplication and division by powers of 10.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn" onclick="showSection('practice', this)">Practice</button>
+</div>
+
+<!-- ══════ LEARN SECTION ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>The decimal point shift</h3>
+    <p>When you multiply by a power of 10, the digits move to the left (the number gets bigger). When you divide, they move to the right (the number gets smaller). The decimal point stays still; the digits slide past it.</p>
+    <div class="callout callout-teal" style="margin-top:16px;">
+      <div class="label">Multiplying</div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:10px;">
+        <p>x <strong>10</strong>: shift digits <strong>1</strong> place left.</p>
+        <p>x <strong>100</strong>: shift digits <strong>2</strong> places left.</p>
+        <p>x <strong>1,000</strong>: shift digits <strong>3</strong> places left.</p>
+      </div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:8px;">
+      <div class="label">Dividing</div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:10px;">
+        <p>&#247; <strong>10</strong>: shift digits <strong>1</strong> place right.</p>
+        <p>&#247; <strong>100</strong>: shift digits <strong>2</strong> places right.</p>
+        <p>&#247; <strong>1,000</strong>: shift digits <strong>3</strong> places right.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Worked example</h3>
+
+    <div id="dp-demo">
+      <div class="step-reveal shown" id="dp-1">
+        <p><strong>Calculate: 3.7 x 100</strong></p>
+        <p style="margin-top:8px;">Multiplying by <strong>100</strong> means shifting the digits <strong>2</strong> places to the left.</p>
+      </div>
+      <div class="step-reveal" id="dp-2">
+        <div class="pv-arrow">
+          <span class="from">3.7</span>
+          <span class="arrow">&rarr;</span>
+          <span class="to">37</span>
+          <span class="shift">(1 place)</span>
+          <span class="arrow">&rarr;</span>
+          <span class="to">370</span>
+          <span class="shift">(2 places)</span>
+        </div>
+      </div>
+      <div class="step-reveal" id="dp-3">
+        <p style="margin-top:12px;"><strong>3.7 x 100 = 370</strong></p>
+        <p style="margin-top:4px;">The <strong>3</strong> moved from the ones to the hundreds. The <strong>7</strong> moved from the tenths to the tens. A zero fills the empty ones column.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="dp-btn" onclick="revealDPDemo()">Reveal next step</button>
+
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="label">Common mistake</div>
+      <p>Adding zeros to the end without thinking about the decimal point. For example, <strong>0.6 x 10</strong> is <strong>6</strong>, not <strong>0.60</strong>. The digit moves, the decimal point does not.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PRACTICE SECTION ══════ -->
+<div id="practice" class="section">
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="startLevel(1)">Level 1</button>
+    <button class="level-btn l2" onclick="startLevel(2)">Level 2</button>
+    <button class="level-btn l3" onclick="startLevel(3)">Level 3</button>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Powers of 10 Investigations</h3>
+    <p>Complete Level 3 to unlock</p>
+  </button>
+
+  <div class="progress-area" id="progress-area">
+    <div class="progress-label" id="progress-label">Question 1 of 6</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="question-area"></div>
+
+  <div class="summary-card" id="summary-card">
+    <div class="summary-label">Your Score</div>
+    <div class="summary-score" id="summary-score"></div>
+    <div class="summary-label" id="summary-message"></div>
+    <div id="summary-breakdown" style="text-align:left;margin-top:24px;"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="retryLevel()">Try Again</button>
+      <button class="btn btn-dark" id="next-level-btn" style="display:none;" onclick="goNextLevel()">Next Level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER SECTION ══════ -->
+<div class="go-deeper-section" id="go-deeper-section">
+  <div class="go-deeper-card">
+    <h2>&#x1F513; Go Deeper: Powers of 10 Investigations</h2>
+    <p>These tasks push your thinking beyond calculating. You will explore patterns, make conjectures, and reason about how our number system works.</p>
+
+    <!-- TASK 1: SPECIALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising</div>
+      <div class="ext-task-prompt">
+        Start with <span class="ext-numbers">0.001</span>. Keep multiplying by <span class="ext-numbers">10</span> and write down each result until you reach <span class="ext-numbers">10,000</span>. How many multiplications does it take? Now try starting from a different number, like <span class="ext-numbers">0.05</span>. What changes?
+      </div>
+      <div class="ext-task-sub">Write out the full chain of values. What pattern do you notice?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>From <span class="ext-numbers">0.001</span>: <span class="ext-numbers">0.01</span>, <span class="ext-numbers">0.1</span>, <span class="ext-numbers">1</span>, <span class="ext-numbers">10</span>, <span class="ext-numbers">100</span>, <span class="ext-numbers">1,000</span>, <span class="ext-numbers">10,000</span>. That is <span class="ext-numbers">7</span> multiplications.</p>
+        <p>From <span class="ext-numbers">0.05</span>: <span class="ext-numbers">0.5</span>, <span class="ext-numbers">5</span>, <span class="ext-numbers">50</span>, <span class="ext-numbers">500</span>, <span class="ext-numbers">5,000</span>. I reach <span class="ext-numbers">5,000</span> after <span class="ext-numbers">5</span> steps but never hit exactly <span class="ext-numbers">10,000</span>.</p>
+        <p>The pattern: each multiplication shifts the decimal point one place. The number of steps from <span class="ext-numbers">0.001</span> to <span class="ext-numbers">10,000</span> is <span class="ext-numbers">7</span>, because the digits need to cross <span class="ext-numbers">7</span> place value columns.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to understand how something works.
+      </div>
+    </div>
+
+    <!-- TASK 2: CONJECTURING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecturing</div>
+      <div class="ext-task-prompt">
+        "Multiplying by <span class="ext-numbers">10</span> and then dividing by <span class="ext-numbers">10</span> always gives you back the number you started with." Is this always true? What about multiplying by <span class="ext-numbers">100</span> then dividing by <span class="ext-numbers">10</span> twice? Test with at least three different starting numbers.
+      </div>
+      <div class="ext-task-sub">Does it matter what order you do the operations?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>Test <span class="ext-numbers">3.7</span>: x <span class="ext-numbers">10</span> = <span class="ext-numbers">37</span>, then &#247; <span class="ext-numbers">10</span> = <span class="ext-numbers">3.7</span>. Back to start.</p>
+        <p>Test <span class="ext-numbers">0.04</span>: x <span class="ext-numbers">10</span> = <span class="ext-numbers">0.4</span>, then &#247; <span class="ext-numbers">10</span> = <span class="ext-numbers">0.04</span>. Back to start.</p>
+        <p>My conjecture: multiplying then dividing by the same power of <span class="ext-numbers">10</span> always returns you to the original number. This is because they are inverse operations. Also, multiplying by <span class="ext-numbers">100</span> then dividing by <span class="ext-numbers">10</span> twice is the same as multiplying by <span class="ext-numbers">100</span> then dividing by <span class="ext-numbers">100</span>, since <span class="ext-numbers">10</span> x <span class="ext-numbers">10</span> = <span class="ext-numbers">100</span>.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim based on evidence and testing it systematically.
+      </div>
+    </div>
+
+    <!-- TASK 3: GENERALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Generalising</div>
+      <div class="ext-task-prompt">
+        Explain in your own words why our number system is called a "base 10" system. How does this connect to why multiplying and dividing by powers of <span class="ext-numbers">10</span> is as simple as shifting the decimal point?
+      </div>
+      <div class="ext-task-sub">Think about what makes 10 special compared to other numbers.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>Our system is called base <span class="ext-numbers">10</span> because each place value column is worth <span class="ext-numbers">10</span> times the one to its right. Ones, tens, hundreds, thousands: each step is x <span class="ext-numbers">10</span>. Tenths, hundredths, thousandths: each step is &#247; <span class="ext-numbers">10</span>.</p>
+        <p>Because the columns are built on powers of <span class="ext-numbers">10</span>, multiplying a number by <span class="ext-numbers">10</span> is the same as moving every digit one column to the left. Dividing moves every digit one column right. That is why the "shortcut" works: it is not really a shortcut at all, it is the structure of the number system itself.</p>
+        <p>If we used base <span class="ext-numbers">8</span> (like some computers do), multiplying by <span class="ext-numbers">8</span> would be the simple shift instead.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means you are connecting a specific skill (decimal shifts) to the bigger mathematical idea (place value structure).
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SAFE ROUNDING (avoids floating point errors) ──
+function safeRound(n) {
+  return Math.round(n * 1000000) / 1000000;
+}
+function formatNum(n) {
+  var r = safeRound(n);
+  // Remove trailing zeros after decimal only if they are truly trailing
+  var s = String(r);
+  if (s.indexOf('.') !== -1) {
+    // Keep meaningful decimals
+    s = s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+  }
+  return s;
+}
+
+// ── QUESTION POOLS ──
+
+// L1: Multiply decimals by 10, 100, or 1000
+var pool1 = [
+  {num:3.7, power:10, answer:'37', op:'x', display:'3.7 \u00d7 10'},
+  {num:0.45, power:10, answer:'4.5', op:'x', display:'0.45 \u00d7 10'},
+  {num:2.8, power:100, answer:'280', op:'x', display:'2.8 \u00d7 100'},
+  {num:0.06, power:100, answer:'6', op:'x', display:'0.06 \u00d7 100'},
+  {num:1.5, power:1000, answer:'1500', op:'x', display:'1.5 \u00d7 1,000'},
+  {num:0.3, power:10, answer:'3', op:'x', display:'0.3 \u00d7 10'},
+  {num:4.12, power:10, answer:'41.2', op:'x', display:'4.12 \u00d7 10'},
+  {num:0.9, power:100, answer:'90', op:'x', display:'0.9 \u00d7 100'},
+  {num:5.1, power:10, answer:'51', op:'x', display:'5.1 \u00d7 10'},
+  {num:0.25, power:100, answer:'25', op:'x', display:'0.25 \u00d7 100'},
+  {num:3.4, power:1000, answer:'3400', op:'x', display:'3.4 \u00d7 1,000'},
+  {num:0.7, power:1000, answer:'700', op:'x', display:'0.7 \u00d7 1,000'},
+  {num:6.2, power:10, answer:'62', op:'x', display:'6.2 \u00d7 10'},
+  {num:0.08, power:1000, answer:'80', op:'x', display:'0.08 \u00d7 1,000'},
+  {num:1.35, power:100, answer:'135', op:'x', display:'1.35 \u00d7 100'}
+];
+
+// L2: Divide whole numbers/decimals by 10, 100, or 1000
+var pool2 = [
+  {num:37, power:10, answer:'3.7', op:'/', display:'37 \u00f7 10'},
+  {num:450, power:100, answer:'4.5', op:'/', display:'450 \u00f7 100'},
+  {num:6, power:10, answer:'0.6', op:'/', display:'6 \u00f7 10'},
+  {num:280, power:100, answer:'2.8', op:'/', display:'280 \u00f7 100'},
+  {num:3500, power:1000, answer:'3.5', op:'/', display:'3,500 \u00f7 1,000'},
+  {num:92, power:10, answer:'9.2', op:'/', display:'92 \u00f7 10'},
+  {num:4, power:100, answer:'0.04', op:'/', display:'4 \u00f7 100'},
+  {num:150, power:1000, answer:'0.15', op:'/', display:'150 \u00f7 1,000'},
+  {num:8, power:10, answer:'0.8', op:'/', display:'8 \u00f7 10'},
+  {num:63, power:10, answer:'6.3', op:'/', display:'63 \u00f7 10'},
+  {num:700, power:1000, answer:'0.7', op:'/', display:'700 \u00f7 1,000'},
+  {num:25, power:100, answer:'0.25', op:'/', display:'25 \u00f7 100'}
+];
+
+// L3: Higher cognitive demand (reverse reasoning, multi-step chains, missing start numbers)
+var pool3 = [
+  // TYPE A - Reverse questions
+  {text:'I started with <span class="mono">0.035</span> and ended with <span class="mono">35</span>. What did I multiply by?', answer:'1000', display:'0.035 \u00d7 ? = 35'},
+  {text:'I started with <span class="mono">4,200</span> and ended with <span class="mono">4.2</span>. What did I divide by?', answer:'1000', display:'4,200 \u00f7 ? = 4.2'},
+  {text:'I started with <span class="mono">0.6</span> and ended with <span class="mono">60</span>. What did I multiply by?', answer:'100', display:'0.6 \u00d7 ? = 60'},
+  {text:'I started with <span class="mono">2.5</span> and ended with <span class="mono">250</span>. What did I multiply by?', answer:'100', display:'2.5 \u00d7 ? = 250'},
+
+  // TYPE B - Multi-step chain questions
+  {text:'<span class="mono">0.7</span> \u00d7 <span class="mono">10</span> \u00d7 <span class="mono">10</span> = ?', answer:'70', display:'0.7 \u00d7 10 \u00d7 10'},
+  {text:'<span class="mono">5,600</span> \u00f7 <span class="mono">100</span> \u00d7 <span class="mono">10</span> = ?', answer:'560', display:'5,600 \u00f7 100 \u00d7 10'},
+  {text:'<span class="mono">3.2</span> \u00d7 <span class="mono">100</span> \u00f7 <span class="mono">10</span> = ?', answer:'32', display:'3.2 \u00d7 100 \u00f7 10'},
+
+  // TYPE C - Missing start number
+  {text:'<span class="mono">___</span> \u00d7 <span class="mono">100</span> = <span class="mono">45</span>. What is the missing number?', answer:'0.45', display:'? \u00d7 100 = 45'},
+  {text:'<span class="mono">___</span> \u00f7 <span class="mono">1,000</span> = <span class="mono">0.06</span>. What is the missing number?', answer:'60', display:'? \u00f7 1,000 = 0.06'},
+  {text:'<span class="mono">___</span> \u00d7 <span class="mono">10</span> = <span class="mono">7.2</span>. What is the missing number?', answer:'0.72', display:'? \u00d7 10 = 7.2'},
+
+  // TYPE A (continued)
+  {text:'I started with <span class="mono">180</span> and ended with <span class="mono">0.18</span>. What did I divide by?', answer:'1000', display:'180 \u00f7 ? = 0.18'},
+
+  // TYPE B (continued)
+  {text:'<span class="mono">450</span> \u00f7 <span class="mono">10</span> \u00f7 <span class="mono">10</span> = ?', answer:'4.5', display:'450 \u00f7 10 \u00f7 10'},
+  {text:'<span class="mono">0.04</span> \u00d7 <span class="mono">1,000</span> \u00f7 <span class="mono">100</span> = ?', answer:'0.4', display:'0.04 \u00d7 1,000 \u00f7 100'},
+
+  // TYPE C (continued)
+  {text:'<span class="mono">___</span> \u00f7 <span class="mono">100</span> = <span class="mono">3.8</span>. What is the missing number?', answer:'380', display:'? \u00f7 100 = 3.8'},
+  {text:'<span class="mono">___</span> \u00d7 <span class="mono">1,000</span> = <span class="mono">290</span>. What is the missing number?', answer:'0.29', display:'? \u00d7 1,000 = 290'}
+];
+
+// ── STATE ──
+var currentLevel = 1;
+var currentQ = 0;
+var questions = [];
+var answers = [];
+var dpDemoStep = 1;
+
+// ── UTILITY ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── LEARN: STEP REVEAL ──
+function revealDPDemo() {
+  dpDemoStep++;
+  var el = document.getElementById('dp-' + dpDemoStep);
+  if (el) el.classList.add('shown');
+  if (dpDemoStep >= 3) document.getElementById('dp-btn').style.display = 'none';
+}
+
+// ── NAVIGATION ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── START LEVEL ──
+function startLevel(n) {
+  currentLevel = n;
+  currentQ = 0;
+  answers = [];
+
+  document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+
+  if (n === 1) questions = shuffle(pool1).slice(0, 6);
+  else if (n === 2) questions = shuffle(pool2).slice(0, 6);
+  else questions = shuffle(pool3).slice(0, 6);
+
+  document.getElementById('progress-area').classList.add('show');
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+
+  buildQuestion();
+}
+
+// ── BUILD QUESTION ──
+function buildQuestion() {
+  var area = document.getElementById('question-area');
+  var q = questions[currentQ];
+
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+
+  var html = '<div class="q-card active">';
+  html += '<div class="q-number">Question ' + (currentQ + 1) + ' of ' + questions.length + '</div>';
+
+  if (currentLevel <= 2) {
+    html += '<div class="q-stem">Calculate:</div>';
+    html += '<div class="expression-display"><span class="mono">' + q.display + '</span></div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">= </div>';
+    html += '<input type="text" class="div-input" id="inp-ans" inputmode="decimal" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  } else {
+    html += '<div class="q-stem">' + q.text + '</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Answer</div>';
+    html += '<input type="text" class="div-input" id="inp-ans" inputmode="decimal" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  }
+
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Check Answer</button>';
+  html += '</div>';
+  html += '<div class="feedback" id="feedback"></div>';
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-dark" id="next-btn" style="display:none;margin-top:12px;" onclick="nextQuestion()">Next Question</button>';
+  html += '</div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+
+  var inp = document.getElementById('inp-ans');
+  if (inp) setTimeout(function() { inp.focus(); }, 100);
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer() {
+  if (answers[currentQ] !== undefined) return;
+  var q = questions[currentQ];
+  var fb = document.getElementById('feedback');
+  var inp = document.getElementById('inp-ans');
+  var raw = inp.value.replace(/,/g, '').replace(/\$/g, '').trim();
+  if (raw === '' || isNaN(Number(raw))) { inp.style.borderColor = 'var(--red)'; return; }
+
+  // Compare as floats with tolerance for floating point issues
+  var studentVal = parseFloat(raw);
+  var correctVal = parseFloat(q.answer);
+  var isCorrect = Math.abs(studentVal - correctVal) < 0.0001;
+
+  inp.disabled = true;
+  inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+  if (currentLevel <= 2) {
+    var opWord = q.op === 'x' ? 'Multiplying' : 'Dividing';
+    var opSymbol = q.op === 'x' ? '\u00d7' : '\u00f7';
+    var shifts = q.power === 10 ? '1 place' : q.power === 100 ? '2 places' : '3 places';
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> <span class="mono">' + q.display + ' = ' + q.answer + '</span>. ' + opWord + ' by <span class="mono">' + q.power + '</span> shifts digits ' + shifts + '.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + raw + '</span>. ' + opWord + ' by <span class="mono">' + q.power + '</span> shifts digits ' + shifts + '. The answer is <span class="mono">' + q.answer + '</span>.';
+    }
+  } else {
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> The answer is <span class="mono">' + q.answer + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + raw + '</span>. The answer is <span class="mono">' + q.answer + '</span>.';
+    }
+  }
+
+  answers[currentQ] = { correct: isCorrect };
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+// ── NEXT / SUMMARY ──
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showSummary(); return; }
+  buildQuestion();
+}
+
+function showSummary() {
+  document.getElementById('question-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 5) msg = 'Excellent work with decimals and powers of 10.';
+  else if (correct >= 3) msg = 'Good progress. Review the ones you missed.';
+  else msg = 'Keep practising. Go back to the Learn section if you need to.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var breakdown = '<h3 style="font-size:16px;margin-bottom:12px;">Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    breakdown += '<div class="result-row"><div class="result-icon ' + icon + '">' + symbol + '</div><span>' + q.display + '</span></div>';
+  });
+  document.getElementById('summary-breakdown').innerHTML = breakdown;
+
+  var nextBtn = document.getElementById('next-level-btn');
+  if (currentLevel < 3 && correct >= 4) nextBtn.style.display = 'inline-block';
+  else nextBtn.style.display = 'none';
+
+  if (currentLevel === 3 && correct >= 4) unlockGoDeeper();
+
+  document.getElementById('summary-card').classList.add('show');
+}
+
+function retryLevel() { startLevel(currentLevel); }
+function goNextLevel() { startLevel(currentLevel + 1); }
+
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card) {
+    card.classList.remove('locked');
+    card.disabled = false;
+    card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+    card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  }
+}
+
+function openGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card.classList.contains('locked')) return;
+  document.getElementById('go-deeper-section').classList.add('visible');
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var checkBtn = document.getElementById('check-btn');
+    var nextBtn = document.getElementById('next-btn');
+    if (nextBtn && nextBtn.style.display !== 'none') nextQuestion();
+    else if (checkBtn && checkBtn.style.display !== 'none') checkAnswer();
+  }
+});
+
+// ── INIT ──
+startLevel(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levelling Explorer, Student</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-cream: #FFF8F0;
+  --text-dark: #2D3436;
+  --text-light: #636E72;
+  --accent: #4ECDC4;
+  --accent-dark: #38b2aa;
+  --blue: #3a7bd5;
+  --blue-dark: #2176ae;
+  --orange: #FF8400;
+  --red: #FF6B6B;
+  --green: #2ecc71;
+  --green-dark: #27ae60;
+  --purple: #9B59B6;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  --radius: 16px;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Fredoka', sans-serif;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 16px 52px;
+  overflow-x: hidden;
+  background: var(--bg-cream);
+  color: var(--text-dark);
+  position: relative;
+}
+body::before {
+  content: ''; position: fixed; width: 250px; height: 250px; border-radius: 50%;
+  background: var(--accent); opacity: 0.1; top: -80px; right: -50px;
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: ''; position: fixed; width: 180px; height: 180px; border-radius: 50%;
+  background: var(--orange); opacity: 0.1; bottom: 10%; left: -50px;
+  pointer-events: none; z-index: 0;
+}
+.blob3 {
+  position: fixed; width: 120px; height: 120px; border-radius: 50%;
+  background: var(--purple); opacity: 0.1; top: 50%; right: 5%;
+  pointer-events: none; z-index: 0;
+}
+body > *:not(.blob3) { position: relative; z-index: 1; }
+
+/* ── Header ── */
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 {
+  font-weight: 700; font-size: clamp(24px, 3.5vw, 36px);
+  color: var(--text-dark); margin-bottom: 4px; letter-spacing: -0.5px;
+}
+.header h1 span { color: var(--accent); }
+.header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+/* ── Stage card ── */
+.stage {
+  width: 100%; max-width: 720px;
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--card-shadow); padding: 28px 36px 32px;
+  margin-bottom: 20px; border-top: 5px solid var(--accent);
+}
+
+/* ── Number entry (top of stage) ── */
+.number-entry { text-align: center; }
+
+.op-toggle { display: flex; gap: 6px; justify-content: center; margin-bottom: 18px; }
+.op-btn {
+  padding: 8px 24px; border-radius: 30px; border: 2px solid #e0e0e0;
+  background: white; font-family: 'Fredoka', sans-serif; font-size: 16px;
+  font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.18s;
+}
+.op-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+.op-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+.entry-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap;
+}
+.num-input {
+  font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700;
+  padding: 10px 14px; border-radius: 12px; border: 2.5px solid #e0e0e0;
+  outline: none; width: 148px; text-align: center; transition: border-color 0.2s, box-shadow 0.2s;
+  -moz-appearance: textfield;
+}
+.num-input::-webkit-outer-spin-button,
+.num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.num-input.a { color: var(--blue);   border-color: #c8d9ee; }
+.num-input.b { color: var(--orange); border-color: #eed9c8; }
+.num-input.a:focus { border-color: var(--blue);   box-shadow: 0 0 0 3px rgba(58,123,213,0.12); }
+.num-input.b:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,132,0,0.12); }
+
+.entry-op {
+  font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700;
+  color: var(--text-light); flex-shrink: 0;
+}
+
+.go-btn {
+  padding: 12px 30px; border-radius: 12px; border: none;
+  font-family: 'Fredoka', sans-serif; font-size: 20px; font-weight: 700;
+  cursor: pointer; color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  box-shadow: 0 3px 14px rgba(78,205,196,0.4); transition: all 0.18s;
+}
+.go-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(78,205,196,0.5); }
+.go-btn:active { transform: translateY(0); }
+
+/* ── Question area (hidden until Go pressed) ── */
+#questionArea { display: none; }
+#questionArea.active { display: block; animation: fadeSlide 0.35s ease; }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Equation display ── */
+.equation-area { text-align: center; margin: 20px 0 4px; }
+.eq-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  color: var(--text-light); text-transform: uppercase; margin-bottom: 6px;
+}
+.eq-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap;
+}
+.eq-num {
+  font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700;
+  padding: 6px 16px; border-radius: 10px; transition: all 0.35s;
+}
+.eq-num.a      { color: var(--blue);   background: #eef4ff; }
+.eq-num.b      { color: var(--orange); background: #fff8f0; }
+.eq-num.result { color: #b0bec5; background: #f5f7fa; letter-spacing: 3px; min-width: 64px; }
+.eq-num.result.revealed { color: var(--accent-dark); background: #e8faf8; letter-spacing: 0; }
+.eq-num.friendly { box-shadow: 0 0 0 3px var(--green), 0 0 14px rgba(46,204,113,0.25); }
+.eq-sym { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--text-light); }
+
+/* original equation, slightly muted */
+.equation-area.original .eq-num     { font-size: 20px; padding: 4px 12px; opacity: 0.75; }
+.equation-area.original .eq-num.result { opacity: 1; }
+.equation-area.original .eq-sym     { font-size: 20px; opacity: 0.75; }
+
+/* friendly badge */
+.friendly-badge {
+  display: inline-block; background: var(--green); color: white;
+  font-size: 12px; font-weight: 700; border-radius: 20px; padding: 3px 12px;
+  margin-left: 4px; animation: popIn 0.3s ease;
+}
+@keyframes popIn {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Bar section ── */
+.bar-section { margin: 24px 0 20px; }
+
+.bar-labels {
+  display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px;
+}
+.bar-label-a, .bar-label-b {
+  font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; min-width: 80px;
+}
+.bar-label-a { color: var(--blue); }
+.bar-label-b { color: var(--orange); text-align: right; }
+.bar-label-a .letter, .bar-label-b .letter {
+  display: block; font-family: 'Fredoka', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 2px;
+}
+.bar-center-hint {
+  flex: 1; text-align: center; font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text-light); padding-bottom: 6px;
+}
+
+/* Bar wrapper */
+.bar-wrapper { position: relative; height: 76px; user-select: none; margin: 0 2px; }
+.combined-track {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; border-radius: 14px; overflow: hidden;
+  border: 3px solid #e0e8f0; background: #f0f4f8; cursor: ew-resize;
+}
+.combined-fill {
+  height: 100%; display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: white;
+  transition: width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden; white-space: nowrap; min-width: 3px;
+}
+.combined-fill.a { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); }
+.combined-fill.b { background: linear-gradient(135deg, var(--orange), #e67e22); }
+
+/* Handle */
+.bar-handle {
+  position: absolute; top: -8px; bottom: -8px; width: 112px;
+  transform: translateX(-50%);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  z-index: 10; pointer-events: none;
+}
+.bar-handle::before {
+  content: ''; position: absolute; top: 8px; bottom: 8px; left: 50%; width: 3px;
+  transform: translateX(-50%);
+  background: white; border-radius: 2px; box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  z-index: 0; pointer-events: none;
+}
+.handle-step {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+  cursor: pointer; pointer-events: all; flex-shrink: 0;
+  position: relative; z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+  transition: transform 0.12s, box-shadow 0.12s; user-select: none;
+}
+.handle-step.left  { background: var(--blue);   color: white; }
+.handle-step.right { background: var(--orange);  color: white; }
+.handle-step:hover  { transform: scale(1.12); box-shadow: 0 4px 14px rgba(0,0,0,0.28); }
+.handle-step:active { transform: scale(0.93); }
+.handle-drag {
+  width: 36px; height: 36px; background: white; border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 2.5px solid #d0dae8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text-light); cursor: ew-resize;
+  pointer-events: all; flex-shrink: 0; position: relative; z-index: 2;
+  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s; user-select: none;
+}
+.handle-drag:hover, .handle-drag.dragging {
+  box-shadow: 0 4px 18px rgba(0,0,0,0.28); transform: scale(1.15);
+  border-color: var(--accent); color: var(--accent-dark);
+}
+.bar-footer {
+  display: flex; justify-content: space-between; margin-top: 10px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-light);
+}
+
+/* ── Divider ── */
+.eq-divider { border: none; border-top: 2px dashed #e8edf2; margin: 20px 0; }
+
+/* ── Answer section ── */
+.answer-section { margin-top: 24px; text-align: center; }
+.answer-prompt {
+  font-size: 15px; font-weight: 700; color: var(--text-light);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+}
+.answer-row {
+  display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+}
+.answer-input {
+  font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700;
+  color: var(--text-dark); padding: 10px 18px; border-radius: 12px;
+  border: 2.5px solid #e0d5c5; outline: none; width: 160px; text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -moz-appearance: textfield;
+}
+.answer-input::-webkit-outer-spin-button,
+.answer-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.answer-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(78,205,196,0.15); }
+.answer-input:disabled { background: #f5f7fa; color: var(--text-light); cursor: default; border-color: #e8edf2; }
+.check-btn {
+  padding: 12px 28px; border-radius: 12px; border: none;
+  font-family: 'Fredoka', sans-serif; font-size: 18px; font-weight: 700;
+  cursor: pointer; color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  box-shadow: 0 3px 12px rgba(78,205,196,0.4); transition: all 0.18s;
+}
+.check-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(78,205,196,0.5); }
+.check-btn:active:not(:disabled) { transform: translateY(0); }
+.check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+/* ── Feedback ── */
+.feedback-area {
+  margin-top: 16px; border-radius: 14px; padding: 16px 20px;
+  text-align: center; display: none; animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.feedback-area.correct { background: #eafaf2; border: 2px solid var(--green); }
+.feedback-area.wrong   { background: #fff8f0; border: 2px solid var(--orange); }
+.feedback-area.hint    { background: #eef4ff; border: 2px solid var(--blue); }
+.feedback-area.neutral { background: #f5f7fa; border: 2px solid #e0e0e0; }
+.feedback-msg { font-size: 16px; font-weight: 600; color: var(--text-dark); line-height: 1.5; }
+.try-another-btn {
+  display: none; margin-top: 14px; padding: 10px 26px; border-radius: 10px; border: none;
+  font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; color: white;
+  background: linear-gradient(135deg, var(--purple), #8e44ad);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15); transition: all 0.18s;
+}
+.try-another-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+
+/* ── Action row ── */
+.action-row {
+  text-align: center; margin-top: 20px;
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+}
+.auto-btn {
+  padding: 10px 22px; border-radius: 12px; border: none;
+  font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.18s; color: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+}
+.auto-btn.hint-btn { background: linear-gradient(135deg, #f39c12, #d68910); }
+.auto-btn.reset    { background: linear-gradient(135deg, #636E72, #4a5459); }
+.auto-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+.auto-btn:active { transform: translateY(0); }
+
+/* ── Narration ── */
+.narration {
+  width: 100%; max-width: 720px; margin-top: 20px;
+  font-size: 16px; font-weight: 600; color: var(--text-dark);
+  text-align: center; padding: 14px 24px; background: white;
+  border-radius: 12px; box-shadow: var(--card-shadow);
+  border-top: 4px solid var(--accent); min-height: 28px;
+}
+
+@media (max-width: 600px) {
+  .stage { padding: 20px 16px 24px; }
+  .num-input { font-size: 22px; width: 120px; }
+  .bar-label-a, .bar-label-b { font-size: 18px; min-width: 60px; }
+  .bar-wrapper { height: 60px; }
+  .combined-fill { font-size: 14px; }
+  .eq-num { font-size: 22px; padding: 4px 12px; }
+  .eq-sym { font-size: 22px; }
+  .equation-area.original .eq-num { font-size: 16px; }
+  .equation-area.original .eq-sym { font-size: 16px; }
+  .answer-input { font-size: 20px; width: 130px; }
+  .check-btn { font-size: 15px; padding: 10px 18px; }
+}
+
+/* ── LEARNING CARD ── */
+.learning-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  margin-bottom: 2rem;
+  border-top: 5px solid var(--accent);
+}
+.learning-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.learning-card h2 .toggle-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+.learning-content {
+  display: none;
+  margin-top: 1rem;
+}
+.learning-content.open {
+  display: block;
+}
+.learning-content h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+.learning-content p {
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+.success-criteria {
+  list-style: none;
+  margin-left: 0;
+  margin-top: 0.75rem;
+}
+.success-criteria li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  font-size: 0.95rem;
+}
+.success-criteria li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="blob3"></div>
+
+<p style="margin-bottom:1rem; text-align:center;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--accent);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a>
+</p>
+
+<div class="header">
+  <h1>Levelling <span>Explorer</span></h1>
+  <p>Enter two numbers, slide to level, then work out the answer!</p>
+</div>
+
+<!-- ────────────── LEARNING INTENTION & SUCCESS CRITERIA ────────────── -->
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to practise the levelling strategy by adjusting numbers to create friendly calculations.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can identify a number close to a friendly benchmark (like a multiple of 10 or 100)</li>
+            <li>I can adjust both numbers in the equation by the same amount</li>
+            <li>I can solve the new, friendlier equation mentally</li>
+        </ul>
+    </div>
+</div>
+
+<div class="stage">
+
+  <!-- ① Number entry, always visible at top -->
+  <div class="number-entry" id="numberEntry">
+    <div class="op-toggle">
+      <button class="op-btn active" id="op-add" onclick="setOp('+')">➕ Addition</button>
+      <button class="op-btn"        id="op-sub" onclick="setOp('−')">➖ Subtraction</button>
+    </div>
+    <div class="entry-row">
+      <input class="num-input a" id="inputA" type="number" placeholder="First number"
+             onkeydown="if(event.key==='Enter') document.getElementById('inputB').focus()">
+      <span class="entry-op" id="entryOpLabel">+</span>
+      <input class="num-input b" id="inputB" type="number" placeholder="Second number"
+             onkeydown="if(event.key==='Enter') startQuestion()">
+      <button class="go-btn" onclick="startQuestion()">Go →</button>
+    </div>
+  </div>
+
+  <!-- ② Everything below appears once Go is pressed -->
+  <div id="questionArea">
+
+    <!-- Original equation (compact reminder) -->
+    <div class="equation-area original">
+      <div class="eq-label">Your equation</div>
+      <div class="eq-row">
+        <div class="eq-num a"      id="origA"></div>
+        <div class="eq-sym"        id="origOp">+</div>
+        <div class="eq-num b"      id="origB"></div>
+        <div class="eq-sym">       =</div>
+        <div class="eq-num result" id="origResult">?</div>
+      </div>
+    </div>
+
+    <!-- Draggable bar -->
+    <div class="bar-section">
+      <div class="bar-labels">
+        <div class="bar-label-a">
+          <span class="letter">A</span>
+          <span id="valA"></span>
+        </div>
+        <div class="bar-center-hint">← slide to level →</div>
+        <div class="bar-label-b">
+          <span class="letter" style="text-align:right;display:block;">B</span>
+          <span id="valB"></span>
+        </div>
+      </div>
+
+      <div class="bar-wrapper" id="barWrapper">
+        <div class="combined-track" id="barTrack">
+          <div class="combined-fill a" id="barA"></div>
+          <div class="combined-fill b" id="barB"></div>
+        </div>
+        <div class="bar-handle" id="barHandle">
+          <button class="handle-step left"  id="stepLeft"  title="Give 1 to A">−1</button>
+          <div    class="handle-drag"       id="handleDrag" title="Drag to adjust">↔</div>
+          <button class="handle-step right" id="stepRight" title="Give 1 to B">+1</button>
+        </div>
+      </div>
+
+      <div class="bar-footer">
+        <span style="color:var(--blue);">← A grows</span>
+        <span>drag to level</span>
+        <span style="color:var(--orange);">B grows →</span>
+      </div>
+    </div>
+
+    <hr class="eq-divider">
+
+    <!-- Levelled equation -->
+    <div class="equation-area">
+      <div class="eq-label" id="levelledLabel">Levelled equation</div>
+      <div class="eq-row">
+        <div class="eq-num a"      id="compA"></div>
+        <span                      id="friendlyBadgeA"></span>
+        <div class="eq-sym"        id="compOp">+</div>
+        <div class="eq-num b"      id="compB"></div>
+        <span                      id="friendlyBadgeB"></span>
+        <div class="eq-sym">       =</div>
+        <div class="eq-num result" id="compResult">?</div>
+      </div>
+    </div>
+
+    <!-- Answer input -->
+    <div class="answer-section">
+      <div class="answer-prompt">What is the answer?</div>
+      <div class="answer-row">
+        <input  class="answer-input" id="answerInput" type="number" placeholder="_ _ _"
+                onkeydown="if(event.key==='Enter') checkAnswer()">
+        <button class="check-btn" id="checkBtn" onclick="checkAnswer()">Check ✓</button>
+      </div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback-area" id="feedbackArea">
+      <div class="feedback-msg" id="feedbackMsg"></div>
+      <button class="try-another-btn" id="tryAnotherBtn" onclick="newQuestion()">
+        Try another question →
+      </button>
+    </div>
+
+    <!-- Hint + Reset -->
+    <div class="action-row">
+      <button class="auto-btn hint-btn" onclick="giveHint()">💡 Hint</button>
+      <button class="auto-btn reset"    onclick="resetQuestion()">↺ Reset</button>
+    </div>
+
+  </div><!-- end #questionArea -->
+</div><!-- end .stage -->
+
+<div class="narration" id="narration">
+  Enter two numbers above and press Go, then use the slider to make a friendly number!
+</div>
+
+<script>
+// ── state ─────────────────────────────────────────────────────
+let origA = 0, origB = 0, op = '+';
+let transferred    = 0;
+let attempts       = 0;
+let answerRevealed = false;
+let questionDone   = false;
+let hintUsed       = false;
+
+// drag state
+let isDragging           = false;
+let dragStartX           = 0;
+let dragStartTransferred = 0;
+
+// ── init ──────────────────────────────────────────────────────
+function init() {
+  initDrag();
+  document.getElementById('inputA').focus();
+}
+
+// ── operation ─────────────────────────────────────────────────
+function setOp(newOp) {
+  op = newOp;
+  document.getElementById('op-add').classList.toggle('active', op === '+');
+  document.getElementById('op-sub').classList.toggle('active', op === '−');
+  document.getElementById('entryOpLabel').textContent = op === '+' ? '+' : '−';
+  document.getElementById('origOp').textContent       = op;
+  document.getElementById('compOp').textContent       = op;
+}
+
+// ── start a question ──────────────────────────────────────────
+function startQuestion() {
+  const a = parseFloat(document.getElementById('inputA').value);
+  const b = parseFloat(document.getElementById('inputB').value);
+
+  if (isNaN(a) || isNaN(b) || a <= 0 || b <= 0) {
+    setNarration('⚠️ Please enter two positive numbers first!');
+    document.getElementById('inputA').focus();
+    return;
+  }
+
+  origA          = a;
+  origB          = b;
+  transferred    = 0;
+  attempts       = 0;
+  answerRevealed = false;
+  questionDone   = false;
+  hintUsed       = false;
+
+  hideFeedback();
+  enableInput();
+  document.getElementById('answerInput').value = '';
+  document.getElementById('levelledLabel').textContent = 'Levelled equation';
+
+  // Show the question area
+  const qa = document.getElementById('questionArea');
+  qa.classList.remove('active');
+  void qa.offsetWidth;              // force reflow so animation re-triggers
+  qa.classList.add('active');
+
+  render(false);
+  setNarration('Use the slider to make one number friendly, then work out the answer!');
+}
+
+// ── "try another", go back to entry ─────────────────────────
+function newQuestion() {
+  document.getElementById('questionArea').classList.remove('active');
+  document.getElementById('inputA').value = '';
+  document.getElementById('inputB').value = '';
+  transferred = 0; attempts = 0;
+  answerRevealed = false; questionDone = false; hintUsed = false;
+  hideFeedback();
+  document.getElementById('inputA').focus();
+  setNarration('Enter your next equation above and press Go!');
+}
+
+// ── reset current question ────────────────────────────────────
+function resetQuestion() {
+  if (!document.getElementById('questionArea').classList.contains('active')) return;
+  transferred    = 0;
+  attempts       = 0;
+  answerRevealed = false;
+  questionDone   = false;
+  hintUsed       = false;
+  hideFeedback();
+  enableInput();
+  document.getElementById('answerInput').value = '';
+  render(false);
+  setNarration('Reset! Use the slider to make a friendly number, then try again.');
+}
+
+// ── maths ─────────────────────────────────────────────────────
+function getCurrentValues() {
+  if (op === '+') return { a: origA + transferred, b: origB - transferred };
+  return { a: origA + transferred, b: origB + transferred };
+}
+
+function getTotal() {
+  return op === '+' ? origA + origB : origA - origB;
+}
+
+function clampTransferred(t) {
+  if (op === '+') return Math.max(-origA, Math.min(origB, t));
+  const lim = Math.max(origA, origB);
+  return Math.max(-lim, Math.min(lim, t));
+}
+
+function isFriendly(n) {
+  if (n === 0) return false;
+  const abs = Math.abs(n);
+  if (abs >= 1000) return abs % 1000 === 0;
+  if (abs >= 100)  return abs % 100  === 0;
+  return abs % 10 === 0;
+}
+
+// ── render ────────────────────────────────────────────────────
+function render(skipTransition) {
+  const { a, b } = getCurrentValues();
+  const total    = getTotal();
+
+  document.getElementById('origA').textContent = fmt(origA);
+  document.getElementById('origB').textContent = fmt(origB);
+  document.getElementById('compA').textContent = fmt(a);
+  document.getElementById('compB').textContent = fmt(b);
+
+  // Friendly highlights
+  document.getElementById('compA').classList.toggle('friendly', isFriendly(a));
+  document.getElementById('compB').classList.toggle('friendly', isFriendly(b));
+  document.getElementById('friendlyBadgeA').innerHTML =
+    isFriendly(a) ? '<span class="friendly-badge">Friendly!</span>' : '';
+  document.getElementById('friendlyBadgeB').innerHTML =
+    isFriendly(b) ? '<span class="friendly-badge">Friendly!</span>' : '';
+
+  // Answer reveal
+  ['origResult', 'compResult'].forEach(id => {
+    const el = document.getElementById(id);
+    if (answerRevealed) {
+      el.textContent = fmt(total);
+      el.classList.add('revealed');
+    } else {
+      el.textContent = '?';
+      el.classList.remove('revealed');
+    }
+  });
+
+  // Levelled label
+  document.getElementById('levelledLabel').textContent =
+    transferred !== 0 ? 'Levelled equation' : 'Levelled equation (slide to change)';
+
+  // Bar labels
+  document.getElementById('valA').textContent = fmt(a);
+  document.getElementById('valB').textContent = fmt(b);
+
+  // Bar fill widths
+  const absA  = Math.max(a, 0);
+  const absB  = Math.max(b, 0);
+  const sumAB = absA + absB || 1;
+  const aWidth = (absA / sumAB) * 100;
+
+  const barA = document.getElementById('barA');
+  const barB = document.getElementById('barB');
+  barA.style.transition = skipTransition ? 'none' : '';
+  barB.style.transition = skipTransition ? 'none' : '';
+  barA.style.width = aWidth + '%';
+  barB.style.width = (100 - aWidth) + '%';
+  barA.textContent = aWidth > 14 ? fmt(a) : '';
+  barB.textContent = (100 - aWidth) > 14 ? fmt(b) : '';
+
+  // Handle position
+  document.getElementById('barHandle').style.left =
+    Math.max(10, Math.min(90, aWidth)) + '%';
+}
+
+// ── check answer ──────────────────────────────────────────────
+function checkAnswer() {
+  if (questionDone) return;
+
+  const raw     = String(document.getElementById('answerInput').value).replace(/,/g, '').trim();
+  const userAns = parseInt(raw, 10);
+  const correct = getTotal();
+
+  if (!raw || isNaN(userAns)) {
+    showFeedback('neutral', '✏️ Enter a number first, then press Check!', false);
+    return;
+  }
+
+  if (userAns === correct) {
+    // ✅ Correct
+    questionDone   = true;
+    answerRevealed = true;
+    render(false);
+    disableInput();
+    const { a, b } = getCurrentValues();
+    const levelMsg = transferred !== 0
+      ? ` You levelled it to ${fmt(a)} ${op} ${fmt(b)}, smart thinking!` : '';
+    showFeedback('correct',
+      `✅ Brilliant! ${fmt(correct)} is correct!${levelMsg}`, true);
+    setNarration(fmt(origA) + ' ' + op + ' ' + fmt(origB) + ' = ' + fmt(correct) + ' ✅');
+
+  } else {
+    // ❌ Wrong
+    attempts++;
+    document.getElementById('answerInput').value = '';
+    document.getElementById('answerInput').focus();
+
+    if (attempts === 1) {
+      showFeedback('wrong',
+        '❌ Not quite, have another go! Try sliding the handle to make one number end in a zero.',
+        false);
+      setNarration('Hint: can you slide to make one number end in a zero?');
+
+    } else {
+      // 2nd wrong, reveal solution
+      questionDone   = true;
+      answerRevealed = true;
+      autoLevel();
+      render(false);
+      disableInput();
+      const { a, b } = getCurrentValues();
+      showFeedback('hint',
+        `💡 The answer is ${fmt(correct)}. Here's the trick: level ${fmt(origA)} ${op} ${fmt(origB)} `
+        + `→ ${fmt(a)} ${op} ${fmt(b)} = ${fmt(correct)}.`, true);
+      setNarration('Level ' + fmt(origA) + ' ' + op + ' ' + fmt(origB)
+        + ' → ' + fmt(a) + ' ' + op + ' ' + fmt(b) + ' = ' + fmt(correct));
+    }
+  }
+}
+
+// ── hint button ───────────────────────────────────────────────
+function giveHint() {
+  if (questionDone) return;
+  if (!hintUsed) {
+    hintUsed = true;
+    autoLevel();
+    render(false);
+    const { a, b } = getCurrentValues();
+    showFeedback('neutral',
+      `💡 The slider has been levelled for you. Now try working out ${fmt(a)} ${op} ${fmt(b)}!`,
+      false);
+    setNarration('Try ' + fmt(a) + ' ' + op + ' ' + fmt(b) + ', can you work it out now?');
+  } else {
+    const { a, b } = getCurrentValues();
+    showFeedback('neutral',
+      `💡 ${fmt(a)} is a friendly number, try counting on ${fmt(b)} from there!`, false);
+  }
+}
+
+// ── auto-level ────────────────────────────────────────────────
+function autoLevel() {
+  const targetA = nearestFriendly(origA);
+  const targetB = nearestFriendly(origB);
+  const costA   = Math.abs(targetA - origA);
+  const costB   = Math.abs(targetB - origB);
+  let best;
+  if (op === '+') {
+    best = costA <= costB ? targetA - origA : -(targetB - origB);
+  } else {
+    best = costA <= costB ? targetA - origA : targetB - origB;
+  }
+  transferred = clampTransferred(best);
+}
+
+function nearestFriendly(n) {
+  const abs  = Math.abs(n);
+  const base = abs >= 500 ? 100 : 10;
+  const lo   = Math.floor(abs / base) * base;
+  const hi   = lo + base;
+  const near = (abs - lo <= hi - abs) ? lo : hi;
+  return n >= 0 ? near : -near;
+}
+
+// ── drag ──────────────────────────────────────────────────────
+function initDrag() {
+  const track    = document.getElementById('barTrack');
+  const dragPill = document.getElementById('handleDrag');
+  const stepL    = document.getElementById('stepLeft');
+  const stepR    = document.getElementById('stepRight');
+
+  function pxToTransfer(dx) {
+    return Math.round(dx * (origA + origB) / track.getBoundingClientRect().width);
+  }
+
+  function jumpToX(clientX) {
+    if (questionDone) return;
+    const rect  = track.getBoundingClientRect();
+    const frac  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    transferred = clampTransferred(Math.round(frac * (origA + origB)) - origA);
+    render(false);
+  }
+
+  function startDrag(clientX) {
+    if (questionDone) return;
+    isDragging           = true;
+    dragStartX           = clientX;
+    dragStartTransferred = transferred;
+    dragPill.classList.add('dragging');
+    document.body.style.cursor = 'ew-resize';
+  }
+
+  function moveDrag(clientX) {
+    if (!isDragging) return;
+    transferred = clampTransferred(dragStartTransferred + pxToTransfer(clientX - dragStartX));
+    render(true);
+  }
+
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    dragPill.classList.remove('dragging');
+    document.body.style.cursor = '';
+    render(false);
+  }
+
+  function step(delta) {
+    if (questionDone) return;
+    transferred = clampTransferred(transferred + delta);
+    render(false);
+  }
+
+  [stepL, stepR].forEach(btn => {
+    btn.addEventListener('mousedown', e => e.stopPropagation());
+    btn.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+  });
+  stepL.addEventListener('click', () => step(-1));
+  stepR.addEventListener('click', () => step(+1));
+
+  track.addEventListener('mousedown', e => {
+    jumpToX(e.clientX); startDrag(e.clientX);
+    dragStartTransferred = transferred; e.preventDefault();
+  });
+  dragPill.addEventListener('mousedown', e => {
+    startDrag(e.clientX); e.preventDefault(); e.stopPropagation();
+  });
+  document.addEventListener('mousemove', e => moveDrag(e.clientX));
+  document.addEventListener('mouseup',   endDrag);
+
+  track.addEventListener('touchstart', e => {
+    jumpToX(e.touches[0].clientX); startDrag(e.touches[0].clientX);
+    dragStartTransferred = transferred; e.preventDefault();
+  }, { passive: false });
+  dragPill.addEventListener('touchstart', e => {
+    startDrag(e.touches[0].clientX); e.preventDefault(); e.stopPropagation();
+  }, { passive: false });
+  document.addEventListener('touchmove', e => {
+    if (isDragging) { moveDrag(e.touches[0].clientX); e.preventDefault(); }
+  }, { passive: false });
+  document.addEventListener('touchend', endDrag);
+}
+
+// ── feedback helpers ──────────────────────────────────────────
+function showFeedback(type, msg, showNext) {
+  const fb = document.getElementById('feedbackArea');
+  fb.style.display = 'block';
+  fb.className     = 'feedback-area ' + type;
+  document.getElementById('feedbackMsg').textContent             = msg;
+  document.getElementById('tryAnotherBtn').style.display = showNext ? 'inline-block' : 'none';
+}
+function hideFeedback() {
+  const fb = document.getElementById('feedbackArea');
+  fb.style.display = 'none';
+  document.getElementById('tryAnotherBtn').style.display = 'none';
+}
+function enableInput() {
+  document.getElementById('answerInput').disabled = false;
+  document.getElementById('checkBtn').disabled    = false;
+}
+function disableInput() {
+  document.getElementById('answerInput').disabled = true;
+  document.getElementById('checkBtn').disabled    = true;
+}
+
+// ── helpers ───────────────────────────────────────────────────
+function fmt(n) {
+  return typeof n === 'number' && !isNaN(n) ? n.toLocaleString('en-AU') : String(n);
+}
+function setNarration(txt) {
+  document.getElementById('narration').textContent = txt;
+}
+
+init();
+
+function toggleLearningSection() {
+  const content = document.getElementById('learningContent');
+  const toggle = document.getElementById('learningToggle');
+  content.classList.toggle('open');
+  toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+</script>
+</body>
+</html>

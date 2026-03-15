@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order of Operations</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B5DE5;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before { content: ''; position: fixed; width: 250px; height: 250px; border-radius: 50%; background: var(--accent); opacity: 0.08; top: -80px; right: -50px; pointer-events: none; z-index: 0; }
+  body::after { content: ''; position: fixed; width: 180px; height: 180px; border-radius: 50%; background: var(--orange); opacity: 0.08; bottom: 10%; left: -50px; pointer-events: none; z-index: 0; }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+  .header .ext-badge { display: inline-block; background: var(--purple); color: white; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; }
+
+  .learning-card { width: 100%; max-width: 720px; background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--card-shadow); margin-bottom: 1.5rem; border-top: 5px solid var(--accent); }
+  .learning-card h2 { font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  .phase-nav { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 720px; }
+  .phase-btn { padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0; background: white; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s; }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+  .reveal-btn { background: var(--accent); color: white; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--accent); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.l4 { background: var(--blue); }
+  .level-btn.l5 { background: var(--orange); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  .q-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); display: none; }
+  .q-card.active { display: block; animation: fadeIn 0.35s ease; }
+  .q-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px; }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .expression-display { text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 20px; line-height: 1.6; }
+
+  .div-input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+  .div-label { font-size: 15px; font-weight: 600; color: var(--text-light); }
+  .div-input { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; text-align: center; border: 3px solid var(--border); border-radius: 14px; padding: 12px 8px; width: 90px; outline: none; transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc; }
+  .div-input:focus { border-color: var(--accent); }
+  .div-input.correct { border-color: var(--green); background: var(--green-light); }
+  .div-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .div-input:disabled { opacity: 0.7; }
+
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text-dark); color: white; }
+  .btn-dark:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  .feedback { border-radius: 14px; padding: 14px 18px; margin-top: 12px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+
+  .progress-area { width: 100%; max-width: 720px; margin-bottom: 16px; display: none; }
+  .progress-area.show { display: block; }
+  .progress-label { font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-align: center; }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; text-align: center; margin-top: 16px; display: none; width: 100%; max-width: 720px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700; margin: 12px 0; }
+  .summary-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .result-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; text-align: left; }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; flex-shrink: 0; }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+
+  /* L4: Multiple choice options */
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .option-btn { padding: 14px 16px; border-radius: 14px; border: 3px solid var(--border); background: #fafbfc; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; color: var(--text-dark); }
+  .option-btn:hover:not(.locked) { border-color: var(--accent); background: #e8f8f6; }
+  .option-btn.selected { border-color: var(--accent); background: var(--accent); color: white; }
+  .option-btn.correct-pick { border-color: var(--green); background: var(--green-light); color: #0a3820; }
+  .option-btn.incorrect-pick { border-color: var(--red); background: var(--red-light); color: #5a1a1a; }
+  .option-btn.locked { cursor: default; opacity: 0.7; }
+
+  /* L5: Fill-in-the-blanks expression builder */
+  .number-bank { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .bank-num { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: #f0f4f8; border: 2px solid var(--border); font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text-dark); }
+  .bank-num.used { opacity: 0.3; text-decoration: line-through; }
+  .blank-row { display: flex; align-items: center; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .blank-input { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; text-align: center; border: 3px solid var(--border); border-radius: 12px; padding: 10px 4px; width: 60px; outline: none; transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc; }
+  .blank-input:focus { border-color: var(--accent); }
+  .blank-input.correct { border-color: var(--green); background: var(--green-light); }
+  .blank-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .blank-input:disabled { opacity: 0.7; }
+  .op-symbol { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text-light); padding: 0 2px; }
+  .target-badge { display: inline-block; background: var(--accent); color: white; font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; padding: 8px 18px; border-radius: 14px; }
+
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--accent); max-width: 720px; width: 100%; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn { background: transparent; color: var(--accent-dark); border: 2px solid var(--accent); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-section { display: none; }
+  .go-deeper-section.visible { display: block; animation: fadeIn 0.35s ease; }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .card, .q-card, .learning-card { padding: 20px 18px; }
+    .div-input { width: 72px; font-size: 18px; }
+    .go-deeper-card { padding: 20px 18px; }
+    .expression-display { font-size: 20px; }
+    .options-grid { grid-template-columns: 1fr; }
+    .blank-input { width: 50px; font-size: 17px; padding: 8px 2px; }
+    .op-symbol { font-size: 18px; }
+    .bank-num { width: 38px; height: 38px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ext-badge">Year 6 Extension</div>
+  <h1>Order of <span>Operations</span></h1>
+  <p>Brackets first, then multiplication and division, then addition and subtraction</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to evaluate and construct number sentences that involve more than one operation, following the correct order of operations.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can evaluate expressions with two operations (no brackets) by doing multiplication or division before addition or subtraction.</li>
+      <li>I can evaluate expressions with brackets by doing the bracketed part first.</li>
+      <li>I can insert brackets into an expression to make it equal a given value.</li>
+      <li>I can evaluate longer expressions with three operations and identify the correct answer.</li>
+      <li>I can arrange numbers into an expression using all four operations to reach a target.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn" onclick="showSection('practice', this)">Practice</button>
+</div>
+
+<!-- ══════ LEARN SECTION ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>Why order matters</h3>
+    <p>When an expression has more than one operation, the order in which you calculate changes the answer. Mathematicians agreed on a set of rules so that everyone gets the same result.</p>
+    <div class="callout callout-teal" style="margin-top:16px;">
+      <div class="label">The rules</div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:10px;">
+        <p><strong>Step 1:</strong> Do anything inside <strong>brackets</strong> first.</p>
+        <p><strong>Step 2:</strong> Do <strong>multiplication</strong> and <strong>division</strong> (left to right).</p>
+        <p><strong>Step 3:</strong> Do <strong>addition</strong> and <strong>subtraction</strong> (left to right).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Worked example</h3>
+
+    <div id="oo-demo">
+      <div class="step-reveal shown" id="oo-1">
+        <p><strong>Evaluate: 3 + 4 x 2</strong></p>
+        <p style="margin-top:8px;">There are no brackets. We have addition and multiplication. Which comes first?</p>
+      </div>
+      <div class="step-reveal" id="oo-2">
+        <p style="margin-top:12px;">Multiplication comes before addition.</p>
+        <p style="margin-top:4px;font-weight:700;">First: <strong>4 x 2 = 8</strong></p>
+      </div>
+      <div class="step-reveal" id="oo-3">
+        <p style="margin-top:12px;">Now do the addition.</p>
+        <p style="margin-top:4px;font-weight:700;"><strong>3 + 8 = 11</strong></p>
+        <p style="margin-top:8px;">The answer is <strong>11</strong>, not <strong>14</strong>. If you added first, you would get <strong>7 x 2 = 14</strong>, which is wrong.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="oo-btn" onclick="revealOODemo()">Reveal next step</button>
+
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="label">Common mistake</div>
+      <p>Working left to right without thinking about the rules. Always scan the whole expression for multiplication and division before doing addition and subtraction.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PRACTICE SECTION ══════ -->
+<div id="practice" class="section">
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="startLevel(1)">Level 1</button>
+    <button class="level-btn l2" onclick="startLevel(2)">Level 2</button>
+    <button class="level-btn l3" onclick="startLevel(3)">Level 3</button>
+    <button class="level-btn l4" onclick="startLevel(4)">Level 4</button>
+    <button class="level-btn l5" onclick="startLevel(5)">Level 5</button>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Bracket Investigations</h3>
+    <p>Complete Level 3 with 4+ correct to unlock</p>
+  </button>
+
+  <div class="progress-area" id="progress-area">
+    <div class="progress-label" id="progress-label">Question 1 of 6</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="question-area"></div>
+
+  <div class="summary-card" id="summary-card">
+    <div class="summary-label">Your Score</div>
+    <div class="summary-score" id="summary-score"></div>
+    <div class="summary-label" id="summary-message"></div>
+    <div id="summary-breakdown" style="text-align:left;margin-top:24px;"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="retryLevel()">Try Again</button>
+      <button class="btn btn-dark" id="next-level-btn" style="display:none;" onclick="goNextLevel()">Next Level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER SECTION ══════ -->
+<div class="go-deeper-section" id="go-deeper-section">
+  <div class="go-deeper-card">
+    <h2>&#x1F513; Go Deeper: Bracket Investigations</h2>
+    <p>These tasks push your thinking beyond evaluating expressions. You will explore how brackets change meaning, make conjectures, and reason about structure.</p>
+
+    <!-- TASK 1: SPECIALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising</div>
+      <div class="ext-task-prompt">
+        Start with the expression <span class="ext-numbers">2 + 3 x 4 + 5</span>. By placing one pair of brackets in different positions, how many different answers can you make? List each one.
+      </div>
+      <div class="ext-task-sub">Try every possible bracket position. Be systematic.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>No brackets: <span class="ext-numbers">2 + 3 x 4 + 5 = 2 + 12 + 5 = 19</span>.</p>
+        <p>(<span class="ext-numbers">2 + 3</span>) x <span class="ext-numbers">4 + 5</span> = <span class="ext-numbers">5 x 4 + 5 = 25</span>.</p>
+        <p><span class="ext-numbers">2 +</span> (<span class="ext-numbers">3 x 4</span>) <span class="ext-numbers">+ 5</span> = <span class="ext-numbers">2 + 12 + 5 = 19</span> (same as no brackets, since multiplication already goes first).</p>
+        <p><span class="ext-numbers">2 + 3 x</span> (<span class="ext-numbers">4 + 5</span>) = <span class="ext-numbers">2 + 3 x 9 = 2 + 27 = 29</span>.</p>
+        <p>I found <span class="ext-numbers">3</span> different answers: <span class="ext-numbers">19</span>, <span class="ext-numbers">25</span>, and <span class="ext-numbers">29</span>. Brackets around the multiplication did not change the answer because multiplication already happens first.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to see what happens.
+      </div>
+    </div>
+
+    <!-- TASK 2: CONJECTURING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecturing</div>
+      <div class="ext-task-prompt">
+        When do brackets change the answer, and when do they not? Make a conjecture based on your examples above. Test it with a new expression of your choice.
+      </div>
+      <div class="ext-task-sub">Think about what the brackets are doing to the order of operations.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>My conjecture: brackets only change the answer when they force you to do an addition or subtraction before a multiplication or division. If the brackets surround something that would already be done first (like a multiplication), they have no effect.</p>
+        <p>I tested with <span class="ext-numbers">10 - 2 x 3</span>. Without brackets: <span class="ext-numbers">10 - 6 = 4</span>. With (<span class="ext-numbers">10 - 2</span>) x <span class="ext-numbers">3 = 8 x 3 = 24</span>. The brackets changed the answer because they forced subtraction to happen before multiplication.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim you believe is true, based on evidence.
+      </div>
+    </div>
+
+    <!-- TASK 3: GENERALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Generalising</div>
+      <div class="ext-task-prompt">
+        "You can always make the answer bigger by adding brackets." Is this statement always true, sometimes true, or never true? Provide examples to support your answer.
+      </div>
+      <div class="ext-task-sub">Consider expressions with subtraction as well as addition.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>Sometimes true. Adding brackets can make the answer bigger or smaller, depending on the operations involved.</p>
+        <p>Bigger: (<span class="ext-numbers">2 + 3</span>) x <span class="ext-numbers">4 = 20</span>, versus <span class="ext-numbers">2 + 3 x 4 = 14</span>. Brackets made it bigger.</p>
+        <p>Smaller: <span class="ext-numbers">10 -</span> (<span class="ext-numbers">2 + 3</span>) x <span class="ext-numbers">1 = 10 - 5 = 5</span>, versus <span class="ext-numbers">10 - 2 + 3 x 1 = 10 - 2 + 3 = 11</span>. Brackets made it smaller.</p>
+        <p>The direction depends on what you group together and what operations surround the brackets. There is no universal rule for "bigger" or "smaller".</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>generalising</em> by testing an always/sometimes/never claim. You found counterexamples in both directions.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── QUESTION POOLS ──
+
+// L1: Evaluate expression (no brackets, two operations)
+var pool1 = [
+  {display:'3 + 4 \u00d7 2', answer:11, steps:'4 \u00d7 2 = 8, then 3 + 8 = 11'},
+  {display:'10 - 6 \u00f7 2', answer:7, steps:'6 \u00f7 2 = 3, then 10 - 3 = 7'},
+  {display:'5 \u00d7 3 + 8', answer:23, steps:'5 \u00d7 3 = 15, then 15 + 8 = 23'},
+  {display:'20 \u00f7 4 - 3', answer:2, steps:'20 \u00f7 4 = 5, then 5 - 3 = 2'},
+  {display:'7 + 3 \u00d7 5', answer:22, steps:'3 \u00d7 5 = 15, then 7 + 15 = 22'},
+  {display:'12 - 8 \u00f7 4', answer:10, steps:'8 \u00f7 4 = 2, then 12 - 2 = 10'},
+  {display:'6 \u00d7 4 + 9', answer:33, steps:'6 \u00d7 4 = 24, then 24 + 9 = 33'},
+  {display:'15 \u00f7 5 + 7', answer:10, steps:'15 \u00f7 5 = 3, then 3 + 7 = 10'},
+  {display:'9 + 2 \u00d7 6', answer:21, steps:'2 \u00d7 6 = 12, then 9 + 12 = 21'},
+  {display:'24 \u00f7 3 - 5', answer:3, steps:'24 \u00f7 3 = 8, then 8 - 5 = 3'},
+  {display:'4 \u00d7 7 + 2', answer:30, steps:'4 \u00d7 7 = 28, then 28 + 2 = 30'},
+  {display:'8 + 18 \u00f7 6', answer:11, steps:'18 \u00f7 6 = 3, then 8 + 3 = 11'},
+  {display:'30 \u00f7 5 + 11', answer:17, steps:'30 \u00f7 5 = 6, then 6 + 11 = 17'},
+  {display:'2 \u00d7 9 - 6', answer:12, steps:'2 \u00d7 9 = 18, then 18 - 6 = 12'},
+  {display:'11 + 4 \u00d7 3', answer:23, steps:'4 \u00d7 3 = 12, then 11 + 12 = 23'}
+];
+
+// L2: Evaluate expression with brackets
+var pool2 = [
+  {display:'(3 + 4) \u00d7 2', answer:14, steps:'Brackets: 3 + 4 = 7, then 7 \u00d7 2 = 14'},
+  {display:'(10 - 6) \u00f7 2', answer:2, steps:'Brackets: 10 - 6 = 4, then 4 \u00f7 2 = 2'},
+  {display:'5 \u00d7 (3 + 8)', answer:55, steps:'Brackets: 3 + 8 = 11, then 5 \u00d7 11 = 55'},
+  {display:'(20 + 4) \u00f7 3', answer:8, steps:'Brackets: 20 + 4 = 24, then 24 \u00f7 3 = 8'},
+  {display:'(7 + 3) \u00d7 5', answer:50, steps:'Brackets: 7 + 3 = 10, then 10 \u00d7 5 = 50'},
+  {display:'(12 - 8) \u00d7 4', answer:16, steps:'Brackets: 12 - 8 = 4, then 4 \u00d7 4 = 16'},
+  {display:'6 \u00d7 (4 + 9)', answer:78, steps:'Brackets: 4 + 9 = 13, then 6 \u00d7 13 = 78'},
+  {display:'(15 + 5) \u00f7 4', answer:5, steps:'Brackets: 15 + 5 = 20, then 20 \u00f7 4 = 5'},
+  {display:'(9 + 2) \u00d7 6', answer:66, steps:'Brackets: 9 + 2 = 11, then 11 \u00d7 6 = 66'},
+  {display:'(24 - 3) \u00f7 7', answer:3, steps:'Brackets: 24 - 3 = 21, then 21 \u00f7 7 = 3'},
+  {display:'4 \u00d7 (7 + 2)', answer:36, steps:'Brackets: 7 + 2 = 9, then 4 \u00d7 9 = 36'},
+  {display:'(8 + 18) \u00f7 2', answer:13, steps:'Brackets: 8 + 18 = 26, then 26 \u00f7 2 = 13'}
+];
+
+// L3: Insert brackets to make the expression equal the target
+var pool3 = [
+  {parts:['3','+','5','\u00d7','2'], target:16, bracketExpr:'(3 + 5) \u00d7 2', bracketValue:8, withoutBrackets:13, display:'3 + 5 \u00d7 2 \u2192 16'},
+  {parts:['12','-','4','\u00d7','2'], target:16, bracketExpr:'(12 - 4) \u00d7 2', bracketValue:8, withoutBrackets:4, display:'12 - 4 \u00d7 2 \u2192 16'},
+  {parts:['6','+','3','\u00d7','4'], target:36, bracketExpr:'(6 + 3) \u00d7 4', bracketValue:9, withoutBrackets:18, display:'6 + 3 \u00d7 4 \u2192 36'},
+  {parts:['20','-','8','\u00f7','4'], target:3, bracketExpr:'(20 - 8) \u00f7 4', bracketValue:12, withoutBrackets:18, display:'20 - 8 \u00f7 4 \u2192 3'},
+  {parts:['2','\u00d7','5','+','3'], target:16, bracketExpr:'2 \u00d7 (5 + 3)', bracketValue:8, withoutBrackets:13, display:'2 \u00d7 5 + 3 \u2192 16'},
+  {parts:['15','\u00f7','3','+','2'], target:3, bracketExpr:'15 \u00f7 (3 + 2)', bracketValue:5, withoutBrackets:7, display:'15 \u00f7 3 + 2 \u2192 3'},
+  {parts:['4','+','6','\u00d7','3'], target:30, bracketExpr:'(4 + 6) \u00d7 3', bracketValue:10, withoutBrackets:22, display:'4 + 6 \u00d7 3 \u2192 30'},
+  {parts:['18','-','6','\u00f7','3'], target:4, bracketExpr:'(18 - 6) \u00f7 3', bracketValue:12, withoutBrackets:16, display:'18 - 6 \u00f7 3 \u2192 4'}
+];
+
+// L4: Evaluate longer expressions (3 operations), pick correct answer
+// Each has display, answer, options (4 choices), steps
+var pool4 = [
+  {display:'3 + 4 \u00d7 5 - 2', answer:21, options:[21, 33, 15, 25], steps:'4 \u00d7 5 = 20, then 3 + 20 - 2 = 21'},
+  {display:'12 \u00f7 3 + 5 \u00d7 2', answer:14, options:[14, 18, 9, 22], steps:'12 \u00f7 3 = 4, 5 \u00d7 2 = 10, then 4 + 10 = 14'},
+  {display:'8 - 2 \u00d7 3 + 4', answer:6, options:[6, 22, 10, 18], steps:'2 \u00d7 3 = 6, then 8 - 6 + 4 = 6'},
+  {display:'20 \u00f7 5 + 3 \u00d7 4', answer:16, options:[16, 28, 8, 20], steps:'20 \u00f7 5 = 4, 3 \u00d7 4 = 12, then 4 + 12 = 16'},
+  {display:'6 \u00d7 3 - 10 \u00f7 2', answer:13, options:[13, 4, 23, 8], steps:'6 \u00d7 3 = 18, 10 \u00f7 2 = 5, then 18 - 5 = 13'},
+  {display:'15 - 12 \u00f7 4 + 5', answer:17, options:[17, 6, 12, 23], steps:'12 \u00f7 4 = 3, then 15 - 3 + 5 = 17'},
+  {display:'(3 + 4) \u00d7 5 - 2', answer:33, options:[33, 21, 37, 15], steps:'Brackets: 3 + 4 = 7, then 7 \u00d7 5 = 35, then 35 - 2 = 33'},
+  {display:'12 \u00f7 (3 + 1) + 2', answer:5, options:[5, 7, 4, 6], steps:'Brackets: 3 + 1 = 4, then 12 \u00f7 4 = 3, then 3 + 2 = 5'},
+  {display:'(8 - 2) \u00d7 3 + 4', answer:22, options:[22, 6, 34, 14], steps:'Brackets: 8 - 2 = 6, then 6 \u00d7 3 = 18, then 18 + 4 = 22'},
+  {display:'20 \u00f7 (5 + 5) \u00d7 3', answer:6, options:[6, 19, 12, 2], steps:'Brackets: 5 + 5 = 10, then 20 \u00f7 10 = 2, then 2 \u00d7 3 = 6'},
+  {display:'6 \u00d7 (3 - 1) + 8', answer:20, options:[20, 25, 14, 32], steps:'Brackets: 3 - 1 = 2, then 6 \u00d7 2 = 12, then 12 + 8 = 20'},
+  {display:'(15 - 9) \u00f7 3 + 7', answer:9, options:[9, 19, 3, 13], steps:'Brackets: 15 - 9 = 6, then 6 \u00f7 3 = 2, then 2 + 7 = 9'}
+];
+
+// L5: Fill in the blanks - arrange numbers using all four operations to hit target
+// ops: the 4 operations in display order (between 5 number blanks)
+// nums: the numbers the student must use (each exactly once)
+// target: the result to achieve
+// hint: one valid solution shown in feedback
+var pool5 = [
+  {ops:['\u00d7','+','-','\u00f7'], nums:[2,3,4,5,6], target:20, display:'_ \u00d7 _ + _ - _ \u00f7 _ = 20', hint:'4 \u00d7 5 + 3 - 6 \u00f7 2'},
+  {ops:['\u00f7','+','\u00d7','-'], nums:[2,4,6,8,10], target:21, display:'_ \u00f7 _ + _ \u00d7 _ - _ = 21', hint:'10 \u00f7 2 + 4 \u00d7 6 - 8'},
+  {ops:['-','\u00d7','+','\u00f7'], nums:[1,2,3,4,8], target:7, display:'_ - _ \u00d7 _ + _ \u00f7 _ = 7', hint:'8 - 1 \u00d7 3 + 4 \u00f7 2'},
+  {ops:['\u00d7','\u00f7','+','-'], nums:[2,3,4,6,12], target:22, display:'_ \u00d7 _ \u00f7 _ + _ - _ = 22', hint:'6 \u00d7 12 \u00f7 3 + 2 - 4'},
+  {ops:['+','\u00d7','\u00f7','-'], nums:[3,4,5,6,10], target:17, display:'_ + _ \u00d7 _ \u00f7 _ - _ = 17', hint:'5 + 6 \u00d7 10 \u00f7 4 - 3'},
+  {ops:['\u00f7','-','+','\u00d7'], nums:[2,3,4,6,8], target:18, display:'_ \u00f7 _ - _ + _ \u00d7 _ = 18', hint:'8 \u00f7 2 - 4 + 3 \u00d7 6'},
+  {ops:['-','\u00f7','+','\u00d7'], nums:[2,3,5,6,9], target:21, display:'_ - _ \u00f7 _ + _ \u00d7 _ = 21', hint:'5 - 6 \u00f7 3 + 2 \u00d7 9'},
+  {ops:['+','\u00f7','\u00d7','-'], nums:[2,3,6,8,12], target:18, display:'_ + _ \u00f7 _ \u00d7 _ - _ = 18', hint:'2 + 12 \u00f7 3 \u00d7 6 - 8'}
+];
+
+// ── STATE ──
+var currentLevel = 1;
+var currentQ = 0;
+var questions = [];
+var answers = [];
+var ooDemoStep = 1;
+var selectedOption = -1;
+
+// ── UTILITY ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// BODMAS evaluator for L5 validation
+function evalBODMAS(nums, ops) {
+  var n = nums.slice();
+  var o = ops.slice();
+  // First pass: multiply and divide (left to right)
+  for (var i = 0; i < o.length; i++) {
+    if (o[i] === '\u00d7' || o[i] === '\u00f7') {
+      n[i] = o[i] === '\u00d7' ? n[i] * n[i + 1] : n[i] / n[i + 1];
+      n.splice(i + 1, 1);
+      o.splice(i, 1);
+      i--;
+    }
+  }
+  // Second pass: add and subtract (left to right)
+  var result = n[0];
+  for (var i = 0; i < o.length; i++) {
+    result = o[i] === '+' ? result + n[i + 1] : result - n[i + 1];
+  }
+  return result;
+}
+
+// ── LEARN: STEP REVEAL ──
+function revealOODemo() {
+  ooDemoStep++;
+  var el = document.getElementById('oo-' + ooDemoStep);
+  if (el) el.classList.add('shown');
+  if (ooDemoStep >= 3) document.getElementById('oo-btn').style.display = 'none';
+}
+
+// ── NAVIGATION ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── START LEVEL ──
+function startLevel(n) {
+  currentLevel = n;
+  currentQ = 0;
+  answers = [];
+  selectedOption = -1;
+
+  document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+
+  if (n === 1) questions = shuffle(pool1).slice(0, 6);
+  else if (n === 2) questions = shuffle(pool2).slice(0, 6);
+  else if (n === 3) questions = shuffle(pool3).slice(0, 6);
+  else if (n === 4) questions = shuffle(pool4).slice(0, 6);
+  else questions = shuffle(pool5).slice(0, 6);
+
+  document.getElementById('progress-area').classList.add('show');
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+
+  buildQuestion();
+}
+
+// ── BUILD QUESTION ──
+function buildQuestion() {
+  var area = document.getElementById('question-area');
+  var q = questions[currentQ];
+
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+
+  var html = '<div class="q-card active">';
+  html += '<div class="q-number">Question ' + (currentQ + 1) + ' of ' + questions.length + '</div>';
+
+  if (currentLevel <= 2) {
+    // L1 & L2: Evaluate expression, type answer
+    html += '<div class="q-stem">Evaluate this expression:</div>';
+    html += '<div class="expression-display"><span class="mono">' + q.display + '</span></div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">= </div>';
+    html += '<input type="text" class="div-input" id="inp-ans" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  } else if (currentLevel === 3) {
+    // L3: Insert brackets
+    var exprStr = q.parts.join(' ');
+    html += '<div class="q-stem">This expression needs to equal <span class="mono">' + q.target + '</span>. Without brackets, it equals <span class="mono">' + q.withoutBrackets + '</span>. Add one pair of brackets to fix it.</div>';
+    html += '<div class="expression-display"><span class="mono">' + exprStr + '</span></div>';
+    html += '<div style="text-align:center;font-size:14px;color:var(--text-light);margin-bottom:16px;">What does the part inside the brackets equal?</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Bracket part =</div>';
+    html += '<input type="text" class="div-input" id="inp-ans" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  } else if (currentLevel === 4) {
+    // L4: Longer expressions, multiple choice
+    html += '<div class="q-stem">What does this expression equal?</div>';
+    html += '<div class="expression-display"><span class="mono">' + q.display + '</span></div>';
+    var shuffledOpts = shuffle(q.options);
+    // Store shuffled order on question for checking
+    q._shuffledOpts = shuffledOpts;
+    html += '<div class="options-grid">';
+    for (var i = 0; i < shuffledOpts.length; i++) {
+      html += '<button class="option-btn" data-idx="' + i + '" data-val="' + shuffledOpts[i] + '" onclick="selectOption(' + i + ')"><span class="mono">' + shuffledOpts[i] + '</span></button>';
+    }
+    html += '</div>';
+  } else if (currentLevel === 5) {
+    // L5: Fill in the blanks
+    html += '<div class="q-stem">Place the numbers into the blanks so the expression equals the target.</div>';
+    html += '<div style="text-align:center;margin-bottom:16px;">Target: <span class="target-badge">' + q.target + '</span></div>';
+    html += '<div style="text-align:center;margin-bottom:8px;font-size:14px;color:var(--text-light);">Use each number exactly once:</div>';
+    html += '<div class="number-bank" id="number-bank">';
+    var sortedNums = q.nums.slice().sort(function(a,b){return a-b;});
+    for (var i = 0; i < sortedNums.length; i++) {
+      html += '<div class="bank-num" data-val="' + sortedNums[i] + '">' + sortedNums[i] + '</div>';
+    }
+    html += '</div>';
+    html += '<div class="blank-row">';
+    for (var i = 0; i < 5; i++) {
+      html += '<input type="text" class="blank-input" id="blank-' + i + '" inputmode="numeric" placeholder="?" autocomplete="off" oninput="updateBank()">';
+      if (i < 4) {
+        html += '<span class="op-symbol">' + q.ops[i] + '</span>';
+      }
+    }
+    html += '<span class="op-symbol">=</span>';
+    html += '<span class="mono" style="font-size:22px;">' + q.target + '</span>';
+    html += '</div>';
+  }
+
+  // Check/Next buttons (L4 uses options directly, but still needs Next)
+  if (currentLevel !== 4) {
+    html += '<div style="text-align:center;">';
+    html += '<button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Check Answer</button>';
+    html += '</div>';
+  }
+  html += '<div class="feedback" id="feedback"></div>';
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-dark" id="next-btn" style="display:none;margin-top:12px;" onclick="nextQuestion()">Next Question</button>';
+  html += '</div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+  selectedOption = -1;
+
+  // Focus first input
+  if (currentLevel <= 3) {
+    var inp = document.getElementById('inp-ans');
+    if (inp) setTimeout(function() { inp.focus(); }, 100);
+  } else if (currentLevel === 5) {
+    var blank0 = document.getElementById('blank-0');
+    if (blank0) setTimeout(function() { blank0.focus(); }, 100);
+  }
+}
+
+// ── L4: SELECT OPTION ──
+function selectOption(idx) {
+  if (answers[currentQ] !== undefined) return;
+  var q = questions[currentQ];
+  var fb = document.getElementById('feedback');
+  var btns = document.querySelectorAll('.option-btn');
+  var pickedVal = q._shuffledOpts[idx];
+  var isCorrect = (pickedVal === q.answer);
+
+  // Lock all buttons
+  btns.forEach(function(b) { b.classList.add('locked'); });
+
+  // Highlight picked
+  btns[idx].classList.add(isCorrect ? 'correct-pick' : 'incorrect-pick');
+
+  // If wrong, also highlight the correct one
+  if (!isCorrect) {
+    btns.forEach(function(b) {
+      if (parseInt(b.getAttribute('data-val'), 10) === q.answer) {
+        b.classList.add('correct-pick');
+      }
+    });
+  }
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> ' + q.steps + '.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You chose <span class="mono">' + pickedVal + '</span>. ' + q.steps + '. The answer is <span class="mono">' + q.answer + '</span>.';
+  }
+
+  answers[currentQ] = { correct: isCorrect };
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+// ── L5: UPDATE NUMBER BANK VISUAL ──
+function updateBank() {
+  var q = questions[currentQ];
+  var bankNums = document.querySelectorAll('.bank-num');
+  // Count how many times each number appears in blanks
+  var used = {};
+  for (var i = 0; i < 5; i++) {
+    var val = document.getElementById('blank-' + i).value.trim();
+    if (val !== '' && !isNaN(Number(val))) {
+      var n = parseInt(val, 10);
+      used[n] = (used[n] || 0) + 1;
+    }
+  }
+  // Count available in bank
+  var available = {};
+  q.nums.forEach(function(n) { available[n] = (available[n] || 0) + 1; });
+  // Mark bank numbers
+  bankNums.forEach(function(el) {
+    var v = parseInt(el.getAttribute('data-val'), 10);
+    if (used[v] && used[v] > 0) {
+      el.classList.add('used');
+      used[v]--;
+    } else {
+      el.classList.remove('used');
+    }
+  });
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer() {
+  if (answers[currentQ] !== undefined) return;
+  var q = questions[currentQ];
+  var fb = document.getElementById('feedback');
+
+  if (currentLevel <= 3) {
+    // L1, L2, L3: single input
+    var inp = document.getElementById('inp-ans');
+    var raw = inp.value.replace(/,/g, '').trim();
+    if (raw === '' || isNaN(Number(raw))) { inp.style.borderColor = 'var(--red)'; return; }
+    var student = parseInt(raw, 10);
+    var correctVal = currentLevel <= 2 ? q.answer : q.bracketValue;
+    var isCorrect = (student === correctVal);
+    inp.disabled = true;
+    inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    if (currentLevel <= 2) {
+      if (isCorrect) {
+        fb.className = 'feedback show correct';
+        fb.innerHTML = '<strong>Correct.</strong> ' + q.steps + '.';
+      } else {
+        fb.className = 'feedback show incorrect';
+        fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + student + '</span>. ' + q.steps + '. The answer is <span class="mono">' + q.answer + '</span>.';
+      }
+    } else {
+      if (isCorrect) {
+        fb.className = 'feedback show correct';
+        fb.innerHTML = '<strong>Correct.</strong> The part inside the brackets equals <span class="mono">' + q.bracketValue + '</span>, so ' + q.bracketExpr + ' = <span class="mono">' + q.target + '</span>.';
+      } else {
+        fb.className = 'feedback show incorrect';
+        fb.innerHTML = '<strong>Not quite.</strong> The brackets go here: ' + q.bracketExpr + '. The part inside equals <span class="mono">' + q.bracketValue + '</span>, giving <span class="mono">' + q.target + '</span>.';
+      }
+    }
+
+    answers[currentQ] = { correct: isCorrect };
+    document.getElementById('check-btn').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'inline-block';
+
+  } else if (currentLevel === 5) {
+    // L5: Fill in blanks
+    var nums = [];
+    var allFilled = true;
+    for (var i = 0; i < 5; i++) {
+      var inp = document.getElementById('blank-' + i);
+      var raw = inp.value.trim();
+      if (raw === '' || isNaN(Number(raw))) {
+        inp.style.borderColor = 'var(--red)';
+        allFilled = false;
+      } else {
+        nums.push(parseInt(raw, 10));
+      }
+    }
+    if (!allFilled) return;
+
+    // Check all required numbers used exactly once
+    var sortedStudent = nums.slice().sort(function(a,b){return a-b;});
+    var sortedRequired = q.nums.slice().sort(function(a,b){return a-b;});
+    var numsMatch = sortedStudent.length === sortedRequired.length;
+    if (numsMatch) {
+      for (var i = 0; i < sortedStudent.length; i++) {
+        if (sortedStudent[i] !== sortedRequired[i]) { numsMatch = false; break; }
+      }
+    }
+
+    if (!numsMatch) {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Use each number exactly once:</strong> ' + sortedRequired.join(', ') + '.';
+      return;
+    }
+
+    // Evaluate with BODMAS
+    var result = evalBODMAS(nums, q.ops);
+    var isCorrect = Math.abs(result - q.target) < 0.0001;
+
+    for (var i = 0; i < 5; i++) {
+      var inp = document.getElementById('blank-' + i);
+      inp.disabled = true;
+      inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+    }
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> Your expression equals <span class="mono">' + q.target + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> Your expression equals <span class="mono">' + Math.round(result) + '</span>, not <span class="mono">' + q.target + '</span>. One solution: <span class="mono">' + q.hint + '</span>.';
+    }
+
+    answers[currentQ] = { correct: isCorrect };
+    document.getElementById('check-btn').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'inline-block';
+  }
+}
+
+// ── NEXT / SUMMARY ──
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showSummary(); return; }
+  buildQuestion();
+}
+
+function showSummary() {
+  document.getElementById('question-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 5) msg = 'Excellent understanding of order of operations.';
+  else if (correct >= 3) msg = 'Good progress. Review the ones you missed.';
+  else msg = 'Keep practising. Go back to the Learn section if you need to.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var breakdown = '<h3 style="font-size:16px;margin-bottom:12px;">Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    var label = q.display || '';
+    breakdown += '<div class="result-row"><div class="result-icon ' + icon + '">' + symbol + '</div><span>' + label + '</span></div>';
+  });
+  document.getElementById('summary-breakdown').innerHTML = breakdown;
+
+  var nextBtn = document.getElementById('next-level-btn');
+  if (currentLevel < 5 && correct >= 4) nextBtn.style.display = 'inline-block';
+  else nextBtn.style.display = 'none';
+
+  if (currentLevel >= 3 && correct >= 4) unlockGoDeeper();
+
+  document.getElementById('summary-card').classList.add('show');
+}
+
+function retryLevel() { startLevel(currentLevel); }
+function goNextLevel() { startLevel(currentLevel + 1); }
+
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card) {
+    card.classList.remove('locked');
+    card.disabled = false;
+    card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+    card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  }
+}
+
+function openGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card.classList.contains('locked')) return;
+  document.getElementById('go-deeper-section').classList.add('visible');
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var nextBtn = document.getElementById('next-btn');
+    var checkBtn = document.getElementById('check-btn');
+    if (nextBtn && nextBtn.style.display !== 'none') nextQuestion();
+    else if (checkBtn && checkBtn.style.display !== 'none') checkAnswer();
+  }
+});
+
+// ── INIT ──
+startLevel(1);
+</script>
+</body>
+</html>

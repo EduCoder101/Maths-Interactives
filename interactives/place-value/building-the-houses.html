@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building the Houses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --mode1-color: #27AE60;
+            --mode2-color: #E74C3C;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .bg-shape-1 {
+            width: 250px;
+            height: 250px;
+            background: var(--primary-accent);
+            top: -80px;
+            right: -50px;
+        }
+
+        .bg-shape-2 {
+            width: 180px;
+            height: 180px;
+            background: var(--mode1-color);
+            bottom: 10%;
+            left: -50px;
+        }
+
+        .bg-shape-3 {
+            width: 120px;
+            height: 120px;
+            background: var(--mode2-color);
+            top: 50%;
+            right: 5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .landing-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .landing-header h1 span {
+            color: var(--primary-accent);
+        }
+
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .learning-card h2 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .learning-card h2::before {
+            content: "🏗️";
+            font-size: 1.3rem;
+        }
+
+        .learning-card h2 .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .learning-content {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .learning-content.open {
+            display: block;
+        }
+
+        .learning-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .learning-content p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .success-criteria {
+            list-style: none;
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+
+        .success-criteria li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .success-criteria li::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+        }
+
+        .learning-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .key-concept {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .key-concept h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .key-concept h3::before {
+            content: "💡";
+        }
+
+        .key-concept p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .example-box {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* === Go Deeper Extension Styles === */
+        .go-deeper-level-btn { grid-column: 1 / -1; background: white; border: 2px dashed #4ECDC4; border-radius: 16px; padding: 1.2rem; text-align: center; cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s ease; position: relative; }
+        .go-deeper-level-btn.locked { opacity: 0.55; cursor: not-allowed; border-color: #ccc; }
+        .go-deeper-level-btn:not(.locked):hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(78,205,196,0.25); border-color: #4ECDC4; }
+        .go-deeper-level-btn h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.3rem 0; color: #2D3436; }
+        .go-deeper-level-btn p { font-size: 0.9rem; color: #636E72; margin: 0; }
+        .go-deeper-card { background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-top: 5px solid #4ECDC4; padding: 2rem; max-width: 700px; margin: 2rem auto; }
+        .go-deeper-card h2 { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+        .go-deeper-card > p { color: #636E72; margin-bottom: 1.5rem; }
+        .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #4ECDC4; margin-bottom: 0.75rem; }
+        .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; line-height: 1.6; color: #2D3436; margin-bottom: 0.75rem; }
+        .ext-task-sub { font-family: 'Fredoka', sans-serif; font-style: italic; color: #636E72; margin-bottom: 1rem; font-size: 0.95rem; }
+        .ext-thinking-area { width: 100%; min-height: 90px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 0.8rem; font-family: 'Fredoka', sans-serif; font-size: 0.95rem; resize: vertical; transition: border-color 0.3s ease; box-sizing: border-box; }
+        .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+        .ext-reveal-btn { display: inline-block; margin-top: 0.75rem; padding: 0.5rem 1.2rem; border: 2px solid #4ECDC4; border-radius: 10px; background: white; color: #4ECDC4; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
+        .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+        .ext-model-response { display: none; background: white; border-radius: 10px; padding: 1.2rem; margin-top: 0.75rem; border: 1px solid #e0e0e0; }
+        .ext-model-response.visible { display: block; }
+        .ext-model-response .model-label { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 0.85rem; color: #4ECDC4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .ext-model-response p { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.6; color: #2D3436; margin: 0.5rem 0; }
+        .mathematician-box { margin-top: 1rem; padding: 1rem; border: 2px dashed #4ECDC4; border-radius: 10px; background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%); font-family: 'Fredoka', sans-serif; font-size: 0.9rem; line-height: 1.5; color: #2D3436; }
+        .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+        .go-deeper-back-btn { display: inline-block; margin-bottom: 1.5rem; padding: 0.5rem 1rem; border: none; border-radius: 10px; background: #f0f0f0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; color: #2D3436; }
+        .go-deeper-back-btn:hover { background: #e0e0e0; }
+
+        @media (max-width: 700px) {
+            .mode-selection {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mode-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .mode-card.mode1::before { background: var(--mode1-color); }
+        .mode-card.mode2::before { background: var(--mode2-color); }
+
+        .mode-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .mode-card h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .mode-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .mode-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .back-btn {
+            background: white;
+            border: 2px solid var(--text-light);
+            color: var(--text-dark);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #3db8b0;
+            border-color: #3db8b0;
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .question-card.mode1 { border-top-color: var(--mode1-color); }
+        .question-card.mode2 { border-top-color: var(--mode2-color); }
+
+        .question-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .problem-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+
+        .answer-input-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .answer-input-wrapper label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feedback-box.visible {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-box h4 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .feedback-box.correct h4::before {
+            content: "✓";
+            color: var(--correct-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box.incorrect h4::before {
+            content: "✗";
+            color: var(--incorrect-color);
+            font-size: 1.3rem;
+        }
+
+        .feedback-box p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: var(--text-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-page {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-page h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .completion-page p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .score-display {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+        /* Progress Tracker */
+        .progress-tracker {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            /* Reset button defaults so our styles apply */
+            margin: 0;
+            padding: 0;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .progress-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .progress-circle.current {
+            border-color: var(--primary-accent);
+            border-width: 4px;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        .progress-circle.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .progress-circle.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .progress-circle.correct::after {
+            content: "✓";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--correct-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.incorrect::after {
+            content: "✗";
+            position: absolute;
+            font-size: 0.7rem;
+            bottom: -2px;
+            right: -2px;
+            background: var(--incorrect-color);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .progress-circle.partial {
+            background: #F4C430;
+            border-color: #F4C430;
+            color: white;
+        }
+
+        /* Worded questions: level colours */
+        .level1-color { --level-accent: #4ECDC4; }
+        .level2-color { --level-accent: #FF6B6B; }
+        .level3-color { --level-accent: #9B5DE5; }
+        .question-card.worded-level-1 { border-top-color: #4ECDC4; }
+        .question-card.worded-level-2 { border-top-color: #FF6B6B; }
+        .question-card.worded-level-3 { border-top-color: #9B5DE5; }
+
+        .level-section-title {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .level-btn.level-1::before { background: #4ECDC4; }
+        .level-btn.level-2::before { background: #FF6B6B; }
+        .level-btn.level-3::before { background: #9B5DE5; }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .level-btn h3 { font-size: 1.05rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .level-btn p { font-size: 0.85rem; color: var(--text-light); line-height: 1.3; }
+
+        .story-display {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .step-block {
+            margin-bottom: 1.25rem;
+        }
+
+        .step-block label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .hint-btn {
+            background: #FFF3E0;
+            border: 2px solid #FFB74D;
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .hint-btn:hover { background: #FFE0B2; transform: translateY(-1px); }
+        .hint-btn.revealed { opacity: 0.7; cursor: default; }
+
+        .hint-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid #2196F3;
+        }
+
+        .hint-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+        .hint-box strong { display: block; margin-bottom: 0.4rem; color: var(--text-dark); }
+        .hint-box p { margin: 0; font-size: 0.95rem; color: var(--text-dark); }
+
+        .answer-input.step-a { margin-bottom: 0.5rem; }
+        .answer-input.step-b { margin-bottom: 0; }
+
+        @media (max-width: 600px) {
+            .problem-display {
+                font-size: 1rem;
+            }
+        }
+
+        .pv-ref-toggle {
+            background: none;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .pv-ref-toggle:hover {
+            border-color: var(--primary-accent);
+            color: var(--primary-accent);
+        }
+
+        .pv-ref-chart {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 0.6rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .pv-ref-chart.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .pv-ref-row {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            min-width: fit-content;
+        }
+
+        .pv-ref-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 52px;
+            padding: 0.3rem 0.25rem;
+        }
+
+        .pv-ref-col .col-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: white;
+            background: var(--col-color);
+            border-radius: 6px;
+            padding: 0.2rem 0.4rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .pv-ref-divider {
+            width: 2px;
+            background: #E0E0E0;
+            margin: 0 4px;
+            align-self: stretch;
+            border-radius: 1px;
+        }
+
+        .vocab-term {
+            border-bottom: 2px dotted var(--primary-accent);
+            cursor: help;
+            position: relative;
+            color: var(--primary-accent);
+            font-weight: 500;
+        }
+
+        .vocab-tooltip {
+            display: none;
+            position: absolute;
+            background: var(--text-dark);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .vocab-tooltip.show {
+            display: block;
+        }
+
+        .vocab-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--text-dark);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Building the <span>Houses</span></h1>
+                    <p class="subtitle">Expanded Notation Practice</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2 onclick="toggleLearningSection()">
+                        Learning Intention &amp; Success Criteria
+                        <span class="toggle-icon" id="learningToggle">▼</span>
+                    </h2>
+                    <div class="learning-content" id="learningContent">
+                        <h3>Learning Intention</h3>
+                        <p>We are learning to <span class="vocab-term">partition</span> numbers using <span class="vocab-term">expanded notation</span> and represent them in different forms.</p>
+                        <h3>Success Criteria</h3>
+                        <ul class="success-criteria">
+                            <li>I can break a number into its <span class="vocab-term">expanded notation</span> form (e.g. 3,452 = 3,000 + 400 + 50 + 2)</li>
+                            <li>I can use place value houses to organise digits into the correct columns</li>
+                            <li>I can represent a number in both <span class="vocab-term">standard</span> and non-standard partitioned forms</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2>What is <span class="vocab-term">Expanded Notation</span>?</h2>
+                    <p><span class="vocab-term">Expanded notation</span> shows the value of each digit in a number. It's like taking apart a house to see all its pieces!</p>
+
+                    <div class="key-concept">
+                        <h3>How It Works</h3>
+                        <p>Every number can be broken into the value of each digit, added together.</p>
+
+                        <div class="example-box">
+                            <strong><span class="vocab-term">Standard</span> Form:</strong> 3,452<br>
+                            <strong><span class="vocab-term">Expanded</span> Notation:</strong> 3,000 + 400 + 50 + 2
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2 onclick="toggleVocab()">
+                        Key Vocabulary
+                        <span class="toggle-icon" id="vocabToggle">▼</span>
+                    </h2>
+                    <div class="learning-content" id="vocabContent">
+                        <p><strong><span class="vocab-term">Expanded notation</span></strong> means writing a number as the sum of the value of each digit. For example, 3,452 = 3,000 + 400 + 50 + 2</p>
+                        <p><strong><span class="vocab-term">Partition</span></strong> means breaking a number into parts. <span class="vocab-term">Standard</span> partitioning splits by place value columns.</p>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose Your Challenge</h2>
+                <div class="mode-selection" id="mode-selection">
+                    <button type="button" class="mode-card mode1" data-mode="standard-to-expanded" onclick="selectMode(&#39;standard-to-expanded&#39;)">
+                        <div class="mode-icon">🔽</div>
+                        <h3>Break It Apart</h3>
+                        <p>Convert standard numbers to expanded form (in order)</p>
+                    </button>
+                    <button type="button" class="mode-card mode1" data-mode="words-to-expanded" onclick="selectMode(&#39;words-to-expanded&#39;)">
+                        <div class="mode-icon">🔀</div>
+                        <h3>Scrambled Word Order</h3>
+                        <p>Sort scrambled word values into expanded form</p>
+                    </button>
+                    <button type="button" class="mode-card mode2" data-mode="expanded-to-standard" onclick="selectMode(&#39;expanded-to-standard&#39;)">
+                        <div class="mode-icon">🔼</div>
+                        <h3>Put It Together</h3>
+                        <p>Convert expanded form to standard numbers (in order)</p>
+                    </button>
+                    <button type="button" class="mode-card mode2" data-mode="expanded-to-standard-scrambled" onclick="selectMode(&#39;expanded-to-standard-scrambled&#39;)">
+                        <div class="mode-icon">🔀</div>
+                        <h3>Put It Together - Scrambled</h3>
+                        <p>Convert scrambled expanded to standard numbers</p>
+                    </button>
+                    <button type="button" class="mode-card mode1" data-mode="worded" onclick="showLevelSelect()" style="grid-column: 1 / -1;">
+                        <div class="mode-icon">📝</div>
+                        <h3>Worded Questions</h3>
+                        <p>Two-step word problems across three levels (Working Toward, Working At, Working Beyond)</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- LEVEL SELECT (Worded Questions) -->
+            <div id="level-select-page" class="page">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <button class="back-btn" onclick="backToLanding()">← Back</button>
+                    <a href="index.html" class="home-btn">🏠 Home</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Worded <span>Questions</span></h1>
+                    <p class="subtitle">Choose your level</p>
+                </div>
+                <h2 class="level-section-title">Level</h2>
+                <div class="level-grid" id="level-grid">
+                    <button type="button" class="level-btn level-1" data-level="1" onclick="selectWordedLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Working Toward – Hundreds of Thousands</p>
+                    </button>
+                    <button type="button" class="level-btn level-2" data-level="2" onclick="selectWordedLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>Working At – Millions</p>
+                    </button>
+                    <button type="button" class="level-btn level-3" data-level="3" onclick="selectWordedLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Working Beyond – Billions, Trillions &amp; Scrambled</p>
+                    </button>
+                    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+                        <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Expanded Notation Investigations</h3>
+                        <p>Complete Level 3 to unlock</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="backToLanding()">← Back</button>
+                        <a href="index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">10</span>
+                    
+                <!-- Progress Tracker -->
+                <div class="progress-tracker">
+                    <div class="progress-grid" id="progress-grid">
+                        <!-- Circles will be generated by JavaScript -->
+                    </div>
+                </div>
+
+</div>
+                </div>
+
+                <button class="pv-ref-toggle" id="pv-ref-toggle" onclick="togglePVChart()">Show Place Value Chart</button>
+                <div class="pv-ref-chart" id="pv-ref-chart">
+                    <div class="pv-ref-row" id="pv-ref-row"></div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text" id="question-text">Convert to expanded form:</div>
+                    
+                    <!-- Standard (non-worded) question -->
+                    <div id="standard-question-wrap">
+                        <div class="problem-display" id="problem-display"></div>
+                        <div class="answer-input-wrapper">
+                            <label for="answer-input" id="answer-label">Your Answer:</label>
+                            <input type="text" id="answer-input" class="answer-input" placeholder="" autocomplete="off">
+                        </div>
+                    </div>
+                    
+                    <!-- Worded question (two steps + hint) -->
+                    <div id="worded-question-wrap" style="display: none;">
+                        <div class="story-display" id="story-display"></div>
+                        <div class="step-block">
+                            <label id="step-a-label">Step A:</label>
+                            <input type="text" id="answer-step-a" class="answer-input step-a" placeholder="" autocomplete="off">
+                        </div>
+                        <div class="step-block">
+                            <label id="step-b-label">Step B:</label>
+                            <input type="text" id="answer-step-b" class="answer-input step-b" placeholder="" autocomplete="off">
+                        </div>
+                        <button type="button" class="hint-btn" id="hint-btn" onclick="toggleHint()">💡 Hint</button>
+                        <div class="hint-box" id="hint-box">
+                            <strong>Hint</strong>
+                            <p id="hint-text"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="feedback-box" id="feedback-box">
+                        <h4 id="feedback-title">Feedback</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+                    
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled="">Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GO DEEPER PAGE -->
+            <div id="go-deeper-page" class="page">
+                <button class="go-deeper-back-btn" onclick="backToLanding()">← Back to Mode Selection</button>
+                <div class="go-deeper-card">
+                    <h2>Go Deeper: Expanded Notation Investigations</h2>
+                    <p>You've mastered all three levels! Now it's time to think like a mathematician. Explore, reason, and justify your ideas about how we break numbers apart using place value.</p>
+
+                    <!-- TASK 1: SPECIALISING -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Task 1: Specialising</div>
+                        <div class="ext-task-prompt">How many different ways can you break this number into parts using place value?</div>
+                        <div class="ext-task-sub">Consider the number <span class="ext-numbers">45,230</span>. For example, <span class="ext-numbers">45,230 = 40,000 + 5,000 + 200 + 30</span>. But could you also write it as <span class="ext-numbers">45,000 + 230</span>? Try to find at least 4 different ways to partition <span class="ext-numbers">45,230</span>. What do you notice?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">Mathematician's Approach</div>
+                            <p>I started with the standard expanded notation: <span class="ext-numbers">45,230 = 40,000 + 5,000 + 200 + 30</span>. That's four parts.</p>
+                            <p>Then I thought, "What if I combine some?" I got: <span class="ext-numbers">45,230 = 45,000 + 230</span>. That's two parts -- still valid!</p>
+                            <p>I could also do: <span class="ext-numbers">45,230 = 40,000 + 5,230</span> (two parts), or <span class="ext-numbers">45,230 = 40,000 + 5,000 + 200 + 30</span> (four parts again).</p>
+                            <p>Even: <span class="ext-numbers">45,230 = 45,000 + 200 + 30</span> (three parts).</p>
+                            <div class="mathematician-box">
+                                What I noticed: There are many ways! As long as the parts add up to <span class="ext-numbers">45,230</span> and each part respects place value (like <span class="ext-numbers">5,000</span>, not <span class="ext-numbers">500</span> in the wrong place), it works. But the standard form with each digit is unique.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TASK 2: CONJECTURING -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Task 2: Conjecturing</div>
+                        <div class="ext-task-prompt">Decide: Is this always true, sometimes true, or never true?</div>
+                        <div class="ext-task-sub">"Every number can be written in expanded notation in exactly one way."</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">Mathematician's Approach</div>
+                            <p>This is a tricky one! Let me think carefully...</p>
+                            <p>If we mean the <strong>standard</strong> expanded notation (one digit times its place value), then it's <strong>always</strong> true. <span class="ext-numbers">7,543</span> is always <span class="ext-numbers">7,000 + 500 + 40 + 3</span>. Only one way.</p>
+                            <p>But if we allow flexible partitioning (combining place values), then it's <strong>sometimes</strong> true. We saw earlier that <span class="ext-numbers">45,230</span> can be <span class="ext-numbers">45,000 + 230</span> OR <span class="ext-numbers">40,000 + 5,230</span> OR the standard way.</p>
+                            <p>So the statement depends on how strict we are about the definition!</p>
+                            <div class="mathematician-box">
+                                My conclusion: The statement is <strong>always true</strong> for standard expanded notation, but <strong>sometimes true</strong> if we allow flexible partitioning. Definitions matter in maths!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TASK 3: JUSTIFYING -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Task 3: Justifying</div>
+                        <div class="ext-task-prompt">Is this student's claim correct? Justify your answer.</div>
+                        <div class="ext-task-sub">A student says: "The number <span class="ext-numbers">30,052</span> has only 3 parts in expanded notation because you skip the zeros." Do you agree or disagree? Why or why not?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">Mathematician's Approach</div>
+                            <p>Let me check this claim. <span class="ext-numbers">30,052</span> breaks down by place value as:</p>
+                            <p><span class="ext-numbers">30,052 = 30,000 + 0 + 0 + 50 + 2</span></p>
+                            <p>Now, the thousands place is 0. The hundreds place is 0. The student is saying we skip those zeros. If we do, we get: <span class="ext-numbers">30,052 = 30,000 + 50 + 2</span>. That's 3 parts.</p>
+                            <p>The claim is <strong>correct!</strong> But it's important to understand why. We skip zeros because <span class="ext-numbers">0 + 0 + 50</span> is the same as just <span class="ext-numbers">50</span>. Adding zero doesn't change anything.</p>
+                            <div class="mathematician-box">
+                                Why it matters: The zeros in place value tell us those positions have no value. Skipping them in expanded notation is fine because we're not losing information -- the place value positions still matter.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/10</div>
+                    <div class="score-label" id="score-label">Correct Answers</div>
+                </div>
+                <p>You've mastered this mode!</p>
+                <button class="btn btn-primary" id="go-deeper-btn" style="display:none; margin: 1rem auto;" onclick="openGoDeeper()">Go Deeper &#x1F513;</button>
+                <div class="button-row" style="max-width: 500px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLanding()">Choose Another Mode</button>
+                    <a href="index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="results-to-sheet.js?v=2"></script>
+    <script>
+        function toggleLearningSection() {
+            const content = document.getElementById('learningContent');
+            const toggle = document.getElementById('learningToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        function toggleVocab() {
+            const content = document.getElementById('vocabContent');
+            const toggle = document.getElementById('vocabToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        const questions = {
+            'standard-to-expanded': [
+                { problem: "3,452", answer: "3,000 + 400 + 50 + 2" },
+                { problem: "12,804", answer: "10,000 + 2,000 + 800 + 4" },
+                { problem: "405,670", answer: "400,000 + 5,000 + 600 + 70" },
+                { problem: "2,300,050", answer: "2,000,000 + 300,000 + 50" },
+                { problem: "15,040,003", answer: "10,000,000 + 5,000,000 + 40,000 + 3" },
+                { problem: "600,000,400", answer: "600,000,000 + 400" },
+                { problem: "1,200,500,000", answer: "1,000,000,000 + 200,000,000 + 500,000" },
+                { problem: "50,000,060,000", answer: "50,000,000,000 + 60,000" },
+                { problem: "9,000,000,000,200", answer: "9,000,000,000,000 + 200" },
+                { problem: "12,000,000,000,001", answer: "12,000,000,000,000 + 1" }
+            ],
+            'words-to-expanded': [
+                { problem: "fifty, four hundred, three thousand, two", answer: "3,000 + 400 + 50 + 2" },
+                { problem: "four, eight hundred, two thousand, ten thousand", answer: "10,000 + 2,000 + 800 + 4" },
+                { problem: "seventy, six hundred, five thousand, four hundred thousand", answer: "400,000 + 5,000 + 600 + 70" },
+                { problem: "fifty, three hundred thousand, two million", answer: "2,000,000 + 300,000 + 50" },
+                { problem: "three, forty thousand, five million, ten million", answer: "10,000,000 + 5,000,000 + 40,000 + 3" },
+                { problem: "four hundred, six hundred million", answer: "600,000,000 + 400" },
+                { problem: "five hundred thousand, two hundred million, one billion", answer: "1,000,000,000 + 200,000,000 + 500,000" },
+                { problem: "sixty thousand, fifty billion", answer: "50,000,000,000 + 60,000" },
+                { problem: "two hundred, nine trillion", answer: "9,000,000,000,000 + 200" },
+                { problem: "one, twelve trillion", answer: "12,000,000,000,000 + 1" }
+            ],
+            'expanded-to-standard': [
+                { problem: "5,000 + 600 + 20 + 1", answer: "5,621" },
+                { problem: "40,000 + 2,000 + 9", answer: "42,009" },
+                { problem: "100,000 + 50,000 + 400", answer: "150,400" },
+                { problem: "6,000,000 + 40,000 + 500", answer: "6,040,500" },
+                { problem: "20,000,000 + 8,000 + 2", answer: "20,008,002" },
+                { problem: "900,000,000 + 10,000,000", answer: "910,000,000" },
+                { problem: "5,000,000,000 + 400,000", answer: "5,000,400,000" },
+                { problem: "12,000,000,000 + 3,000", answer: "12,000,003,000" },
+                { problem: "1,000,000,000,000 + 7,000,000", answer: "1,000,007,000,000" },
+                { problem: "80,000,000,000,000 + 50,000", answer: "80,000,000,050,000" }
+            ],
+            'expanded-to-standard-scrambled': [
+                { problem: "1 + 20 + 5,000 + 600", answer: "5,621" },
+                { problem: "9 + 40,000 + 2,000", answer: "42,009" },
+                { problem: "400 + 100,000 + 50,000", answer: "150,400" },
+                { problem: "500 + 6,000,000 + 40,000", answer: "6,040,500" },
+                { problem: "2 + 20,000,000 + 8,000", answer: "20,008,002" },
+                { problem: "10,000,000 + 900,000,000", answer: "910,000,000" },
+                { problem: "400,000 + 5,000,000,000", answer: "5,000,400,000" },
+                { problem: "3,000 + 12,000,000,000", answer: "12,000,003,000" },
+                { problem: "7,000,000 + 1,000,000,000,000", answer: "1,000,007,000,000" },
+                { problem: "50,000 + 80,000,000,000,000", answer: "80,000,000,050,000" }
+            ]
+        };
+
+        const wordedQuestions = {
+            1: [
+                { story: "The Great Migration: A swarm of Monarch butterflies travels across North America. Scientists count 304,502 butterflies in one cluster.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Rounding): Round the number of butterflies to the nearest ten-thousand.", answerA: "300,000 + 4,000 + 500 + 2", answerB: "300,000", hint: "For Step B, look at the digit to the right of the ten-thousands place (the 4 in the thousands). Does 4 tell the ten-thousands to \"stay\" or \"round up\"?" },
+                { story: "The Saharan Silver Ant: These ants have tiny hairs to reflect heat. A large colony contains 780,015 ants.", stepA: "Step A: What is the value of the digit in the ten-thousands place?", stepB: "Step B (Renaming): How many hundreds are there in total in the number 780,015? (Ignore the remainder).", answerA: "80000", answerB: "7800", hint: "To find how many hundreds, imagine \"cutting off\" the last two digits (tens and ones). The remaining number is your total hundreds." },
+                { story: "Ancient Bristlecone Pines: One forest contains trees that have survived for a combined 409,008 years.", stepA: "Step A: Write this number in word form.", stepB: "Step B (Powers of 10): If the forest were 10 times larger, how many combined years of tree life would there be?", answerA: "four hundred and nine thousand and eight", answerB: "4090080", hint: "To find 10 times larger, shift every digit one place to the left and add a zero as a placeholder." },
+                { story: "Marine Ecosystems: A local reef has 125,640 individual polyps building the coral structure.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Additive Thinking): How many more polyps are needed to reach exactly 130,000?", answerA: "100,000 + 20,000 + 5,000 + 600 + 40", answerB: "4360", hint: "Subtract your total from 130,000. Use a vertical algorithm to keep your columns aligned!" },
+                { story: "The Amazon Canopy: It is estimated that a single hectare of rainforest contains 562,300 different insects.", stepA: "Step A: Identify the digit in the hundred-thousands place.", stepB: "Step B (Rounding): Round this number to the nearest hundred-thousand.", answerA: "5", answerB: "600000", hint: "Look at the ten-thousands digit (6). Since it is 5 or greater, the hundred-thousands digit rounds up." },
+                { story: "Polar Bear Insulation: A polar bear's coat has roughly 109,204 specialised hollow hairs that trap heat.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Rounding): Round the number of hairs to the nearest hundred.", answerA: "100,000 + 9,000 + 200 + 4", answerB: "109200", hint: "Look at the tens digit. Since it's 0, the hundreds digit stays the same." },
+                { story: "Desert Survival: A large camel can drink enough water to sustain its body for weeks. A conservation group tracks a herd that consumes 113,560 litres over a season.", stepA: "Step A: Write this number in word form.", stepB: "Step B (Renaming): How many tens are there in the total number 113,560?", answerA: "one hundred and thirteen thousand five hundred and sixty", answerB: "11356", hint: "Think about how many tens are in a thousand. If you \"cover\" the ones digit, what number do you see?" },
+                { story: "Penguin Huddling: To adapt to Antarctic cold, thousands of penguins huddle. One massive colony is recorded at 450,089 penguins.", stepA: "Step A: What is the value of the digit 5?", stepB: "Step B (Powers of 10): If the colony split into 10 smaller groups of equal size, how many penguins would be in each group?", answerA: "50000", answerB: "45008", hint: "Dividing by 10 is the opposite of multiplying, shift every digit one place to the right!" },
+                { story: "Dandelion Seed Dispersal: A single field of dandelions can release 200,705 seeds into the wind.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Additive): How many more seeds are needed to reach exactly 210,000?", answerA: "200,000 + 700 + 5", answerB: "9295", hint: "Try counting on from 200,705. How many to reach 201,000? Then how many more to 210,000?" },
+                { story: "Woodpecker Adaptations: A woodpecker's skull is adapted to absorb shock. Over its lifetime, a single bird might peck a tree 682,030 times.", stepA: "Step A: Write this number in standard form.", stepB: "Step B (Rounding): Round this number to the nearest hundred-thousand.", answerA: "682030", answerB: "700000", hint: "The hundred-thousands place is 6. The digit to its right is 8. Should the 6 stay or go up?" }
+            ],
+            2: [
+                { story: "Krill Populations: In the Southern Ocean, a single \"super-swarm\" of krill contains 4,208,090 individuals.", stepA: "Step A: Write the total number of krill in standard form.", stepB: "Step B (Renaming): How many thousands are in this entire number?", answerA: "4208090", answerB: "4208", hint: "Thousands have three zeros. Hide the \"ones period\" (the last three digits) to see how many whole thousands you have." },
+                { story: "Bison on the Plains: Before the 1800s, approximately six million, fifty thousand, and four bison roamed North America.", stepA: "Step A: Write this number in standard form.", stepB: "Step B (Multiplicative Thinking): If a drought caused the population to become one-tenth of its original size, what would the new population be?", answerA: "6050004", answerB: "605000", hint: "Moving a digit one place to the right makes it 10 times smaller." },
+                { story: "The Giant Sequoia: A mature forest of these giants is estimated to have 9,245,100 cones across all trees.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Rounding): Round the number of cones to the nearest million.", answerA: "9,000,000 + 200,000 + 40,000 + 5,000 + 100", answerB: "9000000", hint: "Look at the hundred-thousands place (2). Does 2 round the millions up or stay?" },
+                { story: "Bacterial Adaptation: In one gram of healthy soil, there are roughly 7,030,500 bacteria working to decompose organic matter.", stepA: "Step A: What is the place value of the digit 3?", stepB: "Step B (Renaming): Rename this number as a combination of millions and thousands (e.g., ___ millions and ___ thousands).", answerA: "ten-thousands", answerB: "7 millions and 30 thousands", hint: "Break the number at the comma. What is the value on the left? What is the value in the middle?" },
+                { story: "Plankton Bloom: A satellite captures a plankton bloom covering a massive area. They estimate there are 15,000,000 organisms per square kilometre.", stepA: "Step A: Write this number in word form.", stepB: "Step B (Powers of 10): How many organisms would be in an area 100 times larger?", answerA: "fifteen million", answerB: "1500000000", hint: "100 times larger means shifting two places to the left. Add two zeros!" },
+                { story: "Red Crab Migration: On Christmas Island, millions of crabs migrate to the sea. One season, the count is 54,000,200.", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Renaming): How many ten-thousands are in this entire number?", answerA: "54000200", answerB: "5400", hint: "A ten-thousand has four zeros. Cover the last four digits of your number to find the answer." },
+                { story: "Elephant Communication: In a vast sanctuary, researchers estimate there are 38,050,600 distinct calls recorded in a year.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Powers of 10): If the number of calls decreased by 1/10th, how many calls would be expected?", answerA: "30,000,000 + 8,000,000 + 50,000 + 600", answerB: "3805060", hint: "When digits move one place to the right (1/10th), the zero placeholders shift too." },
+                { story: "Deep Sea Pressure: The total biomass of a deep-sea trench is estimated at one hundred and two million, five thousand, and forty kilograms.", stepA: "Step A: Write this in standard form.", stepB: "Step B (Rounding): Round the biomass to the nearest ten-million.", answerA: "102005040", answerB: "100000000", hint: "Rounding to the ten-millions? Look at the millions place (2)." },
+                { story: "Bat Colony Appetite: A colony of bats eats 25,600,000 insects per night.", stepA: "Step A: What is the place value of the digit 5?", stepB: "Step B (Renaming): How many hundreds are in 25,600,000?", answerA: "millions", answerB: "256000", hint: "There are 100 hundreds in ten-thousand. Try hiding the last two zeros of the total." },
+                { story: "Whale Migration Routes: Scientists track a total of 12,000,000 collective kilometres for a specific pod over a decade.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Powers of 10): If there were 100 times as many whales in the pod, how many kilometres would they travel in total?", answerA: "10,000,000 + 2,000,000", answerB: "1200000000", hint: "To multiply by 100, the \"12\" moves from the Millions period into the Billions period." }
+            ],
+            3: [
+                { story: "Human Microbiome: A scientist counts 60,000,000 + 5,000,000,000,000 + 200 bacteria (scrambled expanded form).", stepA: "Step A (Scrambled): Write the total number of bacteria in standard form.", stepB: "Step B (Renaming): How many billions are in this number?", answerA: "5000060000200", answerB: "5000", hint: "Be careful with the \"empty\" places! If there are no millions or thousands mentioned, use zeros as placeholders." },
+                { story: "The Global Seed Vault: The count is 900,000 (temperate seeds) and 4,000,000,000 (tropical seeds).", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Rounding): Round this total to the nearest ten-million.", answerA: "4000900000", answerB: "4000000000", hint: "The ten-millions place is 0. The digit to its right is 0. Everything stays small!" },
+                { story: "Deep Sea Life: In the \"Midnight Zone\" of the ocean, researchers estimate there are 800,000,000,000 (800 billion) organisms.", stepA: "Step A: Write this number in expanded notation.", stepB: "Step B (Powers of 10): If there are 1,000 times fewer organisms than thought, what is the corrected number?", answerA: "800,000,000,000", answerB: "800000000", hint: "1,000 times smaller means shifting three places to the right (or removing three zeros)." },
+                { story: "Insect Biomass: A subset: 500,000 (Beetles) + 20,000,000,000,000 (Ants) + 7,000 (Spiders). Write this scrambled total in standard form.", stepA: "Step A: Write this scrambled total in standard form.", stepB: "Step B (Renaming): How many millions are in this total?", answerA: "20000000507000", answerB: "20000000", hint: "Align these vertically before adding: 20,000,000,000,000 + 500,000 + 7,000." },
+                { story: "Evolutionary Timeline: Imagine a timeline representing 4,500,600,050 years.", stepA: "Step A: Write this in expanded notation.", stepB: "Step B (Additive Thinking): How many more years would need to pass to reach exactly 5 billion?", answerA: "4,000,000,000 + 500,000,000 + 600,000 + 50", answerB: "499399950", hint: "Subtracting from a \"clean\" number like 5 billion requires renaming (regrouping). Try subtracting from 4,999,999,999 and adding 1 back at the end!" },
+                { story: "Rainforest Canopy: The \"messy\" count of leaves is: 45 hundreds, 12 millions, and 6 trillions.", stepA: "Step A: Write this total in standard form.", stepB: "Step B (Rounding): Round this number to the nearest billion.", answerA: "6000012004500", answerB: "6000000000000", hint: "\"45 hundreds\" is 4,500. Write that first, then fill in the millions and trillions." },
+                { story: "Genetic Adaptations: A tissue sample might have 300 million + 27 tens + 5 trillions (scrambled).", stepA: "Step A: Write this scrambled total in standard form.", stepB: "Step B (Renaming): How many millions are contained within this total number?", answerA: "5000300000270", answerB: "5000300", hint: "\"27 tens\" is 270. Millions start at the 7th digit from the right." },
+                { story: "The Observable Universe: There are roughly 200 billion + 15 thousands + 80 trillions stars in the observable range.", stepA: "Step A: Write this total in standard form.", stepB: "Step B (Powers of 10): What is 1/100th of this number?", answerA: "80200000015000", answerB: "802000000150", hint: "\"15 thousands\" is 15,000. When dividing by 100, every digit moves two places to the right." },
+                { story: "Global Fish Populations: A global estimate is 35 hundred-thousands + 12 billions + 4 ones.", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Additive): How much more is needed to reach the next trillion?", answerA: "12003500004", answerB: "987996499996", hint: "\"35 hundred-thousands\" is 35 × 100,000 = 3,500,000." },
+                { story: "Oceanic Microbes: A sample contains 150 thousands + 90 trillions + 400 millions.", stepA: "Step A: Write the total in standard form.", stepB: "Step B (Rounding): Round this number to the nearest trillion.", answerA: "90000400150000", answerB: "90000000000000", hint: "Standard form first! 90,000,000,000,000 + 400,000,000 + 150,000. The 4 in the hundred-millions is too small to round the trillion up." }
+            ]
+        };
+
+        const wordedLevelNames = { 1: 'Level 1 – Working Toward', 2: 'Level 2 – Working At', 3: 'Level 3 – Working Beyond' };
+
+        const modeNames = {
+            'standard-to-expanded': 'Break It Apart',
+            'words-to-expanded': 'Scrambled Word Order',
+            'expanded-to-standard': 'Put It Together',
+            'expanded-to-standard-scrambled': 'Put It Together - Scrambled'
+        };
+
+        let currentMode = 'standard-to-expanded';
+        let currentQuestion = 0;
+        let questionStatus = []; // Track: null, "correct", "incorrect"
+        let initialQuestionResult = [];
+        let score = 0;
+        let hasChecked = false;
+        let isRevisionRound = false;
+        let revisionIndices = [];
+        let wordedLevel = 0; // 1, 2, or 3 when in worded mode
+
+        function isWordedMode() {
+            return currentMode === 'worded-1' || currentMode === 'worded-2' || currentMode === 'worded-3';
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function showLevelSelect() {
+            showPage('level-select-page');
+        }
+
+        function selectWordedLevel(level) {
+            wordedLevel = level;
+            currentMode = 'worded-' + level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            buildPVChart();
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function createProgressTracker() {
+            const grid = document.getElementById('progress-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            const total = isWordedMode()
+                ? (wordedQuestions[wordedLevel] ? wordedQuestions[wordedLevel].length : 10)
+                : (isRevisionRound ? revisionIndices.length : (questions[currentMode] ? questions[currentMode].length : 10));
+            if (!isRevisionRound) {
+                questionStatus = new Array(total).fill(null);
+                initialQuestionResult = new Array(total).fill(null);
+            }
+            for (let i = 0; i < total; i++) {
+                const circle = document.createElement('button');
+                circle.type = 'button';
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = `progress-${i}`;
+                circle.setAttribute('aria-label', 'Go to question ' + (i + 1));
+                circle.onclick = () => jumpToQuestion(i);
+                circle.onkeydown = function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        jumpToQuestion(i);
+                    }
+                };
+                grid.appendChild(circle);
+            }
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
+                const circle = document.getElementById(`progress-${i}`);
+                if (!circle) continue;
+                const actualIndex = isRevisionRound ? revisionIndices[i] : i;
+                circle.classList.remove('current', 'correct', 'incorrect', 'partial');
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'partial') circle.classList.add('partial');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
+            }
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            loadQuestion();
+        }
+
+
+        function selectMode(mode) {
+            currentMode = mode;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            buildPVChart();
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function backToLanding() {
+            showPage('landing-page');
+        }
+
+        // Expose handlers globally so inline onclick works in all contexts (e.g. iframe, strict CSP)
+        window.selectMode = selectMode;
+        window.showLevelSelect = showLevelSelect;
+        window.selectWordedLevel = selectWordedLevel;
+        window.backToLanding = backToLanding;
+        window.checkAnswer = checkAnswer;
+        window.nextQuestion = nextQuestion;
+        window.toggleHint = toggleHint;
+
+        function normalizeAnswer(answer, requireOrder) {
+            // Remove all spaces and commas
+            let normalized = answer.replace(/\s+/g, '').replace(/,/g, '').toLowerCase();
+            
+            if (!requireOrder && normalized.includes('+')) {
+                // For scrambled modes, split by + and sort the numbers
+                const parts = normalized.split('+').map(p => parseInt(p)).filter(n => !isNaN(n)).sort((a, b) => b - a);
+                return parts.join('+');
+            } else {
+                // For ordered modes or standard numbers, keep as is (just remove spaces/commas)
+                return normalized;
+            }
+        }
+
+        function normalizeWordedAnswer(s) {
+            if (typeof s !== 'string') return '';
+            return s
+                .replace(/[–−\-]/g, ' ')       // en-dash, minus, hyphen → space
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLowerCase()
+                .replace(/,/g, '')
+                .replace(/\band\b/g, '')        // remove "and" (British English convention)
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function wordedAnswerMatch(user, correct) {
+            const u = normalizeWordedAnswer(user);
+            const c = normalizeWordedAnswer(correct);
+            if (u === c) return true;
+            // Also match if numeric and same when compared as numbers (e.g. 300000 vs 300,000)
+            const un = u.replace(/\s/g, '');
+            const cn = c.replace(/\s/g, '');
+            if (un === cn) return true;
+            const numU = parseFloat(un);
+            const numC = parseFloat(cn);
+            if (!isNaN(numU) && !isNaN(numC) && numU === numC) return true;
+            return false;
+        }
+
+        function toggleHint() {
+            const box = document.getElementById('hint-box');
+            const btn = document.getElementById('hint-btn');
+            box.classList.toggle('visible');
+            btn.classList.add('revealed');
+            btn.textContent = '💡 Hint (shown)';
+        }
+
+        function loadQuestion() {
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const card = document.getElementById('question-card');
+            
+            if (isWordedMode()) {
+                const list = wordedQuestions[wordedLevel];
+                const q = list[actualIndex];
+                document.getElementById('standard-question-wrap').style.display = 'none';
+                document.getElementById('worded-question-wrap').style.display = 'block';
+                card.className = 'question-card worded-level-' + wordedLevel;
+                document.getElementById('question-text').style.display = 'none';
+                document.getElementById('question-label').textContent = wordedLevelNames[wordedLevel] + ' – Question ' + (currentQuestion + 1) + ' of ' + list.length;
+                document.getElementById('story-display').textContent = q.story;
+                document.getElementById('step-a-label').textContent = q.stepA;
+                document.getElementById('step-b-label').textContent = q.stepB;
+                document.getElementById('hint-text').textContent = q.hint;
+                document.getElementById('current-q').textContent = currentQuestion + 1;
+                document.getElementById('total-q').textContent = list.length;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.value = '';
+                inputB.value = '';
+                inputA.className = 'answer-input step-a';
+                inputB.className = 'answer-input step-b';
+                inputA.disabled = false;
+                inputB.disabled = false;
+                document.getElementById('hint-box').classList.remove('visible');
+                document.getElementById('hint-btn').classList.remove('revealed');
+                document.getElementById('hint-btn').textContent = '💡 Hint';
+                document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+                document.getElementById('check-btn').disabled = false;
+                document.getElementById('next-btn').disabled = true;
+                hasChecked = false;
+                updateProgressTracker();
+                setTimeout(() => inputA.focus(), 100);
+                return;
+            }
+            
+            const q = questions[currentMode][actualIndex];
+            document.getElementById('standard-question-wrap').style.display = 'block';
+            document.getElementById('worded-question-wrap').style.display = 'none';
+            document.getElementById('question-text').style.display = 'block';
+            
+            const isStandardToExpanded = currentMode === 'standard-to-expanded';
+            const isWordsToExpanded = currentMode === 'words-to-expanded';
+            const isScrambled = currentMode.includes('scrambled');
+            
+            if (isStandardToExpanded) {
+                card.className = 'question-card mode1';
+                document.getElementById('question-text').textContent = 'Convert to expanded form:';
+                document.getElementById('answer-label').textContent = 'Your Answer (largest to smallest):';
+                document.getElementById('answer-input').placeholder = 'e.g., 3,000 + 400 + 50 + 2';
+            } else if (isWordsToExpanded) {
+                card.className = 'question-card mode1';
+                document.getElementById('question-text').textContent = 'Sort these scrambled words into expanded form:';
+                document.getElementById('answer-label').textContent = 'Your Answer (largest to smallest):';
+                document.getElementById('answer-input').placeholder = 'e.g., 3,000 + 400 + 50 + 2';
+            } else {
+                card.className = 'question-card mode2';
+                document.getElementById('question-text').textContent = 'Convert to standard form:';
+                document.getElementById('answer-label').textContent = 'Your Answer (with commas):';
+                document.getElementById('answer-input').placeholder = 'e.g., 3,452';
+            }
+            
+            const totalInRound = isRevisionRound ? revisionIndices.length : questions[currentMode].length;
+            document.getElementById('question-label').textContent = isRevisionRound 
+                ? `Revision – Question ${currentQuestion + 1} of ${totalInRound}` 
+                : `${modeNames[currentMode]} - Question ${currentQuestion + 1}`;
+            
+            // Format the problem display
+            if (isWordsToExpanded) {
+                document.getElementById('problem-display').style.fontStyle = 'italic';
+            } else {
+                document.getElementById('problem-display').style.fontStyle = 'normal';
+            }
+            document.getElementById('problem-display').textContent = q.problem;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = totalInRound;
+            
+            // Reset state
+            const input = document.getElementById('answer-input');
+            input.value = '';
+            input.className = 'answer-input';
+            input.disabled = false;
+            
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('next-btn').disabled = true;
+            
+            hasChecked = false;
+            
+            updateProgressTracker();
+            // Focus input
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function checkAnswer() {
+            if (hasChecked) return;
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            
+            if (isWordedMode()) {
+                const q = wordedQuestions[wordedLevel][actualIndex];
+                const userA = (document.getElementById('answer-step-a').value || '').trim();
+                const userB = (document.getElementById('answer-step-b').value || '').trim();
+                const correctA = wordedAnswerMatch(userA, q.answerA);
+                const correctB = wordedAnswerMatch(userB, q.answerB);
+                const marks = (correctA ? 1 : 0) + (correctB ? 1 : 0);
+                score += marks;
+                hasChecked = true;
+                const inputA = document.getElementById('answer-step-a');
+                const inputB = document.getElementById('answer-step-b');
+                inputA.className = 'answer-input step-a ' + (correctA ? 'correct' : 'incorrect');
+                inputB.className = 'answer-input step-b ' + (correctB ? 'correct' : 'incorrect');
+                inputA.disabled = true;
+                inputB.disabled = true;
+                if (marks === 2) questionStatus[actualIndex] = 'correct';
+                else if (marks === 1) questionStatus[actualIndex] = 'partial';
+                else questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = questionStatus[actualIndex];
+                }
+                const feedbackBox = document.getElementById('feedback-box');
+                const feedbackText = document.getElementById('feedback-text');
+                feedbackBox.classList.add('visible');
+                if (marks === 2) {
+                    feedbackBox.classList.add('correct');
+                    feedbackBox.classList.remove('incorrect');
+                    feedbackText.textContent = 'Both steps correct! You got 2 out of 2 marks. Well done.';
+                } else {
+                    feedbackBox.classList.add('incorrect');
+                    feedbackBox.classList.remove('correct');
+                    let fb = 'You scored ' + marks + ' out of 2.';
+                    if (!correctA) {
+                        fb += '<br><strong>Step A:</strong> You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userA || '(blank)') + '</span>';
+                        fb += '. The answer is <span style="font-family:\'Space Mono\',monospace;">' + q.answerA + '</span>';
+                    }
+                    if (!correctB) {
+                        fb += '<br><strong>Step B:</strong> You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userB || '(blank)') + '</span>';
+                        fb += '. The answer is <span style="font-family:\'Space Mono\',monospace;">' + q.answerB + '</span>';
+                    }
+                    feedbackText.innerHTML = fb;
+                }
+                updateProgressTracker();
+                document.getElementById('check-btn').disabled = true;
+                document.getElementById('next-btn').disabled = false;
+                return;
+            }
+            
+            const q = questions[currentMode][actualIndex];
+            const input = document.getElementById('answer-input');
+            
+            const isScrambled = currentMode === 'expanded-to-standard-scrambled';
+            const isExpanded = currentMode === 'standard-to-expanded' || currentMode === 'words-to-expanded';
+            
+            // For scrambled "put it together", allow any order
+            // For ordered expanded notation or words, require exact order
+            const requireOrder = !isScrambled && isExpanded;
+            
+            const userAnswer = normalizeAnswer(input.value, isScrambled);
+            const correctAnswer = normalizeAnswer(q.answer, isScrambled);
+            const correct = userAnswer === correctAnswer;
+            
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedbackBox.classList.add('visible');
+            hasChecked = true;
+            
+            if (correct) {
+                score++;
+                questionStatus[actualIndex] = 'correct';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'correct';
+                }
+                input.className = 'answer-input correct';
+                feedbackBox.classList.add('correct');
+                feedbackBox.classList.remove('incorrect');
+                feedbackText.textContent = `Perfect! The answer is ${q.answer}`;
+            } else {
+                questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
+                input.className = 'answer-input incorrect';
+                feedbackBox.classList.add('incorrect');
+                feedbackBox.classList.remove('correct');
+
+                let fbHTML = '';
+                const userVal = input.value.trim();
+                if (requireOrder && isExpanded) {
+                    // Check if they have the right numbers but wrong order
+                    const userNormalized = normalizeAnswer(input.value, true);
+                    const correctNormalized = normalizeAnswer(q.answer, true);
+                    if (userNormalized === correctNormalized) {
+                        fbHTML = 'You have the right numbers, but they need to be in order from largest to smallest:<br><span style="font-family:\'Space Mono\',monospace;font-weight:700;">' + q.answer + '</span>';
+                    } else {
+                        fbHTML = 'You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userVal || '(blank)') + '</span>';
+                        fbHTML += '<br>The correct answer is <span style="font-family:\'Space Mono\',monospace;font-weight:700;">' + q.answer + '</span>';
+                    }
+                } else if (isExpanded) {
+                    // Scrambled expanded: show student answer vs correct
+                    fbHTML = 'You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userVal || '(blank)') + '</span>';
+                    fbHTML += '<br>The correct answer is <span style="font-family:\'Space Mono\',monospace;font-weight:700;">' + q.answer + '</span>';
+                } else {
+                    // Standard number answer
+                    fbHTML = 'You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userVal || '(blank)') + '</span>';
+                    fbHTML += '<br>The correct answer is <span style="font-family:\'Space Mono\',monospace;font-weight:700;">' + q.answer + '</span>';
+                }
+                feedbackText.innerHTML = fbHTML;
+            }
+            
+            updateProgressTracker();
+            input.disabled = true;
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) {
+                    document.getElementById('score-label').textContent = 'Correct Answers';
+                    document.getElementById('completion-message').textContent = 
+                        `Awesome work! You've completed ${modeNames[currentMode]}!`;
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${questions[currentMode].length}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentMode].length) : [];
+                        submitResult('building-the-houses', 'Building the Houses', initialScore, questions[currentMode].length, modeNames[currentMode], qData);
+                    }
+                    showPage('completion-page');
+                    var deeperBtn = document.getElementById('go-deeper-btn');
+                    if (wordedLevel === 3) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                } else {
+                    loadQuestion();
+                }
+                return;
+            }
+            if (isWordedMode() && currentQuestion >= wordedQuestions[wordedLevel].length) {
+                const numQuestions = wordedQuestions[wordedLevel].length;
+                const totalMarks = numQuestions * 2;
+                document.getElementById('completion-message').textContent = 
+                    `Awesome work! You've completed ${wordedLevelNames[wordedLevel]}!`;
+                document.getElementById('final-score').textContent = `${score}/${totalMarks}`;
+                document.getElementById('score-label').textContent = 'Marks (2 per question)';
+                if (typeof submitResult === 'function') {
+                    var initialScore = initialQuestionResult.reduce(function (sum, s) { return sum + (s === 'correct' ? 2 : s === 'partial' ? 1 : 0); }, 0);
+                    var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, numQuestions) : [];
+                    submitResult('building-the-houses', 'Building the Houses', initialScore, totalMarks, wordedLevelNames[wordedLevel], qData);
+                }
+                showPage('completion-page');
+                var deeperBtn = document.getElementById('go-deeper-btn');
+                if (wordedLevel === 3) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                return;
+            }
+            if (!isWordedMode() && currentQuestion >= questions[currentMode].length) {
+                const incorrectIndices = questions[currentMode].map((_, i) => i).filter(i => questionStatus[i] === 'incorrect');
+                if (incorrectIndices.length === 0) {
+                    const total = questions[currentMode].length;
+                    const modeLabel = modeNames[currentMode];
+                    document.getElementById('score-label').textContent = 'Correct Answers';
+                    document.getElementById('completion-message').textContent = 
+                        `Awesome work! You've completed ${modeLabel}!`;
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${total}`;
+                    if (typeof submitResult === 'function') {
+                        var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                        var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, total) : [];
+                        submitResult('building-the-houses', 'Building the Houses', initialScore, total, modeLabel, qData);
+                    }
+                    showPage('completion-page');
+                    var deeperBtn = document.getElementById('go-deeper-btn');
+                    if (wordedLevel === 3) { deeperBtn.style.display = 'block'; unlockGoDeeper(); } else { deeperBtn.style.display = 'none'; }
+                } else {
+                    startRevisionRound(incorrectIndices);
+                }
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            createProgressTracker();
+            loadQuestion();
+        }
+
+        // Bind activity/mode cards so clicks work (script is at end of body so DOMContentLoaded may have already fired)
+        function bindClicks() {
+            var modeSelection = document.getElementById('mode-selection');
+            if (modeSelection) {
+                modeSelection.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.mode-card[data-mode]');
+                    if (!btn) return;
+                    var mode = btn.getAttribute('data-mode');
+                    if (mode === 'worded') {
+                        showLevelSelect();
+                    } else {
+                        selectMode(mode);
+                    }
+                });
+            }
+            var levelGrid = document.getElementById('level-grid');
+            if (levelGrid) {
+                levelGrid.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.level-btn[data-level]');
+                    if (!btn) return;
+                    var level = parseInt(btn.getAttribute('data-level'), 10);
+                    if (!isNaN(level)) selectWordedLevel(level);
+                });
+            }
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        }
+
+        function togglePVChart() {
+            var chart = document.getElementById('pv-ref-chart');
+            var btn = document.getElementById('pv-ref-toggle');
+            chart.classList.toggle('visible');
+            btn.textContent = chart.classList.contains('visible') ? 'Hide Place Value Chart' : 'Show Place Value Chart';
+        }
+
+        function buildPVChart() {
+            var row = document.getElementById('pv-ref-row');
+            var colours = {
+                'O': '#65a30d', 'T': '#059669', 'H': '#0891b2',
+                'Th': '#1d4ed8', 'T Th': '#7c3aed', 'H Th': '#d44d8a',
+                'M': '#65a30d', 'T M': '#059669', 'H M': '#0891b2',
+                'B': '#a21caf', 'T B': '#7c3aed', 'H B': '#d44d8a'
+            };
+            // Static chart: Millions, Thousands, Ones
+            var houses = [['H M', 'T M', 'M'], ['H Th', 'T Th', 'Th'], ['H', 'T', 'O']];
+
+            var html = '';
+            houses.forEach(function(house, houseIdx) {
+                house.forEach(function(col) {
+                    html += '<div class="pv-ref-col" style="--col-color:' + colours[col] + '"><div class="col-label">' + col + '</div></div>';
+                });
+                if (houseIdx < houses.length - 1) {
+                    html += '<div class="pv-ref-divider"></div>';
+                }
+            });
+            row.innerHTML = html;
+        }
+
+        function unlockGoDeeper() {
+            var card = document.getElementById('go-deeper-card');
+            if (card) {
+                card.classList.remove('locked');
+                card.disabled = false;
+                card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+                card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+            }
+        }
+
+        function openGoDeeper() {
+            showPage('go-deeper-page');
+            window.scrollTo(0, 0);
+        }
+
+        // Setup vocabulary tooltips
+        function setupVocabularyTooltips() {
+            var tooltipTerms = {
+                'expanded notation': 'Writing a number as the sum of each digit\'s value (e.g. 3,452 = 3,000 + 400 + 50 + 2).',
+                'partition': 'Breaking a number into smaller parts based on place value.',
+                'standard': 'The normal way of writing a number (e.g. 3,452).'
+            };
+
+            document.querySelectorAll('.vocab-term').forEach(function(term) {
+                var word = term.textContent.toLowerCase().trim();
+                if (tooltipTerms[word]) {
+                    var tooltip = document.createElement('div');
+                    tooltip.className = 'vocab-tooltip';
+                    tooltip.textContent = tooltipTerms[word];
+                    term.appendChild(tooltip);
+
+                    term.addEventListener('mouseenter', function() {
+                        this.querySelector('.vocab-tooltip').classList.add('show');
+                    });
+                    term.addEventListener('mouseleave', function() {
+                        this.querySelector('.vocab-tooltip').classList.remove('show');
+                    });
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setupVocabularyTooltips();
+                bindClicks();
+            });
+        } else {
+            setupVocabularyTooltips();
+            bindClicks();
+        }
+    </script>
+
+
+</body></html>

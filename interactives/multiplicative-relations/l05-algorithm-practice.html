@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 5: Algorithm Practice - Maths Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa;
+    --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #27AE60; --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  header { background: #2D3436; color: #fff; padding: 36px 48px 28px; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%); pointer-events: none; }
+  header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  header h1 { font-size: clamp(26px, 5vw, 42px); font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 560px; font-weight: 500; }
+
+  .phase-nav { display: flex; gap: 10px; padding: 18px 48px; background: #3d4347; flex-wrap: wrap; }
+  .phase-nav button { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: none; border-radius: 30px; padding: 8px 20px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .lisc-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 28px; margin-bottom: 24px; border-top: 5px solid var(--teal); }
+  .lisc-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .lisc-header h2 { font-size: 17px; font-weight: 700; }
+  .lisc-toggle { font-size: 15px; transition: transform 0.3s; }
+  .lisc-body { display: none; margin-top: 16px; }
+  .lisc-body.open { display: block; }
+  .lisc-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--teal-dark); }
+  .lisc-body p { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+  .lisc-body ul { list-style: none; margin: 0 0 12px 0; }
+  .lisc-body li { padding: 4px 0 4px 22px; position: relative; font-size: 14px; line-height: 1.5; }
+  .lisc-body li::before { content: "\2014"; position: absolute; left: 0; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 6px; }
+  .section-heading { font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-red { background: #fff4f4; border-left: 5px solid var(--red); }
+  .callout-red .label { color: var(--red-dark); }
+  .callout-red p { color: #5a1a1a; }
+
+  .step-row { display: flex; align-items: baseline; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 16px; }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { font-weight: 700; color: var(--teal-dark); min-width: 28px; }
+  .step-hidden { visibility: hidden; }
+  .step-reveal-btn { background: var(--teal); color: #fff; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; transition: all 0.2s; }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  /* ── ALGORITHM TABLE ── */
+  .algo-table { margin: 20px auto; border-collapse: collapse; }
+  .algo-table td {
+    width: 48px; height: 48px; text-align: center; vertical-align: middle;
+    font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700;
+    border: none; position: relative;
+  }
+  .algo-table .carry-row td { height: 28px; font-size: 14px; color: var(--red); }
+  .algo-table .top-row td { border-bottom: none; }
+  .algo-table .mult-row td { border-bottom: 3px solid var(--text); }
+  .algo-table .mult-row td:first-child { font-size: 20px; color: var(--muted); }
+  .algo-table .answer-row td { border-top: none; }
+
+  .algo-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 40px; height: 40px; text-align: center; border: 2px solid var(--border);
+    border-radius: 8px; outline: none; transition: all 0.2s; background: white;
+  }
+  .algo-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .algo-input.correct { border-color: var(--green); background: var(--green-light); }
+  .algo-input.wrong { border-color: var(--red); background: var(--red-light); }
+  .algo-input.carry {
+    width: 28px; height: 28px; font-size: 14px;
+    color: var(--red); border-color: #fdd;
+  }
+  .algo-input.carry:focus { border-color: var(--red); }
+
+  .algo-static { display: inline-block; width: 40px; height: 40px; line-height: 40px; }
+
+  /* ── AREA MODEL MINI ── */
+  .area-mini { display: flex; border: 2px solid var(--muted); border-radius: 4px; overflow: hidden; margin: 12px auto; max-width: 300px; min-height: 60px; }
+  .area-mini-section {
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 8px; border-right: 1px dashed var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+    color: var(--muted); transition: all 0.4s;
+  }
+  .area-mini-section:last-child { border-right: none; }
+  .area-mini-section.highlight { background: rgba(78,205,196,0.15); color: var(--blue); }
+
+  .toggle-area-btn {
+    background: var(--blue); color: white; border: none; border-radius: 20px;
+    padding: 6px 16px; font-family: 'Fredoka', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer; margin: 8px 0;
+  }
+
+  /* ── RADAR ESTIMATE ── */
+  .radar-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+  .radar-input {
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    width: 120px; text-align: center; padding: 8px; border: 3px solid var(--amber);
+    border-radius: 14px; outline: none; background: #fffbf0;
+  }
+  .radar-input:focus { border-color: var(--orange); }
+  .radar-label { font-size: 15px; font-weight: 700; color: var(--amber-dark); }
+
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .level-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.l4 { background: #FF8C42; }
+  .level-btn.l5 { background: #6C63FF; }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover { background: var(--teal-dark); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  /* ── GO DEEPER EXTENSION ── */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); max-width: 700px; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  @media (max-width: 600px) {
+    header { padding: 28px 20px 22px; }
+    .phase-nav { padding: 14px 20px; }
+    main { padding: 20px 14px 40px; }
+    .card { padding: 20px 18px; }
+    .algo-table td { width: 38px; height: 38px; font-size: 20px; }
+    .algo-input { width: 34px; height: 34px; font-size: 18px; }
+    .algo-input.carry { width: 24px; height: 24px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Lesson 5 &middot; Year 5 Mathematics &middot; Multiplicative Relations</div>
+  <h1>The Formal <span>Algorithm</span></h1>
+  <p>Compressing the area model into a fast, reliable method</p>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showPhase('hook', this)">Hook</button>
+  <button onclick="showPhase('ido', this)">I Do</button>
+  <button onclick="showPhase('wedo', this)">We Do</button>
+  <button onclick="showPhase('youpractice', this)">You Do</button>
+</nav>
+
+<main>
+
+<div class="lisc-card">
+  <div class="lisc-header" onclick="toggleLISC()">
+    <h2>Learning Intention &amp; Success Criteria</h2>
+    <span class="lisc-toggle" id="liscToggle">&#x25BC;</span>
+  </div>
+  <div class="lisc-body" id="liscBody">
+    <h3>Learning Intention</h3>
+    <p>We are learning to use the formal multiplication algorithm, understanding why each step works.</p>
+    <h3>Success Criteria</h3>
+    <ul>
+      <li>I can set up and solve a multiplication algorithm for numbers multiplied by a one-digit number (Levels 1-3).</li>
+      <li>I can solve the algorithm for 2-digit and 3-digit numbers multiplied by 2-digit numbers (Levels 4-5).</li>
+      <li>I can explain what each partial product row represents in the multi-digit algorithm.</li>
+      <li>I can check my algorithm answer with a Radar estimate.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════ HOOK ══════ -->
+<div id="hook" class="section active">
+  <div class="section-title">The Hook</div>
+  <div class="section-heading">Spot the shortcut</div>
+
+  <div class="card">
+    <h3>Two methods, same answer</h3>
+    <p>Here is <span class="mono">47 &times; 8</span> solved two ways:</p>
+
+    <div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0; justify-content:center;">
+      <div style="text-align:center;">
+        <p style="font-weight:700; font-size:14px; color:var(--teal-dark); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Area Model</p>
+        <div class="area-mini">
+          <div class="area-mini-section" style="flex:40;">40 &times; 8<br>= 320</div>
+          <div class="area-mini-section" style="flex:7;">7 &times; 8<br>= 56</div>
+        </div>
+        <p class="mono" style="font-size:16px;">320 + 56 = 376</p>
+      </div>
+      <div style="text-align:center;">
+        <p style="font-weight:700; font-size:14px; color:var(--teal-dark); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Algorithm</p>
+        <table class="algo-table" style="margin:12px auto;">
+          <tr class="carry-row"><td></td><td></td><td style="color:var(--red);">5</td></tr>
+          <tr class="top-row"><td></td><td>4</td><td>7</td></tr>
+          <tr class="mult-row"><td>&times;</td><td></td><td>8</td></tr>
+          <tr class="answer-row"><td>3</td><td>7</td><td>6</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <p>Which method would you prefer if you had 50 problems to solve?</p>
+
+    <div class="callout callout-teal">
+      <div class="label">Key idea</div>
+      <p>The algorithm is a <strong>compressed version</strong> of the area model. Every step in the algorithm corresponds to something we did in the area model. Same maths, faster writing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ I DO ══════ -->
+<div id="ido" class="section">
+  <div class="section-title">Explicit Instruction</div>
+  <div class="section-heading">Mapping the algorithm to the area model</div>
+
+  <div class="card">
+    <h3>Example 1: <span class="mono">47 &times; 8</span></h3>
+    <p>Watch how each step of the algorithm connects to the area model.</p>
+
+    <div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0; justify-content:center; align-items:flex-start;">
+      <div style="text-align:center;">
+        <p style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Algorithm</p>
+        <table class="algo-table">
+          <tr class="carry-row"><td></td><td></td><td id="ex1-carry">.</td></tr>
+          <tr class="top-row"><td></td><td>4</td><td>7</td></tr>
+          <tr class="mult-row"><td>&times;</td><td></td><td>8</td></tr>
+          <tr class="answer-row"><td id="ex1-a2">.</td><td id="ex1-a1">.</td><td id="ex1-a0">.</td></tr>
+        </table>
+      </div>
+      <div style="text-align:center;">
+        <p style="font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Area Model</p>
+        <div class="area-mini" id="ex1-area">
+          <div class="area-mini-section" id="ex1-area-tens" style="flex:40;">40 &times; 8<br>= 320</div>
+          <div class="area-mini-section" id="ex1-area-ones" style="flex:7;">7 &times; 8<br>= 56</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ex1-steps">
+      <div class="step-row"><span class="step-num">1.</span><span class="step-text"><span class="mono">8 &times; 7 = 56</span>. This is the right section of the area model. Write <span class="mono">6</span> in the ones column, carry <span class="mono">5</span> (that is 5 tens).</span></div>
+      <div class="step-row step-hidden" data-group="ex1"><span class="step-num">2.</span><span class="step-text"><span class="mono">8 &times; 4 tens = 32 tens</span>. Plus the <span class="mono">5</span> carried tens = <span class="mono">37</span> tens. Write <span class="mono">7</span> in the tens column.</span></div>
+      <div class="step-row step-hidden" data-group="ex1"><span class="step-num">3.</span><span class="step-text">The <span class="mono">3</span> from <span class="mono">37</span> tens goes into the hundreds column. That gives us <span class="mono">3</span> hundreds.</span></div>
+      <div class="step-row step-hidden" data-group="ex1"><span class="step-num">4.</span><span class="step-text">Answer: <span class="mono">376</span>. Check against the area model: <span class="mono">320 + 56 = 376</span>. Correct.</span></div>
+    </div>
+    <button class="step-reveal-btn" onclick="revealEx1Step()">Reveal next step</button>
+
+    <div class="callout callout-amber" style="margin-top:16px;">
+      <div class="label">The carry is not magic</div>
+      <p>The carry is the tens (or hundreds) that were too large to fit in the current column. The area model makes this visible: every carried digit is a place value regrouping.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Example 2: <span class="mono">236 &times; 7</span></h3>
+    <p>Radar first: <span class="mono">240 &times; 7 = 1,680</span>. Our answer should be near 1,680.</p>
+
+    <table class="algo-table" style="margin:20px auto;">
+      <tr class="carry-row"><td></td><td id="ex2-c2">.</td><td id="ex2-c1">.</td><td></td></tr>
+      <tr class="top-row"><td></td><td>2</td><td>3</td><td>6</td></tr>
+      <tr class="mult-row"><td>&times;</td><td></td><td></td><td>7</td></tr>
+      <tr class="answer-row"><td id="ex2-a3">.</td><td id="ex2-a2">.</td><td id="ex2-a1">.</td><td id="ex2-a0">.</td></tr>
+    </table>
+
+    <div id="ex2-steps">
+      <div class="step-row"><span class="step-num">1.</span><span class="step-text">Ones: <span class="mono">7 &times; 6 = 42</span>. Write <span class="mono">2</span>, carry <span class="mono">4</span> (4 tens).</span></div>
+      <div class="step-row step-hidden" data-group="ex2"><span class="step-num">2.</span><span class="step-text">Tens: <span class="mono">7 &times; 3 = 21</span>, plus <span class="mono">4</span> = <span class="mono">25</span>. Write <span class="mono">5</span>, carry <span class="mono">2</span> (2 hundreds).</span></div>
+      <div class="step-row step-hidden" data-group="ex2"><span class="step-num">3.</span><span class="step-text">Hundreds: <span class="mono">7 &times; 2 = 14</span>, plus <span class="mono">2</span> = <span class="mono">16</span>. Write <span class="mono">6</span> in the hundreds column.</span></div>
+      <div class="step-row step-hidden" data-group="ex2"><span class="step-num">4.</span><span class="step-text">The <span class="mono">1</span> from <span class="mono">16</span> hundreds goes into the thousands column.</span></div>
+      <div class="step-row step-hidden" data-group="ex2"><span class="step-num">5.</span><span class="step-text">Answer: <span class="mono">1,652</span>. Radar said ~1,680. Close. Reasonable.</span></div>
+    </div>
+    <button class="step-reveal-btn" onclick="revealGroup('ex2')">Reveal next step</button>
+  </div>
+</div>
+
+<!-- ══════ WE DO ══════ -->
+<div id="wedo" class="section">
+  <div class="section-title">Guided Practice</div>
+  <div class="section-heading">Your turn, with support</div>
+  <p style="font-size:16px; color:var(--muted); margin-bottom:20px;">Enter each digit of the answer and any carry digits. Work from right to left, just like the algorithm.</p>
+
+  <div id="wedo-container"></div>
+</div>
+
+<!-- ══════ YOU DO ══════ -->
+<div id="youpractice" class="section">
+  <div class="section-title">Independent Practice</div>
+  <div class="section-heading">Algorithm practice</div>
+  <p style="font-size:16px; color:var(--muted); margin-bottom:16px;">Radar estimate first, then work the algorithm step by step.</p>
+
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="setLevel(1)">Level 1 (No carries)</button>
+    <button class="level-btn l2" onclick="setLevel(2)">Level 2 (Single carry)</button>
+    <button class="level-btn l3" onclick="setLevel(3)">Level 3 (Multiple carries)</button>
+    <button class="level-btn l4" onclick="setLevel(4)">Level 4 (2-digit &times; 2-digit)</button>
+    <button class="level-btn l5" onclick="setLevel(5)">Level 5 (3-digit &times; 2-digit)</button>
+  </div>
+
+  <div class="dot-counter" id="practice-dots"></div>
+
+  <div id="practice-card" class="card" style="text-align:center;"></div>
+
+  <div class="summary-card" id="practice-summary">
+    <h3>Round Complete</h3>
+    <div class="summary-score" id="practice-score"></div>
+    <p id="practice-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+    <button class="btn btn-primary" onclick="startPractice()">Try Again (New Problems)</button>
+  </div>
+
+  <!-- ── GO DEEPER CARD (locked initially) ── -->
+  <div class="go-deeper-card" id="go-deeper-locked" style="display:none; text-align:center; padding:40px;">
+    <p style="font-size:16px; color:var(--muted); margin-bottom:0;">Complete the You Do section with a strong score to unlock deeper tasks.</p>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-btn" style="display:none;" onclick="toggleGoDeeperSection()">
+    <h3>&#x1F512; Go Deeper &#x1F512;</h3>
+    <p>Three extension tasks: Specialising, Conjecturing, Generalising</p>
+  </button>
+</div>
+
+<!-- ── GO DEEPER SECTION ── -->
+<div id="go-deeper-section" style="display:none;">
+  <div class="go-deeper-card">
+    <h2>Go Deeper</h2>
+    <p>You have mastered the algorithm for multiplying 3-digit (or 2-digit) numbers by a one-digit number. These three tasks will help you explore the mathematics at a deeper level: spotting errors, testing claims, and finding patterns.</p>
+
+    <!-- Task 1: Specialising -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 1. Specialising</div>
+      <div class="ext-task-prompt">A student solved <span class="ext-numbers">347 &times; 8</span> using the algorithm. Their working shows correct steps, but they got <span class="ext-numbers">2,876</span>. The correct answer is <span class="ext-numbers">2,776</span>. Find the error in their working.</div>
+      <div class="ext-task-sub">This is a real error that happened in a Year 5 classroom. Work the algorithm yourself first.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="revealTask1Model()">Show a mathematician's approach</button>
+      <div class="ext-model-response" id="task1-model">
+        <div class="model-label">Thinking like a mathematician</div>
+        <p>I'll work <span class="ext-numbers">347 &times; 8</span> step by step to compare:</p>
+        <p><strong>Ones:</strong> <span class="ext-numbers">8 &times; 7 = 56</span>. Write <span class="ext-numbers">6</span>, carry <span class="ext-numbers">5</span> (that is <span class="ext-numbers">5</span> tens).</p>
+        <p><strong>Tens:</strong> <span class="ext-numbers">8 &times; 4 = 32</span>, plus the <span class="ext-numbers">5</span> carried tens = <span class="ext-numbers">37</span> tens. Write <span class="ext-numbers">7</span>, carry <span class="ext-numbers">3</span> (that is <span class="ext-numbers">3</span> hundreds).</p>
+        <p><strong>Hundreds:</strong> <span class="ext-numbers">8 &times; 3 = 24</span> hundreds, plus the <span class="ext-numbers">3</span> carried hundreds = <span class="ext-numbers">27</span> hundreds. Write <span class="ext-numbers">27</span>.</p>
+        <p><strong>Answer:</strong> <span class="ext-numbers">2,776</span>.</p>
+        <p>The student got <span class="ext-numbers">2,876</span>. Comparing: the hundreds and thousands are swapped. The error must be in how they wrote down their answer after the working. They calculated correctly but wrote the final number as <span class="ext-numbers">2,876</span> instead of <span class="ext-numbers">2,776</span>.</p>
+        <p>Actually, wait. Let me check if the error was in the tens carry: if the student carried <span class="ext-numbers">4</span> instead of <span class="ext-numbers">3</span> from the tens column, then: <span class="ext-numbers">8 &times; 3 = 24</span>, plus <span class="ext-numbers">4</span> = <span class="ext-numbers">28</span>. Writing this gives <span class="ext-numbers">2,876</span>. Yes, that is it.</p>
+        <div class="mathematician-box"><strong>The error:</strong> In the tens column, the carry was written as <span class="ext-numbers">4</span> instead of <span class="ext-numbers">3</span>. This mistake in the carry then affected the hundreds calculation.</div>
+      </div>
+    </div>
+
+    <!-- Task 2: Conjecturing -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 2. Conjecturing</div>
+      <div class="ext-task-prompt">Is this statement always true, sometimes true, or never true?<br><br><em>When you multiply a 3-digit number by a 1-digit number using the algorithm, the answer is always a 4-digit number.</em></div>
+      <div class="ext-task-sub">A good mathematician tests a claim with examples. Can you find an example that proves it false?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="revealTask2Model()">Show a mathematician's approach</button>
+      <div class="ext-model-response" id="task2-model">
+        <div class="model-label">Testing the claim</div>
+        <p>I need to find out if the answer is always, sometimes, or never a 4-digit number.</p>
+        <p><strong>Test 1:</strong> <span class="ext-numbers">100 &times; 1 = 100</span>. That is a 3-digit number, not 4 digits.</p>
+        <p><strong>Test 2:</strong> <span class="ext-numbers">999 &times; 9 = 8,991</span>. That is a 4-digit number.</p>
+        <p><strong>Test 3:</strong> <span class="ext-numbers">100 &times; 9 = 900</span>. That is a 3-digit number again.</p>
+        <p>I found examples where the answer has 3 digits and examples where it has 4 digits. This means the claim is <strong>sometimes true</strong>.</p>
+        <div class="mathematician-box"><strong>Why?</strong> Small 3-digit numbers multiplied by small 1-digit numbers give 3-digit answers. Larger 3-digit numbers (like <span class="ext-numbers">999</span>) multiplied by larger 1-digit multipliers give 4-digit answers. It depends on the size of both numbers.</div>
+      </div>
+    </div>
+
+    <!-- Task 3: Generalising -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 3. Generalising</div>
+      <div class="ext-task-prompt">You have the digits <span class="ext-numbers">3, 5, 7,</span> and <span class="ext-numbers">9</span>. You must use exactly three of them to make a 3-digit number and multiply by the remaining digit. Each digit is used exactly once. Find the arrangement that gives the largest possible product. Then write a rule explaining how to arrange digits to maximise the product.</div>
+      <div class="ext-task-sub">Hint: not all arrangements need to be tested if you think about place value. What matters most?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="revealTask3Model()">Show a mathematician's approach</button>
+      <div class="ext-model-response" id="task3-model">
+        <div class="model-label">Finding the pattern</div>
+        <p><strong>First thought:</strong> I need to check which digit should be the multiplier and how to arrange the other three.</p>
+        <p>The multiplier has a big impact. Let me test using <span class="ext-numbers">9</span> as the multiplier (since it is the largest digit):</p>
+        <p><strong>If multiplier is 9:</strong></p>
+        <p>Remaining digits are <span class="ext-numbers">3, 5, 7</span>. To make the 3-digit number as large as possible, I arrange them in descending order: <span class="ext-numbers">753</span>.<br><span class="ext-numbers">753 &times; 9 = 6,777</span></p>
+        <p><strong>What if I used a different multiplier?</strong> Say <span class="ext-numbers">7</span> as the multiplier:</p>
+        <p>Remaining digits are <span class="ext-numbers">3, 5, 9</span>. Best arrangement: <span class="ext-numbers">953</span>.<br><span class="ext-numbers">953 &times; 7 = 6,671</span></p>
+        <p>The first option (<span class="ext-numbers">753 &times; 9 = 6,777</span>) is larger.</p>
+        <div class="mathematician-box"><strong>The rule:</strong> Use the largest available digit as the multiplier. Arrange the remaining three digits in descending order to form the 3-digit number. This maximises the product because the multiplier affects every digit of the number being multiplied, and the hundreds digit of the 3-digit number has the most place value.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── NAV ──
+function showPhase(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.phase-nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'wedo' && !weDoBuilt) buildWeDo();
+  if (id === 'youpractice' && practiceProblems.length === 0) startPractice();
+}
+
+function toggleLISC() {
+  var b = document.getElementById('liscBody');
+  var t = document.getElementById('liscToggle');
+  b.classList.toggle('open');
+  t.innerHTML = b.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── STEP REVEALS ──
+var revealState = {};
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.remove('step-hidden');
+    revealState[group]++;
+  }
+  // Fill in algorithm digits
+  if (group === 'ex2') {
+    var fills = [
+      function() { el('ex2-a0').textContent = '2'; el('ex2-c1').textContent = '4'; el('ex2-c1').style.color = 'var(--red)'; },
+      function() { el('ex2-a1').textContent = '5'; el('ex2-c2').textContent = '2'; el('ex2-c2').style.color = 'var(--red)'; },
+      function() { el('ex2-a2').textContent = '6'; },
+      function() { el('ex2-a3').textContent = '1'; },
+      function() {}
+    ];
+    if (revealState[group] - 1 < fills.length) fills[revealState[group] - 1]();
+  }
+}
+
+var ex1Step = 0;
+function revealEx1Step() {
+  var steps = document.querySelectorAll('[data-group="ex1"]');
+  if (ex1Step === 0) {
+    // Ones column: 8 x 7 = 56, write 6, carry 5
+    el('ex1-a0').textContent = '6';
+    el('ex1-carry').textContent = '5';
+    el('ex1-carry').style.color = 'var(--red)';
+    el('ex1-area-ones').classList.add('highlight');
+  } else if (ex1Step === 1) {
+    // Tens column: 8 x 4 tens + 5 = 37 tens, write 7
+    steps[0].classList.remove('step-hidden');
+    el('ex1-a1').textContent = '7';
+    el('ex1-area-tens').classList.add('highlight');
+  } else if (ex1Step === 2) {
+    // Hundreds overflow: 3 from 37 tens goes to hundreds
+    steps[1].classList.remove('step-hidden');
+    el('ex1-a2').textContent = '3';
+  } else if (ex1Step === 3) {
+    // Final answer confirmation
+    steps[2].classList.remove('step-hidden');
+  }
+  ex1Step++;
+}
+
+function el(id) { return document.getElementById(id); }
+
+// ── ALGORITHM BUILDER (single-digit multiplier) ──
+function buildAlgoTable(a, b, containerId, prefix, interactive) {
+  var answer = a * b;
+  var digits = String(a).split('').map(Number);
+  var cols = Math.max(digits.length + 1, String(answer).length);
+  var ansDigits = String(answer).split('').map(Number);
+
+  // Calculate carries
+  var carries = [];
+  var carry = 0;
+  for (var i = digits.length - 1; i >= 0; i--) {
+    var product = digits[i] * b + carry;
+    carry = Math.floor(product / 10);
+    carries[i] = carry;
+  }
+
+  var html = '<table class="algo-table">';
+
+  // Carry row
+  html += '<tr class="carry-row">';
+  for (var c = 0; c < cols; c++) {
+    var carryIdx = c - (cols - digits.length);
+    var carryVal = '';
+    // carries array: carries[i] is carry FROM position i (going left)
+    // We need carry INTO position i, which is carries[i+1]
+    if (carryIdx >= 0 && carryIdx < digits.length - 1) {
+      carryVal = carries[carryIdx + 1];
+      if (carryVal === 0) carryVal = '';
+    }
+    if (interactive && carryVal !== '') {
+      html += '<td><input type="number" class="algo-input carry" id="' + prefix + '-carry-' + c + '" data-correct="' + carryVal + '" placeholder=""></td>';
+    } else if (carryVal !== '') {
+      html += '<td style="color:var(--red);">' + carryVal + '</td>';
+    } else {
+      html += '<td></td>';
+    }
+  }
+  html += '</tr>';
+
+  // Top number row
+  html += '<tr class="top-row">';
+  for (var t = 0; t < cols; t++) {
+    var dIdx = t - (cols - digits.length);
+    html += '<td>' + (dIdx >= 0 ? digits[dIdx] : '') + '</td>';
+  }
+  html += '</tr>';
+
+  // Multiplier row
+  html += '<tr class="mult-row">';
+  for (var m = 0; m < cols; m++) {
+    if (m === 0) html += '<td>&times;</td>';
+    else if (m === cols - 1) html += '<td>' + b + '</td>';
+    else html += '<td></td>';
+  }
+  html += '</tr>';
+
+  // Answer row
+  html += '<tr class="answer-row">';
+  var ansOffset = cols - ansDigits.length;
+  for (var r = 0; r < cols; r++) {
+    var aIdx = r - ansOffset;
+    if (interactive) {
+      var correctDigit = aIdx >= 0 ? ansDigits[aIdx] : '';
+      html += '<td><input type="number" class="algo-input" id="' + prefix + '-ans-' + r + '" data-correct="' + correctDigit + '" placeholder="?" ' + (correctDigit === '' ? 'style="visibility:hidden;"' : '') + '></td>';
+    } else {
+      html += '<td>' + (aIdx >= 0 ? ansDigits[aIdx] : '') + '</td>';
+    }
+  }
+  html += '</tr>';
+
+  html += '</table>';
+  return html;
+}
+
+// ── ALGORITHM BUILDER (multi-digit multiplier) ──
+function buildAlgoTableMultiDigit(a, b, containerId, prefix, interactive) {
+  var answer = a * b;
+  var aDigits = String(a).split('').map(Number);
+  var bDigits = String(b).split('').map(Number);
+  var ansDigits = String(answer).split('').map(Number);
+
+  // Calculate partial products (one for each digit of b, from right to left)
+  var partialProducts = [];
+  for (var i = bDigits.length - 1; i >= 0; i--) {
+    var product = a * bDigits[i];
+    var shift = bDigits.length - 1 - i; // How many places to shift left
+    partialProducts.push({ value: product, digit: bDigits[i], shift: shift });
+  }
+
+  // Determine column count: max of answer length + 1 for the multiplication symbol
+  var cols = Math.max(aDigits.length + 2, ansDigits.length + 1);
+
+  var html = '<table class="algo-table">';
+
+  // Top number row (multiplicand)
+  html += '<tr class="top-row">';
+  for (var t = 0; t < cols; t++) {
+    var dIdx = t - (cols - aDigits.length - 1);
+    if (dIdx >= 0 && dIdx < aDigits.length) {
+      html += '<td>' + aDigits[dIdx] + '</td>';
+    } else {
+      html += '<td></td>';
+    }
+  }
+  html += '</tr>';
+
+  // Multiplier row
+  html += '<tr class="mult-row">';
+  for (var m = 0; m < cols; m++) {
+    if (m === 0) html += '<td>&times;</td>';
+    else if (m >= cols - bDigits.length) {
+      var bIdx = m - (cols - bDigits.length);
+      html += '<td>' + (bIdx >= 0 && bIdx < bDigits.length ? bDigits[bIdx] : '') + '</td>';
+    } else {
+      html += '<td></td>';
+    }
+  }
+  html += '</tr>';
+
+  // Separator line
+  html += '<tr style="height:4px;"><td colspan="' + cols + '" style="border-bottom:2px solid var(--text);"></td></tr>';
+
+  // Partial product rows (one for each digit of multiplier)
+  partialProducts.forEach(function(pp, ppIdx) {
+    var ppDigits = String(pp.value).split('').map(Number);
+    html += '<tr class="answer-row">';
+    for (var p = 0; p < cols; p++) {
+      var ppOffset = cols - ppDigits.length - pp.shift;
+      var ppIdx_col = p - ppOffset;
+      if (interactive) {
+        if (ppIdx_col >= 0 && ppIdx_col < ppDigits.length) {
+          var correctDigit = ppDigits[ppIdx_col];
+          var inputId = prefix + '-pp' + ppIdx + '-' + p;
+          html += '<td><input type="number" class="algo-input" id="' + inputId + '" data-correct="' + correctDigit + '" placeholder="?"></td>';
+        } else if (p >= cols - pp.shift && ppIdx_col < 0) {
+          // Placeholder for shifted zeros (optional for students to fill)
+          html += '<td style="opacity:0.3;">0</td>';
+        } else {
+          html += '<td></td>';
+        }
+      } else {
+        if (ppIdx_col >= 0 && ppIdx_col < ppDigits.length) {
+          html += '<td>' + ppDigits[ppIdx_col] + '</td>';
+        } else if (p >= cols - pp.shift && ppIdx_col < 0) {
+          html += '<td style="opacity:0.3;">0</td>';
+        } else {
+          html += '<td></td>';
+        }
+      }
+    }
+    html += '</tr>';
+  });
+
+  // Final answer row
+  html += '<tr class="answer-row" style="border-top:2px solid var(--text);">';
+  var ansOffset = cols - ansDigits.length;
+  for (var r = 0; r < cols; r++) {
+    var aIdx = r - ansOffset;
+    if (interactive) {
+      var correctDigit = aIdx >= 0 ? ansDigits[aIdx] : '';
+      var inputId = prefix + '-ans-' + r;
+      html += '<td><input type="number" class="algo-input" id="' + inputId + '" data-correct="' + correctDigit + '" placeholder="?" ' + (correctDigit === '' ? 'style="visibility:hidden;"' : '') + '></td>';
+    } else {
+      html += '<td>' + (aIdx >= 0 ? ansDigits[aIdx] : '') + '</td>';
+    }
+  }
+  html += '</tr>';
+
+  html += '</table>';
+  return html;
+}
+
+// ── WE DO ──
+var weDoBuilt = false;
+var weDoProblems = [
+  { a: 54, b: 6, answer: 324 },
+  { a: 138, b: 5, answer: 690 }
+];
+
+function buildWeDo() {
+  weDoBuilt = true;
+  var container = el('wedo-container');
+  container.innerHTML = '';
+
+  weDoProblems.forEach(function(p, idx) {
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'wedo-card-' + idx;
+
+    var algoHTML = buildAlgoTable(p.a, p.b, card, 'wedo' + idx, true);
+
+    card.innerHTML = '<h3>Problem ' + (idx + 1) + ': <span class="mono">' + p.a + ' &times; ' + p.b + '</span></h3>' +
+      '<p>Work the algorithm. Fill in each answer digit and any carry digits.</p>' +
+      algoHTML +
+      '<div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkAlgo(\'wedo' + idx + '\',' + p.a + ',' + p.b + ',' + idx + ',\'wedo\')">Check</button></div>' +
+      '<div class="feedback" id="wedo-fb-' + idx + '"></div>';
+
+    container.appendChild(card);
+  });
+}
+
+function checkAlgo(prefix, a, b, idx, mode, isMultiDigit) {
+  var answer = a * b;
+  var allCorrect = true;
+  var inputs = document.querySelectorAll('[id^="' + prefix + '-"]');
+
+  inputs.forEach(function(inp) {
+    if (inp.style.visibility === 'hidden') return;
+    var correct = inp.getAttribute('data-correct');
+    if (correct === null || correct === '') return;
+    var val = inp.value.trim();
+    if (val === correct) {
+      inp.classList.add('correct');
+      inp.classList.remove('wrong');
+    } else {
+      inp.classList.add('wrong');
+      inp.classList.remove('correct');
+      allCorrect = false;
+    }
+    inp.disabled = true;
+  });
+
+  var fbId = mode + '-fb-' + idx;
+  var fb = el(fbId);
+  if (fb) {
+    if (allCorrect) {
+      fb.className = 'feedback show correct';
+      var feedbackMsg = isMultiDigit ?
+        'Excellent! You completed all partial products correctly. <span class="mono">' + a + ' &times; ' + b + ' = ' + answer.toLocaleString() + '</span>' :
+        'Correct! <span class="mono">' + a + ' &times; ' + b + ' = ' + answer.toLocaleString() + '</span>';
+      fb.innerHTML = '<strong>' + (allCorrect ? 'Correct!' : '') + '</strong> ' + feedbackMsg;
+    } else {
+      fb.className = 'feedback show incorrect';
+      var errorMsg = isMultiDigit ?
+        'Not quite. Check each partial product row and the final sum. The answer is <span class="mono">' + answer.toLocaleString() + '</span>.' :
+        'Not quite. The answer is <span class="mono">' + answer.toLocaleString() + '</span>. Check your carries and place values.';
+      fb.innerHTML = '<strong>Not quite.</strong> ' + errorMsg;
+    }
+  }
+
+  return allCorrect;
+}
+
+// ── YOU DO: PRACTICE ──
+var practiceProblems = [];
+var practiceIdx = 0;
+var practiceResults = [];
+var practiceLevel = 1;
+var practiceTotal = 8;
+
+function setLevel(lvl) {
+  practiceLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i + 1 === lvl);
+  });
+  startPractice();
+}
+
+function generateProblems() {
+  var problems = [];
+  if (practiceLevel === 1) {
+    // No carries: products of each digit * multiplier < 10
+    var pairs = shuffle([[21,3],[31,2],[12,4],[11,5],[22,3],[13,2],[21,4],[32,3],[11,7],[23,2],[41,2],[12,3]]);
+    for (var i = 0; i < practiceTotal; i++) {
+      problems.push({ a: pairs[i][0], b: pairs[i][1], answer: pairs[i][0] * pairs[i][1] });
+    }
+  } else if (practiceLevel === 2) {
+    // Single carry
+    var pool = shuffle([[36,4],[48,3],[27,5],[53,6],[45,7],[64,3],[73,4],[56,3],[38,4],[84,6],[67,3],[54,6]]);
+    for (var j = 0; j < practiceTotal; j++) {
+      problems.push({ a: pool[j][0], b: pool[j][1], answer: pool[j][0] * pool[j][1] });
+    }
+  } else if (practiceLevel === 3) {
+    // Multiple carries (3-digit × 1-digit)
+    var pool3 = shuffle([[236,7],[347,8],[425,6],[638,4],[156,9],[274,8],[359,7],[463,6],[528,5],[347,6],[213,9],[187,8]]);
+    for (var k = 0; k < practiceTotal; k++) {
+      problems.push({ a: pool3[k][0], b: pool3[k][1], answer: pool3[k][0] * pool3[k][1] });
+    }
+  } else if (practiceLevel === 4) {
+    // 2-digit × 2-digit: multiple carries required
+    var pool4 = shuffle([[23,14],[47,15],[58,23],[36,27],[42,19],[65,24],[31,28],[54,32],[29,17],[38,26],[45,19],[52,24]]);
+    for (var l = 0; l < practiceTotal; l++) {
+      problems.push({ a: pool4[l][0], b: pool4[l][1], answer: pool4[l][0] * pool4[l][1], multiDigitMult: true });
+    }
+  } else if (practiceLevel === 5) {
+    // 3-digit × 2-digit: multiple carries required
+    var pool5 = shuffle([[236,14],[147,23],[285,34],[156,27],[324,18],[473,25],[218,31],[465,22],[327,16],[214,28],[389,25],[152,34]]);
+    for (var m = 0; m < practiceTotal; m++) {
+      problems.push({ a: pool5[m][0], b: pool5[m][1], answer: pool5[m][0] * pool5[m][1], multiDigitMult: true });
+    }
+  }
+  return problems;
+}
+
+function startPractice() {
+  practiceProblems = generateProblems();
+  practiceIdx = 0;
+  practiceResults = [];
+  el('practice-summary').classList.remove('show');
+  el('practice-card').style.display = 'block';
+  buildDots();
+  showPracticeProblem();
+}
+
+function buildDots() {
+  var c = el('practice-dots');
+  c.innerHTML = '';
+  for (var i = 0; i < practiceTotal; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = 'pdot-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
+  }
+}
+
+function showPracticeProblem() {
+  if (practiceIdx >= practiceTotal) { showPracticeSummary(); return; }
+  var p = practiceProblems[practiceIdx];
+  var card = el('practice-card');
+  var prefix = 'p' + practiceIdx;
+
+  var algoHTML = p.multiDigitMult ? buildAlgoTableMultiDigit(p.a, p.b, card, prefix, true) : buildAlgoTable(p.a, p.b, card, prefix, true);
+
+  card.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (practiceIdx + 1) + ' of ' + practiceTotal + '</div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:28px;font-weight:700;margin-bottom:4px;">' + p.a + ' &times; ' + p.b + '</div>' +
+    '<div class="radar-row"><span class="radar-label">Radar estimate:</span><input type="number" class="radar-input" id="' + prefix + '-radar" placeholder="~"></div>' +
+    algoHTML +
+    '<div style="margin-top:12px;"><button class="check-btn" id="practice-check" onclick="checkPracticeAlgo()">Check</button></div>' +
+    '<div class="feedback" id="practice-fb-' + practiceIdx + '"></div>' +
+    '<button class="btn btn-primary" id="practice-next" style="display:none;margin-top:12px;" onclick="nextPractice()">Next &rarr;</button>';
+
+  for (var j = 0; j < practiceTotal; j++) {
+    var d = el('pdot-' + j);
+    if (d) { d.classList.remove('current'); if (j === practiceIdx) d.classList.add('current'); }
+  }
+}
+
+function checkPracticeAlgo() {
+  var p = practiceProblems[practiceIdx];
+  var prefix = 'p' + practiceIdx;
+  var allCorrect = checkAlgo(prefix, p.a, p.b, practiceIdx, 'practice', p.multiDigitMult);
+
+  // Check radar
+  var radarInp = el(prefix + '-radar');
+  var radarVal = parseInt(radarInp.value, 10);
+  if (!isNaN(radarVal)) {
+    var pct = Math.abs(radarVal - p.answer) / p.answer * 100;
+    if (pct <= 10) {
+      radarInp.style.borderColor = 'var(--green)';
+      radarInp.style.background = 'var(--green-light)';
+    } else if (pct <= 20) {
+      radarInp.style.borderColor = 'var(--amber)';
+    } else {
+      radarInp.style.borderColor = 'var(--red)';
+      radarInp.style.background = 'var(--red-light)';
+    }
+  }
+  radarInp.disabled = true;
+
+  practiceResults[practiceIdx] = allCorrect;
+  var dot = el('pdot-' + practiceIdx);
+  dot.classList.remove('current');
+  dot.classList.add(allCorrect ? 'green' : 'red');
+
+  el('practice-check').disabled = true;
+  el('practice-next').style.display = 'inline-block';
+}
+
+function nextPractice() {
+  practiceIdx++;
+  showPracticeProblem();
+}
+
+function showPracticeSummary() {
+  el('practice-card').style.display = 'none';
+  var correct = practiceResults.filter(function(r) { return r; }).length;
+  var scoreEl = el('practice-score');
+  scoreEl.textContent = correct + ' / ' + practiceTotal;
+  scoreEl.style.color = correct >= 7 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = correct >= 7 ? 'Excellent. Your algorithm work is strong.' :
+            correct >= 5 ? 'Good progress. Watch your carries.' :
+            'Keep practising. Go back to the I Do section.';
+  el('practice-message').textContent = msg;
+  el('practice-summary').classList.add('show');
+
+  // Unlock Go Deeper if score is 7 or higher
+  if (correct >= 7) {
+    unlockGoDeeper();
+  }
+}
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── GO DEEPER ──
+function unlockGoDeeper() {
+  var btn = el('go-deeper-btn');
+  btn.style.display = 'block';
+  btn.classList.remove('locked');
+  el('go-deeper-locked').style.display = 'none';
+}
+
+function toggleGoDeeperSection() {
+  var section = el('go-deeper-section');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+function revealTask1Model() {
+  var model = el('task1-model');
+  model.classList.toggle('visible');
+}
+
+function revealTask2Model() {
+  var model = el('task2-model');
+  model.classList.toggle('visible');
+}
+
+function revealTask3Model() {
+  var model = el('task3-model');
+  model.classList.toggle('visible');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4: Levelling (Compensation)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --green: #2ecc71;
+    --green-dark: #27ae60;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --purple: #9B59B6;
+    --cream: #FFF8F0;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: #2D3436; color: #fff;
+    padding: 36px 48px 28px; position: relative; overflow: hidden;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  header h1 { font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.15; margin-bottom: 10px; }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 700px; font-weight: 500; }
+  .header-icon { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.10; }
+
+  .phase-nav { display: flex; gap: 10px; padding: 18px 48px; background: #3d4347; flex-wrap: wrap; }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 10px 26px;
+    font-family: 'Fredoka', sans-serif; font-size: 17px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 6px; }
+  .section-heading { font-size: clamp(22px, 3vw, 32px); font-weight: 700; margin-bottom: 20px; color: var(--text); }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 21px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 17px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul, .card ol { padding-left: 22px; }
+  .card ul li, .card ol li { margin-bottom: 6px; }
+
+  .callout { border-radius: 12px; padding: 18px 22px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout p { font-size: 17px; line-height: 1.6; font-weight: 400; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-red { background: #fff4f4; border-left: 5px solid var(--red); }
+  .callout-red .label { color: #c0392b; }
+  .callout-red p { color: #7a0000; }
+
+  .tag { display: inline-block; background: var(--text); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 20px; padding: 3px 12px; margin-right: 6px; margin-bottom: 8px; font-family: 'Fredoka', sans-serif; }
+  .tag.amber { background: var(--amber); color: var(--text); }
+  .tag.teal { background: var(--teal); color: var(--text); }
+  .tag.blue { background: var(--blue); color: #fff; }
+
+  .equation-box { background: #f0f7ff; border-radius: 14px; padding: 18px 24px; margin: 12px 0; font-size: 28px; font-weight: 700; color: var(--text); border: 2px solid #d0e8ff; font-family: 'Space Mono', monospace; display: inline-block; letter-spacing: 0.03em; }
+
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: #444; }
+  .reveal-btn.teal { background: var(--teal); color: var(--text); }
+  .reveal-btn.teal:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.green { background: var(--green); color: #fff; }
+  .reveal-btn.green:hover { background: var(--green-dark); }
+  .reveal-btn.blue { background: var(--blue); color: #fff; }
+  .reveal-btn.blue:hover { background: var(--blue-dark); }
+  .reveal-btn.sm { font-size: 13px; padding: 7px 18px; margin-top: 10px; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  .worked-example { margin: 16px 0; }
+  .step { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .step:last-child { border-bottom: none; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--text); color: #fff; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .step-text { font-size: 17px; line-height: 1.6; }
+  .step-badge { display: inline-block; background: #f0f4ff; color: var(--blue-dark); font-weight: 700; font-size: 14px; border-radius: 8px; padding: 4px 12px; margin: 3px 0; font-family: 'Space Mono', monospace; border: 1px solid #d0e0ff; }
+  .answer-badge { display: inline-block; background: var(--teal); color: var(--text); font-weight: 700; font-size: 14px; border-radius: 8px; padding: 4px 14px; margin: 4px 4px 4px 0; font-family: 'Space Mono', monospace; }
+
+  .gp-card { background: linear-gradient(135deg, #f0f9ff 0%, #e8faf8 100%); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 16px; }
+
+  .practice-tier { margin-bottom: 36px; }
+  .tier-header { font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; padding: 10px 20px; border-radius: 12px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 8px; }
+  .tier-1 { background: #d4f7e0; color: #1a5c35; }
+  .tier-2 { background: #d4e8ff; color: #0a2f6e; }
+  .tier-3 { background: #fff3c4; color: #7a3d00; }
+  .pq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .pq-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); padding: 22px 26px; position: relative; overflow: hidden; }
+  .pq-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; border-radius: var(--radius) var(--radius) 0 0; }
+  .pq-card.t1::before { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+  .pq-card.t2::before { background: linear-gradient(90deg, #3a7bd5, #2176ae); }
+  .pq-card.t3::before { background: linear-gradient(90deg, #FFD93D, #FF8400); }
+  .pq-num { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .pq-type { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+  .pq-eq { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; color: var(--text); margin: 12px 0; }
+  .pq-hint { font-size: 13px; color: var(--muted); line-height: 1.5; background: #fffbf0; border-left: 4px solid var(--amber); border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px; display: none; }
+  .pq-hint.shown { display: block; animation: fadeIn 0.2s ease; }
+  .pq-hint .hint-label { font-weight: 700; color: var(--amber-dark); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 3px; }
+  .pq-answer { display: none; margin-top: 12px; }
+  .pq-answer.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Practice card 3-button row */
+  .pq-buttons { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 14px; }
+  .pq-btn {
+    border-radius: 20px; padding: 7px 14px;
+    font-family: 'Fredoka', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .pq-btn.hint-btn { background: #fff8e0; color: #7a5500; border: 2px solid var(--amber); }
+  .pq-btn.hint-btn:hover, .pq-btn.hint-btn.active { background: var(--amber); color: var(--text); }
+  .pq-btn.tool-btn { background: #e0f0ff; color: var(--blue-dark); border: 2px solid var(--blue); }
+  .pq-btn.tool-btn:hover, .pq-btn.tool-btn.active { background: var(--blue); color: #fff; }
+  .pq-btn.answer-btn { background: #e0fff0; color: #1a5c35; border: 2px solid var(--green); }
+  .pq-btn.answer-btn:hover, .pq-btn.answer-btn.active { background: var(--green); color: #fff; }
+
+  /* Tool slot inside card (the mini tool gets appended here) */
+  .pq-tool-slot { }
+
+  /* ── Mini Tool Panel ── */
+  #mini-tool-panel {
+    display: none;
+    margin: 14px 0 2px;
+    background: #f0f9ff;
+    border: 2px solid var(--teal);
+    border-radius: 14px;
+    padding: 16px 18px;
+    animation: fadeIn 0.25s ease;
+  }
+  .mt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .mt-title { font-size: 14px; font-weight: 700; color: var(--teal-dark); }
+  .mt-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; padding: 0 4px; }
+  .mt-close:hover { color: var(--text); }
+  .mt-eq-row { text-align: center; margin: 6px 0; font-family: 'Space Mono', monospace; font-size: 17px; font-weight: 700; }
+  .mt-eq-orig { color: var(--muted); }
+  .mt-eq-live { color: var(--text); }
+  .mt-bar-section { margin: 8px 0; }
+  .mt-bar-labels { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .mt-track {
+    position: relative; height: 40px; border-radius: 10px;
+    overflow: visible; background: #ddd; cursor: pointer; user-select: none;
+  }
+  .mt-fill-a {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--blue); border-radius: 10px 0 0 10px;
+    transition: width 0.2s;
+  }
+  .mt-fill-b {
+    position: absolute; right: 0; top: 0; bottom: 0;
+    background: var(--orange); border-radius: 0 10px 10px 0;
+  }
+  .mt-handle {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 92px; height: 50px; display: flex; align-items: center;
+    pointer-events: none; z-index: 10;
+  }
+  .mt-step {
+    width: 26px; height: 100%; background: #fff; border: none;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    pointer-events: all; display: flex; align-items: center; justify-content: center;
+    color: var(--text); border-radius: 6px 0 0 6px; flex-shrink: 0;
+  }
+  .mt-step.right { border-radius: 0 6px 6px 0; }
+  .mt-step:hover { background: #f0f0f0; }
+  .mt-drag-pill {
+    flex: 1; height: 100%; background: #fff;
+    border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; cursor: grab; pointer-events: all; color: var(--muted);
+  }
+  .mt-drag-pill:active { cursor: grabbing; }
+  .mt-controls { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+  .mt-ctrl-btn {
+    background: var(--teal); color: var(--text); border: none;
+    border-radius: 20px; padding: 7px 16px; font-family: 'Fredoka', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .mt-ctrl-btn:hover { background: var(--teal-dark); color: #fff; }
+  .mt-ctrl-btn.sec { background: #e8edf2; color: var(--muted); }
+  .mt-ctrl-btn.sec:hover { background: #d0d8e0; color: var(--text); }
+  .mt-note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; min-height: 18px; }
+
+  /* Tools section */
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+  .tool-card {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    border: 2px solid var(--border); padding: 28px 28px; text-decoration: none;
+    display: flex; flex-direction: column; gap: 10px; transition: all 0.2s; color: var(--text);
+  }
+  .tool-card:hover { transform: translateY(-3px); box-shadow: 0 14px 44px rgba(0,0,0,0.14); }
+  .tool-card.teacher { border-color: #d0e8ff; }
+  .tool-card.teacher:hover { border-color: var(--blue); }
+  .tool-card.student:hover { border-color: var(--teal); }
+  .tool-card-icon { font-size: 44px; }
+  .tool-card-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .tool-card h3 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0; }
+  .tool-card p { font-size: 15px; color: #445; line-height: 1.55; margin: 0; flex: 1; }
+  .tool-open-btn {
+    margin-top: 6px; padding: 10px 22px; border: none; border-radius: 24px;
+    font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    align-self: flex-start; transition: all 0.2s;
+  }
+  .tool-open-btn.blue { background: var(--blue); color: #fff; }
+  .tool-open-btn.blue:hover { background: var(--blue-dark); }
+  .tool-open-btn.teal { background: var(--teal); color: var(--text); }
+  .tool-open-btn.teal:hover { background: var(--teal-dark); color: #fff; }
+
+  .vocab-slides { position: relative; }
+  .vocab-slide { display: none; animation: fadeIn 0.3s ease; }
+  .vocab-slide.active { display: block; }
+
+  .vocab-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); overflow: hidden; }
+  .vocab-card-header { padding: 28px 32px 20px; }
+  .vocab-pill { display: inline-block; color: #fff; font-size: 15px; font-weight: 700; border-radius: 8px; padding: 6px 18px; margin-bottom: 14px; font-family: 'Fredoka', sans-serif; }
+  .vocab-pill.levelling { background: var(--teal-dark); }
+  .vocab-pill.compensate { background: #9B59B6; }
+  .vocab-pill.friendly { background: var(--green-dark); }
+  .vocab-card-header h3 { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+  .vocab-card-header p { font-size: 18px; line-height: 1.7; color: #445; }
+  .vocab-toggle {
+    width: 100%; background: #f8fafc; border: none; border-top: 2px solid var(--border);
+    cursor: pointer; padding: 16px 32px; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif;
+    font-size: 17px; font-weight: 700; color: var(--text); transition: background 0.15s;
+  }
+  .vocab-toggle:hover { background: #f0f4ff; }
+  .vocab-toggle .chev { transition: transform 0.25s; font-size: 20px; color: var(--muted); }
+  .vocab-toggle.open .chev { transform: rotate(180deg); }
+  .vocab-body { display: none; padding: 24px 32px 28px; border-top: 1px solid var(--border); background: #fdfdff; animation: fadeIn 0.2s ease; }
+  .vocab-body.shown { display: block; }
+
+  .vocab-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 20px; gap: 12px;
+  }
+  .vocab-nav-btn {
+    background: var(--teal); color: var(--text); border: none;
+    border-radius: 30px; padding: 10px 24px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+  }
+  .vocab-nav-btn:hover { background: var(--teal-dark); color: #fff; }
+  .vocab-nav-btn:disabled { background: var(--border); color: var(--muted); cursor: default; }
+  .vocab-counter {
+    font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700;
+    color: var(--muted); background: #f8faff; border-radius: 20px;
+    padding: 8px 18px; border: 2px solid var(--border);
+  }
+  .vocab-dots {
+    display: flex; gap: 8px; justify-content: center; margin-top: 14px;
+  }
+  .vocab-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--border); transition: background 0.2s; cursor: pointer;
+  }
+  .vocab-dot.active { background: var(--teal); }
+  .vocab-dot:hover { background: var(--teal-dark); }
+
+  .pile-demo { display: flex; gap: 24px; align-items: flex-end; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+  .pile { text-align: center; }
+  .pile-label { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .pile-blocks { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; max-width: 120px; min-height: 40px; }
+  .block { width: 22px; height: 22px; border-radius: 5px; }
+  .block.a { background: var(--blue); }
+  .block.b { background: var(--orange); }
+  .pile-count { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; margin-top: 8px; }
+  .pile-total { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--teal-dark); margin-top: 6px; }
+  .arrow-transfer { font-size: 36px; color: var(--teal-dark); align-self: center; }
+
+  .golden-rule {
+    background: linear-gradient(135deg, #4ECDC4 0%, #38b2aa 100%);
+    border-radius: 14px; padding: 24px 30px; margin: 24px 0; text-align: center;
+  }
+  .golden-rule .gr-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(0,0,0,0.4); margin-bottom: 10px; }
+  .golden-rule .gr-rules { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .gr-rule { background: rgba(255,255,255,0.7); border-radius: 10px; padding: 16px 24px; font-size: 17px; font-weight: 700; color: var(--text); flex: 1; min-width: 200px; }
+  .gr-rule span { display: block; font-size: 20px; margin-bottom: 4px; }
+
+  .comp-visual { background: #f4f8ff; border: 2px solid #d0e8ff; border-radius: 16px; padding: 24px 28px; margin: 16px 0; }
+  .comp-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; flex-wrap: wrap; }
+  .comp-num { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; background: #fff; border-radius: 10px; padding: 8px 16px; border: 2px solid var(--border); min-width: 80px; text-align: center; }
+  .comp-num.friendly { border-color: var(--teal); background: #e8faf8; }
+  .comp-op { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; color: var(--muted); }
+  .comp-arrow { font-size: 28px; color: var(--teal-dark); }
+  .comp-transfer { font-size: 14px; font-weight: 700; color: var(--orange); background: #fff8f0; border: 2px solid var(--orange); border-radius: 8px; padding: 4px 10px; }
+
+  @media (max-width: 640px) {
+    header { padding: 24px 20px; }
+    .phase-nav { padding: 12px 16px; gap: 6px; }
+    .phase-nav button { padding: 8px 14px; font-size: 14px; }
+    main { padding: 20px 14px 60px; }
+    .card, .gp-card { padding: 20px 18px; }
+    .pq-grid { grid-template-columns: 1fr; }
+    .header-icon { display: none; }
+    .equation-box { font-size: 22px; }
+    .pq-eq { font-size: 20px; }
+    .golden-rule .gr-rules { flex-direction: column; }
+    .pq-buttons { gap: 5px; }
+    .pq-btn { font-size: 12px; padding: 6px 11px; }
+  }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--teal);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* === Go Deeper Extension Styles === */
+  .go-deeper-section {
+    max-width: 700px;
+    margin: 2rem auto;
+  }
+  .go-deeper-toggle {
+    background: white;
+    border: 2px dashed #4ECDC4;
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Fredoka', sans-serif;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+  .go-deeper-toggle:hover {
+    border-color: #4ECDC4;
+    box-shadow: 0 4px 16px rgba(78,205,196,0.25);
+    transform: translateY(-2px);
+  }
+  .go-deeper-toggle h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+    color: #2D3436;
+  }
+  .go-deeper-toggle .toggle-arrow {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+    color: #4ECDC4;
+  }
+  .go-deeper-toggle.open .toggle-arrow {
+    transform: rotate(180deg);
+  }
+  .go-deeper-content {
+    display: none;
+    padding-top: 1rem;
+  }
+  .go-deeper-content.open {
+    display: block;
+  }
+  .go-deeper-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    border-top: 5px solid #4ECDC4;
+    padding: 2rem;
+  }
+  .go-deeper-card > p {
+    color: #636E72;
+    margin-bottom: 1.5rem;
+    font-family: 'Fredoka', sans-serif;
+  }
+  .ext-task {
+    background: #f0fdfa;
+    border-left: 4px solid #4ECDC4;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .ext-task-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #4ECDC4;
+    margin-bottom: 0.75rem;
+  }
+  .ext-task-prompt {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.6;
+    color: #2D3436;
+    margin-bottom: 0.75rem;
+  }
+  .ext-task-sub {
+    font-family: 'Fredoka', sans-serif;
+    font-style: italic;
+    color: #636E72;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .ext-thinking-area {
+    width: 100%;
+    min-height: 90px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 0.8rem;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+  }
+  .ext-thinking-area:focus {
+    outline: none;
+    border-color: #4ECDC4;
+  }
+  .ext-reveal-btn {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1.2rem;
+    border: 2px solid #4ECDC4;
+    border-radius: 10px;
+    background: white;
+    color: #4ECDC4;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover {
+    background: #4ECDC4;
+    color: white;
+  }
+  .ext-model-response {
+    display: none;
+    background: white;
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-top: 0.75rem;
+    border: 1px solid #e0e0e0;
+  }
+  .ext-model-response.visible {
+    display: block;
+  }
+  .ext-model-response .model-label {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #4ECDC4;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .ext-model-response p {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #2D3436;
+    margin: 0.5rem 0;
+  }
+  .mathematician-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 2px dashed #4ECDC4;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #2D3436;
+  }
+  .ext-numbers {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 Mathematics · Addition &amp; Subtraction · Lesson 4</div>
+  <h1>Levelling <span>(Compensation)</span></h1>
+  <p>Adjusting numbers to create friendly calculations, without changing the answer.</p>
+  <p style="margin-top:12px;"><a href="index.html" style="color:var(--teal);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a></p>
+  <div class="header-icon">⚖️</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection('hook', this)">🪝 The Hook</button>
+  <button onclick="showSection('concepts', this)">💡 Key Concepts</button>
+  <button onclick="showSection('ido', this)">✏️ I Do</button>
+  <button onclick="showSection('wedo', this)">🤝 We Do</button>
+  <button onclick="showSection('practice', this)">🔢 Practice</button>
+  <button onclick="showSection('tools', this)">🔧 Tools</button>
+</nav>
+
+<main>
+
+<!-- ────────────── LEARNING INTENTION & SUCCESS CRITERIA ────────────── -->
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to adjust numbers to make them easier to calculate in our heads, using a strategy called levelling or compensation.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I know that levelling and compensation mean the same thing</li>
+            <li>I can take an amount from one number and give it to another to make a friendly number (like a multiple of 10 or 100)</li>
+            <li>I can use this strategy to solve addition and subtraction problems without a written algorithm</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HOOK
+══════════════════════════════════════════ -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · Hook</div>
+  <div class="section-heading">The Cubes Trick ⚖️</div>
+
+  <div class="card">
+    <h3>The Setup</h3>
+    <p>Two piles of Unifix cubes sit on the table. <strong>Pile A</strong> has 9. <strong>Pile B</strong> has 5. How many altogether?</p>
+
+    <div id="hook-demo" style="margin:20px 0;">
+      <div class="pile-demo">
+        <div class="pile">
+          <div class="pile-label">Pile A</div>
+          <div class="pile-blocks" id="pile-a-blocks"></div>
+          <div class="pile-count" id="pile-a-count">9</div>
+        </div>
+        <div class="pile">
+          <div class="pile-label">Pile B</div>
+          <div class="pile-blocks" id="pile-b-blocks"></div>
+          <div class="pile-count" id="pile-b-count">5</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:12px;">
+        <div class="pile-total" id="pile-total">Total: 14</div>
+      </div>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="reveal-btn teal" id="hook-move-btn" onclick="hookMove()">🔀 Move 1 block from B → A</button>
+        <button class="reveal-btn" id="hook-reset-btn" style="display:none;" onclick="hookReset()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="callout callout-amber">
+      <span class="label">💬 Discussion</span>
+      <p>After moving one block: Pile A = 10, Pile B = 4. <strong>Did the total change?</strong> No! It's still 14. But was <strong>10 + 4</strong> easier to calculate than 9 + 5? Absolutely.</p>
+    </div>
+  </div>
+
+  <!-- Hook Example 2: 18 + 5 -->
+  <div class="card">
+    <h3>Try it with bigger numbers ⚖️</h3>
+    <p><strong>Pile A</strong> has 18. <strong>Pile B</strong> has 5. How many altogether?</p>
+
+    <div id="hook-demo-2" style="margin:20px 0;">
+      <div class="pile-demo">
+        <div class="pile">
+          <div class="pile-label">Pile A</div>
+          <div class="pile-blocks" id="pile-a2-blocks"></div>
+          <div class="pile-count" id="pile-a2-count">18</div>
+        </div>
+        <div class="pile">
+          <div class="pile-label">Pile B</div>
+          <div class="pile-blocks" id="pile-b2-blocks"></div>
+          <div class="pile-count" id="pile-b2-count">5</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:12px;">
+        <div class="pile-total" id="pile-total-2">Total: 23</div>
+      </div>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="reveal-btn teal" id="hook-move2-btn" onclick="hookMove2()">🔀 Move 1 block from B → A</button>
+        <button class="reveal-btn" id="hook-reset2-btn" style="display:none;" onclick="hookReset2()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="callout callout-amber">
+      <span class="label">💬 Discussion</span>
+      <p>After moving two blocks: Pile A = 20, Pile B = 3. <strong>Did the total change?</strong> No! It's still 23. But was <strong>20 + 3</strong> easier to calculate than 18 + 5? Absolutely.</p>
+    </div>
+  </div>
+
+  <!-- Hook Example 3: 27 + 6 -->
+  <div class="card">
+    <h3>Even bigger, can you spot the pattern? ⚖️</h3>
+    <p><strong>Pile A</strong> has 27. <strong>Pile B</strong> has 6. How many altogether?</p>
+
+    <div id="hook-demo-3" style="margin:20px 0;">
+      <div class="pile-demo">
+        <div class="pile">
+          <div class="pile-label">Pile A</div>
+          <div class="pile-blocks" id="pile-a3-blocks"></div>
+          <div class="pile-count" id="pile-a3-count">27</div>
+        </div>
+        <div class="pile">
+          <div class="pile-label">Pile B</div>
+          <div class="pile-blocks" id="pile-b3-blocks"></div>
+          <div class="pile-count" id="pile-b3-count">6</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:12px;">
+        <div class="pile-total" id="pile-total-3">Total: 33</div>
+      </div>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="reveal-btn teal" id="hook-move3-btn" onclick="hookMove3()">🔀 Move 1 block from B → A</button>
+        <button class="reveal-btn" id="hook-reset3-btn" style="display:none;" onclick="hookReset3()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="callout callout-amber">
+      <span class="label">💬 Discussion</span>
+      <p>After moving three blocks: Pile A = 30, Pile B = 3. <strong>Did the total change?</strong> No! It's still 33. But was <strong>30 + 3</strong> easier to calculate than 27 + 6?</p>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#f0fafa,#e8faf8);border-color:#b2dfdb;">
+    <h3>🔑 The Big Idea</h3>
+    <p>You can <strong>move an amount</strong> from one number to another without changing the total. If you move the right amount, you create a <strong>friendly number</strong>, a multiple of 10, 100, or 1,000, that makes mental calculation trivial.</p>
+    <p style="margin-top:10px;">This strategy has two names: <strong>Levelling</strong> and <strong>Compensation</strong>. They mean exactly the same thing.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     KEY CONCEPTS
+══════════════════════════════════════════ -->
+<div id="concepts" class="section">
+  <div class="section-title">Key Concepts</div>
+  <div class="section-heading">Vocabulary &amp; Rules</div>
+
+  <div class="vocab-slides">
+
+    <!-- ── Slide 1: Levelling ── -->
+    <div class="vocab-slide active" id="vocab-slide-0">
+      <div class="vocab-card">
+        <div class="vocab-card-header">
+          <div class="tag teal" style="margin-bottom:12px;">Concept 1 of 3</div>
+          <span class="vocab-pill levelling">Levelling</span>
+          <h3>Adjusting numbers to make the calculation easier</h3>
+          <p style="margin-top:8px;">Adjusting one number <strong>up</strong> and the other <strong>down</strong> by the same amount, so the total stays the same but the calculation becomes easier.</p>
+        </div>
+        <button class="vocab-toggle" onclick="toggleVocab(this,'vex-level')">
+          <span>See an example</span><span class="chev">▾</span>
+        </button>
+        <div class="vocab-body" id="vex-level">
+          <p style="font-size:17px; margin-bottom:14px;">Level <strong>48 + 35</strong> to make a friendly number:</p>
+          <div class="comp-visual">
+            <div class="comp-row">
+              <div class="comp-num">48</div><div class="comp-op">+</div><div class="comp-num">35</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+              <div class="comp-arrow">↓</div>
+              <div class="comp-transfer">+2 to 48, −2 from 35</div>
+            </div>
+            <div class="comp-row">
+              <div class="comp-num friendly">50</div><div class="comp-op">+</div><div class="comp-num">33</div><div class="comp-op">=</div><div class="comp-num friendly">83</div>
+            </div>
+          </div>
+          <div class="callout callout-teal" style="margin-top:16px;">
+            <span class="label">Why it works</span>
+            <p>We took 2 from 35 and gave it to 48. The total didn't change, but 50 is much easier to add from than 48.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Slide 2: Compensation ── -->
+    <div class="vocab-slide" id="vocab-slide-1">
+      <div class="vocab-card">
+        <div class="vocab-card-header">
+          <div class="tag" style="background:var(--purple);color:#fff;margin-bottom:12px;">Concept 2 of 3</div>
+          <span class="vocab-pill compensate">Compensation</span>
+          <h3>The twin word, same strategy, different name</h3>
+          <p style="margin-top:8px;"><strong>Exactly the same strategy as levelling.</strong> If a test says "compensate", it means "level the numbers". These are twin words.</p>
+        </div>
+        <button class="vocab-toggle" onclick="toggleVocab(this,'vex-comp')">
+          <span>See an example</span><span class="chev">▾</span>
+        </button>
+        <div class="vocab-body" id="vex-comp">
+          <div class="callout callout-red" style="margin:0 0 16px;">
+            <span class="label">⚠️ Test Alert</span>
+            <p>If a test question asks you to use "compensation" to solve a problem, it wants you to <strong>level</strong> the numbers. Don't be tricked by the different name, it's the same thing.</p>
+          </div>
+          <p style="font-size:17px;margin-bottom:14px;">Compensate <strong>497 + 283</strong>:</p>
+          <div class="comp-visual">
+            <div class="comp-row">
+              <div class="comp-num">497</div><div class="comp-op">+</div><div class="comp-num">283</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+              <div class="comp-arrow">↓</div>
+              <div class="comp-transfer">+3 to 497, −3 from 283</div>
+            </div>
+            <div class="comp-row">
+              <div class="comp-num friendly">500</div><div class="comp-op">+</div><div class="comp-num">280</div><div class="comp-op">=</div><div class="comp-num friendly">780</div>
+            </div>
+          </div>
+          <div class="callout callout-teal" style="margin-top:16px;">
+            <span class="label">Why it works</span>
+            <p>We took 3 from 283 and gave it to 497. The total didn't change, but 500 is much easier to add from than 497.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Slide 3: Friendly Number ── -->
+    <div class="vocab-slide" id="vocab-slide-2">
+      <div class="vocab-card">
+        <div class="vocab-card-header">
+          <div class="tag" style="background:var(--green);color:#fff;margin-bottom:12px;">Concept 3 of 3</div>
+          <span class="vocab-pill friendly">Friendly Number</span>
+          <h3>The target, what you're trying to create</h3>
+          <p style="margin-top:8px;">A number that is easy to work with, usually a <strong>multiple of 10, 100, or 1,000</strong>. The goal of levelling is to create one.</p>
+        </div>
+        <button class="vocab-toggle" onclick="toggleVocab(this,'vex-friendly')">
+          <span>See an example</span><span class="chev">▾</span>
+        </button>
+        <div class="vocab-body" id="vex-friendly">
+          <p style="font-size:17px; margin-bottom:14px;">These are all friendly numbers:</p>
+          <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+            <span style="background:#e8fff0;border:2px solid var(--green);border-radius:10px;padding:10px 20px;font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#145a32;">10</span>
+            <span style="background:#e8fff0;border:2px solid var(--green);border-radius:10px;padding:10px 20px;font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#145a32;">50</span>
+            <span style="background:#e8fff0;border:2px solid var(--green);border-radius:10px;padding:10px 20px;font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#145a32;">100</span>
+            <span style="background:#e8fff0;border:2px solid var(--green);border-radius:10px;padding:10px 20px;font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#145a32;">200</span>
+            <span style="background:#e8fff0;border:2px solid var(--green);border-radius:10px;padding:10px 20px;font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#145a32;">1,000</span>
+            <span style="background:#e8fff0;border:2px solid var(--green);border-radius:10px;padding:10px 20px;font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#145a32;">5,000</span>
+            <span style="background:#e8fff0;border:2px solid var(--green);border-radius:10px;padding:10px 20px;font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#145a32;">6,000</span>
+          </div>
+          <p style="font-size:17px; color:#445; line-height:1.7;">The point of levelling is to <em>turn one of the numbers</em> into one of these, making the rest of the calculation trivial.</p>
+          <div class="callout callout-amber" style="margin-top:16px;">
+            <span class="label">💡 Remember</span>
+            <p>You're scanning for numbers that are <strong>close</strong> to a friendly number, 197 is 3 away from 200, 4,997 is 3 away from 5,000, $9.98 is $0.02 away from $10.00.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end vocab-slides -->
+
+  <!-- Pager controls -->
+  <div class="vocab-nav">
+    <button class="vocab-nav-btn" id="vocab-prev" onclick="vocabNav(-1)" disabled>← Previous</button>
+    <span class="vocab-counter" id="vocab-counter">Concept 1 of 3</span>
+    <button class="vocab-nav-btn" id="vocab-next" onclick="vocabNav(1)">Next →</button>
+  </div>
+  <div class="vocab-dots">
+    <div class="vocab-dot active" id="vdot-0" onclick="vocabGo(0)"></div>
+    <div class="vocab-dot" id="vdot-1" onclick="vocabGo(1)"></div>
+    <div class="vocab-dot" id="vdot-2" onclick="vocabGo(2)"></div>
+  </div>
+
+  <!-- Rules -->
+  <div style="margin-top:36px;">
+    <div class="section-title">The Rules</div>
+    <div class="section-heading" style="font-size:clamp(20px,3vw,26px);">How the adjustment works</div>
+
+    <div class="golden-rule">
+      <div class="gr-title">⚖️ Levelling Rule, Addition</div>
+      <div class="gr-rules">
+        <div class="gr-rule">
+          <span>➕ Addition</span>
+          Add to one number, <strong>subtract the same amount</strong> from the other.<br>The total stays the same.
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:0;">
+      <span class="label">📘 What about subtraction?</span>
+      <p>Subtraction uses a related but different method called <strong>Constant Difference</strong>, covered in its own lesson. In this lesson we focus on <strong>addition only</strong>.</p>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,#fffbf0,#fff8e8);border-color:#ffe0a0;">
+      <h3>🔍 The clue to look for</h3>
+      <p style="font-size:17px;line-height:1.7;">Scan for numbers that are <strong>close to a round number</strong>. If you see 197, 398, 5,983, 4.9, or $9.98, that's your signal to level.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;">
+        <div style="background:#fff;border-radius:12px;padding:12px 18px;border:2px solid var(--teal);flex:1;min-width:200px;">
+          <p style="font-size:13px;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🟢 Nearly friendly numbers</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;background:#e0faf8;color:var(--teal-dark);border-radius:8px;padding:4px 12px;font-size:16px;font-weight:700;">197</span>
+            <span style="font-family:'Space Mono',monospace;background:#e0faf8;color:var(--teal-dark);border-radius:8px;padding:4px 12px;font-size:16px;font-weight:700;">398</span>
+            <span style="font-family:'Space Mono',monospace;background:#e0faf8;color:var(--teal-dark);border-radius:8px;padding:4px 12px;font-size:16px;font-weight:700;">5,983</span>
+            <span style="font-family:'Space Mono',monospace;background:#e0faf8;color:var(--teal-dark);border-radius:8px;padding:4px 12px;font-size:16px;font-weight:700;">$4.95</span>
+          </div>
+          <p style="font-size:13px;color:#0a3832;margin-top:8px;">These are all just a small amount away from a multiple of 10, 100, or 1,000.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     I DO
+══════════════════════════════════════════ -->
+<div id="ido" class="section">
+  <div class="section-title">Phase 2 · Explicit Instruction</div>
+  <div class="section-heading">Worked Examples</div>
+
+  <!-- Example 1: Addition -->
+  <div class="card">
+    <div class="tag">Example 1</div><div class="tag blue">Addition</div>
+    <div style="margin:12px 0;"><div class="equation-box">399 + 246</div></div>
+    <p style="font-size:16px; margin-bottom:4px; color:var(--muted);">Level one number to make the addition trivial.</p>
+
+    <div class="worked-example">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">Spot the nearly friendly number</div>
+          <div class="step-text">399 is very close to 400. It needs just 1 more.</div>
+          <button class="reveal-btn sm" onclick="toggleReveal('e1s1');this.style.display='none';">Show ▾</button>
+          <div class="step-reveal" id="e1s1" style="margin-top:10px;">
+            <span class="step-badge">399 + 1 = 400 ← friendly!</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">Adjust (addition rule: add to one, subtract from the other)</div>
+          <div class="step-text">Take 1 away from 246 and give it to 399.</div>
+          <button class="reveal-btn sm" onclick="toggleReveal('e1s2');this.style.display='none';">Show ▾</button>
+          <div class="step-reveal" id="e1s2" style="margin-top:10px;">
+            <span class="step-badge">399 + 1 = 400</span><br>
+            <span class="step-badge">246 − 1 = 245</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-label">Solve the new, easier equation</div>
+          <button class="reveal-btn sm" onclick="toggleReveal('e1s3');this.style.display='none';">Show ▾</button>
+          <div class="step-reveal" id="e1s3" style="margin-top:10px;">
+            <span class="step-badge">400 + 245 = 645</span>
+            <div style="margin-top:10px;"><span class="answer-badge">399 + 246 = 645 ✓</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-visual" style="margin-top:20px;">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;color:var(--blue-dark);text-transform:uppercase;margin-bottom:12px;">Visual summary</div>
+      <div class="comp-row">
+        <div class="comp-num">399</div><div class="comp-op">+</div><div class="comp-num">246</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+        <div class="comp-arrow">↓</div>
+        <div class="comp-transfer">+1 / −1</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-num friendly">400</div><div class="comp-op">+</div><div class="comp-num">245</div><div class="comp-op">=</div><div class="comp-num friendly">645</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example 2: Addition -->
+  <div class="card">
+    <div class="tag">Example 2</div><div class="tag blue">Addition</div>
+    <div style="margin:12px 0;"><div class="equation-box">5,983 + 627</div></div>
+    <p style="font-size:16px; margin-bottom:4px; color:var(--muted);">Test Question 10</p>
+
+    <div class="worked-example">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">Spot the nearly friendly number</div>
+          <div class="step-text">5,983 is so close to 6,000. It needs 17 more.</div>
+          <button class="reveal-btn sm" onclick="toggleReveal('e2s1');this.style.display='none';">Show ▾</button>
+          <div class="step-reveal" id="e2s1" style="margin-top:10px;">
+            <span class="step-badge">5,983 + 17 = 6,000 ← friendly!</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">Adjust (addition rule: add to one, subtract from the other)</div>
+          <div class="step-text">Take 17 away from 627 and give it to 5,983.</div>
+          <button class="reveal-btn sm" onclick="toggleReveal('e2s2');this.style.display='none';">Show ▾</button>
+          <div class="step-reveal" id="e2s2" style="margin-top:10px;">
+            <span class="step-badge">5,983 + 17 = 6,000</span><br>
+            <span class="step-badge">627 − 17 = 610</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-label">Solve the new equation</div>
+          <button class="reveal-btn sm" onclick="toggleReveal('e2s3');this.style.display='none';">Show ▾</button>
+          <div class="step-reveal" id="e2s3" style="margin-top:10px;">
+            <span class="step-badge">6,000 + 610 = 6,610</span>
+            <div style="margin-top:10px;"><span class="answer-badge">5,983 + 627 = 6,610 ✓</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-visual" style="margin-top:20px;">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;color:var(--blue-dark);text-transform:uppercase;margin-bottom:12px;">Visual summary</div>
+      <div class="comp-row">
+        <div class="comp-num">5,983</div><div class="comp-op">+</div><div class="comp-num">627</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+        <div class="comp-arrow">↓</div>
+        <div class="comp-transfer">+17 / −17</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-num friendly">6,000</div><div class="comp-op">+</div><div class="comp-num">610</div><div class="comp-op">=</div><div class="comp-num friendly">6,610</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     WE DO
+══════════════════════════════════════════ -->
+<div id="wedo" class="section">
+  <div class="section-title">Phase 3 · Guided Practice</div>
+  <div class="section-heading">Mini whiteboards, write the new equation</div>
+
+  <div class="card">
+    <p style="font-size:17px; line-height:1.7;">For each equation: write the <strong>"new, easier equation"</strong> on your whiteboard. You don't need to solve it yet, just compensate it.</p>
+  </div>
+
+  <!-- WD Q1 -->
+  <div class="gp-card">
+    <div class="tag">Question 1</div><div class="tag teal">Addition, Whole Numbers</div>
+    <div style="margin:12px 0;"><div class="equation-box">398 + 145</div></div>
+    <div class="callout callout-amber" style="margin-bottom:0;">
+      <span class="label">💬 Think first</span>
+      <p>Which number is close to a friendly number? How much do you need to add? What's the new equation?</p>
+    </div>
+    <button class="reveal-btn teal" onclick="toggleReveal('wd1-ans'); toggleBtnText(this,'✅ Show solution','✅ Hide solution');" style="margin-top:16px;">✅ Show solution</button>
+    <div class="step-reveal" id="wd1-ans" style="margin-top:16px;">
+      <div class="comp-visual">
+        <div class="comp-row">
+          <div class="comp-num">398</div><div class="comp-op">+</div><div class="comp-num">145</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+          <div class="comp-arrow">↓</div>
+          <div class="comp-transfer">+2 / −2</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-num friendly">400</div><div class="comp-op">+</div><div class="comp-num">143</div><div class="comp-op">=</div><div class="comp-num friendly">543</div>
+        </div>
+      </div>
+      <span class="answer-badge">398 + 145 = 543</span>
+    </div>
+  </div>
+
+  <!-- WD Q2 -->
+  <div class="gp-card">
+    <div class="tag">Question 2</div><div class="tag" style="background:var(--purple);color:#fff;">Decimal</div>
+    <div style="margin:12px 0;"><div class="equation-box">4.9 + 3.4</div></div>
+    <div class="callout callout-amber" style="margin-bottom:0;">
+      <span class="label">💬 Think first</span>
+      <p>4.9 is almost 5. How much do you need? What happens to the 3.4?</p>
+    </div>
+    <button class="reveal-btn teal" onclick="toggleReveal('wd2-ans'); toggleBtnText(this,'✅ Show solution','✅ Hide solution');" style="margin-top:16px;">✅ Show solution</button>
+    <div class="step-reveal" id="wd2-ans" style="margin-top:16px;">
+      <div class="comp-visual">
+        <div class="comp-row">
+          <div class="comp-num">4.9</div><div class="comp-op">+</div><div class="comp-num">3.4</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+          <div class="comp-arrow">↓</div>
+          <div class="comp-transfer">+0.1 / −0.1</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-num friendly">5.0</div><div class="comp-op">+</div><div class="comp-num">3.3</div><div class="comp-op">=</div><div class="comp-num friendly">8.3</div>
+        </div>
+      </div>
+      <span class="answer-badge">4.9 + 3.4 = 8.3</span>
+    </div>
+  </div>
+
+  <!-- WD Q3 -->
+  <div class="gp-card">
+    <div class="tag">Question 3</div><div class="tag teal">Addition, Whole Numbers</div>
+    <div style="margin:12px 0;"><div class="equation-box">597 + 264</div></div>
+    <div class="callout callout-amber" style="margin-bottom:0;">
+      <span class="label">💬 Think first</span>
+      <p>597 is nearly 600. How much do you need to add to it? What happens to the 264?</p>
+    </div>
+    <button class="reveal-btn teal" onclick="toggleReveal('wd3-ans'); toggleBtnText(this,'✅ Show solution','✅ Hide solution');" style="margin-top:16px;">✅ Show solution</button>
+    <div class="step-reveal" id="wd3-ans" style="margin-top:16px;">
+      <div class="comp-visual">
+        <div class="comp-row">
+          <div class="comp-num">597</div><div class="comp-op">+</div><div class="comp-num">264</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+          <div class="comp-arrow">↓</div>
+          <div class="comp-transfer">+3 / −3</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-num friendly">600</div><div class="comp-op">+</div><div class="comp-num">261</div><div class="comp-op">=</div><div class="comp-num friendly">861</div>
+        </div>
+      </div>
+      <span class="answer-badge">597 + 264 = 861</span>
+    </div>
+  </div>
+
+  <!-- WD Q4 -->
+  <div class="gp-card">
+    <div class="tag">Question 4</div><div class="tag" style="background:var(--purple);color:#fff;">Decimal, Addition</div>
+    <div style="margin:12px 0;"><div class="equation-box">7.9 + 5.4</div></div>
+    <div class="callout callout-amber" style="margin-bottom:0;">
+      <span class="label">💬 Think first</span>
+      <p>7.9 is almost 8.0. How much do you need? What happens to the 5.4?</p>
+    </div>
+    <button class="reveal-btn teal" onclick="toggleReveal('wd4-ans'); toggleBtnText(this,'✅ Show solution','✅ Hide solution');" style="margin-top:16px;">✅ Show solution</button>
+    <div class="step-reveal" id="wd4-ans" style="margin-top:16px;">
+      <div class="comp-visual">
+        <div class="comp-row">
+          <div class="comp-num">7.9</div><div class="comp-op">+</div><div class="comp-num">5.4</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+          <div class="comp-arrow">↓</div>
+          <div class="comp-transfer">+0.1 / −0.1</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-num friendly">8.0</div><div class="comp-op">+</div><div class="comp-num">5.3</div><div class="comp-op">=</div><div class="comp-num friendly">13.3</div>
+        </div>
+      </div>
+      <span class="answer-badge">7.9 + 5.4 = 13.3</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     PRACTICE
+══════════════════════════════════════════ -->
+<div id="practice" class="section">
+  <div class="section-title">Phase 4 · Independent Practice</div>
+  <div class="section-heading">Compensate → Solve → Check with a Calculator</div>
+
+  <div class="card">
+    <p style="font-size:17px; line-height:1.7;">For each equation: <strong>(1)</strong> write the new compensated equation, <strong>(2)</strong> solve it mentally, <strong>(3)</strong> check with a calculator.</p>
+    <p style="font-size:15px; color:var(--muted); margin-top:10px;">Each card has a <strong>💡 Hint</strong> (shows the tip), a <strong>🔧 Levelling Tool</strong> (interactive bar to visualise the levelling), and a <strong>✅ Reveal Answer</strong> button.</p>
+  </div>
+
+  <!-- Tier 1: 2 and 3-digit whole numbers -->
+  <div class="practice-tier">
+    <div class="tier-header tier-1">🟢 Tier 1, Whole Numbers to the Nearest 10 or 100</div>
+    <div class="pq-grid">
+
+      <div class="pq-card t1" data-a="199" data-b="45" data-op="+">
+        <div class="pq-num">Card 1</div><div class="pq-type">Addition, nearest 100</div>
+        <div class="pq-eq">199 + 45</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>199 needs just 1 to become 200.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq1')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq1">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>200 + 44 = <strong>244</strong></p></div>
+          <span class="answer-badge">199 + 45 = 244</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="298" data-b="156" data-op="+">
+        <div class="pq-num">Card 2</div><div class="pq-type">Addition, nearest 100</div>
+        <div class="pq-eq">298 + 156</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>298 needs 2 to become 300.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq2')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq2">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>300 + 154 = <strong>454</strong></p></div>
+          <span class="answer-badge">298 + 156 = 454</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="497" data-b="215" data-op="+">
+        <div class="pq-num">Card 3</div><div class="pq-type">Addition, nearest 100</div>
+        <div class="pq-eq">497 + 215</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>497 needs 3 to become 500.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq3')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq3">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>500 + 212 = <strong>712</strong></p></div>
+          <span class="answer-badge">497 + 215 = 712</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="497" data-b="346" data-op="+">
+        <div class="pq-num">Card 4</div><div class="pq-type">Addition, nearest 100</div>
+        <div class="pq-eq">497 + 346</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>497 needs 3 to become 500.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq4')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq4">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>500 + 343 = <strong>843</strong></p></div>
+          <span class="answer-badge">497 + 346 = 843</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="699" data-b="283" data-op="+">
+        <div class="pq-num">Card 5</div><div class="pq-type">Addition, nearest 100</div>
+        <div class="pq-eq">699 + 283</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>699 needs 1 to become 700.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq5')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq5">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>700 + 282 = <strong>982</strong></p></div>
+          <span class="answer-badge">699 + 283 = 982</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="995" data-b="238" data-op="+">
+        <div class="pq-num">Card 6</div><div class="pq-type">Addition, nearest 1,000</div>
+        <div class="pq-eq">995 + 238</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>995 needs 5 to become 1,000.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq6')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq6">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>1,000 + 233 = <strong>1,233</strong></p></div>
+          <span class="answer-badge">995 + 238 = 1,233</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="68" data-b="47" data-op="+">
+        <div class="pq-num">Card 7</div><div class="pq-type">Addition, nearest 10</div>
+        <div class="pq-eq">68 + 47</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>68 needs 2 to become 70.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq7')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq7">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>70 + 45 = <strong>115</strong></p></div>
+          <span class="answer-badge">68 + 47 = 115</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="78" data-b="56" data-op="+">
+        <div class="pq-num">Card 8</div><div class="pq-type">Addition, nearest 10</div>
+        <div class="pq-eq">78 + 56</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>78 needs 2 to become 80.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq8')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq8">
+          <div class="callout callout-teal"><span class="label">✅ Compensated</span><p>80 + 54 = <strong>134</strong></p></div>
+          <span class="answer-badge">78 + 56 = 134</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="398" data-b="245" data-op="+">
+        <div class="pq-num">Card 9</div><div class="pq-type">Reasoning, choosing strategy</div>
+        <div class="pq-eq">398 + 245</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>Look at which number is closest to a round number. Would compensation or levelling work better?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq9new')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq9new">
+          <div class="callout callout-teal"><span class="label">✅ Strategy choice</span><p>Compensation is better here. 398 is very close to 400. Add 2 to make 400, then subtract 2 from 245 to get 243. So 400 + 243 = <strong>643</strong>.</p></div>
+          <span class="answer-badge">398 + 245 = 643</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="197" data-b="264" data-op="+">
+        <div class="pq-num">Card 10</div><div class="pq-type">Word problem, measurement</div>
+        <div class="pq-eq">A farmer has 197 metres of fence in one paddock and 264 metres in another. How many metres altogether?</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>197 is close to 200. Use compensation to make the calculation easier.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq10new')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq10new">
+          <div class="callout callout-teal"><span class="label">✅ Levelled</span><p>197 needs 3 to become 200. Take 3 from 264 to get 261. Then 200 + 261 = <strong>461 metres</strong></p></div>
+          <span class="answer-badge">197 + 264 = 461</span>
+        </div>
+      </div>
+
+      <div class="pq-card t1" data-a="347" data-b="251" data-op="+">
+        <div class="pq-num">Card 11</div><div class="pq-type">Reasoning, when NOT to use</div>
+        <div class="pq-eq">347 + 251</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>Is either number close to a round number? Would compensation actually save time here?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq11new')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq11new">
+          <div class="callout callout-teal"><span class="label">✅ Explanation</span><p>Compensation would not help much here. 347 is not close to a round number, and neither is 251. You could use the column method instead, or round both to 350 + 250 = 600, then adjust. Compensation shines when at least one number is very close to a round number. <strong>347 + 251 = 598</strong></p></div>
+          <span class="answer-badge">347 + 251 = 598</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tier 2: Decimals -->
+  <div class="practice-tier">
+    <div class="tier-header tier-2">🔵 Tier 2, Decimals to the Nearest Whole Number</div>
+    <div class="pq-grid">
+
+      <div class="pq-card t2" data-a="15.95" data-b="4.30" data-op="+" data-prefix="$" data-dp="2">
+        <div class="pq-num">Card 12</div><div class="pq-type">Addition, money</div>
+        <div class="pq-eq">$15.95 + $4.30</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>$15.95 needs $0.05 to become $16.00.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq9')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq9">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>$16.00 + $4.25 = <strong>$20.25</strong></p></div>
+          <span class="answer-badge">$15.95 + $4.30 = $20.25</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="9.98" data-b="7.45" data-op="+" data-prefix="$" data-dp="2">
+        <div class="pq-num">Card 13</div><div class="pq-type">Addition, money</div>
+        <div class="pq-eq">$9.98 + $7.45</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>$9.98 needs $0.02 to become $10.00.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq10')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq10">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>$10.00 + $7.43 = <strong>$17.43</strong></p></div>
+          <span class="answer-badge">$9.98 + $7.45 = $17.43</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="6.9" data-b="4.8" data-op="+" data-dp="1">
+        <div class="pq-num">Card 14</div><div class="pq-type">Addition, decimal</div>
+        <div class="pq-eq">6.9 + 4.8</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>6.9 needs 0.1 to become 7.0.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq11')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq11">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>7.0 + 4.7 = <strong>11.7</strong></p></div>
+          <span class="answer-badge">6.9 + 4.8 = 11.7</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="3.99" data-b="2.54" data-op="+" data-dp="2">
+        <div class="pq-num">Card 15</div><div class="pq-type">Addition, decimal</div>
+        <div class="pq-eq">3.99 + 2.54</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>3.99 needs 0.01 to become 4.00.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq12')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq12">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>4.00 + 2.53 = <strong>6.53</strong></p></div>
+          <span class="answer-badge">3.99 + 2.54 = 6.53</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="14.97" data-b="6.50" data-op="+" data-prefix="$" data-dp="2">
+        <div class="pq-num">Card 16</div><div class="pq-type">Addition, money</div>
+        <div class="pq-eq">$14.97 + $6.50</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>$14.97 needs $0.03 to become $15.00.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq13')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq13">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>$15.00 + $6.47 = <strong>$21.47</strong></p></div>
+          <span class="answer-badge">$14.97 + $6.50 = $21.47</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="14.98" data-b="7.25" data-op="+" data-dp="2">
+        <div class="pq-num">Card 17</div><div class="pq-type">Addition, decimal</div>
+        <div class="pq-eq">14.98 + 7.25</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>14.98 needs 0.02 to become 15.00.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq14')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq14">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>15.00 + 7.23 = <strong>22.23</strong></p></div>
+          <span class="answer-badge">14.98 + 7.25 = 22.23</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="24.97" data-b="8.15" data-op="+" data-prefix="$" data-dp="2">
+        <div class="pq-num">Card 18</div><div class="pq-type">Addition, money</div>
+        <div class="pq-eq">$24.97 + $8.15</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>$24.97 needs $0.03 to become $25.00.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq15')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq15">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>$25.00 + $8.12 = <strong>$33.12</strong></p></div>
+          <span class="answer-badge">$24.97 + $8.15 = $33.12</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="8.97" data-b="3.45" data-op="+" data-dp="2">
+        <div class="pq-num">Card 19</div><div class="pq-type">Addition, decimal</div>
+        <div class="pq-eq">8.97 + 3.45</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>8.97 needs 0.03 to become 9.00.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq16')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq16">
+          <div class="callout callout-blue"><span class="label">✅ Compensated</span><p>9.00 + 3.42 = <strong>12.42</strong></p></div>
+          <span class="answer-badge">8.97 + 3.45 = 12.42</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="5.95" data-b="2.37" data-op="+" data-dp="2">
+        <div class="pq-num">Card 17</div><div class="pq-type">Word problem, length</div>
+        <div class="pq-eq">A ribbon is 5.95 metres long. Another ribbon is 2.37 metres long. What is the total length?</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>5.95 is close to 6.0. Use compensation to make it easier.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq17new')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq17new">
+          <div class="callout callout-blue"><span class="label">✅ Levelled</span><p>5.95 needs 0.05 to become 6.0. Take 0.05 from 2.37 to get 2.32. Then 6.0 + 2.32 = <strong>8.32 metres</strong></p></div>
+          <span class="answer-badge">5.95 + 2.37 = 8.32</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="9.96" data-b="5.34" data-op="+">
+        <div class="pq-num">Card 18</div><div class="pq-type">Error checking</div>
+        <div class="pq-eq">A student calculates 9.96 + 5.34 by levelling. They write: "9.96 rounded up is 10.0. I subtract 0.04 from both numbers: 10.0 + 5.30 = 15.30."</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>Did they use the right rule? When you round 9.96 up to 10.0, should you subtract from the other number?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq18new')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq18new">
+          <div class="callout callout-blue"><span class="label">✅ Error found</span><p>The student made a mistake! When you add 0.04 to one number to round it up, you must subtract 0.04 from the other number. They did it correctly here: 10.0 + 5.30 = 15.30. But wait, let's check: 9.96 + 5.34 = 15.30. Yes, this is correct! The student's working and answer are both right.</p></div>
+          <span class="answer-badge">9.96 + 5.34 = 15.30</span>
+        </div>
+      </div>
+
+      <div class="pq-card t2" data-a="12.9" data-b="5.8" data-op="+">
+        <div class="pq-num">Card 19</div><div class="pq-type">Reasoning, levelling both numbers</div>
+        <div class="pq-eq">12.9 + 5.8</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>Both numbers end in a 9 or 8. Which number is closer to a friendly whole number?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq19new')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq19new">
+          <div class="callout callout-blue"><span class="label">✅ Both levelled</span><p>12.9 needs just 0.1 to become 13.0. But 5.8 needs 0.2 to become 6.0. It's easier to level 12.9: take 0.1 from 5.8 to get 5.7. Then 13.0 + 5.7 = <strong>18.7</strong></p></div>
+          <span class="answer-badge">12.9 + 5.8 = 18.7</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tier 3: Extension -->
+  <div class="practice-tier">
+    <div class="tier-header tier-3">🟡 Tier 3, Extension: Larger Numbers &amp; Multiple Addends</div>
+    <div class="pq-grid">
+
+      <div class="pq-card t3" data-a="4997" data-b="1856" data-op="+">
+        <div class="pq-num">Card 20</div><div class="pq-type">Addition, 4-digit</div>
+        <div class="pq-eq">4,997 + 1,856</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>4,997 needs just 3 to become 5,000.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq17')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq17">
+          <div class="callout callout-amber"><span class="label">✅ Compensated</span><p>5,000 + 1,853 = <strong>6,853</strong></p></div>
+          <span class="answer-badge">4,997 + 1,856 = 6,853</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-a="6998" data-b="2345" data-op="+">
+        <div class="pq-num">Card 21</div><div class="pq-type">Addition, 4-digit</div>
+        <div class="pq-eq">6,998 + 2,345</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>6,998 needs just 2 to become 7,000.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq18')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq18">
+          <div class="callout callout-amber"><span class="label">✅ Compensated</span><p>7,000 + 2,343 = <strong>9,343</strong></p></div>
+          <span class="answer-badge">6,998 + 2,345 = 9,343</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-three="true">
+        <div class="pq-num">Card 22</div><div class="pq-type">Three addends</div>
+        <div class="pq-eq">997 + 456 + 312</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>Level 997 first, then add the remaining numbers.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq19')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq19">
+          <div class="callout callout-amber"><span class="label">✅ Compensated</span><p>1,000 + 453 + 312 = 1,000 + 765 = <strong>1,765</strong></p></div>
+          <span class="answer-badge">997 + 456 + 312 = 1,765</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-three="true">
+        <div class="pq-num">Card 23</div><div class="pq-type">Three addends, measurement</div>
+        <div class="pq-eq">4.95 m + 3.07 m + 2.50 m</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>4.95 needs 0.05 to become 5.0. Take it from one of the other amounts.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq20')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq20">
+          <div class="callout callout-amber"><span class="label">✅ Levelled</span><p>5.0 + 3.02 + 2.50 = 5.0 + 5.52 = <strong>10.52 metres</strong></p></div>
+          <span class="answer-badge">4.95 + 3.07 + 2.50 = 10.52 m</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-a="3995" data-b="2487" data-op="+">
+        <div class="pq-num">Card 24</div><div class="pq-type">Challenge, reasoning</div>
+        <div class="pq-eq">3,995 + 2,487</div>
+        <div class="pq-hint"><span class="hint-label">💡 Challenge</span>Explain in words why levelling is the best strategy here. Which number do you level, and how much do you move?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq21')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq21">
+          <div class="callout callout-amber">
+            <span class="label">✅ Why compensate?</span>
+            <p>3,995 is only 5 away from 4,000, a very friendly number. Take 5 from 2,487 and give it to 3,995: 4,000 + 2,482 = <strong>6,482</strong>. Much faster than an algorithm.</p>
+          </div>
+          <span class="answer-badge">3,995 + 2,487 = 6,482</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-a="5983" data-b="627" data-op="+">
+        <div class="pq-num">Card 25</div><div class="pq-type">Challenge, flexibility</div>
+        <div class="pq-eq">5,983 + 627</div>
+        <div class="pq-hint"><span class="hint-label">💡 Challenge</span>Which number should you level? How much do you move?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq22')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq22">
+          <div class="callout callout-amber">
+            <span class="label">✅ Compensated</span>
+            <p>5,983 + 17 = 6,000. Take 17 from 627 → 610.<br>6,000 + 610 = <strong>6,610</strong></p>
+          </div>
+          <span class="answer-badge">5,983 + 627 = 6,610</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-a="9973" data-b="5425" data-op="+">
+        <div class="pq-num">Card 26</div><div class="pq-type">Word problem, population</div>
+        <div class="pq-eq">Town A has a population of 9,973. Town B has 5,425. What is the total population?</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>9,973 is very close to 10,000. Use levelling to make the calculation simpler.</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq26')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq26">
+          <div class="callout callout-amber"><span class="label">✅ Levelled</span><p>9,973 needs 27 to become 10,000. Take 27 from 5,425 to get 5,398. Then 10,000 + 5,398 = <strong>15,398</strong></p></div>
+          <span class="answer-badge">9,973 + 5,425 = 15,398</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-a="4997" data-b="5003" data-op="+">
+        <div class="pq-num">Card 27</div><div class="pq-type">Reasoning, both numbers friendly</div>
+        <div class="pq-eq">4,997 + 5,003</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>Look carefully at both numbers. Is there a clever observation that makes this very easy?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq27')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq27">
+          <div class="callout callout-amber"><span class="label">✅ Insight!</span><p>Both numbers can be levelled to exactly 5,000: 4,997 needs +3, and 5,003 needs -3. So: 5,000 + 5,000 = <strong>10,000</strong>. They "balance" perfectly!</p></div>
+          <span class="answer-badge">4,997 + 5,003 = 10,000</span>
+        </div>
+      </div>
+
+      <div class="pq-card t3" data-a="7984" data-b="8342" data-op="+">
+        <div class="pq-num">Card 28</div><div class="pq-type">Reasoning, choose which number</div>
+        <div class="pq-eq">7,984 + 8,342</div>
+        <div class="pq-hint"><span class="hint-label">💡 Tip</span>Would you level 7,984 to 8,000 or 8,342 to 8,000 (by rounding down)? Which is easier?</div>
+        <div class="pq-buttons">
+          <button class="pq-btn hint-btn" onclick="toggleCardHint(this)">💡 Hint</button>
+          <button class="pq-btn tool-btn" onclick="toggleCardTool(this)">🔧 Levelling Tool</button>
+          <button class="pq-btn answer-btn" onclick="togglePQ(this,'pq28')">✅ Reveal Answer</button>
+        </div>
+        <div class="pq-tool-slot"></div>
+        <div class="pq-answer" id="pq28">
+          <div class="callout callout-amber"><span class="label">✅ Strategy choice</span><p>7,984 is easier to level: it's only 16 away from 8,000. Take 16 from 8,342 to get 8,326. Then 8,000 + 8,326 = <strong>16,326</strong>. It's easier to add a smaller number (16) than work with 8,342.</p></div>
+          <span class="answer-badge">7,984 + 8,342 = 16,326</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Go Deeper Extension -->
+  <div class="go-deeper-section">
+    <button class="go-deeper-toggle" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open');">
+      <h3>🔍 Go Deeper: Levelling Investigations</h3>
+      <span class="toggle-arrow">▼</span>
+    </button>
+    <div class="go-deeper-content">
+      <div class="go-deeper-card">
+        <p>These tasks go beyond practising the levelling strategy. You will investigate <strong>why</strong> it works and when it is most useful.</p>
+
+        <!-- Task 1: Specialising -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 1, Specialising</div>
+          <div class="ext-task-prompt">Try using the levelling strategy on these three calculations. For which one did levelling help the most? For which one was it least useful? Why?</div>
+          <div style="margin: 1rem 0; padding: 1rem; background: #f8f8f8; border-radius: 10px; font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 600;">
+            <div style="margin-bottom: 0.5rem;">(a) <span class="ext-numbers">199 + 356</span></div>
+            <div style="margin-bottom: 0.5rem;">(b) <span class="ext-numbers">432 + 251</span></div>
+            <div>(c) <span class="ext-numbers">398 + 407</span></div>
+          </div>
+          <div class="ext-task-sub">What makes a calculation "good" for levelling? Can you describe the kind of numbers where levelling really helps?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.parentElement.querySelector('.ext-model-response').classList.toggle('visible');">Show Model Response</button>
+          <div class="ext-model-response">
+            <div class="model-label">Model Response</div>
+            <p>For <span class="ext-numbers">(a) 199 + 356</span>, I levelled to <span class="ext-numbers">200 + 355 = 555</span>. That made it really easy because <span class="ext-numbers">199</span> is so close to <span class="ext-numbers">200</span>.</p>
+            <p>For <span class="ext-numbers">(b) 432 + 251</span>, I could level to <span class="ext-numbers">430 + 253</span> or <span class="ext-numbers">440 + 243</span>... but none of these feel much easier than the original. Levelling didn't help much here because neither number is close to a friendly number. The digits in the tens and units places aren't "nudging" either number towards a round number.</p>
+            <p>For <span class="ext-numbers">(c) 398 + 407</span>, I levelled to <span class="ext-numbers">400 + 405 = 805</span>. That was helpful because <span class="ext-numbers">398</span> is very close to <span class="ext-numbers">400</span>.</p>
+            <div class="mathematician-box">
+              <strong>Key insight:</strong> I initially thought levelling always helps, but now I see it is most powerful when at least one number is close to a multiple of 10 or 100. If both numbers are already in the middle of a range (like <span class="ext-numbers">432</span>), there is no obvious "friendly" number to level towards. Levelling shines when you spot a number that is just a small jump away from something round.
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 2: Conjecturing -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 2, Conjecturing</div>
+          <div class="ext-task-prompt">"The levelling strategy works for subtraction in exactly the same way as it works for addition." Is this always true, sometimes true, or never true?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.parentElement.querySelector('.ext-model-response').classList.toggle('visible');">Show Model Response</button>
+          <div class="ext-model-response">
+            <div class="model-label">Model Response</div>
+            <p><strong>First, my initial thought:</strong> Sometimes. I thought addition and subtraction might follow different rules, so maybe levelling works differently...</p>
+            <p><strong>But then I worked it out properly:</strong> It is <strong>always</strong> true that levelling works for both operations. However, the <strong>rule for how you adjust is different</strong>.</p>
+            <p><strong>For addition:</strong> You adjust in opposite directions. If you add to one number, you subtract from the other. For example: <span class="ext-numbers">(199 + 1) + (356 - 1) = 200 + 355 = 555</span>, which equals the original <span class="ext-numbers">199 + 356</span>. The total stays the same.</p>
+            <p><strong>For subtraction:</strong> You adjust in the <strong>same</strong> direction. You add (or subtract) the same amount to <strong>both</strong> numbers. For example: <span class="ext-numbers">(305 + 2) - (198 + 2) = 307 - 200 = 107</span>, which equals the original <span class="ext-numbers">305 - 198</span>. The difference stays the same.</p>
+            <div class="mathematician-box">
+              <strong>Why is this?</strong> Mathematically, for addition: (a + n) + (b − n) = a + b. For subtraction: (a + n) − (b + n) = a − b. When you shift both numbers by the same amount in subtraction, the gap between them does not change. Think of it on a number line: if you slide both numbers 2 to the right, the distance between them stays the same.
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 3: Justifying (Error/Counterexample) -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 3, Justifying</div>
+          <div class="ext-task-prompt">A student uses levelling on <span class="ext-numbers">305 − 198</span>. They say: "I will add <span class="ext-numbers">2</span> to <span class="ext-numbers">198</span> to make it <span class="ext-numbers">200</span>, and subtract <span class="ext-numbers">2</span> from <span class="ext-numbers">305</span> to make it <span class="ext-numbers">303</span>. So the answer is <span class="ext-numbers">303 − 200 = 103</span>."</div>
+          <p style="margin: 1rem 0; font-weight: 600; color: #636E72;">Is their answer correct? Is their method correct? Explain what went wrong.</p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.parentElement.querySelector('.ext-model-response').classList.toggle('visible');">Show Model Response</button>
+          <div class="ext-model-response">
+            <div class="model-label">Model Response</div>
+            <p><strong>The answer is incorrect.</strong> <span class="ext-numbers">305 − 198 = 107</span>, not <span class="ext-numbers">103</span>. So the student made a significant mistake.</p>
+            <p><strong>What went wrong:</strong> The student used the addition rule (adjust in opposite directions) instead of the subtraction rule (adjust in the same direction). For subtraction, you need to add <span class="ext-numbers">2</span> to <strong>both</strong> numbers, not just one.</p>
+            <p><strong>The correct method:</strong> <span class="ext-numbers">(305 + 2) − (198 + 2) = 307 − 200 = 107</span>. By adding <span class="ext-numbers">2</span> to both numbers, the difference between them stays the same.</p>
+            <div class="mathematician-box">
+              <strong>The confusion:</strong> The student adjusted <span class="ext-numbers">305</span> down by <span class="ext-numbers">2</span> and <span class="ext-numbers">198</span> up by <span class="ext-numbers">2</span>, which makes the gap smaller! If one number goes up and the other goes down, the difference shrinks. For subtraction levelling to work, both numbers must move in the same direction. This is the opposite of addition, where you move them in opposite directions.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Plenary -->
+  <div class="card" style="background:linear-gradient(135deg,#f0fafa,#e8faf8);border-color:#b2dfdb;margin-top:24px;">
+    <h3>⚖️ Plenary, Addition Challenge</h3>
+    <div style="margin:16px 0;"><div class="equation-box">5,983 + 627</div></div>
+    <p style="font-size:17px;line-height:1.7;">Have a student come to the board and explain: <strong>Why is levelling the best strategy for this problem?</strong></p>
+    <div class="callout callout-teal" style="margin-top:12px;">
+      <span class="label">Expected reasoning</span>
+      <p>"5,983 is only 17 away from 6,000. I take 17 from 627 and give it to 5,983: 6,000 + 610 = 6,610. I didn't need an algorithm because 6,000 is a friendly number."</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     TOOLS
+══════════════════════════════════════════ -->
+<div id="tools" class="section">
+  <div class="section-title">Interactive Tools</div>
+  <div class="section-heading">Levelling Explorer 🔧</div>
+
+  <div class="card">
+    <p style="font-size:17px; line-height:1.7;">Use these interactive tools to explore and practise levelling. Open them in a new tab alongside this lesson.</p>
+    <ul style="margin-top:14px;">
+      <li style="margin-bottom:8px;">The <strong>Teacher Explorer</strong> lets you model any equation on the interactive bar, great for whole-class demonstration.</li>
+      <li>The <strong>Student Tool</strong> lets students enter their own numbers, level them visually, then type and check their answer, with hints and encouragement built in.</li>
+    </ul>
+  </div>
+
+  <div class="tools-grid">
+
+    <div class="tool-card teacher">
+      <div class="tool-card-icon">🔍</div>
+      <div class="tool-card-tag">Teacher Version</div>
+      <h3>Levelling Explorer</h3>
+      <p>Enter any two numbers and drag the visual bar to demonstrate levelling. Shows the original and levelled equations live. Includes presets, auto-level, and operation toggle.</p>
+      <button class="tool-open-btn blue" onclick="window.open('Levelling Explorer.html','_blank')">Open Teacher Tool ↗</button>
+    </div>
+
+    <div class="tool-card student">
+      <div class="tool-card-icon">🎓</div>
+      <div class="tool-card-tag">Student Version</div>
+      <h3>Student Levelling Tool</h3>
+      <p>Students enter their own two numbers, level them using the interactive bar, then type and check their answer. First wrong attempt gets encouragement; second wrong reveals the solution.</p>
+      <button class="tool-open-btn teal" onclick="window.open('Levelling Explorer - Student.html','_blank')">Open Student Tool ↗</button>
+    </div>
+
+  </div>
+
+  <div class="card" style="margin-top:20px; background:linear-gradient(135deg,#f0fafa,#e8faf8); border-color:#b2dfdb;">
+    <h3>💡 How to use these in class</h3>
+    <ul style="margin-top:10px;">
+      <li style="margin-bottom:8px;"><strong>I Do phase:</strong> Open the Teacher Explorer on the classroom projector. Enter the worked example equations and drag the handle to show how numbers are levelled.</li>
+      <li style="margin-bottom:8px;"><strong>We Do phase:</strong> Project the Teacher Explorer and have students suggest which way to drag before you move it.</li>
+      <li><strong>Practice phase:</strong> Students open the Student Tool on their own devices. They enter the practice card equations and check their own work before revealing the answer here.</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ── Shared Mini Levelling Tool Panel (moved into card slots dynamically) ── -->
+<div id="mini-tool-panel">
+  <div class="mt-header">
+    <div class="mt-title">🔧 Levelling Tool</div>
+    <button class="mt-close" onclick="mtClose()">×</button>
+  </div>
+  <div class="mt-eq-row mt-eq-orig" id="mt-orig-eq">, </div>
+  <div class="mt-bar-section">
+    <div class="mt-bar-labels">
+      <span id="mt-label-a">A</span>
+      <span id="mt-label-b">B</span>
+    </div>
+    <div class="mt-track" id="mt-track">
+      <div class="mt-fill-a" id="mt-fill-a" style="width:50%"></div>
+      <div class="mt-fill-b" id="mt-fill-b" style="width:50%"></div>
+      <div class="mt-handle" id="mt-handle" style="left:50%">
+        <button class="mt-step" id="mt-step-l" onclick="mtStep(-1)">−1</button>
+        <div class="mt-drag-pill" id="mt-drag-pill">↔</div>
+        <button class="mt-step right" id="mt-step-r" onclick="mtStep(1)">+1</button>
+      </div>
+    </div>
+  </div>
+  <div class="mt-eq-row mt-eq-live" id="mt-live-eq">, </div>
+  <div class="mt-controls">
+    <button class="mt-ctrl-btn sec" onclick="mtReset()">↺ Reset</button>
+  </div>
+  <div class="mt-note" id="mt-note">Drag the handle or use the buttons to level the numbers.</div>
+</div>
+
+</main>
+
+<script>
+  /* ── NAV ── */
+  function showSection(id, btn) {
+    mtClose();
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  /* ── GENERIC REVEAL ── */
+  function toggleReveal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('shown');
+  }
+
+  function toggleBtnText(btn, off, on) {
+    btn.textContent = btn.textContent.trim() === off ? on : off;
+  }
+
+  /* ── VOCAB CARDS ── */
+  function toggleVocab(btn, bodyId) {
+    const body = document.getElementById(bodyId);
+    const isOpen = body.classList.contains('shown');
+    body.classList.toggle('shown');
+    btn.classList.toggle('open');
+    btn.querySelector('span:first-child').textContent = isOpen ? 'See an example' : 'Hide example';
+  }
+
+  /* ── VOCAB PAGER ── */
+  let vocabCurrent = 0;
+  const vocabTotal = 3;
+
+  function vocabNav(dir) {
+    vocabGo(Math.max(0, Math.min(vocabTotal - 1, vocabCurrent + dir)));
+  }
+
+  function vocabGo(idx) {
+    document.getElementById('vocab-slide-' + vocabCurrent).classList.remove('active');
+    document.getElementById('vdot-' + vocabCurrent).classList.remove('active');
+    vocabCurrent = idx;
+    document.getElementById('vocab-slide-' + vocabCurrent).classList.add('active');
+    document.getElementById('vdot-' + vocabCurrent).classList.add('active');
+    document.getElementById('vocab-counter').textContent = 'Concept ' + (vocabCurrent + 1) + ' of ' + vocabTotal;
+    document.getElementById('vocab-prev').disabled = (vocabCurrent === 0);
+    document.getElementById('vocab-next').disabled = (vocabCurrent === vocabTotal - 1);
+  }
+
+  /* ── PRACTICE TOGGLES ── */
+  function togglePQ(btn, id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('shown');
+    btn.classList.toggle('active');
+    btn.textContent = el.classList.contains('shown') ? '🙈 Hide Answer' : '✅ Reveal Answer';
+  }
+
+  /* ── CARD HINT TOGGLE ── */
+  function toggleCardHint(btn) {
+    const card = btn.closest('.pq-card');
+    const hint = card.querySelector('.pq-hint');
+    hint.classList.toggle('shown');
+    btn.classList.toggle('active');
+    btn.textContent = hint.classList.contains('shown') ? '💡 Hide Hint' : '💡 Hint';
+  }
+
+  /* ── HOOK: PILE DEMO ── */
+  let pileA = 9, pileB = 5;
+
+  function renderPiles() {
+    const aBlocks = document.getElementById('pile-a-blocks');
+    const bBlocks = document.getElementById('pile-b-blocks');
+    aBlocks.innerHTML = '';
+    bBlocks.innerHTML = '';
+    for (let i = 0; i < pileA; i++) {
+      const b = document.createElement('div');
+      b.className = 'block a';
+      aBlocks.appendChild(b);
+    }
+    for (let i = 0; i < pileB; i++) {
+      const b = document.createElement('div');
+      b.className = 'block b';
+      bBlocks.appendChild(b);
+    }
+    document.getElementById('pile-a-count').textContent = pileA;
+    document.getElementById('pile-b-count').textContent = pileB;
+    document.getElementById('pile-total').textContent = 'Total: ' + (pileA + pileB);
+  }
+
+  function hookMove() {
+    if (pileB <= 0) return;
+    pileB--;
+    pileA++;
+    renderPiles();
+    if (pileA === 10) {
+      document.getElementById('hook-move-btn').style.display = 'none';
+      document.getElementById('hook-reset-btn').style.display = 'inline-flex';
+    }
+  }
+
+  function hookReset() {
+    pileA = 9;
+    pileB = 5;
+    renderPiles();
+    document.getElementById('hook-move-btn').style.display = 'inline-flex';
+    document.getElementById('hook-reset-btn').style.display = 'none';
+  }
+
+  renderPiles();
+
+  /* ── HOOK EXAMPLE 2: 18 + 5 ── */
+  let pileA2 = 18, pileB2 = 5;
+
+  function renderPiles2() {
+    const aBlocks = document.getElementById('pile-a2-blocks');
+    const bBlocks = document.getElementById('pile-b2-blocks');
+    aBlocks.innerHTML = '';
+    bBlocks.innerHTML = '';
+    for (let i = 0; i < pileA2; i++) {
+      const b = document.createElement('div');
+      b.className = 'block a';
+      b.style.cssText = 'width:16px;height:16px;border-radius:4px;';
+      aBlocks.appendChild(b);
+    }
+    for (let i = 0; i < pileB2; i++) {
+      const b = document.createElement('div');
+      b.className = 'block b';
+      b.style.cssText = 'width:16px;height:16px;border-radius:4px;';
+      bBlocks.appendChild(b);
+    }
+    document.getElementById('pile-a2-count').textContent = pileA2;
+    document.getElementById('pile-b2-count').textContent = pileB2;
+    document.getElementById('pile-total-2').textContent = 'Total: ' + (pileA2 + pileB2);
+  }
+
+  function hookMove2() {
+    if (pileB2 <= 0) return;
+    pileB2--;
+    pileA2++;
+    renderPiles2();
+    if (pileA2 === 20) {
+      document.getElementById('hook-move2-btn').style.display = 'none';
+      document.getElementById('hook-reset2-btn').style.display = 'inline-flex';
+    }
+  }
+
+  function hookReset2() {
+    pileA2 = 18;
+    pileB2 = 5;
+    renderPiles2();
+    document.getElementById('hook-move2-btn').style.display = 'inline-flex';
+    document.getElementById('hook-reset2-btn').style.display = 'none';
+  }
+
+  renderPiles2();
+
+  /* ── HOOK EXAMPLE 3: 27 + 6 ── */
+  let pileA3 = 27, pileB3 = 6;
+
+  function renderPiles3() {
+    const aBlocks = document.getElementById('pile-a3-blocks');
+    const bBlocks = document.getElementById('pile-b3-blocks');
+    aBlocks.innerHTML = '';
+    bBlocks.innerHTML = '';
+    for (let i = 0; i < pileA3; i++) {
+      const b = document.createElement('div');
+      b.className = 'block a';
+      b.style.cssText = 'width:14px;height:14px;border-radius:3px;';
+      aBlocks.appendChild(b);
+    }
+    for (let i = 0; i < pileB3; i++) {
+      const b = document.createElement('div');
+      b.className = 'block b';
+      b.style.cssText = 'width:14px;height:14px;border-radius:3px;';
+      bBlocks.appendChild(b);
+    }
+    document.getElementById('pile-a3-count').textContent = pileA3;
+    document.getElementById('pile-b3-count').textContent = pileB3;
+    document.getElementById('pile-total-3').textContent = 'Total: ' + (pileA3 + pileB3);
+  }
+
+  function hookMove3() {
+    if (pileB3 <= 0) return;
+    pileB3--;
+    pileA3++;
+    renderPiles3();
+    if (pileA3 === 30) {
+      document.getElementById('hook-move3-btn').style.display = 'none';
+      document.getElementById('hook-reset3-btn').style.display = 'inline-flex';
+    }
+  }
+
+  function hookReset3() {
+    pileA3 = 27;
+    pileB3 = 6;
+    renderPiles3();
+    document.getElementById('hook-move3-btn').style.display = 'inline-flex';
+    document.getElementById('hook-reset3-btn').style.display = 'none';
+  }
+
+  renderPiles3();
+
+
+  /* ════════════════════════════════════════
+     MINI LEVELLING TOOL
+  ════════════════════════════════════════ */
+  let mtOrigA = 0, mtOrigB = 0, mtOp = '+';
+  let mtTransferred = 0;
+  let mtScale = 1, mtDp = 0, mtPrefix = '';
+  let mtDragging = false, mtDragStartX = 0, mtDragStartT = 0;
+  let mtActiveBtn = null;
+
+  /* Open / toggle tool for a card */
+  function toggleCardTool(btn) {
+    const panel = document.getElementById('mini-tool-panel');
+
+    if (mtActiveBtn === btn) {
+      // Same button, close
+      panel.style.display = 'none';
+      btn.classList.remove('active');
+      mtActiveBtn = null;
+      return;
+    }
+
+    // Close previous
+    if (mtActiveBtn) mtActiveBtn.classList.remove('active');
+
+    // Read card data
+    const card = btn.closest('.pq-card');
+    mtDp     = parseInt(card.dataset.dp) || 0;
+    mtScale  = Math.pow(10, mtDp);
+    mtPrefix = card.dataset.prefix || '';
+    mtOrigA  = Math.round(parseFloat(card.dataset.a) * mtScale);
+    mtOrigB  = Math.round(parseFloat(card.dataset.b) * mtScale);
+    mtOp     = card.dataset.op || '+';
+    mtTransferred = 0;
+
+    // Update step button labels
+    const stepLabel = mtDp === 0 ? '1' : mtDp === 1 ? '0.1' : '0.01';
+    document.getElementById('mt-step-l').textContent = '−' + stepLabel;
+    document.getElementById('mt-step-r').textContent = '+' + stepLabel;
+
+    // Move panel into this card's tool slot
+    const slot = card.querySelector('.pq-tool-slot');
+    slot.appendChild(panel);
+    panel.style.display = 'block';
+
+    btn.classList.add('active');
+    mtActiveBtn = btn;
+
+    mtRender(false);
+  }
+
+  /* Close the mini tool */
+  function mtClose() {
+    const panel = document.getElementById('mini-tool-panel');
+    panel.style.display = 'none';
+    if (mtActiveBtn) {
+      mtActiveBtn.classList.remove('active');
+      mtActiveBtn = null;
+    }
+  }
+
+  /* Format a scaled integer back to display string */
+  function mtFmt(scaledVal) {
+    const val = scaledVal / mtScale;
+    if (mtDp === 0) {
+      // Add thousands separator for large integers
+      return mtPrefix + val.toLocaleString('en-AU');
+    }
+    return mtPrefix + val.toFixed(mtDp);
+  }
+
+  /* Is n (scaled integer) a "friendly" number? */
+  function mtIsFriendly(n) {
+    if (n <= 0) return false;
+    if (n < 10)    return n % 5 === 0;
+    if (n < 100)   return n % 10 === 0;
+    if (n < 1000)  return n % 100 === 0;
+    if (n < 10000) return n % 1000 === 0;
+    return n % 10000 === 0;
+  }
+
+  /* Find nearest friendly number to n (scaled integer) */
+  function mtNearestFriendly(n) {
+    if (n <= 0) return n;
+    let mult;
+    if (n < 10)    mult = 5;
+    else if (n < 100)   mult = 10;
+    else if (n < 1000)  mult = 100;
+    else if (n < 10000) mult = 1000;
+    else               mult = 10000;
+    const lower = Math.floor(n / mult) * mult;
+    const upper = lower + mult;
+    return (n - lower <= upper - n) ? lower : upper;
+  }
+
+  /* Clamp transferred so neither A nor B goes below 1 */
+  function mtClamp() {
+    if (mtOp === '+') {
+      // newA = origA + T > 0 → T > -origA + 1
+      // newB = origB - T > 0 → T < origB - 1
+      mtTransferred = Math.max(-(mtOrigA - 1), Math.min(mtOrigB - 1, mtTransferred));
+    } else {
+      // newA = origA + T > 0 → T > -(origA - 1)
+      // newB = origB + T > 0 → T > -(origB - 1)
+      const minT = -(Math.min(mtOrigA, mtOrigB) - 1);
+      mtTransferred = Math.max(minT, mtTransferred);
+    }
+  }
+
+  /* Render bar and equations */
+  function mtRender(skipTransition) {
+    const newA = mtOrigA + mtTransferred;
+    const newB = mtOp === '+' ? mtOrigB - mtTransferred : mtOrigB + mtTransferred;
+
+    const absA = Math.max(0, newA);
+    const absB = Math.max(0, newB);
+    const sum  = absA + absB;
+    const barAPct = sum > 0 ? (absA / sum * 100) : 50;
+
+    const fillA  = document.getElementById('mt-fill-a');
+    const fillB  = document.getElementById('mt-fill-b');
+    const handle = document.getElementById('mt-handle');
+
+    const trans = skipTransition ? 'none' : '';
+    fillA.style.transition = trans;
+    fillB.style.transition = trans;
+
+    fillA.style.width = barAPct + '%';
+    fillB.style.width = (100 - barAPct) + '%';
+
+    const handlePct = Math.max(8, Math.min(92, barAPct));
+    handle.style.left = handlePct + '%';
+
+    // Labels on bar
+    document.getElementById('mt-label-a').textContent = mtFmt(newA);
+    document.getElementById('mt-label-b').textContent = mtFmt(newB);
+
+    // Original equation (muted, static)
+    const opDisplay = mtOp === '-' ? '−' : '+';
+    document.getElementById('mt-orig-eq').innerHTML =
+      '<span style="color:var(--muted)">' + mtFmt(mtOrigA) + ' ' + opDisplay + ' ' + mtFmt(mtOrigB) + '</span>';
+
+    // Live levelled equation
+    const colA = mtIsFriendly(newA) ? 'var(--teal-dark)' : 'var(--text)';
+    const colB = mtIsFriendly(newB) ? 'var(--teal-dark)' : 'var(--text)';
+    document.getElementById('mt-live-eq').innerHTML =
+      '<span style="color:' + colA + ';font-weight:700">' + mtFmt(newA) + '</span>' +
+      ' <span style="color:var(--muted)">' + opDisplay + '</span> ' +
+      '<span style="color:' + colB + ';font-weight:700">' + mtFmt(newB) + '</span>';
+
+    // Note
+    const note = document.getElementById('mt-note');
+    if (mtIsFriendly(newA) || mtIsFriendly(newB)) {
+      const which = mtIsFriendly(newA) ? mtFmt(newA) : mtFmt(newB);
+      note.textContent = '✨ ' + which + ' is a friendly number!';
+      note.style.color = 'var(--teal-dark)';
+    } else {
+      note.textContent = 'Drag the handle or use the step buttons to level the numbers.';
+      note.style.color = 'var(--muted)';
+    }
+  }
+
+  /* Step buttons */
+  function mtStep(dir) {
+    mtTransferred += dir;
+    mtClamp();
+    mtRender(false);
+  }
+
+  /* Auto-level: find the smaller transfer to create a friendly number */
+  function mtAutoLevel() {
+    const nearA = mtNearestFriendly(mtOrigA);
+    const nearB = mtNearestFriendly(mtOrigB);
+
+    let tA, tB;
+    if (mtOp === '+') {
+      tA = nearA - mtOrigA;       // makes A friendly; newB = origB - tA
+      tB = mtOrigB - nearB;       // makes B friendly; newA = origA + tB
+    } else {
+      tA = nearA - mtOrigA;       // makes A friendly; newB = origB + tA
+      tB = nearB - mtOrigB;       // makes B friendly; newA = origA + tB
+    }
+
+    mtTransferred = Math.abs(tA) <= Math.abs(tB) ? tA : tB;
+    mtClamp();
+    mtRender(false);
+  }
+
+  /* Reset */
+  function mtReset() {
+    mtTransferred = 0;
+    mtRender(false);
+  }
+
+  /* ── Mini tool drag initialisation (runs once on load) ── */
+  (function initMtDrag() {
+    const track    = document.getElementById('mt-track');
+    const dragPill = document.getElementById('mt-drag-pill');
+    const stepL    = document.getElementById('mt-step-l');
+    const stepR    = document.getElementById('mt-step-r');
+
+    // Step buttons, stop propagation so track mousedown doesn't fire
+    stepL.addEventListener('mousedown',  e => { e.stopPropagation(); mtStep(-1); });
+    stepR.addEventListener('mousedown',  e => { e.stopPropagation(); mtStep(1); });
+    stepL.addEventListener('touchstart', e => { e.stopPropagation(); e.preventDefault(); mtStep(-1); }, { passive: false });
+    stepR.addEventListener('touchstart', e => { e.stopPropagation(); e.preventDefault(); mtStep(1); },  { passive: false });
+
+    function clientX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+
+    function beginDrag(e) {
+      mtDragging    = true;
+      mtDragStartX  = clientX(e);
+      mtDragStartT  = mtTransferred;
+      e.preventDefault();
+    }
+
+    function onDrag(e) {
+      if (!mtDragging) return;
+      e.preventDefault();
+      const dx    = clientX(e) - mtDragStartX;
+      const rect  = track.getBoundingClientRect();
+      const total = Math.max(mtOrigA + mtOrigB, 10);
+      const pxPer = rect.width / total;
+      mtTransferred = Math.round(mtDragStartT + dx / pxPer);
+      mtClamp();
+      mtRender(true);
+    }
+
+    function endDrag() {
+      if (mtDragging) {
+        mtDragging = false;
+        mtRender(false); // re-enable transition for settle
+      }
+    }
+
+    // Track click-to-jump
+    track.addEventListener('mousedown', e => {
+      if (e.target === track ||
+          e.target === document.getElementById('mt-fill-a') ||
+          e.target === document.getElementById('mt-fill-b')) {
+        const rect     = track.getBoundingClientRect();
+        const pct      = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
+        const total    = Math.max(mtOrigA + mtOrigB, 10);
+        const targetA  = Math.round(pct / 100 * total);
+        mtTransferred  = targetA - mtOrigA;
+        mtClamp();
+        mtRender(true);
+      }
+      beginDrag(e);
+    });
+
+    dragPill.addEventListener('mousedown',  e => { e.stopPropagation(); beginDrag(e); });
+    track.addEventListener('touchstart',    beginDrag, { passive: false });
+    dragPill.addEventListener('touchstart', e => { e.stopPropagation(); beginDrag(e); }, { passive: false });
+
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup',   endDrag);
+    document.addEventListener('touchmove', onDrag,   { passive: false });
+    document.addEventListener('touchend',  endDrag);
+  })();
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+</script>
+</body>
+</html>

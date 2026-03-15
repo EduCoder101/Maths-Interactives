@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factor Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B59B6;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--orange); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    width: 100%; max-width: 720px;
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+    border-top: 5px solid var(--accent);
+  }
+  .learning-card h2 {
+    font-size: 1.1rem; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2014"; position: absolute; left: 0; }
+
+  /* ── PHASE NAV (inline) ── */
+  .phase-nav {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    justify-content: center; width: 100%; max-width: 720px;
+  }
+  .phase-btn {
+    padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0;
+    background: white; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s;
+  }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+  /* ── SECTION ── */
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── CARD ── */
+  .card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  /* ── LEVEL BUTTONS ── */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; }
+  .level-btn {
+    border: none; border-radius: 30px; padding: 8px 22px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: white;
+  }
+  .level-btn.l1 { background: var(--accent); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* ── TARGET NUMBER ── */
+  .target-display {
+    text-align: center; margin: 16px 0;
+  }
+  .target-label { font-size: 13px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 2px; }
+  .target-number {
+    font-family: 'Space Mono', monospace; font-size: clamp(48px, 10vw, 72px);
+    font-weight: 700; color: var(--text-dark); margin: 8px 0;
+  }
+  .target-status { font-size: 14px; color: var(--text-light); font-weight: 600; }
+
+  /* ── FACTOR PAIR INPUT ── */
+  .pair-input-area {
+    display: flex; align-items: center; gap: 10px;
+    justify-content: center; margin: 20px 0; flex-wrap: wrap;
+  }
+  .factor-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 12px 8px; width: 80px; outline: none;
+    transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc;
+  }
+  .factor-input:focus { border-color: var(--accent); }
+  .factor-input.correct { border-color: var(--green); background: var(--green-light); }
+  .factor-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .pair-x { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text-light); }
+  .pair-equals { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--accent-dark); }
+
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text-dark); color: white; }
+  .btn-dark:hover { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-small { padding: 8px 18px; font-size: 14px; }
+
+  /* ── FOUND PAIRS GRID ── */
+  .pairs-grid {
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0;
+    justify-content: center;
+  }
+  .pair-chip {
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+    background: #f0fdfb; border: 2px solid var(--accent);
+    border-radius: 12px; padding: 8px 16px; color: var(--text-dark);
+    animation: fadeIn 0.25s ease;
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    border-radius: 14px; padding: 14px 18px; margin-top: 12px;
+    display: none; font-size: 15px; line-height: 1.6; text-align: center;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback.info { background: #f0f4ff; border: 2px solid var(--blue); color: #1a3a5c; }
+
+  /* ── CLASSIFICATION ── */
+  .classify-area { text-align: center; margin-top: 20px; display: none; }
+  .classify-area.show { display: block; animation: fadeIn 0.3s ease; }
+  .classify-btns { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  .classify-btn {
+    border: 2px solid var(--border); border-radius: 14px; padding: 12px 24px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; background: white;
+  }
+  .classify-btn:hover { border-color: var(--accent); }
+  .classify-btn.selected { border-color: var(--accent); background: #e0f8f5; }
+  .classify-btn.correct-choice { border-color: var(--green); background: var(--green-light); }
+  .classify-btn.wrong-choice { border-color: var(--red); background: var(--red-light); }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  /* ── SUMMARY ── */
+  .summary-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px; text-align: center;
+    margin-top: 16px; display: none;
+  }
+  .summary-card.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ── STEP REVEAL ── */
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+  .reveal-btn {
+    background: var(--accent); color: white; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px;
+    transition: all 0.2s;
+  }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  /* ── RECTANGLE VIS ── */
+  .rect-grid {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 16px 0;
+  }
+  .rect-item { text-align: center; }
+  .rect-vis {
+    border: 2px solid var(--accent); border-radius: 8px;
+    background: #f0fdfb; display: flex; align-items: center;
+    justify-content: center; margin-bottom: 4px;
+  }
+  .rect-label {
+    font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+    color: var(--text-light);
+  }
+
+  /* ── GO DEEPER EXTENSION ── */
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--accent); max-width: 700px; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn { background: transparent; color: var(--accent-dark); border: 2px solid var(--accent); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-section { display: none; }
+  .go-deeper-section.visible { display: block; animation: fadeIn 0.35s ease; }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .card { padding: 20px 18px; }
+    .factor-input { width: 64px; font-size: 18px; }
+    .target-number { font-size: 48px; }
+    .go-deeper-card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Lesson 2: <span>Factor Finder</span></h1>
+  <p>Find all the factor pairs of a number systematically</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to find all the factor pairs of a whole number and use them to describe its structure.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can use the word product correctly to describe the result of a multiplication.</li>
+      <li>I can write a whole number as a product in at least two different ways.</li>
+      <li>I can find all the factor pairs of a given number systematically.</li>
+      <li>I can classify a number as prime, composite, or neither.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn" onclick="showSection('practice', this)">Practice</button>
+</div>
+
+<!-- ══════ LEARN SECTION ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>What are factor pairs?</h3>
+    <p>When two numbers multiply to give a product, they are called <strong>factors</strong> of that product. Together they form a <strong>factor pair</strong>.</p>
+
+    <div class="callout callout-teal" style="margin-top:16px;">
+      <div class="label">Example</div>
+      <p>The number <strong>12</strong> can be made from these factor pairs:</p>
+      <p style="font-family:'Space Mono',monospace;font-weight:700;margin-top:8px;">
+        1 x 12 = 12<br>
+        2 x 6 = 12<br>
+        3 x 4 = 12
+      </p>
+      <p style="margin-top:8px;">So the factors of 12 are: <strong>1, 2, 3, 4, 6, 12</strong>.</p>
+    </div>
+
+    <div class="rect-grid" style="margin-top:16px;">
+      <div class="rect-item">
+        <div class="rect-vis" style="width:180px;height:24px;"></div>
+        <div class="rect-label">1 x 12</div>
+      </div>
+      <div class="rect-item">
+        <div class="rect-vis" style="width:120px;height:40px;"></div>
+        <div class="rect-label">2 x 6</div>
+      </div>
+      <div class="rect-item">
+        <div class="rect-vis" style="width:90px;height:60px;"></div>
+        <div class="rect-label">3 x 4</div>
+      </div>
+    </div>
+    <p style="margin-top:8px; font-size:14px; color:var(--text-light);">Each rectangle uses exactly 12 tiles, just arranged differently.</p>
+  </div>
+
+  <div class="card">
+    <h3>The systematic method</h3>
+    <p>To find <strong>all</strong> factor pairs of a number, start at 1 and work upward.</p>
+
+    <div class="callout callout-amber">
+      <div class="label">Stopping Rule</div>
+      <p>Stop when the next number you would check has already appeared as the other half of a pair you found.</p>
+    </div>
+
+    <p style="margin-top:12px;"><strong>Finding all factor pairs of 24:</strong></p>
+
+    <div id="sys-demo" style="margin-top:12px;">
+      <div class="step-reveal shown" id="sys-1">
+        <p style="font-family:'Space Mono',monospace;font-weight:700;">1 x 24 = 24</p>
+        <p style="font-size:14px;color:var(--text-light);">Does 1 go into 24? Yes. Factor pair: 1 and 24.</p>
+      </div>
+      <div class="step-reveal" id="sys-2">
+        <p style="font-family:'Space Mono',monospace;font-weight:700;margin-top:8px;">2 x 12 = 24</p>
+        <p style="font-size:14px;color:var(--text-light);">Does 2 go into 24? Yes. Factor pair: 2 and 12.</p>
+      </div>
+      <div class="step-reveal" id="sys-3">
+        <p style="font-family:'Space Mono',monospace;font-weight:700;margin-top:8px;">3 x 8 = 24</p>
+        <p style="font-size:14px;color:var(--text-light);">Does 3 go into 24? Yes. Factor pair: 3 and 8.</p>
+      </div>
+      <div class="step-reveal" id="sys-4">
+        <p style="font-family:'Space Mono',monospace;font-weight:700;margin-top:8px;">4 x 6 = 24</p>
+        <p style="font-size:14px;color:var(--text-light);">Does 4 go into 24? Yes. Factor pair: 4 and 6.</p>
+      </div>
+      <div class="step-reveal" id="sys-5">
+        <p style="font-family:'Space Mono',monospace;font-weight:700;margin-top:8px;color:var(--text-light);">5 x ? = 24</p>
+        <p style="font-size:14px;color:var(--text-light);">Does 5 go into 24? No. Skip.</p>
+      </div>
+      <div class="step-reveal" id="sys-6">
+        <p style="font-family:'Space Mono',monospace;font-weight:700;margin-top:8px;color:var(--green);">6 x 4 = 24 &larr; STOP</p>
+        <p style="font-size:14px;color:var(--text-light);">6 has already appeared in the pair "4 and 6". We have found them all.</p>
+        <p style="margin-top:8px;"><strong>Factors of 24:</strong> 1, 2, 3, 4, 6, 8, 12, 24. That is 8 factors.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="sys-btn" onclick="revealSysDemo()">Reveal next step</button>
+  </div>
+
+  <div class="card">
+    <h3>Prime, composite, and neither</h3>
+    <p>A <strong>prime number</strong> has exactly two factors: 1 and itself. There is only one rectangle possible.</p>
+    <p style="margin-top:8px;">A <strong>composite number</strong> has more than two factors. Multiple rectangles are possible.</p>
+
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <div class="label">Special Cases</div>
+      <p><strong>0</strong> is neither prime nor composite (division by 0 is undefined).<br>
+      <strong>1</strong> is neither prime nor composite (it has only one factor, not two).<br>
+      <strong>2</strong> is the only even prime number.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PRACTICE SECTION ══════ -->
+<div id="practice" class="section">
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="setLevel(1)">Level 1 (to 30)</button>
+    <button class="level-btn l2" onclick="setLevel(2)">Level 2 (to 60)</button>
+    <button class="level-btn l3" onclick="setLevel(3)">Level 3 (to 100)</button>
+  </div>
+
+  <div class="card" id="practice-card">
+    <div class="target-display">
+      <div class="target-label">Find all factor pairs of</div>
+      <div class="target-number" id="target-number"></div>
+      <div class="target-status" id="target-status"></div>
+    </div>
+
+    <div class="pairs-grid" id="pairs-grid"></div>
+
+    <div class="pair-input-area">
+      <input type="text" class="factor-input" id="factor-a" inputmode="numeric" placeholder="?" autocomplete="off">
+      <span class="pair-x">x</span>
+      <input type="text" class="factor-input" id="factor-b" inputmode="numeric" placeholder="?" autocomplete="off">
+      <span class="pair-equals">= <span id="pair-target-echo"></span></span>
+      <button class="btn btn-primary btn-small" id="add-pair-btn" onclick="addPair()">Add Pair</button>
+    </div>
+
+    <div class="feedback" id="pair-feedback"></div>
+
+    <div style="text-align:center; margin-top:16px;">
+      <button class="btn btn-dark btn-small" id="check-complete-btn" onclick="checkComplete()">I found them all</button>
+    </div>
+
+    <!-- Classification -->
+    <div class="classify-area" id="classify-area">
+      <p style="font-size:16px;font-weight:600;">Now classify this number:</p>
+      <div class="classify-btns">
+        <button class="classify-btn" onclick="classify('prime', this)">Prime</button>
+        <button class="classify-btn" onclick="classify('composite', this)">Composite</button>
+        <button class="classify-btn" onclick="classify('neither', this)">Neither</button>
+      </div>
+      <div class="feedback" id="classify-feedback"></div>
+    </div>
+
+    <!-- Next button -->
+    <div style="text-align:center; margin-top:16px;">
+      <button class="btn btn-primary" id="next-number-btn" onclick="nextNumber()" style="display:none;">Next Number</button>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card" id="summary-card">
+    <h3>Round Complete</h3>
+    <p id="summary-text"></p>
+    <button class="btn btn-primary" onclick="startPractice()" style="margin-top:16px;">Play Again (New Numbers)</button>
+  </div>
+
+  <!-- GO DEEPER EXTENSION -->
+  <div class="go-deeper-section" id="go-deeper-section">
+    <div class="go-deeper-card">
+      <h2>Go Deeper</h2>
+      <p>Ready for a challenge? Explore the deeper patterns and logic behind factor pairs.</p>
+
+      <!-- Task 1: Specialising -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 1: Specialising</div>
+        <div class="ext-task-prompt">Find all the factor pairs of <span class="ext-numbers">36</span>. Now find all the factor pairs of <span class="ext-numbers">48</span>. Which number has more factor pairs? Can you find a number less than <span class="ext-numbers">50</span> that has even MORE factor pairs than either of these?</div>
+        <div class="ext-task-sub">Work out the factor pairs first, then think about which number wins.</div>
+        <textarea class="ext-thinking-area" id="task1-thinking" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="revealTask(1)">Show model response</button>
+        <div class="ext-model-response" id="task1-response">
+          <div class="model-label">One way to think about it</div>
+          <p>Let me find the factor pairs:</p>
+          <p><strong>Factor pairs of 36:</strong> <span class="ext-numbers">1 x 36, 2 x 18, 3 x 12, 4 x 9, 6 x 6</span></p>
+          <p>That means the factors are: 1, 2, 3, 4, 6, 9, 12, 18, 36. That is 9 factors altogether.</p>
+          <p><strong>Factor pairs of 48:</strong> <span class="ext-numbers">1 x 48, 2 x 24, 3 x 16, 4 x 12, 6 x 8</span></p>
+          <p>The factors are: 1, 2, 3, 4, 6, 8, 12, 16, 24, 48. That is 10 factors.</p>
+          <p>So <span class="ext-numbers">48</span> has MORE factor pairs than <span class="ext-numbers">36</span>.</p>
+          <p>Can we find a number less than 50 with more than 10 factors? Let me think about the highly composite numbers... <span class="ext-numbers">24</span> has 8 factors (1, 2, 3, 4, 6, 8, 12, 24). That is fewer than 48. <span class="ext-numbers">36</span> has 9 factors. Actually, <span class="ext-numbers">48</span> is already the number less than 50 with the most factors!</p>
+          <div class="mathematician-box">
+            <strong>The insight:</strong> Some numbers are "highly composite" because they have many small factors. The more times a number can be broken into smaller factors, the more factor pairs it has.
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 2: Conjecturing -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 2: Conjecuring</div>
+        <div class="ext-task-prompt">A classmate claims: "A number with more factor pairs is always a bigger number." Is this <strong>always</strong> true, <strong>sometimes</strong> true, or <strong>never</strong> true? Find examples to support your answer.</div>
+        <div class="ext-task-sub">Think about whether bigger numbers must have more factors.</div>
+        <textarea class="ext-thinking-area" id="task2-thinking" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="revealTask(2)">Show model response</button>
+        <div class="ext-model-response" id="task2-response">
+          <div class="model-label">One way to think about it</div>
+          <p>This is <strong>sometimes</strong> true, not always.</p>
+          <p>Let me test: <span class="ext-numbers">12</span> has factors 1, 2, 3, 4, 6, 12 (that is 6 factors). But <span class="ext-numbers">13</span> is bigger, and it only has 2 factors (1 and 13, since it is prime).</p>
+          <p>So <span class="ext-numbers">12</span> has MORE factor pairs than <span class="ext-numbers">13</span>, even though <span class="ext-numbers">12</span> is SMALLER.</p>
+          <p>However, sometimes a bigger number does have more factors. For example, <span class="ext-numbers">48</span> (10 factors) is bigger than <span class="ext-numbers">5</span> (2 factors).</p>
+          <div class="mathematician-box">
+            <strong>The insight:</strong> It depends on what the numbers are, not just their size. Prime numbers always have only 2 factors, no matter how big they are. Highly composite numbers can be smaller but still have many more factors.
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 3: Justifying -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 3: Justifying</div>
+        <div class="ext-task-prompt">A student claims: "Square numbers always have an odd number of factors." Is this true? Investigate by looking at the factor pairs of at least <span class="ext-numbers">3</span> square numbers and <span class="ext-numbers">3</span> non-square numbers.</div>
+        <div class="ext-task-sub">A square number is one that can be made by multiplying a number by itself (like 16 = 4 x 4).</div>
+        <textarea class="ext-thinking-area" id="task3-thinking" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="revealTask(3)">Show model response</button>
+        <div class="ext-model-response" id="task3-response">
+          <div class="model-label">One way to think about it</div>
+          <p><strong>Testing square numbers:</strong></p>
+          <p><span class="ext-numbers">4 = 2 x 2</span> &rarr; Factors: 1, 2, 4. That is 3 factors (odd) ✓</p>
+          <p><span class="ext-numbers">9 = 3 x 3</span> &rarr; Factors: 1, 3, 9. That is 3 factors (odd) ✓</p>
+          <p><span class="ext-numbers">25 = 5 x 5</span> &rarr; Factors: 1, 5, 25. That is 3 factors (odd) ✓</p>
+          <p><span class="ext-numbers">36 = 6 x 6</span> &rarr; Factors: 1, 2, 3, 4, 6, 9, 12, 18, 36. That is 9 factors (odd) ✓</p>
+          <p><strong>Testing non-square numbers:</strong></p>
+          <p><span class="ext-numbers">6</span> &rarr; Factors: 1, 2, 3, 6. That is 4 factors (even)</p>
+          <p><span class="ext-numbers">8</span> &rarr; Factors: 1, 2, 4, 8. That is 4 factors (even)</p>
+          <p><span class="ext-numbers">12</span> &rarr; Factors: 1, 2, 3, 4, 6, 12. That is 6 factors (even)</p>
+          <p><strong>The claim is ALWAYS true!</strong></p>
+          <div class="mathematician-box">
+            <strong>Why?</strong> In a square number, one factor pairs with itself. For example: <span class="ext-numbers">6 x 6 = 36</span>. All other factors come in pairs with different numbers. So we have pairs plus one "unpaired" factor in the middle, which makes the total odd. With non-square numbers, every factor pairs with a different number, so the total is always even.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+var currentLevel = 1;
+var currentTarget = 0;
+var allPairs = [];
+var foundPairs = [];
+var correctClassification = '';
+var problemsDone = 0;
+var problemsCorrect = 0;
+var totalProblems = 8;
+var classified = false;
+var allFound = false;
+
+// ── NAV ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'practice' && currentTarget === 0) startPractice();
+}
+
+function toggleLISC() {
+  var c = document.getElementById('liscContent');
+  var t = document.getElementById('liscToggle');
+  c.classList.toggle('open');
+  t.innerHTML = c.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── LEARN: SYSTEMATIC DEMO ──
+var sysStep = 1;
+function revealSysDemo() {
+  sysStep++;
+  if (sysStep <= 6) {
+    document.getElementById('sys-' + sysStep).classList.add('shown');
+  }
+  if (sysStep >= 6) {
+    document.getElementById('sys-btn').style.display = 'none';
+  }
+}
+
+// ── LEVEL ──
+function setLevel(lvl) {
+  currentLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i + 1 === lvl);
+  });
+  startPractice();
+}
+
+// ── FACTOR PAIR LOGIC ──
+function getFactorPairs(n) {
+  var pairs = [];
+  for (var i = 1; i <= n; i++) {
+    if (n % i === 0) {
+      var j = n / i;
+      if (i <= j) {
+        pairs.push([i, j]);
+      }
+    }
+  }
+  return pairs;
+}
+
+function getClassification(n) {
+  if (n <= 1) return 'neither';
+  var factors = 0;
+  for (var i = 1; i <= n; i++) {
+    if (n % i === 0) factors++;
+  }
+  return factors === 2 ? 'prime' : 'composite';
+}
+
+function generateTarget() {
+  var min, max;
+  if (currentLevel === 1) { min = 2; max = 30; }
+  else if (currentLevel === 2) { min = 2; max = 60; }
+  else { min = 2; max = 100; }
+
+  // Generate a number, mix of primes and composites
+  var n;
+  var tries = 0;
+  do {
+    n = Math.floor(Math.random() * (max - min + 1)) + min;
+    tries++;
+  } while (tries < 50 && n === currentTarget);
+
+  return n;
+}
+
+// ── PRACTICE ──
+function startPractice() {
+  problemsDone = 0;
+  problemsCorrect = 0;
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('practice-card').style.display = 'block';
+  nextNumber();
+}
+
+function nextNumber() {
+  if (problemsDone >= totalProblems) {
+    showSummary();
+    return;
+  }
+
+  currentTarget = generateTarget();
+  allPairs = getFactorPairs(currentTarget);
+  correctClassification = getClassification(currentTarget);
+  foundPairs = [];
+  classified = false;
+  allFound = false;
+
+  document.getElementById('target-number').textContent = currentTarget;
+  document.getElementById('pair-target-echo').textContent = currentTarget;
+  document.getElementById('target-status').textContent = 'Found 0 of ' + allPairs.length + ' factor pairs';
+  document.getElementById('pairs-grid').innerHTML = '';
+  document.getElementById('factor-a').value = '';
+  document.getElementById('factor-b').value = '';
+  document.getElementById('factor-a').disabled = false;
+  document.getElementById('factor-b').disabled = false;
+  document.getElementById('add-pair-btn').disabled = false;
+  document.getElementById('check-complete-btn').style.display = 'inline-block';
+  document.getElementById('pair-feedback').className = 'feedback';
+  document.getElementById('pair-feedback').textContent = '';
+  document.getElementById('classify-area').classList.remove('show');
+  document.getElementById('classify-feedback').className = 'feedback';
+  document.querySelectorAll('.classify-btn').forEach(function(b) {
+    b.classList.remove('selected', 'correct-choice', 'wrong-choice');
+    b.style.pointerEvents = '';
+  });
+  document.getElementById('next-number-btn').style.display = 'none';
+  document.getElementById('factor-a').focus();
+}
+
+function addPair() {
+  var aEl = document.getElementById('factor-a');
+  var bEl = document.getElementById('factor-b');
+  var a = parseInt(aEl.value, 10);
+  var b = parseInt(bEl.value, 10);
+
+  if (isNaN(a) || isNaN(b) || a <= 0 || b <= 0) {
+    showPairFeedback('Enter two positive numbers.', 'incorrect');
+    return;
+  }
+
+  // Normalise: smaller first
+  if (a > b) { var temp = a; a = b; b = temp; }
+
+  // Check if it's a valid factor pair
+  if (a * b !== currentTarget) {
+    showPairFeedback(a + ' x ' + b + ' = ' + (a * b) + ', not ' + currentTarget + '.', 'incorrect');
+    aEl.classList.add('incorrect');
+    bEl.classList.add('incorrect');
+    setTimeout(function() { aEl.classList.remove('incorrect'); bEl.classList.remove('incorrect'); }, 1000);
+    return;
+  }
+
+  // Check if already found
+  for (var i = 0; i < foundPairs.length; i++) {
+    if (foundPairs[i][0] === a && foundPairs[i][1] === b) {
+      showPairFeedback('You already found ' + a + ' x ' + b + '.', 'info');
+      return;
+    }
+  }
+
+  // Valid new pair
+  foundPairs.push([a, b]);
+  aEl.classList.add('correct');
+  bEl.classList.add('correct');
+  setTimeout(function() { aEl.classList.remove('correct'); bEl.classList.remove('correct'); }, 600);
+
+  // Add chip
+  var chip = document.createElement('div');
+  chip.className = 'pair-chip';
+  chip.textContent = a + ' x ' + b;
+  document.getElementById('pairs-grid').appendChild(chip);
+
+  document.getElementById('target-status').textContent = 'Found ' + foundPairs.length + ' of ' + allPairs.length + ' factor pairs';
+
+  showPairFeedback('Factor pair found.', 'correct');
+
+  aEl.value = '';
+  bEl.value = '';
+  aEl.focus();
+}
+
+function showPairFeedback(msg, type) {
+  var fb = document.getElementById('pair-feedback');
+  fb.className = 'feedback show ' + type;
+  fb.textContent = msg;
+}
+
+function checkComplete() {
+  if (foundPairs.length < allPairs.length) {
+    var missing = allPairs.length - foundPairs.length;
+    showPairFeedback('Not yet. You are missing ' + missing + ' factor pair' + (missing > 1 ? 's' : '') + '. Keep going.', 'incorrect');
+    return;
+  }
+
+  // All found
+  allFound = true;
+  showPairFeedback('You found all ' + allPairs.length + ' factor pairs.', 'correct');
+  document.getElementById('factor-a').disabled = true;
+  document.getElementById('factor-b').disabled = true;
+  document.getElementById('add-pair-btn').disabled = true;
+  document.getElementById('check-complete-btn').style.display = 'none';
+
+  // Show classification
+  document.getElementById('classify-area').classList.add('show');
+}
+
+function classify(choice, btn) {
+  if (classified) return;
+  classified = true;
+
+  var isCorrect = (choice === correctClassification);
+
+  document.querySelectorAll('.classify-btn').forEach(function(b) {
+    b.style.pointerEvents = 'none';
+  });
+  btn.classList.add(isCorrect ? 'correct-choice' : 'wrong-choice');
+
+  // Highlight correct
+  if (!isCorrect) {
+    document.querySelectorAll('.classify-btn').forEach(function(b) {
+      if (b.textContent.toLowerCase() === correctClassification) {
+        b.classList.add('correct-choice');
+      }
+    });
+  }
+
+  var fb = document.getElementById('classify-feedback');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    if (correctClassification === 'prime') {
+      fb.textContent = 'Correct. ' + currentTarget + ' has exactly two factors (1 and ' + currentTarget + '), so it is prime.';
+    } else if (correctClassification === 'composite') {
+      fb.textContent = 'Correct. ' + currentTarget + ' has ' + (allPairs.length * 2 - (allPairs[allPairs.length - 1][0] === allPairs[allPairs.length - 1][1] ? 1 : 0)) + ' factors, so it is composite.';
+    } else {
+      fb.textContent = 'Correct. ' + currentTarget + ' is neither prime nor composite.';
+    }
+    problemsCorrect++;
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.textContent = 'Not quite. ' + currentTarget + ' is ' + correctClassification + '. A prime number has exactly two factors. A composite number has more than two.';
+  }
+
+  problemsDone++;
+  document.getElementById('next-number-btn').style.display = 'inline-block';
+}
+
+function showSummary() {
+  document.getElementById('practice-card').style.display = 'none';
+  var card = document.getElementById('summary-card');
+  card.classList.add('show');
+  document.getElementById('summary-text').textContent =
+    'You correctly classified ' + problemsCorrect + ' out of ' + totalProblems + ' numbers.';
+  checkGoDeepersUnlock();
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var fa = document.getElementById('factor-a');
+    var fb = document.getElementById('factor-b');
+    if ((document.activeElement === fa || document.activeElement === fb) && !fa.disabled) {
+      addPair();
+    }
+  }
+});
+
+// Tab from first input to second
+document.getElementById('factor-a').addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    document.getElementById('factor-b').focus();
+  }
+});
+
+// ── GO DEEPER ──
+function revealTask(taskNum) {
+  var responseEl = document.getElementById('task' + taskNum + '-response');
+  responseEl.classList.toggle('visible');
+}
+
+function unlockGoDeeper() {
+  var section = document.getElementById('go-deeper-section');
+  section.classList.add('visible');
+  // Scroll to the section
+  setTimeout(function() {
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+function checkGoDeepersUnlock() {
+  // Unlock Go Deeper when Level 3 is completed
+  if (currentLevel === 3 && problemsDone >= totalProblems) {
+    unlockGoDeeper();
+  }
+}
+</script>
+</body>
+</html>

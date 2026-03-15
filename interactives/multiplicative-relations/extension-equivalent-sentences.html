@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equivalent Number Sentences</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B5DE5;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--orange); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+  .header .ext-badge { display: inline-block; background: var(--purple); color: white; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    width: 100%; max-width: 720px;
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+    border-top: 5px solid var(--accent);
+  }
+  .learning-card h2 {
+    font-size: 1.1rem; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* ── PHASE NAV ── */
+  .phase-nav {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    justify-content: center; width: 100%; max-width: 720px;
+  }
+  .phase-btn {
+    padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0;
+    background: white; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s;
+  }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+  /* ── SECTION ── */
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── CARD ── */
+  .card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  /* ── STEP REVEAL ── */
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+  .reveal-btn {
+    background: var(--accent); color: white; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px;
+    transition: all 0.2s;
+  }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  /* ── LEVEL BUTTONS ── */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn {
+    border: none; border-radius: 30px; padding: 8px 22px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: white;
+  }
+  .level-btn.l1 { background: var(--accent); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* ── QUESTION AREA ── */
+  .q-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border); display: none;
+  }
+  .q-card.active { display: block; animation: fadeIn 0.35s ease; }
+  .q-number {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── INPUTS ── */
+  .div-input-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 16px;
+  }
+  .div-label { font-size: 15px; font-weight: 600; color: var(--text-light); }
+  .div-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 12px 8px; width: 90px; outline: none;
+    transition: border-color 0.3s ease; color: var(--text-dark); background: #fafbfc;
+  }
+  .div-input:focus { border-color: var(--accent); }
+  .div-input.correct { border-color: var(--green); background: var(--green-light); }
+  .div-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .div-input:disabled { opacity: 0.7; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text-dark); color: white; }
+  .btn-dark:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    border-radius: 14px; padding: 14px 18px; margin-top: 12px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+
+  /* ── PROGRESS ── */
+  .progress-area { width: 100%; max-width: 720px; margin-bottom: 16px; display: none; }
+  .progress-area.show { display: block; }
+  .progress-label { font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-align: center; }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  /* ── SUMMARY ── */
+  .summary-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; text-align: center;
+    margin-top: 16px; display: none; width: 100%; max-width: 720px;
+  }
+  .summary-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700; margin: 12px 0; }
+  .summary-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .result-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border); font-size: 14px; text-align: left;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+
+  /* ── GO DEEPER ── */
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--accent); max-width: 720px; width: 100%; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn { background: transparent; color: var(--accent-dark); border: 2px solid var(--accent); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-section { display: none; }
+  .go-deeper-section.visible { display: block; animation: fadeIn 0.35s ease; }
+
+  /* ── SENTENCE DISPLAY ── */
+  .sentence-display {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    justify-content: center; font-size: 22px; font-weight: 700;
+    margin-bottom: 20px; line-height: 1.8;
+  }
+  .sentence-display .mono { font-size: 22px; }
+  .sentence-display .blank-slot {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 80px; border-bottom: 4px solid var(--accent);
+    padding: 4px 8px; margin: 0 4px;
+  }
+
+  /* ── RADIO OPTIONS ── */
+  .options-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
+  .option-btn {
+    padding: 10px 20px; border: 3px solid var(--border); border-radius: 14px;
+    background: white; font-family: 'Space Mono', monospace; font-size: 18px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s; min-width: 70px;
+    text-align: center;
+  }
+  .option-btn:hover { border-color: var(--accent); }
+  .option-btn.selected { border-color: var(--accent); background: #e8f8f6; }
+  .option-btn.correct-pick { border-color: var(--green); background: var(--green-light); }
+  .option-btn.incorrect-pick { border-color: var(--red); background: var(--red-light); }
+  .option-btn:disabled { cursor: default; opacity: 0.7; }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .card, .q-card, .learning-card { padding: 20px 18px; }
+    .div-input { width: 72px; font-size: 18px; }
+    .go-deeper-card { padding: 20px 18px; }
+    .sentence-display { font-size: 18px; }
+    .option-btn { font-size: 16px; min-width: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ext-badge">Year 6 Extension</div>
+  <h1>Equivalent Number <span>Sentences</span></h1>
+  <p>Use inverse operations to find unknowns and write equivalent facts</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to construct and solve equivalent number sentences using the relationship between multiplication and division.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can find a missing number in a multiplication or division sentence.</li>
+      <li>I can write an equivalent division sentence for a given multiplication fact, and vice versa.</li>
+      <li>I can explain why multiplication and division are inverse operations.</li>
+      <li>I can decide whether a number sentence is true or false and correct it.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn" onclick="showSection('practice', this)">Practice</button>
+</div>
+
+<!-- ══════ LEARN SECTION ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>Fact families</h3>
+    <p>Every multiplication fact has a family of related facts. If you know one, you can write all the others.</p>
+    <div class="callout callout-teal" style="margin-top:16px;">
+      <div class="label">Example: the <strong>7</strong>, <strong>8</strong>, <strong>56</strong> family</div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:10px;">
+        <p><strong>7 x 8 = 56</strong></p>
+        <p><strong>8 x 7 = 56</strong></p>
+        <p><strong>56 &#247; 7 = 8</strong></p>
+        <p><strong>56 &#247; 8 = 7</strong></p>
+      </div>
+      <p style="margin-top:12px;">These four sentences all use the same three numbers. They are <strong>equivalent</strong> because they express the same relationship.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Using inverses to find unknowns</h3>
+    <p>When a number sentence has a missing value, you can use the inverse operation to find it.</p>
+
+    <div id="inv-demo">
+      <div class="step-reveal shown" id="inv-1">
+        <p style="margin-top:12px;"><strong>Example: find the missing number in _ x 6 = 54</strong></p>
+        <p style="margin-top:4px;">Multiplication and division are inverses. To undo "x 6", we divide by <strong>6</strong>.</p>
+      </div>
+      <div class="step-reveal" id="inv-2">
+        <p style="margin-top:12px;">Rewrite using the inverse: <strong>54 &#247; 6 = ?</strong></p>
+      </div>
+      <div class="step-reveal" id="inv-3">
+        <p style="margin-top:12px;"><strong>54 &#247; 6 = 9</strong>. So the missing number is <strong>9</strong>.</p>
+        <p style="margin-top:4px;">Check: <strong>9 x 6 = 54</strong>. Correct.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="inv-btn" onclick="revealInvDemo()">Reveal next step</button>
+
+    <div class="callout callout-amber" style="margin-top:20px;">
+      <div class="label">Remember</div>
+      <p>The inverse of multiplication is division. The inverse of division is multiplication. You can always check your answer by substituting it back into the original sentence.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PRACTICE SECTION ══════ -->
+<div id="practice" class="section">
+  <div class="level-bar">
+    <button class="level-btn l1 active" onclick="startLevel(1)">Level 1</button>
+    <button class="level-btn l2" onclick="startLevel(2)">Level 2</button>
+    <button class="level-btn l3" onclick="startLevel(3)">Level 3</button>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Inverse Investigations</h3>
+    <p>Complete Level 3 to unlock</p>
+  </button>
+
+  <div class="progress-area" id="progress-area">
+    <div class="progress-label" id="progress-label">Question 1 of 6</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="question-area"></div>
+
+  <div class="summary-card" id="summary-card">
+    <div class="summary-label">Your Score</div>
+    <div class="summary-score" id="summary-score"></div>
+    <div class="summary-label" id="summary-message"></div>
+    <div id="summary-breakdown" style="text-align:left;margin-top:24px;"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="retryLevel()">Try Again</button>
+      <button class="btn btn-dark" id="next-level-btn" style="display:none;" onclick="goNextLevel()">Next Level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ GO DEEPER SECTION ══════ -->
+<div class="go-deeper-section" id="go-deeper-section">
+  <div class="go-deeper-card">
+    <h2>&#x1F513; Go Deeper: Inverse Investigations</h2>
+    <p>These tasks push your thinking beyond finding single answers. You will explore families of facts, make conjectures, and reason about structure.</p>
+
+    <!-- TASK 1: SPECIALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising</div>
+      <div class="ext-task-prompt">
+        Pick any product, for example <span class="ext-numbers">60</span>. Write down every multiplication fact that gives <span class="ext-numbers">60</span> (using whole numbers only). Then write the matching division facts for each one. How many equivalent sentences can you find?
+      </div>
+      <div class="ext-task-sub">Try to be systematic. How will you make sure you have found them all?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>I listed the factor pairs of <span class="ext-numbers">60</span> systematically, starting from <span class="ext-numbers">1</span>:</p>
+        <p><span class="ext-numbers">1</span> x <span class="ext-numbers">60</span>, <span class="ext-numbers">2</span> x <span class="ext-numbers">30</span>, <span class="ext-numbers">3</span> x <span class="ext-numbers">20</span>, <span class="ext-numbers">4</span> x <span class="ext-numbers">15</span>, <span class="ext-numbers">5</span> x <span class="ext-numbers">12</span>, <span class="ext-numbers">6</span> x <span class="ext-numbers">10</span>.</p>
+        <p>Each factor pair gives <span class="ext-numbers">4</span> equivalent sentences (two multiplications, two divisions). That is <span class="ext-numbers">6</span> pairs x <span class="ext-numbers">4</span> = <span class="ext-numbers">24</span> equivalent sentences in total. I stopped looking for new pairs when the smaller factor exceeded the square root of <span class="ext-numbers">60</span> (about <span class="ext-numbers">7.7</span>), because after that I would just be repeating pairs in reverse.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are working with a specific example to gather evidence and spot patterns.
+      </div>
+    </div>
+
+    <!-- TASK 2: CONJECTURING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecturing</div>
+      <div class="ext-task-prompt">
+        Compare the number of equivalent sentences for <span class="ext-numbers">60</span> with the number for <span class="ext-numbers">36</span> and <span class="ext-numbers">17</span>. Make a conjecture: what determines how many equivalent sentences a number has? Does it depend on whether the number is prime or composite?
+      </div>
+      <div class="ext-task-sub">Think about what makes some numbers have more factor pairs than others.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p><span class="ext-numbers">36</span> has factor pairs: <span class="ext-numbers">1</span> x <span class="ext-numbers">36</span>, <span class="ext-numbers">2</span> x <span class="ext-numbers">18</span>, <span class="ext-numbers">3</span> x <span class="ext-numbers">12</span>, <span class="ext-numbers">4</span> x <span class="ext-numbers">9</span>, <span class="ext-numbers">6</span> x <span class="ext-numbers">6</span>. That is <span class="ext-numbers">5</span> pairs, giving <span class="ext-numbers">20</span> sentences (though the <span class="ext-numbers">6</span> x <span class="ext-numbers">6</span> pair only gives <span class="ext-numbers">2</span> unique sentences since both factors are the same).</p>
+        <p><span class="ext-numbers">17</span> is prime: its only pair is <span class="ext-numbers">1</span> x <span class="ext-numbers">17</span>. Just <span class="ext-numbers">4</span> sentences.</p>
+        <p>My conjecture: the more factors a number has, the more equivalent sentences it produces. Composite numbers with many factors (like <span class="ext-numbers">60</span>) have far more than prime numbers.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim you believe is true, based on evidence, but it still needs to be tested further.
+      </div>
+    </div>
+
+    <!-- TASK 3: GENERALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Generalising</div>
+      <div class="ext-task-prompt">
+        Write a general rule: if a number has <em>n</em> factor pairs, how many equivalent multiplication and division sentences can you write? Explain why your rule works. Does it change when both factors are the same (like <span class="ext-numbers">6</span> x <span class="ext-numbers">6</span> = <span class="ext-numbers">36</span>)?
+      </div>
+      <div class="ext-task-sub">Try to explain your rule in words that a younger student could understand.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>General rule: each factor pair where the two factors are different gives <span class="ext-numbers">4</span> equivalent sentences (two multiplications, two divisions). A factor pair where both factors are the same (a square root pair) gives only <span class="ext-numbers">2</span> unique sentences.</p>
+        <p>This works because swapping the order of multiplication gives a different sentence (<span class="ext-numbers">7</span> x <span class="ext-numbers">8</span> versus <span class="ext-numbers">8</span> x <span class="ext-numbers">7</span>), and each multiplication has a matching division. But when both factors are identical, swapping changes nothing, so you get fewer unique sentences.</p>
+        <p>For a younger student: "Every way you can split a number into two groups gives you a little family of four facts. But if both groups are the same size, the family only has two."</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means you are writing a rule that works for every number, not just the ones you tested.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── QUESTION POOLS ──
+
+// L1: Find the missing number (single input)
+var pool1 = [
+  {sentence:'<span class="mono">7</span> x ? = <span class="mono">56</span>', answer:8, display:'7 x _ = 56'},
+  {sentence:'? x <span class="mono">6</span> = <span class="mono">54</span>', answer:9, display:'_ x 6 = 54'},
+  {sentence:'<span class="mono">48</span> &#247; ? = <span class="mono">8</span>', answer:6, display:'48 / _ = 8'},
+  {sentence:'? &#247; <span class="mono">7</span> = <span class="mono">9</span>', answer:63, display:'_ / 7 = 9'},
+  {sentence:'<span class="mono">5</span> x ? = <span class="mono">45</span>', answer:9, display:'5 x _ = 45'},
+  {sentence:'? x <span class="mono">8</span> = <span class="mono">72</span>', answer:9, display:'_ x 8 = 72'},
+  {sentence:'<span class="mono">63</span> &#247; ? = <span class="mono">7</span>', answer:9, display:'63 / _ = 7'},
+  {sentence:'? &#247; <span class="mono">4</span> = <span class="mono">12</span>', answer:48, display:'_ / 4 = 12'},
+  {sentence:'<span class="mono">6</span> x ? = <span class="mono">42</span>', answer:7, display:'6 x _ = 42'},
+  {sentence:'? x <span class="mono">3</span> = <span class="mono">27</span>', answer:9, display:'_ x 3 = 27'},
+  {sentence:'<span class="mono">56</span> &#247; ? = <span class="mono">8</span>', answer:7, display:'56 / _ = 8'},
+  {sentence:'? &#247; <span class="mono">5</span> = <span class="mono">11</span>', answer:55, display:'_ / 5 = 11'},
+  {sentence:'<span class="mono">9</span> x ? = <span class="mono">108</span>', answer:12, display:'9 x _ = 108'},
+  {sentence:'? x <span class="mono">7</span> = <span class="mono">84</span>', answer:12, display:'_ x 7 = 84'},
+  {sentence:'<span class="mono">96</span> &#247; ? = <span class="mono">8</span>', answer:12, display:'96 / _ = 8'}
+];
+
+// L2: Write the inverse (given a x b = c, write c / a and c / b)
+var pool2 = [
+  {fact:'<span class="mono">8</span> x <span class="mono">7</span> = <span class="mono">56</span>', product:56, a:8, b:7, div1:7, div2:8, display:'8 x 7 = 56'},
+  {fact:'<span class="mono">9</span> x <span class="mono">6</span> = <span class="mono">54</span>', product:54, a:9, b:6, div1:6, div2:9, display:'9 x 6 = 54'},
+  {fact:'<span class="mono">12</span> x <span class="mono">5</span> = <span class="mono">60</span>', product:60, a:12, b:5, div1:5, div2:12, display:'12 x 5 = 60'},
+  {fact:'<span class="mono">4</span> x <span class="mono">15</span> = <span class="mono">60</span>', product:60, a:4, b:15, div1:15, div2:4, display:'4 x 15 = 60'},
+  {fact:'<span class="mono">7</span> x <span class="mono">13</span> = <span class="mono">91</span>', product:91, a:7, b:13, div1:13, div2:7, display:'7 x 13 = 91'},
+  {fact:'<span class="mono">3</span> x <span class="mono">24</span> = <span class="mono">72</span>', product:72, a:3, b:24, div1:24, div2:3, display:'3 x 24 = 72'},
+  {fact:'<span class="mono">6</span> x <span class="mono">14</span> = <span class="mono">84</span>', product:84, a:6, b:14, div1:14, div2:6, display:'6 x 14 = 84'},
+  {fact:'<span class="mono">8</span> x <span class="mono">12</span> = <span class="mono">96</span>', product:96, a:8, b:12, div1:12, div2:8, display:'8 x 12 = 96'},
+  {fact:'<span class="mono">5</span> x <span class="mono">17</span> = <span class="mono">85</span>', product:85, a:5, b:17, div1:17, div2:5, display:'5 x 17 = 85'},
+  {fact:'<span class="mono">9</span> x <span class="mono">11</span> = <span class="mono">99</span>', product:99, a:9, b:11, div1:11, div2:9, display:'9 x 11 = 99'},
+  {fact:'<span class="mono">4</span> x <span class="mono">23</span> = <span class="mono">92</span>', product:92, a:4, b:23, div1:23, div2:4, display:'4 x 23 = 92'},
+  {fact:'<span class="mono">7</span> x <span class="mono">16</span> = <span class="mono">112</span>', product:112, a:7, b:16, div1:16, div2:7, display:'7 x 16 = 112'}
+];
+
+// L3: Balancing equations - structural reasoning about multiplication
+var pool3 = [
+  // Type 1: Factor/product reasoning (halving/doubling)
+  {sentence:'<span class="mono">7</span> x <span class="mono">12</span> = <span class="blank-slot">?</span> x <span class="mono">6</span>', answer:14, display:'7 x 12 = ___ x 6'},
+  {sentence:'<span class="mono">24</span> x <span class="mono">5</span> = <span class="mono">12</span> x <span class="blank-slot">?</span>', answer:10, display:'24 x 5 = 12 x ___'},
+  {sentence:'<span class="mono">8</span> x <span class="mono">15</span> = <span class="mono">4</span> x <span class="blank-slot">?</span>', answer:30, display:'8 x 15 = 4 x ___'},
+  {sentence:'<span class="mono">36</span> x <span class="mono">5</span> = <span class="mono">9</span> x <span class="blank-slot">?</span>', answer:20, display:'36 x 5 = 9 x ___'},
+  {sentence:'<span class="mono">6</span> x <span class="mono">14</span> = <span class="mono">3</span> x <span class="blank-slot">?</span>', answer:28, display:'6 x 14 = 3 x ___'},
+  // Type 2: Inverse chain reasoning
+  {sentence:'If <span class="mono">384</span> &#247; <span class="mono">16</span> = <span class="mono">24</span>, then <span class="mono">24</span> x <span class="blank-slot">?</span> = <span class="mono">384</span>', answer:16, display:'If 384 ÷ 16 = 24, then 24 x ___ = 384'},
+  {sentence:'If <span class="mono">17</span> x <span class="mono">23</span> = <span class="mono">391</span>, then <span class="mono">391</span> &#247; <span class="blank-slot">?</span> = <span class="mono">17</span>', answer:23, display:'If 17 x 23 = 391, then 391 ÷ ___ = 17'},
+  {sentence:'If <span class="mono">18</span> x <span class="mono">19</span> = <span class="mono">342</span>, then <span class="mono">342</span> &#247; <span class="blank-slot">?</span> = <span class="mono">18</span>', answer:19, display:'If 18 x 19 = 342, then 342 ÷ ___ = 18'},
+  {sentence:'If <span class="mono">25</span> x <span class="mono">16</span> = <span class="mono">400</span>, then <span class="mono">400</span> &#247; <span class="blank-slot">?</span> = <span class="mono">25</span>', answer:16, display:'If 25 x 16 = 400, then 400 ÷ ___ = 25'},
+  {sentence:'If <span class="mono">21</span> x <span class="mono">12</span> = <span class="mono">252</span>, then <span class="mono">252</span> &#247; <span class="blank-slot">?</span> = <span class="mono">21</span>', answer:12, display:'If 21 x 12 = 252, then 252 ÷ ___ = 21'},
+  // Type 3: Multi-factor chains
+  {sentence:'<span class="mono">12</span> x <span class="mono">20</span> = <span class="mono">6</span> x <span class="blank-slot">?</span>', answer:40, display:'12 x 20 = 6 x ___'},
+  {sentence:'<span class="mono">5</span> x <span class="mono">28</span> = <span class="mono">10</span> x <span class="blank-slot">?</span>', answer:14, display:'5 x 28 = 10 x ___'},
+  {sentence:'<span class="mono">15</span> x <span class="mono">16</span> = <span class="mono">3</span> x <span class="blank-slot">?</span>', answer:80, display:'15 x 16 = 3 x ___'},
+  {sentence:'<span class="mono">9</span> x <span class="mono">20</span> = <span class="mono">6</span> x <span class="blank-slot">?</span>', answer:30, display:'9 x 20 = 6 x ___'},
+  {sentence:'<span class="mono">14</span> x <span class="mono">10</span> = <span class="mono">7</span> x <span class="blank-slot">?</span>', answer:20, display:'14 x 10 = 7 x ___'}
+];
+
+// ── STATE ──
+var currentLevel = 1;
+var currentQ = 0;
+var questions = [];
+var answers = [];
+var invDemoStep = 1;
+var selectedOption = null;
+
+// ── UTILITY ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── LEARN SECTION: STEP REVEAL ──
+function revealInvDemo() {
+  invDemoStep++;
+  var el = document.getElementById('inv-' + invDemoStep);
+  if (el) el.classList.add('shown');
+  if (invDemoStep >= 3) {
+    document.getElementById('inv-btn').style.display = 'none';
+  }
+}
+
+// ── NAVIGATION ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// ── START LEVEL ──
+function startLevel(n) {
+  currentLevel = n;
+  currentQ = 0;
+  answers = [];
+  selectedOption = null;
+
+  document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+
+  if (n === 1) questions = shuffle(pool1).slice(0, 6);
+  else if (n === 2) questions = shuffle(pool2).slice(0, 6);
+  else questions = shuffle(pool3).slice(0, 6);
+
+  document.getElementById('progress-area').classList.add('show');
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('go-deeper-section').classList.remove('visible');
+
+  buildQuestion();
+}
+
+// ── BUILD QUESTION ──
+function buildQuestion() {
+  var area = document.getElementById('question-area');
+  var q = questions[currentQ];
+
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+
+  var html = '<div class="q-card active">';
+  html += '<div class="q-number">Question ' + (currentQ + 1) + ' of ' + questions.length + '</div>';
+
+  if (currentLevel === 1) {
+    html += '<div class="q-stem">Find the missing number:</div>';
+    html += '<div class="sentence-display">' + q.sentence.replace('?', '<span class="blank-slot">?</span>') + '</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Missing number</div>';
+    html += '<input type="text" class="div-input" id="inp-ans" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  } else if (currentLevel === 2) {
+    html += '<div class="q-stem">Write the two division facts for this multiplication:</div>';
+    html += '<div class="sentence-display">' + q.fact + '</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label"><span class="mono">' + q.product + '</span> &#247; <span class="mono">' + q.a + '</span> =</div>';
+    html += '<input type="text" class="div-input" id="inp-div1" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label"><span class="mono">' + q.product + '</span> &#247; <span class="mono">' + q.b + '</span> =</div>';
+    html += '<input type="text" class="div-input" id="inp-div2" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  } else {
+    html += '<div class="q-stem">Find the missing number to balance the equation:</div>';
+    html += '<div class="sentence-display">' + q.sentence + '</div>';
+    html += '<div class="div-input-row">';
+    html += '<div class="div-label">Missing number</div>';
+    html += '<input type="text" class="div-input" id="inp-ans" inputmode="numeric" placeholder="?" autocomplete="off">';
+    html += '</div>';
+  }
+
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Check Answer</button>';
+  html += '</div>';
+  html += '<div class="feedback" id="feedback"></div>';
+  html += '<div style="text-align:center;">';
+  html += '<button class="btn btn-dark" id="next-btn" style="display:none;margin-top:12px;" onclick="nextQuestion()">Next Question</button>';
+  html += '</div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+  selectedOption = null;
+
+  if (currentLevel === 1 || currentLevel === 3) {
+    var inp = document.getElementById('inp-ans');
+    if (inp) setTimeout(function() { inp.focus(); }, 100);
+  } else if (currentLevel === 2) {
+    var inp = document.getElementById('inp-div1');
+    if (inp) setTimeout(function() { inp.focus(); }, 100);
+  }
+}
+
+function selectOption(btn, value) {
+  document.querySelectorAll('.option-btn').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedOption = value;
+  // Show correction input if they chose 'false' and the question is actually false
+  var q = questions[currentQ];
+  var corrRow = document.getElementById('correction-row');
+  if (corrRow) {
+    corrRow.style.display = (value === 'false') ? 'block' : 'none';
+  }
+}
+
+// ── CHECK ANSWER ──
+function checkAnswer() {
+  if (answers[currentQ] !== undefined) return;
+  var q = questions[currentQ];
+  var fb = document.getElementById('feedback');
+  var isCorrect = false;
+
+  if (currentLevel === 1) {
+    var inp = document.getElementById('inp-ans');
+    var raw = inp.value.replace(/,/g, '').trim();
+    if (raw === '' || isNaN(Number(raw))) { inp.style.borderColor = 'var(--red)'; return; }
+    var student = parseInt(raw, 10);
+    isCorrect = (student === q.answer);
+    inp.disabled = true;
+    inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> The missing number is <span class="mono">' + q.answer + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + student + '</span>. The missing number is <span class="mono">' + q.answer + '</span>. Use the inverse operation to check.';
+    }
+  } else if (currentLevel === 2) {
+    var inp1 = document.getElementById('inp-div1');
+    var inp2 = document.getElementById('inp-div2');
+    var raw1 = inp1.value.replace(/,/g, '').trim();
+    var raw2 = inp2.value.replace(/,/g, '').trim();
+    if (raw1 === '' || isNaN(Number(raw1))) { inp1.style.borderColor = 'var(--red)'; return; }
+    if (raw2 === '' || isNaN(Number(raw2))) { inp2.style.borderColor = 'var(--red)'; return; }
+    var s1 = parseInt(raw1, 10);
+    var s2 = parseInt(raw2, 10);
+    var c1 = (s1 === q.div1);
+    var c2 = (s2 === q.div2);
+    inp1.disabled = true; inp2.disabled = true;
+    inp1.classList.add(c1 ? 'correct' : 'incorrect');
+    inp2.classList.add(c2 ? 'correct' : 'incorrect');
+    isCorrect = c1 && c2;
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> <span class="mono">' + q.product + ' &#247; ' + q.a + ' = ' + q.div1 + '</span> and <span class="mono">' + q.product + ' &#247; ' + q.b + ' = ' + q.div2 + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      var msg = '<strong>Not quite.</strong> ';
+      if (!c1) msg += '<span class="mono">' + q.product + ' &#247; ' + q.a + ' = ' + q.div1 + '</span>, not <span class="mono">' + s1 + '</span>. ';
+      if (!c2) msg += '<span class="mono">' + q.product + ' &#247; ' + q.b + ' = ' + q.div2 + '</span>, not <span class="mono">' + s2 + '</span>. ';
+      fb.innerHTML = msg;
+    }
+  } else {
+    // Level 3: Balancing equations
+    var inp = document.getElementById('inp-ans');
+    var raw = inp.value.replace(/,/g, '').trim();
+    if (raw === '' || isNaN(Number(raw))) { inp.style.borderColor = 'var(--red)'; return; }
+    var student = parseInt(raw, 10);
+    isCorrect = (student === q.answer);
+    inp.disabled = true;
+    inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    if (isCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct.</strong> Both sides balance: the missing number is <span class="mono">' + q.answer + '</span>.';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + student + '</span>. The missing number is <span class="mono">' + q.answer + '</span>. Work out each side to check.';
+    }
+  }
+
+  answers[currentQ] = { correct: isCorrect };
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+// ── NEXT QUESTION ──
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showSummary(); return; }
+  buildQuestion();
+}
+
+// ── SUMMARY ──
+function showSummary() {
+  document.getElementById('question-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 5) msg = 'Excellent understanding of equivalent sentences.';
+  else if (correct >= 3) msg = 'Good progress. Review the ones you missed.';
+  else msg = 'Keep practising. Go back to the Learn section if you need to.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var breakdown = '<h3 style="font-size:16px;margin-bottom:12px;">Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    var label = q.display || '';
+    breakdown += '<div class="result-row">';
+    breakdown += '<div class="result-icon ' + icon + '">' + symbol + '</div>';
+    breakdown += '<span>' + label + '</span>';
+    breakdown += '</div>';
+  });
+  document.getElementById('summary-breakdown').innerHTML = breakdown;
+
+  var nextBtn = document.getElementById('next-level-btn');
+  if (currentLevel < 3 && correct >= 4) { nextBtn.style.display = 'inline-block'; }
+  else { nextBtn.style.display = 'none'; }
+
+  if (currentLevel === 3 && correct >= 4) { unlockGoDeeper(); }
+
+  document.getElementById('summary-card').classList.add('show');
+}
+
+function retryLevel() { startLevel(currentLevel); }
+function goNextLevel() { startLevel(currentLevel + 1); }
+
+// ── GO DEEPER ──
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card) {
+    card.classList.remove('locked');
+    card.disabled = false;
+    card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+    card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  }
+}
+
+function openGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (card.classList.contains('locked')) return;
+  document.getElementById('go-deeper-section').classList.add('visible');
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var checkBtn = document.getElementById('check-btn');
+    var nextBtn = document.getElementById('next-btn');
+    if (nextBtn && nextBtn.style.display !== 'none') {
+      nextQuestion();
+    } else if (checkBtn && checkBtn.style.display !== 'none') {
+      checkAnswer();
+    }
+  }
+});
+
+// ── INIT ──
+startLevel(1);
+</script>
+</body>
+</html>

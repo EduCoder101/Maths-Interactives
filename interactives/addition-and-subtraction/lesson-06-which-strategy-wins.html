@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 6: Which Strategy Wins?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --green: #2ecc71;
+    --green-dark: #27ae60;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --purple: #9B59B6;
+    --mental-col: #2ecc71;
+    --written-col: #3a7bd5;
+    --calc-col: #FF8400;
+    --cream: #FFF8F0;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: #2D3436; color: #fff;
+    padding: 36px 48px 28px; position: relative; overflow: hidden;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,217,61,0.15) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  header h1 { font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.15; margin-bottom: 10px; }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 700px; font-weight: 500; }
+  .header-icon { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.10; }
+
+  .phase-nav { display: flex; gap: 10px; padding: 18px 48px; background: #3d4347; flex-wrap: wrap; }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 10px 26px;
+    font-family: 'Fredoka', sans-serif; font-size: 17px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 6px; }
+  .section-heading { font-size: clamp(22px, 3vw, 32px); font-weight: 700; margin-bottom: 20px; color: var(--text); }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 21px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 17px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul, .card ol { padding-left: 22px; }
+  .card ul li, .card ol li { margin-bottom: 6px; }
+
+  .callout { border-radius: 12px; padding: 18px 22px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout p { font-size: 17px; line-height: 1.6; font-weight: 400; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-green { background: #f0fff5; border-left: 5px solid var(--green); }
+  .callout-green .label { color: var(--green-dark); }
+  .callout-green p { color: #0a3a1e; }
+  .callout-orange { background: #fff6ee; border-left: 5px solid var(--orange); }
+  .callout-orange .label { color: #c05800; }
+  .callout-orange p { color: #5a2800; }
+
+  .tag { display: inline-block; background: var(--text); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 20px; padding: 3px 12px; margin-right: 6px; margin-bottom: 8px; font-family: 'Fredoka', sans-serif; }
+  .tag.amber { background: var(--amber); color: var(--text); }
+  .tag.teal { background: var(--teal); color: var(--text); }
+  .tag.blue { background: var(--blue); color: #fff; }
+  .tag.green { background: var(--green); color: #fff; }
+  .tag.orange { background: var(--orange); color: #fff; }
+
+  .equation-box { background: #f0f7ff; border-radius: 14px; padding: 18px 24px; margin: 12px 0; font-size: 28px; font-weight: 700; color: var(--text); border: 2px solid #d0e8ff; font-family: 'Space Mono', monospace; display: inline-block; letter-spacing: 0.03em; }
+
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: #444; }
+  .reveal-btn.teal { background: var(--teal); color: var(--text); }
+  .reveal-btn.teal:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.green { background: var(--green); color: #fff; }
+  .reveal-btn.green:hover { background: var(--green-dark); }
+  .reveal-btn.blue { background: var(--blue); color: #fff; }
+  .reveal-btn.blue:hover { background: var(--blue-dark); }
+  .reveal-btn.orange { background: var(--orange); color: #fff; }
+  .reveal-btn.orange:hover { background: #d96000; }
+  .reveal-btn.sm { font-size: 13px; padding: 7px 18px; margin-top: 10px; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* ── STRATEGY TABLE ── */
+  .strategy-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); margin: 20px 0; }
+  .strategy-table th {
+    padding: 18px 20px; font-size: 20px; font-weight: 700; letter-spacing: 0.5px;
+    text-align: left; border-bottom: 3px solid rgba(255,255,255,0.25);
+  }
+  .strategy-table th.mental { background: var(--mental-col); color: #fff; }
+  .strategy-table th.written { background: var(--written-col); color: #fff; }
+  .strategy-table th.calc { background: var(--calc-col); color: #fff; }
+  .strategy-table th .th-icon { font-size: 26px; display: block; margin-bottom: 4px; }
+  .strategy-table td {
+    padding: 16px 20px; font-size: 16px; line-height: 1.6; vertical-align: top;
+    border-bottom: 1px solid var(--border); background: var(--card-bg);
+  }
+  .strategy-table tr:last-child td { border-bottom: none; }
+  .strategy-table td.mental-tint { background: #f0fff5; }
+  .strategy-table td.written-tint { background: #f0f7ff; }
+  .strategy-table td.calc-tint { background: #fff6ee; }
+
+  /* ── RACE DEMO ── */
+  .race-container { display: flex; gap: 24px; align-items: stretch; flex-wrap: wrap; margin: 20px 0; }
+  .racer-card {
+    flex: 1; min-width: 220px; border-radius: 18px; padding: 24px 22px;
+    border: 3px solid transparent; transition: all 0.3s; position: relative;
+  }
+  .racer-card.brain { background: #f0fff5; border-color: var(--green); }
+  .racer-card.calculator { background: #fff6ee; border-color: var(--orange); }
+  .racer-icon { font-size: 48px; margin-bottom: 10px; display: block; }
+  .racer-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .racer-status { font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
+  .racer-steps { font-size: 15px; line-height: 1.8; color: #445; }
+  .racer-steps .step-item { padding: 4px 0; border-bottom: 1px dashed #e0e0e0; display: flex; align-items: center; gap: 8px; }
+  .racer-steps .step-item:last-child { border-bottom: none; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .step-dot.done { background: var(--green); }
+  .step-dot.todo { background: #ddd; }
+  .racer-result {
+    margin-top: 14px; padding: 12px 16px; border-radius: 10px;
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    text-align: center; display: none;
+  }
+  .racer-result.shown { display: block; animation: fadeIn 0.3s ease; }
+  .racer-result.win { background: var(--green); color: #fff; }
+  .racer-result.lose { background: #f0f0f0; color: var(--muted); }
+  .winner-badge {
+    position: absolute; top: -12px; right: 16px;
+    background: var(--amber); color: var(--text);
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 20px; display: none;
+  }
+  .winner-badge.shown { display: block; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* ── SCAN DEMO ── */
+  .scan-eq {
+    font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700;
+    color: var(--text); background: #f8fafc; border-radius: 12px;
+    padding: 18px 24px; margin: 12px 0; border: 2px solid var(--border);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .scan-eq .num { transition: all 0.3s; border-radius: 8px; padding: 4px 8px; }
+  .scan-eq .num.friendly { background: #d4f7e0; color: var(--green-dark); border: 2px solid var(--green); }
+  .scan-eq .num.zero { background: #fff3c4; color: #7a3d00; border: 2px solid var(--amber); }
+  .scan-eq .num.complex { background: #ffeee0; color: #7a2a00; border: 2px solid var(--orange); }
+  .scan-verdict {
+    margin-top: 12px; padding: 14px 20px; border-radius: 12px;
+    font-size: 18px; font-weight: 700; display: none; align-items: center; gap: 12px;
+  }
+  .scan-verdict.shown { display: flex; animation: fadeIn 0.3s ease; }
+  .scan-verdict.mental { background: #d4f7e0; color: var(--green-dark); border: 2px solid var(--green); }
+  .scan-verdict.written { background: #d4e8ff; color: var(--blue-dark); border: 2px solid var(--blue); }
+  .scan-verdict.calc { background: #ffeee0; color: #7a2a00; border: 2px solid var(--orange); }
+  .scan-verdict-icon { font-size: 28px; }
+
+  /* ── GUIDED PRACTICE (WE DO) ── */
+  .gp-eq-card {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    border: 2px solid var(--border); padding: 24px 28px; margin-bottom: 16px;
+  }
+  .gp-eq-card .eq-display { font-family: 'Space Mono', monospace; font-size: 30px; font-weight: 700; color: var(--text); margin: 12px 0; }
+  .gp-choice-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+  .choice-btn {
+    flex: 1; min-width: 90px; padding: 14px 16px; border-radius: 12px;
+    border: 3px solid transparent; cursor: pointer; font-family: 'Fredoka', sans-serif;
+    font-size: 18px; font-weight: 700; transition: all 0.2s; text-align: center;
+  }
+  .choice-btn.mental-btn { background: #f0fff5; border-color: var(--green); color: var(--green-dark); }
+  .choice-btn.mental-btn:hover, .choice-btn.mental-btn.chosen { background: var(--green); border-color: var(--green); color: #fff; }
+  .choice-btn.written-btn { background: #f0f7ff; border-color: var(--blue); color: var(--blue-dark); }
+  .choice-btn.written-btn:hover, .choice-btn.written-btn.chosen { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .choice-btn.calc-btn { background: #fff6ee; border-color: var(--orange); color: #7a3000; }
+  .choice-btn.calc-btn:hover, .choice-btn.calc-btn.chosen { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+  /* ── INDEPENDENT PRACTICE ── */
+  .ip-instructions { background: linear-gradient(135deg, #f0fafa, #e8faf8); border-radius: var(--radius); border: 2px solid #b2dfdb; padding: 22px 28px; margin-bottom: 24px; }
+  .ip-instructions p { font-size: 17px; line-height: 1.7; color: #0a3832; }
+  .ip-instructions strong { color: var(--teal-dark); }
+
+  .sort-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 20px 0; }
+  @media (max-width: 900px) { .sort-board { grid-template-columns: 1fr; } }
+  .sort-column {
+    border-radius: 16px; padding: 20px 18px; min-height: 200px;
+    border: 3px dashed transparent; transition: all 0.2s;
+  }
+  .sort-column.over { transform: scale(1.02); }
+  .sort-column.mental-col { background: #f0fff5; border-color: var(--green); }
+  .sort-column.mental-col.over { background: #d4f7e0; }
+  .sort-column.written-col { background: #f0f7ff; border-color: var(--blue); }
+  .sort-column.written-col.over { background: #d4e8ff; }
+  .sort-column.calc-col { background: #fff6ee; border-color: var(--orange); }
+  .sort-column.calc-col.over { background: #ffeee0; }
+  .sort-col-header {
+    font-size: 17px; font-weight: 700; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sort-col-header.m { color: var(--green-dark); }
+  .sort-col-header.w { color: var(--blue-dark); }
+  .sort-col-header.c { color: #7a3000; }
+  .sort-drop-zone { min-height: 120px; }
+
+  .ip-eq-pool { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+  .ip-eq-chip {
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: 10px;
+    padding: 10px 16px; font-family: 'Space Mono', monospace; font-size: 17px;
+    font-weight: 700; cursor: grab; user-select: none; transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .ip-eq-chip:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(78,205,196,0.2); transform: translateY(-2px); }
+  .ip-eq-chip:active { cursor: grabbing; transform: scale(0.97); }
+  .ip-eq-chip.placed { opacity: 0.5; cursor: default; }
+  .ip-eq-chip.placed:hover { transform: none; }
+
+  .placed-chip {
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: 10px;
+    padding: 8px 14px; font-family: 'Space Mono', monospace; font-size: 15px;
+    font-weight: 700; margin: 4px 0; animation: fadeIn 0.2s ease;
+    position: relative; cursor: pointer;
+  }
+  .placed-chip:hover { border-color: var(--red); }
+  .placed-chip::after { content: '×'; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--muted); }
+
+  .tier-header { font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; padding: 10px 20px; border-radius: 12px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 8px; }
+  .tier-1 { background: #d4f7e0; color: #1a5c35; }
+  .tier-2 { background: #d4e8ff; color: #0a2f6e; }
+  .tier-3 { background: #fff3c4; color: #7a3d00; }
+
+  .pq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .pq-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); padding: 22px 26px; position: relative; overflow: hidden; }
+  .pq-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; border-radius: var(--radius) var(--radius) 0 0; }
+  .pq-card.t1::before { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+  .pq-card.t2::before { background: linear-gradient(90deg, #3a7bd5, #2176ae); }
+  .pq-card.t3::before { background: linear-gradient(90deg, #FFD93D, #FF8400); }
+  .pq-num { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .pq-eq { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text); margin: 10px 0; }
+  .pq-strategy-badge { display: inline-block; font-size: 13px; font-weight: 700; border-radius: 20px; padding: 4px 14px; margin-bottom: 8px; }
+  .pq-strategy-badge.m { background: #d4f7e0; color: var(--green-dark); }
+  .pq-strategy-badge.w { background: #d4e8ff; color: var(--blue-dark); }
+  .pq-strategy-badge.c { background: #ffeee0; color: #7a3000; }
+  .pq-hint { font-size: 14px; color: var(--muted); line-height: 1.5; background: #fffbf0; border-left: 4px solid var(--amber); border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px; display: none; }
+  .pq-hint.shown { display: block; animation: fadeIn 0.2s ease; }
+  .pq-hint .hint-label { font-weight: 700; color: var(--amber-dark); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 3px; }
+  .pq-answer { display: none; margin-top: 12px; }
+  .pq-answer.shown { display: block; animation: fadeIn 0.25s ease; }
+  .pq-buttons { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 14px; }
+  .pq-btn {
+    border-radius: 20px; padding: 7px 14px;
+    font-family: 'Fredoka', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+    border: 2px solid transparent;
+  }
+  .pq-btn.hint-btn { background: #fff8e0; color: #7a5500; border-color: var(--amber); }
+  .pq-btn.hint-btn:hover, .pq-btn.hint-btn.active { background: var(--amber); color: var(--text); }
+  .pq-btn.answer-btn { background: #e0fff0; color: #1a5c35; border-color: var(--green); }
+  .pq-btn.answer-btn:hover, .pq-btn.answer-btn.active { background: var(--green); color: #fff; }
+  .answer-badge { display: inline-block; background: var(--teal); color: var(--text); font-weight: 700; font-size: 14px; border-radius: 8px; padding: 4px 14px; margin: 4px 4px 4px 0; font-family: 'Space Mono', monospace; }
+  .answer-badge.green { background: var(--green); color: #fff; }
+
+  /* WILF/WALT */
+  .learning-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .learning-grid { grid-template-columns: 1fr; } }
+  .walt-card { background: linear-gradient(135deg, #2D3436, #3d4347); color: #fff; border-radius: var(--radius); padding: 24px 28px; }
+  .walt-card .wl-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  .walt-card h3 { font-size: 19px; font-weight: 700; line-height: 1.4; }
+  .wilf-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); padding: 24px 28px; }
+  .wilf-card .wl-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--amber-dark); text-transform: uppercase; margin-bottom: 10px; }
+  .wilf-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .wilf-check { width: 22px; height: 22px; border-radius: 50%; background: var(--amber); color: var(--text); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .wilf-text { font-size: 16px; line-height: 1.5; color: #445; }
+
+  /* strategy key pills */
+  .strat-key { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+  .strat-pill { display: flex; align-items: center; gap: 8px; border-radius: 30px; padding: 8px 18px; font-size: 16px; font-weight: 700; }
+  .strat-pill.m { background: #d4f7e0; color: var(--green-dark); }
+  .strat-pill.w { background: #d4e8ff; color: var(--blue-dark); }
+  .strat-pill.c { background: #ffeee0; color: #7a3000; }
+  .strat-pill .pill-icon { font-size: 20px; }
+
+  /* check score */
+  .score-bar { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); padding: 20px 28px; margin-top: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .score-label { font-size: 16px; font-weight: 600; color: var(--muted); }
+  .score-num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--teal-dark); }
+
+  .teacher-toggle-btn {
+    background: #f8fafc; border: 2px solid var(--border); border-radius: 12px;
+    padding: 14px 22px; width: 100%; cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 700; color: var(--text); transition: background 0.15s; margin-bottom: 0;
+  }
+  .teacher-toggle-btn:hover { background: #f0f4ff; }
+  .teacher-toggle-btn .chev { transition: transform 0.25s; font-size: 20px; color: var(--muted); }
+  .teacher-toggle-btn.open .chev { transform: rotate(180deg); }
+  .teacher-body { display: none; padding: 20px 22px 24px; border: 2px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; background: #fdfdff; animation: fadeIn 0.2s ease; margin-bottom: 20px; }
+  .teacher-body.shown { display: block; }
+
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--amber);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* ── I DO PROGRESSION ── */
+  .ido-progression { margin-bottom: 2rem; }
+  .ido-dots { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
+  .ido-dot { width: 10px; height: 10px; border-radius: 50%; background: #DDD; transition: all 0.3s ease; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.4); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 1.25rem; gap: 0.75rem; }
+  .ido-step-nav button { padding: 0.6rem 1.5rem; border: none; border-radius: 10px; cursor: pointer; font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+  .ido-step-nav button.next { background: var(--red); color: white; margin-left: auto; }
+  .ido-step-nav button.next:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,107,0.3); }
+  .ido-step-nav button.prev { background: white; color: var(--text); border: 2px solid var(--muted); }
+  .ido-step-nav button.prev:hover { transform: translateY(-2px); border-color: var(--text); }
+  .step-badge { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: white; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .step-badge.red { background: var(--red); }
+  .step-badge.green { background: var(--green); }
+  .step-badge.blue { background: var(--blue); }
+  .step-badge.orange { background: var(--orange); }
+
+  /* Go Deeper Extension */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+      width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+      border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+      font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+      max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+      background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+      width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+      font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+      transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+      display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+      border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+      font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+      display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+      padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+      font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+      background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+      border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+      font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 Mathematics · Addition &amp; Subtraction · Lesson 6</div>
+  <h1>Which Strategy <span>Wins?</span></h1>
+  <p>Learning to choose the most efficient tool, our brain, our pen, or a calculator.</p>
+  <p style="margin-top:12px;"><a href="index.html" style="color:var(--teal);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a></p>
+  <div class="header-icon">🏆</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection(&#39;hook&#39;, this)">🪝 The Hook</button>
+  <button onclick="showSection(&#39;ido&#39;, this)">✏️ I Do</button>
+  <button onclick="showSection(&#39;wedo&#39;, this)">🤝 We Do</button>
+  <button onclick="showSection(&#39;practice&#39;, this)">🔢 Practice</button>
+</nav>
+
+<main>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to analyse an equation and choose the most efficient tool to solve it: our brain, our pen, or a calculator.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can scan an equation for friendly numbers or patterns that suggest a mental strategy</li>
+            <li>I can identify when a written algorithm or calculator is the better choice</li>
+            <li>I can explain why a calculator might be slower than a mental strategy for certain equations</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HOOK
+══════════════════════════════════════════ -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · Hook · 10 mins</div>
+  <div class="section-heading">Man vs. Machine 🏁</div>
+
+  <div class="learning-grid">
+    <div class="walt-card">
+      <div class="wl-label">WALT</div>
+      <h3>We are learning to analyse an equation and choose the most efficient tool: our brain, our pen, or a calculator.</h3>
+    </div>
+    <div class="wilf-card">
+      <div class="wl-label">WILF</div>
+      <div class="wilf-item"><div class="wilf-check">✓</div><div class="wilf-text">I can scan an equation for "friendly numbers" or zeros.</div></div>
+      <div class="wilf-item"><div class="wilf-check">✓</div><div class="wilf-text">I can explain why a calculator might be <em>slower</em> than a mental strategy for certain equations.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🏁 The Race</h3>
+    <p style="font-size:18px;color:var(--text);font-weight:600;">Can you beat the calculator? The equation will appear when the race begins, work out the answer in your head as fast as you can!</p>
+
+    <div style="text-align:center; margin: 24px 0 8px;">
+      <button class="reveal-btn green" id="begin-race-btn" onclick="beginRace()" style="font-size:20px; padding:16px 40px;">🏁 Begin the Race!</button>
+    </div>
+
+    <div id="race-demo" style="margin-top: 20px; display:none;">
+      <div style="text-align:center; margin-bottom: 20px;">
+        <div class="equation-box" style="font-size: 34px;">3200 + 400 + 62 + 300</div>
+      </div>
+      <div class="race-container">
+        <div class="racer-card brain" id="brain-card">
+          <div class="winner-badge" id="brain-badge">🏆 WINNER!</div>
+          <span class="racer-icon">🧠</span>
+          <div class="racer-title">The Brain</div>
+          <div class="racer-status" id="brain-status">Ready…</div>
+
+          <!-- Steps hidden until race runs, then number line revealed separately -->
+          <div class="racer-steps" id="brain-steps-list" style="display:none;">
+            <div class="step-item"><span class="step-dot" id="bd1"></span><span>Spot the friendly hundreds</span></div>
+            <div class="step-item"><span class="step-dot" id="bd2"></span><span>3200 + 400 + 300 = 3900</span></div>
+            <div class="step-item"><span class="step-dot" id="bd3"></span><span>3900 + 62 = 3962 ✓</span></div>
+          </div>
+          <div class="racer-result win" id="brain-result">= 3962 🎉</div>
+
+          <!-- Number line visualisation, hidden until reveal -->
+          <div id="brain-numberline" style="display:none; margin-top:14px;">
+            <svg width="100%" viewBox="0 0 460 110" font-family="Fredoka, sans-serif">
+              <!-- base line -->
+              <line x1="20" y1="70" x2="440" y2="70" stroke="#b0b8c1" stroke-width="2"></line>
+              <!-- ticks and labels -->
+              <line x1="20" y1="62" x2="20" y2="78" stroke="#636E72" stroke-width="2"></line>
+              <text x="20" y="94" text-anchor="middle" font-size="13" fill="#636E72">3200</text>
+              <line x1="140" y1="62" x2="140" y2="78" stroke="#636E72" stroke-width="2"></line>
+              <text x="140" y="94" text-anchor="middle" font-size="13" fill="#636E72">3600</text>
+              <line x1="280" y1="62" x2="280" y2="78" stroke="#27ae60" stroke-width="2.5"></line>
+              <text x="280" y="94" text-anchor="middle" font-size="13" font-weight="700" fill="#27ae60">3900</text>
+              <line x1="390" y1="62" x2="390" y2="78" stroke="#3a7bd5" stroke-width="2.5"></line>
+              <text x="390" y="94" text-anchor="middle" font-size="13" font-weight="700" fill="#3a7bd5">3962</text>
+
+              <!-- arc 1: 3200 → 3600 (+400) -->
+              <path d="M20,68 Q80,30 140,68" fill="none" stroke="#FF8400" stroke-width="2.5"></path>
+              <text x="80" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#FF8400">+400</text>
+
+              <!-- arc 2: 3600 → 3900 (+300) -->
+              <path d="M140,68 Q210,28 280,68" fill="none" stroke="#FF8400" stroke-width="2.5"></path>
+              <text x="210" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#FF8400">+300</text>
+
+              <!-- arc 3: 3900 → 3962 (+62) -->
+              <path d="M280,68 Q335,38 390,68" fill="none" stroke="#3a7bd5" stroke-width="2.5"></path>
+              <text x="335" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#3a7bd5">+62</text>
+
+              <!-- arrowheads -->
+              <polygon points="140,68 133,62 147,62" fill="#FF8400"></polygon>
+              <polygon points="280,68 273,62 287,62" fill="#FF8400"></polygon>
+              <polygon points="390,68 383,62 397,62" fill="#3a7bd5"></polygon>
+            </svg>
+            <p style="font-size:14px;color:var(--muted);text-align:center;margin-top:4px;">Group the friendly hundreds first, then add the leftover.</p>
+          </div>
+
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="reveal-btn teal sm" id="show-brain-btn" style="display:none;" onclick="showBrainStrategy()">🧠 Show mental strategy</button>
+          </div>
+        </div>
+
+        <div class="racer-card calculator" id="calc-card">
+          <span class="racer-icon">🔢</span>
+          <div class="racer-title">The Calculator</div>
+          <div class="racer-status" id="calc-status">Ready…</div>
+          <div class="racer-steps" id="calc-steps-list" style="display:none;">
+            <div class="step-item"><span class="step-dot" id="cd1"></span><span>Press: 3, 2, 0, 0, +</span></div>
+            <div class="step-item"><span class="step-dot" id="cd2"></span><span>Press: 4, 0, 0, +</span></div>
+            <div class="step-item"><span class="step-dot" id="cd3"></span><span>Press: 6, 2, +</span></div>
+            <div class="step-item"><span class="step-dot" id="cd4"></span><span>Press: 3, 0, 0, =</span></div>
+          </div>
+          <div class="racer-result lose" id="calc-result">= 3962 (too slow!)</div>
+          <div style="margin-top:12px;">
+            <button class="reveal-btn orange sm" id="show-calc-btn" style="display:none;" onclick="showCalcStrategy()">🔢 Show calculator steps</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top: 16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <button class="reveal-btn green" id="race-btn" onclick="startRace()">🏁 Start the Race!</button>
+        <button class="reveal-btn" id="reset-race-btn" style="display:none;" onclick="resetRace()">↺ Race Again</button>
+      </div>
+    </div>
+
+    <div class="callout callout-amber" id="discussion-callout" style="margin-top:20px; display:none;">
+      <span class="label">💬 Discussion</span>
+      <p>Why did the brain win? The time it takes to push all those buttons is longer than spotting the friendly hundreds. <strong>The calculator is a powerful tool, but for the wrong job, it's the slowest tool in the room.</strong></p>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#f0fafa,#e8faf8);border-color:#b2dfdb;">
+    <h3>🔑 The Big Idea</h3>
+    <p>Every equation has a <strong>best tool</strong>. The skill isn't just being able to use each tool, it's knowing <em>which</em> to pick and <em>why</em>. That's what makes a mathematician efficient.</p>
+    <div class="strat-key">
+      <div class="strat-pill m"><span class="pill-icon">🧠</span> Mental</div>
+      <div class="strat-pill w"><span class="pill-icon">✏️</span> Written Algorithm</div>
+      <div class="strat-pill c"><span class="pill-icon">🔢</span> Calculator</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     I DO
+══════════════════════════════════════════ -->
+<div id="ido" class="section">
+  <div class="section-title">Phase 2 · I Do · 10 mins</div>
+  <div class="section-heading">How to Scan an Equation ✏️</div>
+
+  <div class="card">
+    <h3>The Three-Column Framework</h3>
+    <p>Copy this table into your book. It's your decision-making tool for the rest of the lesson, and beyond.</p>
+
+    <table class="strategy-table">
+      <thead>
+        <tr>
+          <th class="mental"><span class="th-icon">🧠</span> Mental</th>
+          <th class="written"><span class="th-icon">✏️</span> Written Algorithm</th>
+          <th class="calc"><span class="th-icon">🔢</span> Calculator</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mental-tint"><strong>What to look for:</strong><br>Number bonds to 10, 100 or 1,000. Multiples of 10/100. Zeros that let you skip place values. "Friendly" numbers.</td>
+          <td class="written-tint"><strong>What to look for:</strong><br>2 or 3 large numbers. Some trading (carrying/borrowing) required. No obvious shortcut jumps out.</td>
+          <td class="calc-tint"><strong>What to look for:</strong><br>4+ numbers with no friendly bonds. Complex decimals mixed together. Speed and precision both matter.</td>
+        </tr>
+        <tr>
+          <td class="mental-tint"><strong>Examples:</strong><br>300 + 700<br>4,600 + 1,400<br>98 + 52 (level to 100+50)</td>
+          <td class="written-tint"><strong>Examples:</strong><br>3,847 + 2,916<br>10,004 − 3,768<br>45,231 + 18,097</td>
+          <td class="calc-tint"><strong>Examples:</strong><br>3.75 + 12.48 + 9.03 + 6.19<br>$247.60 + $83.95 + $1,402.10</td>
+        </tr>
+        <tr>
+          <td class="mental-tint"><strong>Ask yourself:</strong><br>"Can I see a shortcut in under 3 seconds?"</td>
+          <td class="written-tint"><strong>Ask yourself:</strong><br>"Is there trading? Are there only 2–3 numbers?"</td>
+          <td class="calc-tint"><strong>Ask yourself:</strong><br>"Would even an expert need to write this one out carefully?"</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Watch Me Scan Progression -->
+  <div class="ido-progression" id="scan-progression">
+    <div class="ido-dots" id="scan-dots">
+      <div class="ido-dot active"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+    </div>
+
+    <!-- Step 1: Multiples of 100, MENTAL -->
+    <div class="ido-step active card" id="scan-step-1">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div class="step-badge green">1</div>
+        <div style="font-size: 1.15rem; font-weight: 600;">Multiples of 100, the fast track</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Watch me scan this equation for clues.</p>
+      <div class="scan-eq" id="scan1-eq">
+        <span class="num" id="s1n1">5000</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s1n2">3000</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s1n3">200</span>
+      </div>
+      <div class="scan-verdict mental" id="scan1-verdict" style="display: flex;">
+        <span class="scan-verdict-icon">🧠</span>
+        <span><strong>MENTAL</strong>, All multiples of 100. Spot 5000 + 3000 = 8000, then + 200 = 8200. Done in 2 seconds.</span>
+      </div>
+      <div class="ido-step-nav">
+        <button class="next" onclick="goToIdoStep('scan', 2, 4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Large numbers, WRITTEN ALGORITHM -->
+    <div class="ido-step card" id="scan-step-2">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div class="step-badge blue">2</div>
+        <div style="font-size: 1.15rem; font-weight: 600;">Large numbers, time to write it out</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Watch me scan this equation for clues.</p>
+      <div class="scan-eq" id="scan2-eq">
+        <span class="num" id="s2n1">47,382</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s2n2">28,615</span>
+      </div>
+      <div class="scan-verdict written" id="scan2-verdict" style="display: flex;">
+        <span class="scan-verdict-icon">✏️</span>
+        <span><strong>WRITTEN ALGORITHM</strong>, Two large 5-digit numbers. Trading will occur. No friendly shortcut visible. Set it out in columns.</span>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('scan', 1, 4)">← Back</button>
+        <button class="next" onclick="goToIdoStep('scan', 3, 4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Decimals, CALCULATOR -->
+    <div class="ido-step card" id="scan-step-3">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div class="step-badge orange">3</div>
+        <div style="font-size: 1.15rem; font-weight: 600;">Decimals, get the calculator</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Watch me scan this equation for clues.</p>
+      <div class="scan-eq" id="scan3-eq">
+        <span class="num" id="s3n1">12.75</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s3n2">8.49</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s3n3">31.60</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s3n4">7.88</span>
+      </div>
+      <div class="scan-verdict calc" id="scan3-verdict" style="display: flex;">
+        <span class="scan-verdict-icon">🔢</span>
+        <span><strong>CALCULATOR</strong>, Four decimal amounts with no friendly bonds. Accuracy matters. A calculator is faster and safer than four rounds of trading.</span>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('scan', 2, 4)">← Back</button>
+        <button class="next" onclick="goToIdoStep('scan', 4, 4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: The tricky one, MENTAL -->
+    <div class="ido-step card" id="scan-step-4">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div class="step-badge green">4</div>
+        <div style="font-size: 1.15rem; font-weight: 600;">The tricky one, from the Hook!</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Watch me scan this equation for clues, this is the one that surprised everyone in the race.</p>
+      <div class="scan-eq" id="scan4-eq">
+        <span class="num" id="s4n1">3200</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s4n2">400</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s4n3">62</span>
+        <span style="color: var(--muted);">+</span>
+        <span class="num" id="s4n4">300</span>
+      </div>
+      <div class="scan-verdict mental" id="scan4-verdict" style="display: flex;">
+        <span class="scan-verdict-icon">🧠</span>
+        <span><strong>MENTAL</strong>, 4 numbers, but 3 of them are friendly hundreds. Group 3200 + 400 + 300 = 3900 first, then + 62 = 3962. This is <em>exactly</em> why the brain won the race!</span>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('scan', 3, 4)">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="teacher-toggle-btn" onclick="toggleTeacher(&#39;tc-ido&#39;)">
+    <span>📋 Teacher Guidance, I Do Notes</span><span class="chev">▾</span>
+  </button>
+  <div class="teacher-body" id="tc-ido">
+    <p style="font-size:16px;line-height:1.7;color:#445;">After scanning each equation, ask the class: <em>"Did anyone see a different reason to choose that strategy?"</em> Reinforce that <strong>justification</strong> is the key skill, not just getting the right letter. A student who picks Mental and explains "because I can see that 400 + 300 + 3200 all end in hundreds" has demonstrated genuine mathematical reasoning.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     WE DO
+══════════════════════════════════════════ -->
+<div id="wedo" class="section">
+  <div class="section-title">Phase 3 · We Do · 10 mins</div>
+  <div class="section-heading">Whiteboard Decisions 🤝</div>
+
+  <div class="card">
+    <p>For each equation below, choose <strong>M</strong>, <strong>W</strong>, or <strong>C</strong>, and be ready to explain your reason in one sentence.</p>
+    <div class="strat-key" style="margin-top:14px;">
+      <div class="strat-pill m"><span class="pill-icon">🧠</span> M = Mental</div>
+      <div class="strat-pill w"><span class="pill-icon">✏️</span> W = Written Algorithm</div>
+      <div class="strat-pill c"><span class="pill-icon">🔢</span> C = Calculator</div>
+    </div>
+  </div>
+
+  <!-- GP Q1 -->
+  <div class="gp-eq-card">
+    <div class="pq-num">Question 1 of 3</div>
+    <div class="eq-display">600 + 400 + 1,200</div>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:8px;">What's the best strategy?</p>
+    <div class="gp-choice-row">
+      <button class="choice-btn mental-btn" onclick="pickGP(1,&#39;M&#39;,this)">🧠 Mental</button>
+      <button class="choice-btn written-btn" onclick="pickGP(1,&#39;W&#39;,this)">✏️ Written</button>
+      <button class="choice-btn calc-btn" onclick="pickGP(1,&#39;C&#39;,this)">🔢 Calculator</button>
+    </div>
+    <div id="gp1-feedback" class="step-reveal" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- GP Q2 -->
+  <div class="gp-eq-card">
+    <div class="pq-num">Question 2 of 3</div>
+    <div class="eq-display">83,504 − 47,268</div>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:8px;">What's the best strategy?</p>
+    <div class="gp-choice-row">
+      <button class="choice-btn mental-btn" onclick="pickGP(2,&#39;M&#39;,this)">🧠 Mental</button>
+      <button class="choice-btn written-btn" onclick="pickGP(2,&#39;W&#39;,this)">✏️ Written</button>
+      <button class="choice-btn calc-btn" onclick="pickGP(2,&#39;C&#39;,this)">🔢 Calculator</button>
+    </div>
+    <div id="gp2-feedback" class="step-reveal" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- GP Q3 -->
+  <div class="gp-eq-card">
+    <div class="pq-num">Question 3 of 3</div>
+    <div class="eq-display">4.25 + 9.78 + 3.60 + 11.14</div>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:8px;">What's the best strategy?</p>
+    <div class="gp-choice-row">
+      <button class="choice-btn mental-btn" onclick="pickGP(3,&#39;M&#39;,this)">🧠 Mental</button>
+      <button class="choice-btn written-btn" onclick="pickGP(3,&#39;W&#39;,this)">✏️ Written</button>
+      <button class="choice-btn calc-btn" onclick="pickGP(3,&#39;C&#39;,this)">🔢 Calculator</button>
+    </div>
+    <div id="gp3-feedback" class="step-reveal" style="margin-top:12px;"></div>
+  </div>
+
+  <button class="teacher-toggle-btn" onclick="toggleTeacher(&#39;tc-wedo&#39;)">
+    <span>📋 Teacher Guidance, We Do Discussion</span><span class="chev">▾</span>
+  </button>
+  <div class="teacher-body" id="tc-wedo">
+    <p style="font-size:16px;line-height:1.7;color:#445;"><strong>Q1:</strong> Most students should land on Mental, but probe: <em>"Could someone argue for Written?"</em> (Yes, but it's inefficient.) <strong>Q2:</strong> Written Algorithm, large numbers, certain trading. Some might say Calculator and that's worth discussing: it's not wrong, but the syllabus expects students to be able to do this by hand. <strong>Q3:</strong> Calculator, four decimal terms, no friendly bonds visible. Accept Written Algorithm as a defensible choice for Tier 2/3 if they can justify why.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     INDEPENDENT PRACTICE
+══════════════════════════════════════════ -->
+<div id="practice" class="section">
+  <div class="section-title">Phase 4 · You Do · 25 mins</div>
+  <div class="section-heading">Sort &amp; Solve 🔢</div>
+
+  <div class="ip-instructions">
+    <p><strong>Step 1:</strong> Read each equation below. Drag it into the correct column, Mental, Written, or Calculator.</p>
+    <p style="margin-top:8px;"><strong>Step 2:</strong> Solve the equations in your chosen column using that method. Show your working.</p>
+    <p style="margin-top:8px;"><strong>Tier 2 &amp; 3:</strong> For every equation you place in the Calculator column, write one sentence explaining <em>why</em> the calculator is the most efficient choice.</p>
+  </div>
+
+  <!-- Drag pool -->
+  <div class="card">
+    <h3>Equation Pool, drag each one to the right column</h3>
+    <div class="ip-eq-pool" id="eq-pool">
+      <div class="ip-eq-chip" draggable="true" data-eq="A" data-answer="M" ondragstart="dragStart(event,&#39;A&#39;)" onclick="tapChip(&#39;A&#39;)">4,000 + 6,000</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="B" data-answer="W" ondragstart="dragStart(event,&#39;B&#39;)" onclick="tapChip(&#39;B&#39;)">62,347 + 29,815</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="C" data-answer="C" ondragstart="dragStart(event,&#39;C&#39;)" onclick="tapChip(&#39;C&#39;)">8.45 + 3.27 + 11.60 + 6.98</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="D" data-answer="M" ondragstart="dragStart(event,&#39;D&#39;)" onclick="tapChip(&#39;D&#39;)">3,500 + 500 + 200</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="E" data-answer="W" ondragstart="dragStart(event,&#39;E&#39;)" onclick="tapChip(&#39;E&#39;)">10,050 − 3,728</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="F" data-answer="C" ondragstart="dragStart(event,&#39;F&#39;)" onclick="tapChip(&#39;F&#39;)">$14.99 + $7.85 + $23.40 + $9.15</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="G" data-answer="M" ondragstart="dragStart(event,&#39;G&#39;)" onclick="tapChip(&#39;G&#39;)">7,000 + 3,000</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="H" data-answer="W" ondragstart="dragStart(event,&#39;H&#39;)" onclick="tapChip(&#39;H&#39;)">48,203 + 37,491</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="I" data-answer="C" ondragstart="dragStart(event,&#39;I&#39;)" onclick="tapChip(&#39;I&#39;)">0.75 + 2.48 + 5.63 + 1.99 + 3.80</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="J" data-answer="M" ondragstart="dragStart(event,&#39;J&#39;)" onclick="tapChip(&#39;J&#39;)">2,800 + 400 + 100 + 300</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="K" data-answer="W" ondragstart="dragStart(event,&#39;K&#39;)" onclick="tapChip(&#39;K&#39;)">73,000 − 28,645</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="L" data-answer="C" ondragstart="dragStart(event,&#39;L&#39;)" onclick="tapChip(&#39;L&#39;)">4.07 + 13.95 + 8.62 + 2.40</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="M" data-answer="M" ondragstart="dragStart(event,&#39;M&#39;)" onclick="tapChip(&#39;M&#39;)">900 + 100 + 50</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="N" data-answer="W" ondragstart="dragStart(event,&#39;N&#39;)" onclick="tapChip(&#39;N&#39;)">56,108 − 34,779</div>
+      <div class="ip-eq-chip" draggable="true" data-eq="O" data-answer="C" ondragstart="dragStart(event,&#39;O&#39;)" onclick="tapChip(&#39;O&#39;)">$6.50 + $18.75 + $4.99 + $12.30 + $7.40</div>
+    </div>
+  </div>
+
+  <!-- Sort columns -->
+  <div class="sort-board">
+    <div class="sort-column mental-col" id="col-M" ondragover="dragOver(event,&#39;M&#39;)" ondragleave="dragLeave(event,&#39;M&#39;)" ondrop="dropChip(event,&#39;M&#39;)">
+      <div class="sort-col-header m">🧠 Mental</div>
+      <div class="sort-drop-zone" id="zone-M"></div>
+    </div>
+    <div class="sort-column written-col" id="col-W" ondragover="dragOver(event,&#39;W&#39;)" ondragleave="dragLeave(event,&#39;W&#39;)" ondrop="dropChip(event,&#39;W&#39;)">
+      <div class="sort-col-header w">✏️ Written Algorithm</div>
+      <div class="sort-drop-zone" id="zone-W"></div>
+    </div>
+    <div class="sort-column calc-col" id="col-C" ondragover="dragOver(event,&#39;C&#39;)" ondragleave="dragLeave(event,&#39;C&#39;)" ondrop="dropChip(event,&#39;C&#39;)">
+      <div class="sort-col-header c">🔢 Calculator</div>
+      <div class="sort-drop-zone" id="zone-C"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin: 10px 0 24px;">
+    <button class="reveal-btn teal" onclick="checkSort()">✓ Check My Sorting</button>
+    <button class="reveal-btn" onclick="resetSort()" style="margin-left:10px;">↺ Reset</button>
+  </div>
+
+  <div id="sort-result" class="step-reveal"></div>
+
+  <!-- Practice questions by tier -->
+  <div style="margin-top: 36px;">
+    <div class="section-title" style="margin-bottom:6px;">Solve It!</div>
+    <div class="section-heading" style="font-size:22px;">Tiered Practice Questions</div>
+    <p style="font-size:16px;color:var(--muted);margin-bottom:20px;">Use the strategy you identified above. Show working where needed.</p>
+
+    <!-- Tier 1 -->
+    <div class="practice-tier">
+      <div class="tier-header tier-1">🟢 Tier 1, Grasp the Concept</div>
+      <div class="pq-grid">
+
+        <div class="pq-card t1">
+          <div class="pq-num">T1 · Q1</div>
+          <div class="pq-strategy-badge m">🧠 Mental</div>
+          <div class="pq-eq">200 + 800</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t1q1-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t1q1-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t1q1-hint"><span class="hint-label">Hint</span>These two numbers are a number bond to 1,000. What's 2 + 8?</div>
+          <div class="pq-answer" id="t1q1-ans"><span class="answer-badge green">1,000</span></div>
+        </div>
+
+        <div class="pq-card t1">
+          <div class="pq-num">T1 · Q2</div>
+          <div class="pq-strategy-badge m">🧠 Mental</div>
+          <div class="pq-eq">3,000 + 5,000 + 2,000</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t1q2-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t1q2-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t1q2-hint"><span class="hint-label">Hint</span>All thousands! Think: 3 + 5 + 2, then put the thousands back on.</div>
+          <div class="pq-answer" id="t1q2-ans"><span class="answer-badge green">10,000</span></div>
+        </div>
+
+        <div class="pq-card t1">
+          <div class="pq-num">T1 · Q3</div>
+          <div class="pq-strategy-badge m">🧠 Mental</div>
+          <div class="pq-eq">4,400 + 600 + 200</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t1q3-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t1q3-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t1q3-hint"><span class="hint-label">Hint</span>4,400 + 600 = 5,000. Then + 200.</div>
+          <div class="pq-answer" id="t1q3-ans"><span class="answer-badge green">5,200</span></div>
+        </div>
+
+        <div class="pq-card t1">
+          <div class="pq-num">T1 · Q4</div>
+          <div class="pq-strategy-badge m">🧠 Mental</div>
+          <div class="pq-eq">3200 + 400 + 62 + 300</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t1q4-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t1q4-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t1q4-hint"><span class="hint-label">Hint</span>Group the hundreds first: 3200 + 400 + 300 = 3,900. Then add the 62.</div>
+          <div class="pq-answer" id="t1q4-ans"><span class="answer-badge green">3,962</span> <span style="font-size:13px;color:var(--muted);">,  the Hook question!</span></div>
+        </div>
+
+        <div class="pq-card t1">
+          <div class="pq-num">T1 · Q5</div>
+          <div class="pq-strategy-badge w">✏️ Written</div>
+          <div class="pq-eq">4,726 + 3,895</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t1q5-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t1q5-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t1q5-hint"><span class="hint-label">Hint</span>Set it out in columns. There will be trading in the ones and hundreds columns.</div>
+          <div class="pq-answer" id="t1q5-ans"><span class="answer-badge green">8,621</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Tier 2 -->
+    <div class="practice-tier">
+      <div class="tier-header tier-2">🔵 Tier 2, Build Fluency</div>
+      <div class="pq-grid">
+
+        <div class="pq-card t2">
+          <div class="pq-num">T2 · Q1</div>
+          <div class="pq-strategy-badge m">🧠 Mental</div>
+          <div class="pq-eq">2,800 + 400 + 100 + 300</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t2q1-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t2q1-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t2q1-hint"><span class="hint-label">Hint</span>Group the friendly hundreds: 400 + 100 + 300 = 800. Then 2,800 + 800.</div>
+          <div class="pq-answer" id="t2q1-ans"><span class="answer-badge">3,600</span></div>
+        </div>
+
+        <div class="pq-card t2">
+          <div class="pq-num">T2 · Q2</div>
+          <div class="pq-strategy-badge w">✏️ Written</div>
+          <div class="pq-eq">48,203 + 37,491</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t2q2-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t2q2-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t2q2-hint"><span class="hint-label">Hint</span>Column addition. Trading will occur in the tens and thousands columns.</div>
+          <div class="pq-answer" id="t2q2-ans"><span class="answer-badge">85,694</span></div>
+        </div>
+
+        <div class="pq-card t2">
+          <div class="pq-num">T2 · Q3</div>
+          <div class="pq-strategy-badge c">🔢 Calculator</div>
+          <div class="pq-eq">8.45 + 3.27 + 11.60 + 6.98</div>
+          <p style="font-size:13px;color:var(--muted);margin-top:8px;">Write one sentence: why calculator?</p>
+          <div class="pq-buttons">
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t2q3-ans&#39;,this)">✓ Answer + Sample Justification</button>
+          </div>
+          <div class="pq-answer" id="t2q3-ans">
+            <span class="answer-badge">30.30</span>
+            <div class="pq-hint shown" style="margin-top:8px;"><span class="hint-label">Sample Justification</span>I used a calculator because there are four decimal numbers with no friendly bonds, and accuracy with decimals requires careful tracking of place value, the calculator is faster and less error-prone.</div>
+          </div>
+        </div>
+
+        <div class="pq-card t2">
+          <div class="pq-num">T2 · Q4</div>
+          <div class="pq-strategy-badge w">✏️ Written</div>
+          <div class="pq-eq">73,000 − 28,645</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t2q4-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t2q4-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t2q4-hint"><span class="hint-label">Hint</span>Borrowing across zeros, use Constant Difference to shift: 73,000 − 28,645 = 73,001 − 28,646 = ?</div>
+          <div class="pq-answer" id="t2q4-ans"><span class="answer-badge">44,355</span></div>
+        </div>
+
+        <div class="pq-card t2">
+          <div class="pq-num">T2 · Q5</div>
+          <div class="pq-strategy-badge c">🔢 Calculator</div>
+          <div class="pq-eq">$14.99 + $7.85 + $23.40 + $9.15</div>
+          <p style="font-size:13px;color:var(--muted);margin-top:8px;">Write one sentence: why calculator?</p>
+          <div class="pq-buttons">
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t2q5-ans&#39;,this)">✓ Answer + Sample Justification</button>
+          </div>
+          <div class="pq-answer" id="t2q5-ans">
+            <span class="answer-badge">$55.39</span>
+            <div class="pq-hint shown" style="margin-top:8px;"><span class="hint-label">Sample Justification</span>I used a calculator because money amounts require cent-level precision across four amounts, and there are no friendly number bonds to exploit mentally.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Tier 3 -->
+    <div class="practice-tier">
+      <div class="tier-header tier-3">🟡 Tier 3, Apply &amp; Extend</div>
+      <div class="pq-grid">
+
+        <div class="pq-card t3">
+          <div class="pq-num">T3 · Q1</div>
+          <div class="pq-strategy-badge m">🧠 Mental</div>
+          <div class="pq-eq">99,000 + 1,000 + 500</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t3q1-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t3q1-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t3q1-hint"><span class="hint-label">Hint</span>99,000 + 1,000 is a number bond to 100,000. Then + 500.</div>
+          <div class="pq-answer" id="t3q1-ans"><span class="answer-badge">100,500</span></div>
+        </div>
+
+        <div class="pq-card t3">
+          <div class="pq-num">T3 · Q2</div>
+          <div class="pq-strategy-badge w">✏️ Written</div>
+          <div class="pq-eq">100,004 − 63,587</div>
+          <div class="pq-buttons">
+            <button class="pq-btn hint-btn" onclick="toggleEl(&#39;t3q2-hint&#39;,this)">💡 Hint</button>
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t3q2-ans&#39;,this)">✓ Answer</button>
+          </div>
+          <div class="pq-hint" id="t3q2-hint"><span class="hint-label">Hint</span>Borrowing across four zeros, or use constant difference: shift both by +1 to get 100,005 − 63,588.</div>
+          <div class="pq-answer" id="t3q2-ans"><span class="answer-badge">36,417</span></div>
+        </div>
+
+        <div class="pq-card t3">
+          <div class="pq-num">T3 · Q3</div>
+          <div class="pq-strategy-badge c">🔢 Calculator</div>
+          <div class="pq-eq">0.75 + 2.48 + 5.63 + 1.99 + 3.80</div>
+          <p style="font-size:13px;color:var(--muted);margin-top:8px;">Write one sentence: why calculator?</p>
+          <div class="pq-buttons">
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t3q3-ans&#39;,this)">✓ Answer + Sample Justification</button>
+          </div>
+          <div class="pq-answer" id="t3q3-ans">
+            <span class="answer-badge">14.65</span>
+            <div class="pq-hint shown" style="margin-top:8px;"><span class="hint-label">Sample Justification</span>I used a calculator because five decimal amounts with irregular hundredths digits offer no efficient mental shortcut, the risk of compounding rounding errors makes the calculator both faster and more reliable.</div>
+          </div>
+        </div>
+
+        <div class="pq-card t3">
+          <div class="pq-num">T3 · Q4, Justify the Swap</div>
+          <div class="pq-strategy-badge m">🧠 or ✏️?</div>
+          <div class="pq-eq">19,800 + 200 + 4,500</div>
+          <p style="font-size:15px;color:#445;margin-top:8px;line-height:1.6;">A student says this needs Written Algorithm because it has "big numbers". Do you agree? Explain your reasoning.</p>
+          <div class="pq-buttons">
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t3q4-ans&#39;,this)">✓ Model Answer</button>
+          </div>
+          <div class="pq-answer" id="t3q4-ans">
+            <span class="answer-badge">24,500</span>
+            <div class="pq-hint shown" style="margin-top:8px;"><span class="hint-label">Model Answer</span>I disagree. Although the numbers are large, they are all multiples of 100. Mental strategy is more efficient: 19,800 + 200 = 20,000 (a number bond to 20,000), then + 4,500 = 24,500. The size of the numbers doesn't determine the strategy, the structure does.</div>
+          </div>
+        </div>
+
+        <div class="pq-card t3">
+          <div class="pq-num">T3 · Q5, Always / Sometimes / Never</div>
+          <div class="pq-strategy-badge c" style="background:#f0f0f0;color:var(--muted);">Open Reasoning</div>
+          <p style="font-size:16px;color:#445;margin-top:10px;line-height:1.6;"><em>"A calculator is always the safest choice because it never makes mistakes."</em></p>
+          <p style="font-size:15px;color:var(--muted);margin-top:8px;">Is this Always, Sometimes, or Never true? Justify your answer.</p>
+          <div class="pq-buttons">
+            <button class="pq-btn answer-btn" onclick="toggleEl(&#39;t3q5-ans&#39;,this)">✓ Model Answer</button>
+          </div>
+          <div class="pq-answer" id="t3q5-ans">
+            <div class="pq-hint shown"><span class="hint-label">Model Answer</span><strong>Sometimes true.</strong> A calculator doesn't make arithmetic errors, but the person pressing the buttons can. If you mis-key a number, the calculator gives a wrong answer confidently. For simple equations with friendly numbers, a mental strategy is both faster and just as reliable, and you're less likely to make a keying error. The calculator is a powerful tool, but it doesn't replace the need for number sense.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <button class="teacher-toggle-btn" onclick="toggleTeacher(&#39;tc-practice&#39;)">
+    <span>📋 Teacher Guidance, Differentiation Notes</span><span class="chev">▾</span>
+  </button>
+  <div class="teacher-body" id="tc-practice">
+    <p style="font-size:16px;line-height:1.8;color:#445;"><strong>Tier 1:</strong> Focus on the sort activity first. Circulate and guide students through the Mental column using bridging and levelling strategies they've practised in prior lessons. Resist the urge to give them the answer to the sorting, ask "What do you notice about the numbers?" instead.</p>
+    <p style="font-size:16px;line-height:1.8;color:#445;margin-top:10px;"><strong>Tier 2:</strong> The written justification for Calculator questions is the core challenge. Prompt with: "What property of those numbers makes a calculator better?" Accept reasonable answers, the goal is articulating mathematical reasoning, not a fixed script.</p>
+    <p style="font-size:16px;line-height:1.8;color:#445;margin-top:10px;"><strong>Tier 3:</strong> Q4 and Q5 are the extension targets. Q4 challenges the misconception that "big numbers = algorithm". Q5 tests metacognitive awareness about tool limitations. Both require multi-sentence reasoning, not just a number answer.</p>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════════════
+       GO DEEPER EXTENSION
+  ══════════════════════════════════════════ -->
+  <div class="go-deeper-section">
+    <button class="go-deeper-toggle" onclick="this.classList.toggle('open')">
+      <span>🔬 Go Deeper: Strategy Analysis</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="go-deeper-content">
+      <p style="font-size: 1rem; line-height: 1.7; color: #445; margin-bottom: 1.5rem;">In this extension, you'll become a strategy analyst. Instead of just solving equations, you'll solve the same equation using multiple strategies and compare their efficiency. Then you'll make and test conjectures about when each strategy wins.</p>
+
+      <!-- TASK 1: SPECIALISING -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 1: Specialising</div>
+        <div class="ext-task-prompt">Solve each equation using TWO different strategies, then decide which was more efficient.</div>
+        <div class="ext-task-sub">Below are four calculations. For each one, work it out in your head (mental strategy), then work it out using the written algorithm (pen and paper). Finally, decide which strategy was more efficient and why.</div>
+
+        <div style="background: white; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 10px; margin: 1rem 0;">
+          <p style="font-weight: 600; margin-bottom: 0.75rem;">Equation 1: <span class="ext-numbers">4,002 - 3,998</span></p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Thinking</div>
+            <p><strong>Mental strategy:</strong> I notice the numbers are very close. <span class="ext-numbers">3,998</span> is <span class="ext-numbers">2</span> away from <span class="ext-numbers">4,000</span>, and <span class="ext-numbers">4,002</span> is <span class="ext-numbers">2</span> away from <span class="ext-numbers">4,000</span> on the other side. So the gap is just <span class="ext-numbers">4</span>. Instant!</p>
+            <p style="margin-top: 0.75rem;"><strong>Written algorithm:</strong> I'd line them up and subtract column by column. But wait... the ones place: <span class="ext-numbers">2 - 8</span>? I can't do that. I need to borrow from the tens. But the tens place is <span class="ext-numbers">0</span>, so I need to borrow from the hundreds. But the hundreds is also <span class="ext-numbers">0</span>. So I have to borrow all the way from the thousands. This takes <span class="ext-numbers">5</span> steps and is error-prone.</p>
+            <p style="margin-top: 0.75rem;"><strong>Winner:</strong> Mental strategy by miles. For numbers this close, counting on is efficient and reliable.</p>
+            <div class="mathematician-box">
+              <strong>The insight:</strong> We assumed "subtract means write it down". But we didn't have to. When numbers are close together, your brain can do better than the algorithm.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: white; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 10px; margin: 1rem 0;">
+          <p style="font-weight: 600; margin-bottom: 0.75rem;">Equation 2: <span class="ext-numbers">3,456 + 2,789</span></p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Thinking</div>
+            <p><strong>Mental strategy:</strong> Hmm. <span class="ext-numbers">3,456</span> plus <span class="ext-numbers">2,789</span>... I'd try breaking it into parts: <span class="ext-numbers">3,000 + 2,000 = 5,000</span>, then <span class="ext-numbers">456 + 789</span>. But <span class="ext-numbers">456 + 789</span> still feels messy. I have to remember to carry the hundred, then add... actually, this is getting complicated. I'd lose track.</p>
+            <p style="margin-top: 0.75rem;"><strong>Written algorithm:</strong> Line them up. Ones: <span class="ext-numbers">6 + 9 = 15</span>, write <span class="ext-numbers">5</span> carry <span class="ext-numbers">1</span>. Tens: <span class="ext-numbers">5 + 8 + 1 = 14</span>, write <span class="ext-numbers">4</span> carry <span class="ext-numbers">1</span>. Hundreds: <span class="ext-numbers">4 + 7 + 1 = 12</span>, write <span class="ext-numbers">2</span> carry <span class="ext-numbers">1</span>. Thousands: <span class="ext-numbers">3 + 2 + 1 = 6</span>. Answer: <span class="ext-numbers">6,245</span>. Clean, step-by-step, low error.</p>
+            <p style="margin-top: 0.75rem;"><strong>Winner:</strong> Written algorithm. The numbers are large and there's no obvious mental shortcut. The algorithm gives certainty.</p>
+            <div class="mathematician-box">
+              <strong>The insight:</strong> Large numbers with no friendly bonds are exactly what the algorithm was designed for. Trust the structure.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: white; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 10px; margin: 1rem 0;">
+          <p style="font-weight: 600; margin-bottom: 0.75rem;">Equation 3: <span class="ext-numbers">5,000 - 1</span></p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Thinking</div>
+            <p><strong>Mental strategy:</strong> <span class="ext-numbers">5,000 - 1</span>? That's just <span class="ext-numbers">4,999</span>. Done. No thinking needed.</p>
+            <p style="margin-top: 0.75rem;"><strong>Written algorithm:</strong> Line them up. Ones: <span class="ext-numbers">0 - 1</span>? I can't do that. Borrow from tens. But tens is <span class="ext-numbers">0</span>, so borrow from hundreds. But hundreds is <span class="ext-numbers">0</span>. Borrow from thousands. So thousands becomes <span class="ext-numbers">4</span>, then I have to trade down through all three columns... it's a trading nightmare, and easy to make mistakes.</p>
+            <p style="margin-top: 0.75rem;"><strong>Winner:</strong> Mental strategy crushes it. When one number is a power of <span class="ext-numbers">10</span> and we're subtracting <span class="ext-numbers">1</span>, the algorithm is painful.</p>
+            <div class="mathematician-box">
+              <strong>The insight:</strong> Zeros are trouble for subtraction algorithms because they force trading chains. Your brain handles them instantly.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: white; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 10px; margin: 1rem 0;">
+          <p style="font-weight: 600; margin-bottom: 0.75rem;">Equation 4: <span class="ext-numbers">248 + 252</span></p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Thinking</div>
+            <p><strong>Mental strategy:</strong> Both numbers are near <span class="ext-numbers">250</span>. <span class="ext-numbers">248</span> is <span class="ext-numbers">2</span> below, <span class="ext-numbers">252</span> is <span class="ext-numbers">2</span> above. So the answer is <span class="ext-numbers">250 + 250 = 500</span>. Super fast.</p>
+            <p style="margin-top: 0.75rem;"><strong>Written algorithm:</strong> Line them up. Ones: <span class="ext-numbers">8 + 2 = 10</span>, write <span class="ext-numbers">0</span> carry <span class="ext-numbers">1</span>. Tens: <span class="ext-numbers">4 + 5 + 1 = 10</span>, write <span class="ext-numbers">0</span> carry <span class="ext-numbers">1</span>. Hundreds: <span class="ext-numbers">2 + 2 + 1 = 5</span>. Answer: <span class="ext-numbers">500</span>. Also pretty straightforward.</p>
+            <p style="margin-top: 0.75rem;"><strong>Winner:</strong> Either works, but mental strategy is faster because the numbers are friendly pairs.</p>
+            <div class="mathematician-box">
+              <strong>The insight:</strong> Numbers near the same round value suggest a mental strategy. But the algorithm isn't bad here either. Sometimes both strategies are good.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: #fff8f0; padding: 1.2rem; border-radius: 10px; margin-top: 1.5rem;">
+          <p style="font-weight: 600; color: #7a3d00; margin-bottom: 0.75rem;">Now, reflect on your answers:</p>
+          <p style="color: #5a2800; line-height: 1.6;">Which calculations did the written algorithm win for you? Which did mental strategies win? What made the difference? Write 2-3 sentences exploring the pattern you notice.</p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        </div>
+      </div>
+
+      <!-- TASK 2: CONJECTURING -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 2: Conjecturing</div>
+        <div class="ext-task-prompt">Test a claim about strategy reliability.</div>
+        <div class="ext-task-sub">A student says: "A written algorithm is always the safest strategy because it works for every calculation."</div>
+
+        <div style="background: white; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 10px; margin: 1rem 0;">
+          <p style="margin-bottom: 1rem;"><strong>Is this claim ALWAYS, SOMETIMES, or NEVER true? Explain your reasoning.</strong></p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Thinking</div>
+            <p><strong>The student said "always":</strong> It's true that the written algorithm DOES work mechanically for every calculation. You can use it for <span class="ext-numbers">5,000 - 1</span>, and it will give you the right answer eventually.</p>
+            <p style="margin-top: 0.75rem;"><strong>But "safest" means something different:</strong> "Safe" usually means "least likely to make an error". And here's the key: for calculations like <span class="ext-numbers">5,000 - 1</span>, the algorithm requires trading across three columns. Trading is where most students make errors. One column gone wrong, and your answer is ruined.</p>
+            <p style="margin-top: 0.75rem;"><strong>Mental strategies can be SAFER:</strong> If you count on from <span class="ext-numbers">3,998</span> to <span class="ext-numbers">4,002</span>, you take two steps. If you get one step wrong, you're only off by <span class="ext-numbers">1</span>. With the algorithm, a single trading mistake cascades.</p>
+            <p style="margin-top: 0.75rem;"><strong>Verdict: SOMETIMES true.</strong> The algorithm works for every calculation mechanically, but it's not always the SAFEST choice. For numbers with lots of zeros or numbers very close together, mental strategies can be both faster AND less error-prone.</p>
+            <div class="mathematician-box">
+              <strong>The insight:</strong> "Works" and "safest" are not the same thing. An algorithm that works mechanically can still be a risky choice for a particular set of numbers.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 3: JUSTIFYING -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 3: Justifying</div>
+        <div class="ext-task-prompt">Evaluate a real student disagreement.</div>
+        <div class="ext-task-sub">Here's what two real students said:</div>
+
+        <div style="background: #fff6ee; padding: 1rem; border-left: 4px solid #FF8400; border-radius: 8px; margin: 1rem 0;">
+          <p style="margin: 0; font-style: italic;"><strong>Student A:</strong> "I solved <span class="ext-numbers">4,002 - 3,998</span> using the written algorithm and got <span class="ext-numbers">4</span>."</p>
+          <p style="margin: 0.75rem 0 0; font-style: italic;"><strong>Student B:</strong> "I just counted on from <span class="ext-numbers">3,998</span> to <span class="ext-numbers">4,002</span> in my head. The answer is <span class="ext-numbers">4</span>."</p>
+          <p style="margin: 0.75rem 0 0; font-style: italic;"><strong>Student A then says:</strong> "You should always use the written algorithm because it's more reliable."</p>
+        </div>
+
+        <div style="background: white; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 10px; margin: 1rem 0;">
+          <p style="margin-bottom: 1rem;"><strong>Is Student A right? Write a clear justification.</strong></p>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Thinking</div>
+            <p><strong>Is Student A right? No.</strong> Here's why:</p>
+            <p style="margin-top: 0.75rem;"><strong>For THIS equation, Student B's strategy is both faster AND more reliable:</strong></p>
+            <ul style="margin-top: 0.75rem; margin-left: 1.5rem; line-height: 1.8;">
+              <li>Student A's written algorithm for <span class="ext-numbers">4,002 - 3,998</span> requires trading across three columns (thousands, hundreds, tens). That's three places where an error can slip in.</li>
+              <li>Student B counts on: <span class="ext-numbers">3,998</span> to <span class="ext-numbers">4,000</span> is <span class="ext-numbers">2</span>, then <span class="ext-numbers">4,000</span> to <span class="ext-numbers">4,002</span> is <span class="ext-numbers">2</span>. Total: <span class="ext-numbers">4</span>. Two simple steps.</li>
+              <li>If Student B gets one step wrong, they're off by <span class="ext-numbers">1</span>. If Student A makes a single trading error, they could get <span class="ext-numbers">3</span> or <span class="ext-numbers">5</span> or worse.</li>
+            </ul>
+            <p style="margin-top: 0.75rem;"><strong>Student A is confusing "always use the written algorithm" with "know how to use the written algorithm".</strong> Yes, you should know the algorithm. But knowing a strategy and using it blindly are different things. The best mathematicians pick the right tool for the job.</p>
+            <div class="mathematician-box">
+              <strong>The bigger lesson:</strong> Student A had the right answer, but for the wrong reason. The lesson of this whole unit is that smart maths isn't about having one reliable tool. It's about having multiple tools and choosing wisely.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── Navigation ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Teacher toggles ──
+function toggleTeacher(id) {
+  const body = document.getElementById(id);
+  const btn = body.previousElementSibling;
+  body.classList.toggle('shown');
+  btn.classList.toggle('open');
+}
+
+// ── Toggle hint/answer ──
+function toggleEl(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('shown');
+  btn.classList.toggle('active');
+}
+
+// ── Reveal / step reveal ──
+function revealEl(id) {
+  document.getElementById(id).classList.add('shown');
+}
+
+// ── Begin race (reveals equation + racers) ──
+function beginRace() {
+  document.getElementById('begin-race-btn').style.display = 'none';
+  document.getElementById('race-demo').style.display = 'block';
+}
+
+// ── Race animation ──
+let raceRunning = false;
+function startRace() {
+  if (raceRunning) return;
+  raceRunning = true;
+  document.getElementById('race-btn').style.display = 'none';
+
+  const brainDots = ['bd1','bd2','bd3'];
+  const calcDots  = ['cd1','cd2','cd3','cd4'];
+
+  document.getElementById('brain-status').textContent = 'Scanning…';
+  document.getElementById('calc-status').textContent  = 'Typing…';
+  document.getElementById('brain-steps-list').style.display = 'block';
+  document.getElementById('calc-steps-list').style.display = 'block';
+
+  // Brain steps: 0.4s, 0.9s, 1.4s
+  brainDots.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('done');
+    }, 400 + i * 500);
+  });
+
+  // Brain result at 1.6s
+  setTimeout(() => {
+    document.getElementById('brain-result').classList.add('shown');
+    document.getElementById('brain-badge').classList.add('shown');
+    document.getElementById('brain-status').textContent = '✅ Done!';
+    document.getElementById('show-brain-btn').style.display = '';
+  }, 1700);
+
+  // Calc steps: 0.8s, 1.4s, 2.0s, 2.7s
+  calcDots.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('done');
+    }, 800 + i * 700);
+  });
+
+  // Calc result at 3.2s
+  setTimeout(() => {
+    document.getElementById('calc-result').classList.add('shown');
+    document.getElementById('calc-status').textContent = '(Still going!)';
+    document.getElementById('show-calc-btn').style.display = '';
+    document.getElementById('reset-race-btn').style.display = '';
+    document.getElementById('discussion-callout').style.display = '';
+  }, 3200);
+}
+
+function showBrainStrategy() {
+  document.getElementById('brain-numberline').style.display = 'block';
+  document.getElementById('show-brain-btn').style.display = 'none';
+}
+
+function showCalcStrategy() {
+  document.getElementById('calc-steps-list').style.display = 'block';
+  document.getElementById('show-calc-btn').style.display = 'none';
+}
+
+function resetRace() {
+  raceRunning = false;
+  ['bd1','bd2','bd3','cd1','cd2','cd3','cd4'].forEach(id => {
+    document.getElementById(id).classList.remove('done');
+  });
+  ['brain-result','calc-result','brain-badge'].forEach(id => {
+    document.getElementById(id).classList.remove('shown');
+  });
+  document.getElementById('brain-steps-list').style.display = 'none';
+  document.getElementById('calc-steps-list').style.display = 'none';
+  document.getElementById('brain-numberline').style.display = 'none';
+  document.getElementById('show-brain-btn').style.display = 'none';
+  document.getElementById('show-calc-btn').style.display = 'none';
+  document.getElementById('discussion-callout').style.display = 'none';
+  document.getElementById('brain-status').textContent = 'Ready…';
+  document.getElementById('calc-status').textContent  = 'Ready…';
+  document.getElementById('race-btn').style.display   = '';
+  document.getElementById('reset-race-btn').style.display = 'none';
+  // Hide race demo and restore Begin button
+  document.getElementById('race-demo').style.display = 'none';
+  document.getElementById('begin-race-btn').style.display = '';
+}
+
+// ── Scan demos ──
+const scanData = {
+  1: {
+    highlights: { s1n1: 'friendly', s1n2: 'friendly', s1n3: 'friendly' },
+    verdict: 'scan1-verdict'
+  },
+  2: {
+    highlights: { s2n1: 'complex', s2n2: 'complex' },
+    verdict: 'scan2-verdict'
+  },
+  3: {
+    highlights: { s3n1: 'complex', s3n2: 'complex', s3n3: 'friendly', s3n4: 'complex' },
+    verdict: 'scan3-verdict'
+  },
+  4: {
+    highlights: { s4n1: 'friendly', s4n2: 'friendly', s4n3: 'zero', s4n4: 'friendly' },
+    verdict: 'scan4-verdict'
+  }
+};
+
+function showScan(n) {
+  const d = scanData[n];
+  Object.entries(d.highlights).forEach(([id, cls]) => {
+    document.getElementById(id).classList.add(cls);
+  });
+  document.getElementById(d.verdict).classList.add('shown');
+}
+
+// ── Guided Practice ──
+const gpAnswers = { 1: 'M', 2: 'W', 3: 'C' };
+const gpFeedback = {
+  1: {
+    M: { ok: true,  msg: '✅ Correct! All multiples of 100. 600 + 400 = 1,000, then + 1,200 = 2,200. Fast mental calculation.' },
+    W: { ok: false, msg: '⚠️ Defensible, but not the most efficient. Can you see the number bond 600 + 400 = 1,000?' },
+    C: { ok: false, msg: '❌ The calculator takes longer to key in than to spot the friendly numbers here.' }
+  },
+  2: {
+    M: { ok: false, msg: '❌ Too complex for mental. Two large 5-digit numbers with trading, not a friendly shortcut in sight.' },
+    W: { ok: true,  msg: '✅ Correct! Two large numbers requiring trading. This is exactly the Written Algorithm\'s job.' },
+    C: { ok: false, msg: '⚠️ Not wrong, but the syllabus expects students to handle this type by hand. Reserve the calculator for when the Written Algorithm itself becomes unwieldy.' }
+  },
+  3: {
+    M: { ok: false, msg: '❌ Four decimals with no friendly bonds, attempting this mentally risks compounding errors.' },
+    W: { ok: false, msg: '⚠️ Possible, but four decimal additions is slow and error-prone in columns. The calculator is the right tool here.' },
+    C: { ok: true,  msg: '✅ Correct! Four decimal amounts with no friendly bonds. Speed and precision both matter, the calculator wins.' }
+  }
+};
+
+function pickGP(q, choice, btn) {
+  // Clear previous choices
+  btn.parentElement.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('chosen'));
+  btn.classList.add('chosen');
+
+  const fb = gpFeedback[q][choice];
+  const div = document.getElementById('gp' + q + '-feedback');
+  div.innerHTML = '<div class="callout ' + (fb.ok ? 'callout-teal' : 'callout-amber') + '" style="margin-top:4px;"><p>' + fb.msg + '</p></div>';
+  div.classList.add('shown');
+}
+
+// ── Drag and Drop Sort ──
+let dragEq = null;
+const chipTexts = {
+  A: '4,000 + 6,000',
+  B: '62,347 + 29,815',
+  C: '8.45 + 3.27 + 11.60 + 6.98',
+  D: '3,500 + 500 + 200',
+  E: '10,050 − 3,728',
+  F: '$14.99 + $7.85 + $23.40 + $9.15',
+  G: '7,000 + 3,000',
+  H: '48,203 + 37,491',
+  I: '0.75 + 2.48 + 5.63 + 1.99 + 3.80',
+  J: '2,800 + 400 + 100 + 300',
+  K: '73,000 − 28,645',
+  L: '4.07 + 13.95 + 8.62 + 2.40',
+  M: '900 + 100 + 50',
+  N: '56,108 − 34,779',
+  O: '$6.50 + $18.75 + $4.99 + $12.30 + $7.40'
+};
+const chipAnswers = {
+  A:'M', B:'W', C:'C', D:'M', E:'W', F:'C',
+  G:'M', H:'W', I:'C', J:'M', K:'W', L:'C',
+  M:'M', N:'W', O:'C'
+};
+const placed = {}; // eq -> column
+
+function dragStart(e, eq) {
+  dragEq = eq;
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e, col) {
+  e.preventDefault();
+  document.getElementById('col-' + col).classList.add('over');
+}
+function dragLeave(e, col) {
+  document.getElementById('col-' + col).classList.remove('over');
+}
+function dropChip(e, col) {
+  e.preventDefault();
+  document.getElementById('col-' + col).classList.remove('over');
+  if (!dragEq) return;
+  placeChip(dragEq, col);
+  dragEq = null;
+}
+
+// Touch / click fallback for mobile
+let pendingTap = null;
+function tapChip(eq) {
+  if (placed[eq]) return; // already placed
+  if (pendingTap === eq) {
+    pendingTap = null;
+    return;
+  }
+  pendingTap = eq;
+  // prompt via column buttons
+  showTapPrompt(eq);
+}
+function showTapPrompt(eq) {
+  const old = document.getElementById('tap-prompt');
+  if (old) old.remove();
+  const div = document.createElement('div');
+  div.id = 'tap-prompt';
+  div.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2D3436;color:#fff;border-radius:16px;padding:16px 22px;z-index:999;display:flex;gap:10px;align-items:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:Fredoka,sans-serif;font-size:16px;font-weight:600;';
+  div.innerHTML = '<span>Place in:</span><button onclick="placeChip(\''+eq+'\',\'M\');removeTapPrompt()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Fredoka,sans-serif;font-size:15px;font-weight:700;cursor:pointer;">🧠 M</button><button onclick="placeChip(\''+eq+'\',\'W\');removeTapPrompt()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Fredoka,sans-serif;font-size:15px;font-weight:700;cursor:pointer;">✏️ W</button><button onclick="placeChip(\''+eq+'\',\'C\');removeTapPrompt()" style="background:var(--orange);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:Fredoka,sans-serif;font-size:15px;font-weight:700;cursor:pointer;">🔢 C</button><button onclick="removeTapPrompt()" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:8px;padding:8px 10px;font-family:Fredoka,sans-serif;font-size:14px;cursor:pointer;">✕</button>';
+  document.body.appendChild(div);
+}
+function removeTapPrompt() {
+  const p = document.getElementById('tap-prompt');
+  if (p) p.remove();
+  pendingTap = null;
+}
+
+function placeChip(eq, col) {
+  if (placed[eq]) {
+    // Remove from old column
+    const oldZone = document.getElementById('zone-' + placed[eq]);
+    const oldPlaced = oldZone.querySelector('[data-eq="' + eq + '"]');
+    if (oldPlaced) oldPlaced.remove();
+  }
+  placed[eq] = col;
+
+  // Mark source chip as placed
+  const poolChip = document.querySelector('#eq-pool [data-eq="' + eq + '"]');
+  if (poolChip) poolChip.classList.add('placed');
+
+  // Add to column
+  const zone = document.getElementById('zone-' + col);
+  const div = document.createElement('div');
+  div.className = 'placed-chip';
+  div.setAttribute('data-eq', eq);
+  div.textContent = chipTexts[eq];
+  div.title = 'Click to remove';
+  div.onclick = () => removeFromCol(eq, col);
+  zone.appendChild(div);
+
+  // Clear result
+  document.getElementById('sort-result').classList.remove('shown');
+  document.getElementById('sort-result').innerHTML = '';
+}
+
+function removeFromCol(eq, col) {
+  const zone = document.getElementById('zone-' + col);
+  const chip = zone.querySelector('[data-eq="' + eq + '"]');
+  if (chip) chip.remove();
+  delete placed[eq];
+  const poolChip = document.querySelector('#eq-pool [data-eq="' + eq + '"]');
+  if (poolChip) poolChip.classList.remove('placed');
+}
+
+function checkSort() {
+  let correct = 0, wrong = 0, missing = 0;
+  const total = Object.keys(chipAnswers).length;
+  const wrongList = [];
+
+  Object.entries(chipAnswers).forEach(([eq, ans]) => {
+    if (!placed[eq]) { missing++; return; }
+    if (placed[eq] === ans) { correct++; }
+    else {
+      wrong++;
+      const label = {M:'Mental',W:'Written',C:'Calculator'};
+      wrongList.push('<strong>' + chipTexts[eq] + '</strong> → should be <strong>' + label[ans] + '</strong>');
+    }
+  });
+
+  const result = document.getElementById('sort-result');
+  if (missing > 0) {
+    result.innerHTML = '<div class="callout callout-amber"><span class="label">Not quite done!</span><p>You still have <strong>' + missing + ' equation(s)</strong> in the pool. Place all equations before checking.</p></div>';
+  } else if (wrong === 0) {
+    result.innerHTML = '<div class="callout callout-teal"><span class="label">🏆 Perfect Sort!</span><p>All ' + total + ' equations correctly categorised. You\'ve mastered the scanning skill!</p><p style="margin-top: 1rem;"><button style="padding: 0.7rem 1.5rem; background: var(--teal); color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 600; font-family: \'Fredoka\', sans-serif; font-size: 1rem;" onclick="openGoDeeper()">🔬 Unlock Go Deeper Extension</button></p></div>';
+    // Unlock Go Deeper
+    document.querySelector('.go-deeper-toggle').disabled = false;
+  } else {
+    result.innerHTML = '<div class="callout callout-amber"><span class="label">Almost there! ' + correct + '/' + total + ' correct</span><p>These equations need a second look:<br>' + wrongList.join('<br>') + '</p></div>';
+  }
+  result.classList.add('shown');
+  result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function resetSort() {
+  Object.keys(placed).forEach(eq => {
+    const poolChip = document.querySelector('#eq-pool [data-eq="' + eq + '"]');
+    if (poolChip) poolChip.classList.remove('placed');
+  });
+  Object.keys(placed).forEach(k => delete placed[k]);
+  ['M','W','C'].forEach(col => { document.getElementById('zone-' + col).innerHTML = ''; });
+  document.getElementById('sort-result').classList.remove('shown');
+  document.getElementById('sort-result').innerHTML = '';
+  removeTapPrompt();
+}
+
+function toggleLearningSection() {
+  const content = document.getElementById('learningContent');
+  const toggle = document.getElementById('learningToggle');
+  content.classList.toggle('open');
+  toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+// ── I Do Step Progression ──
+function goToIdoStep(prefix, stepNum, totalSteps) {
+  document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+  const dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('active', 'visited');
+    if (i === stepNum - 1) dot.classList.add('active');
+    else if (i < stepNum - 1) dot.classList.add('visited');
+  });
+}
+
+// ── Go Deeper Extension ──
+function openGoDeeper() {
+  const toggle = document.querySelector('.go-deeper-toggle');
+  const section = document.querySelector('.go-deeper-section');
+  if (toggle && !toggle.classList.contains('open')) {
+    toggle.classList.add('open');
+  }
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+</script>
+
+
+</body></html>

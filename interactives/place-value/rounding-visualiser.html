@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rounding Visualiser</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --col-w: 72px;
+  --col-gap: 8px;
+  --house-h: 110px;
+  --radius: 14px;
+  --bg-cream: #FFF8F0;
+  --text-dark: #2D3436;
+  --text-light: #636E72;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  --accent: #4ECDC4;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Fredoka', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 52px;
+  overflow-x: hidden;
+  background: var(--bg-cream);
+  color: var(--text-dark);
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  width: 250px; height: 250px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.1;
+  top: -80px; right: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: #27AE60;
+  opacity: 0.1;
+  bottom: 10%; left: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob3 {
+  position: fixed;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: #E74C3C;
+  opacity: 0.1;
+  top: 50%; right: 5%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > *:not(.blob3) { position: relative; z-index: 1; }
+
+/* Header */
+.header { text-align: center; margin-bottom: 20px; }
+.header h1 {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3.5vw, 36px);
+  color: var(--text-dark);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+.header h1 span { color: var(--accent); }
+.header p {
+  font-size: 15px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Rounding level selector */
+.round-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.round-btn {
+  padding: 7px 18px;
+  border-radius: 20px;
+  border: 2px solid #e0d5c5;
+  background: white;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+.round-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 3px 10px rgba(78,205,196,0.35);
+}
+.round-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+
+/* Place value stage */
+.stage-wrap {
+  width: 100%;
+  max-width: 600px;
+  padding: 0 16px 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.stage {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--col-gap);
+  position: relative;
+  padding: 16px 0 0;
+  width: 100%;
+  min-height: calc(var(--house-h) + 50px);
+}
+
+.house {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.house-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--house-color);
+  min-height: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.house-cell {
+  width: 100%;
+  height: var(--house-h);
+  border-radius: var(--radius);
+  border: 2.5px solid var(--house-color);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  transition: background 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.house-cell.lit {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--house-color) 18%, transparent), 0 4px 12px rgba(0,0,0,0.07);
+}
+
+/* Rounding place highlight, the digit that stays or goes up */
+.house-cell.round-place {
+  border-color: #e8650a;
+  border-width: 3.5px;
+  box-shadow: 0 0 0 5px rgba(232,101,10,0.25), 0 4px 16px rgba(232,101,10,0.15);
+}
+
+/* Decision digit highlight */
+.house-cell.decision-digit {
+  border-color: #d44d8a;
+  border-width: 3.5px;
+  box-shadow: 0 0 0 5px rgba(212,77,138,0.25), 0 4px 16px rgba(212,77,138,0.15);
+}
+
+/* Zeroed-out columns */
+.house.zeroed-out {
+  opacity: 0.45;
+}
+
+.digit-token {
+  width: calc(100% - 16px);
+  height: calc(var(--house-h) - 16px);
+  border-radius: calc(var(--radius) - 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 900;
+  color: white;
+  background: var(--token-color);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.12);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+}
+
+.digit-token.is-zero {
+  opacity: 0.55;
+  font-size: clamp(26px, 4vw, 42px);
+  background: color-mix(in srgb, var(--token-color) 65%, #888);
+}
+
+/* Pulse animation for the rounding digit on level select */
+@keyframes pulseGlow {
+  0%   { box-shadow: 0 0 0 5px rgba(232,101,10,0.25), 0 4px 16px rgba(232,101,10,0.15); }
+  50%  { box-shadow: 0 0 0 8px rgba(232,101,10,0.35), 0 4px 20px rgba(232,101,10,0.25); }
+  100% { box-shadow: 0 0 0 5px rgba(232,101,10,0.25), 0 4px 16px rgba(232,101,10,0.15); }
+}
+.house-cell.round-place-pulse {
+  border-color: #e8650a;
+  border-width: 3.5px;
+  animation: pulseGlow 1.2s ease-in-out 3;
+}
+
+/* Labels below columns */
+.house-role {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 1.2;
+  min-height: 20px;
+  transition: opacity 0.3s;
+  width: 100%;
+}
+.house-role.rounding-place-label {
+  background: #e8650a;
+  color: white;
+}
+.house-role.decision-label {
+  background: #d44d8a;
+  color: white;
+}
+.house-role.stays-label {
+  background: #059669;
+  color: white;
+}
+.house-role.zeros-label {
+  background: #b0b0b0;
+  color: white;
+}
+
+/* Number line */
+.numberline-wrap {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 22px;
+  padding: 0 16px;
+}
+
+.numberline-container {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 28px 20px;
+  box-shadow: var(--card-shadow);
+  border-top: 4px solid var(--accent);
+}
+
+.numberline-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.numberline {
+  position: relative;
+  height: 80px;
+  margin: 0 30px;
+}
+
+.nl-track {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: #e0d5c5;
+  border-radius: 3px;
+}
+
+.nl-fill-lower {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #4ECDC4, #059669);
+  border-radius: 3px 0 0 3px;
+  transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+
+.nl-fill-upper {
+  position: absolute;
+  top: 40px;
+  height: 6px;
+  background: linear-gradient(90deg, #059669, #e8650a);
+  border-radius: 0 3px 3px 0;
+  transition: left 0.7s, width 0.7s;
+  transition-timing-function: cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Midpoint marker */
+.nl-midpoint {
+  position: absolute;
+  top: 30px;
+  width: 2px;
+  height: 26px;
+  background: #d44d8a;
+  transform: translateX(-50%);
+  transition: left 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+/* Midpoint mark only, number hidden to reduce clutter */
+.nl-midpoint-label {
+  display: none;
+}
+
+/* Boundary labels */
+.nl-bound-lower, .nl-bound-upper {
+  position: absolute;
+  top: 52px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.nl-bound-lower { left: 0; color: #4ECDC4; }
+.nl-bound-upper { right: 0; color: #e8650a; transform: translateX(50%); }
+
+/* Boundary ticks */
+.nl-tick-lower, .nl-tick-upper {
+  position: absolute;
+  top: 32px;
+  width: 3px;
+  height: 22px;
+  border-radius: 2px;
+}
+.nl-tick-lower { left: 0; transform: translateX(-50%); background: #4ECDC4; }
+.nl-tick-upper { right: 0; transform: translateX(50%); background: #e8650a; }
+
+/* Number marker */
+.nl-marker {
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  transition: left 0.15s ease-out;
+  z-index: 2;
+}
+.nl-marker.animating {
+  transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nl-marker-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #7c3aed;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  margin: 0 auto;
+  transition: background 0.4s, transform 0.3s;
+}
+.nl-marker.animating .nl-marker-dot {
+  transform: scale(1.15);
+}
+.nl-marker.landed .nl-marker-dot {
+  background: #059669;
+  transform: scale(1.3);
+}
+.nl-marker-line {
+  width: 2px;
+  height: 18px;
+  background: #7c3aed;
+  margin: 0 auto;
+  transition: background 0.4s;
+}
+.nl-marker.landed .nl-marker-line {
+  background: #059669;
+}
+.nl-marker-label {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #7c3aed;
+  white-space: nowrap;
+  transition: color 0.4s;
+}
+.nl-marker.landed .nl-marker-label {
+  color: #059669;
+  font-size: 15px;
+}
+
+/* Controls */
+.controls {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 600px;
+}
+
+
+/* Step-through buttons */
+.step-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.step-btn {
+  padding: 11px 24px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  color: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+  letter-spacing: 0.02em;
+}
+.step-btn.round-action { background: linear-gradient(135deg, #e8650a, #f59e0b); }
+.step-btn.reset-action { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.step-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+.step-btn:active:not(:disabled) { transform: translateY(0); }
+.step-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+/* Input row */
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.input-row label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+.num-input {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid #e0d5c5;
+  background: white;
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  width: 160px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.num-input:focus { border-color: var(--accent); }
+
+.set-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(78,205,196,0.35);
+}
+.set-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+/* Responsive */
+@media (max-width: 500px) {
+  :root {
+    --col-gap: 5px;
+    --house-h: 80px;
+  }
+  .house-label { font-size: 9px; }
+  .numberline-container { padding: 18px 16px 14px; }
+  .numberline { margin: 0 20px; }
+}
+
+/* Learning Intention & Success Criteria Card */
+.learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin: 0 16px 2rem;
+    border-top: 5px solid var(--accent);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.learning-card h2 {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.learning-content {
+    display: none;
+    margin-top: 1rem;
+}
+
+.learning-content.open {
+    display: block;
+}
+
+.learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-light);
+}
+
+.success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+}
+
+.success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+    color: var(--text-light);
+}
+
+.success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+}
+
+</style>
+</head>
+<body>
+
+<div class="blob3"></div>
+
+<div class="header">
+  <h1>Rounding <span>Visualiser</span></h1>
+  <p>See where a number sits and watch it round to the nearest place</p>
+</div>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to visualise the rounding process by seeing where a number sits between two benchmarks.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can identify the two benchmark numbers a given number sits between</li>
+            <li>I can determine whether a number is closer to the lower or upper benchmark</li>
+            <li>I can use the midpoint to decide whether to round up or down</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Rounding level selector -->
+<div class="round-toggle" id="roundToggle"></div>
+
+<!-- Place value stage -->
+<div class="stage-wrap">
+  <div class="stage" id="stage"></div>
+</div>
+
+<!-- Number line -->
+<div class="numberline-wrap">
+  <div class="numberline-container">
+    <div class="numberline-title">Number line</div>
+    <div class="numberline" id="numberline">
+      <div class="nl-track"></div>
+      <div class="nl-fill-lower" id="nlFillLower"></div>
+      <div class="nl-fill-upper" id="nlFillUpper"></div>
+      <div class="nl-tick-lower"></div>
+      <div class="nl-tick-upper"></div>
+      <div class="nl-midpoint" id="nlMidpoint"></div>
+      <div class="nl-midpoint-label" id="nlMidpointLabel"></div>
+      <div class="nl-bound-lower" id="nlBoundLower"></div>
+      <div class="nl-bound-upper" id="nlBoundUpper"></div>
+      <div class="nl-marker" id="nlMarker">
+        <div class="nl-marker-label" id="nlMarkerLabel"></div>
+        <div class="nl-marker-dot"></div>
+        <div class="nl-marker-line"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="step-row">
+    <button class="step-btn round-action" id="btnRound" onclick="doRound()">Show the answer</button>
+    <button class="step-btn reset-action" id="btnReset" onclick="resetRound()">Reset</button>
+  </div>
+
+  <div class="input-row">
+    <label>Enter a number:</label>
+    <input class="num-input" id="numInput" type="text" placeholder="e.g. 4738" value="4738">
+    <button class="set-btn" onclick="setFromInput()">Set</button>
+  </div>
+</div>
+
+<script>
+function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+/* ══════════════════════════════════════════════
+   PLACE VALUE DEFINITIONS
+══════════════════════════════════════════════ */
+const PLACES = [
+  { pow: 6, label: 'Millions',            short: 'M',   color: '#be185d' },
+  { pow: 5, label: 'Hundred\nThousands', short: 'HTh', color: '#d44d8a' },
+  { pow: 4, label: 'Ten\nThousands',     short: 'TTh', color: '#7c3aed' },
+  { pow: 3, label: 'Thousands',           short: 'Th',  color: '#1d4ed8' },
+  { pow: 2, label: 'Hundreds',            short: 'H',   color: '#0891b2' },
+  { pow: 1, label: 'Tens',                short: 'T',   color: '#059669' },
+  { pow: 0, label: 'Ones',                short: 'O',   color: '#65a30d' },
+];
+
+const ROUND_LEVELS = [
+  { pow: 1, label: 'Nearest 10',        value: 10 },
+  { pow: 2, label: 'Nearest 100',       value: 100 },
+  { pow: 3, label: 'Nearest 1,000',    value: 1000 },
+  { pow: 4, label: 'Nearest 10,000',   value: 10000 },
+  { pow: 5, label: 'Nearest 100,000',   value: 100000 },
+  { pow: 6, label: 'Nearest 1,000,000', value: 1000000 },
+];
+
+/* ── State ── */
+let currentNumber = 4738;
+let roundLevel = 1;       // pow: 1 = nearest 10
+let animStep = 1;         // 1 = showing analysis, 2 = rounded
+let animating = false;
+
+/* ══════════════════════════════════════════════
+   UTILITY
+══════════════════════════════════════════════ */
+function getDigits(num) {
+  const s = Math.abs(Math.round(num)).toString();
+  const digits = new Map();
+  for (let i = 0; i < s.length; i++) {
+    const pow = s.length - 1 - i;
+    digits.set(pow, parseInt(s[i]));
+  }
+  return digits;
+}
+
+function formatNum(n) {
+  return Math.round(n).toLocaleString();
+}
+
+function getRoundingInfo(num, level) {
+  const placeValue = Math.pow(10, level);
+  const lower = Math.floor(num / placeValue) * placeValue;
+  const upper = lower + placeValue;
+  const mid = lower + placeValue / 2;
+  const rounded = Math.round(num / placeValue) * placeValue;
+  const decisionDigit = Math.floor((num % placeValue) / (placeValue / 10));
+  const roundsUp = num >= mid;
+
+  return { lower, upper, mid, rounded, decisionDigit, roundsUp, placeValue };
+}
+
+/* ══════════════════════════════════════════════
+   RENDERING, PLACE VALUE HOUSES
+══════════════════════════════════════════════ */
+function getVisiblePlaces() {
+  const digits = getDigits(currentNumber);
+  const maxPow = Math.max(...digits.keys(), roundLevel);
+  return PLACES.filter(p => p.pow <= maxPow);
+}
+
+function buildStage() {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = '';
+  const places = getVisiblePlaces();
+  const digits = getDigits(currentNumber);
+
+  places.forEach(place => {
+    const house = document.createElement('div');
+    house.className = 'house';
+    house.id = 'house-' + place.pow;
+    house.style.setProperty('--house-color', place.color);
+
+    const labelLines = place.label.split('\n');
+    const digit = digits.get(place.pow) ?? 0;
+    const isZero = digit === 0;
+
+    house.innerHTML = `
+      <div class="house-label">${labelLines.join('<br>')}</div>
+      <div class="house-cell ${digit !== 0 ? 'lit' : ''}" id="cell-${place.pow}">
+        <div class="digit-token ${isZero ? 'is-zero' : ''}" style="--token-color: ${place.color}" id="token-${place.pow}">${digit}</div>
+      </div>
+      <div class="house-role" id="role-${place.pow}"></div>
+    `;
+    stage.appendChild(house);
+  });
+}
+
+/* Highlight all columns with roles */
+function highlightAllRoles() {
+  const places = getVisiblePlaces();
+
+  places.forEach(place => {
+    const cell = document.getElementById('cell-' + place.pow);
+    const role = document.getElementById('role-' + place.pow);
+    const house = document.getElementById('house-' + place.pow);
+    if (!cell || !role || !house) return;
+
+    cell.classList.remove('round-place', 'round-place-pulse', 'decision-digit');
+    role.className = 'house-role';
+    role.textContent = '';
+    house.classList.remove('zeroed-out');
+
+    if (place.pow === roundLevel) {
+      cell.classList.add('round-place');
+      role.classList.add('rounding-place-label');
+      role.textContent = 'Rounding digit';
+    } else if (place.pow === roundLevel - 1) {
+      cell.classList.add('decision-digit');
+      role.classList.add('decision-label');
+      role.textContent = 'Look at this digit';
+    } else if (place.pow > roundLevel) {
+      role.classList.add('stays-label');
+      role.textContent = 'Stays';
+    } else if (place.pow < roundLevel - 1) {
+      role.classList.add('zeros-label');
+      role.textContent = 'Becomes 0';
+    }
+  });
+}
+
+function clearRoles() {
+  const places = getVisiblePlaces();
+  places.forEach(place => {
+    const cell = document.getElementById('cell-' + place.pow);
+    const role = document.getElementById('role-' + place.pow);
+    const house = document.getElementById('house-' + place.pow);
+    if (cell) cell.classList.remove('round-place', 'round-place-pulse', 'decision-digit');
+    if (role) { role.className = 'house-role'; role.textContent = ''; }
+    if (house) house.classList.remove('zeroed-out');
+  });
+}
+
+function showRoundedDigits(rounded) {
+  const digits = getDigits(rounded);
+  const places = getVisiblePlaces();
+
+  places.forEach(place => {
+    const token = document.getElementById('token-' + place.pow);
+    const cell = document.getElementById('cell-' + place.pow);
+    const house = document.getElementById('house-' + place.pow);
+    if (!token || !cell) return;
+
+    const newDigit = digits.get(place.pow) ?? 0;
+    const oldDigit = parseInt(token.textContent);
+
+    token.textContent = newDigit;
+    token.classList.toggle('is-zero', newDigit === 0);
+    cell.classList.toggle('lit', newDigit !== 0);
+
+    if (newDigit !== oldDigit) {
+      token.style.transform = 'scale(1.25)';
+      setTimeout(() => { token.style.transform = 'scale(1)'; }, 350);
+    }
+
+    // Dim zeroed-out columns
+    if (place.pow < roundLevel) {
+      house.classList.add('zeroed-out');
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════
+   RENDERING, NUMBER LINE
+══════════════════════════════════════════════ */
+function updateNumberLine() {
+  const info = getRoundingInfo(currentNumber, roundLevel);
+  const range = info.upper - info.lower;
+  const pct = range > 0 ? ((currentNumber - info.lower) / range) * 100 : 50;
+
+  document.getElementById('nlBoundLower').textContent = formatNum(info.lower);
+  document.getElementById('nlBoundUpper').textContent = formatNum(info.upper);
+  document.getElementById('nlMarkerLabel').textContent = formatNum(currentNumber);
+
+  const marker = document.getElementById('nlMarker');
+  marker.classList.remove('animating', 'landed');
+  marker.style.left = pct + '%';
+
+  // Midpoint (mark only; label hidden)
+  document.getElementById('nlMidpoint').style.left = '50%';
+
+  // Fill bars
+  document.getElementById('nlFillLower').style.width = pct + '%';
+  const fillUpper = document.getElementById('nlFillUpper');
+  fillUpper.style.left = pct + '%';
+  fillUpper.style.width = (100 - pct) + '%';
+}
+
+/* Animate the marker sliding to the rounded position */
+function animateNumberLine(callback) {
+  const info = getRoundingInfo(currentNumber, roundLevel);
+  const marker = document.getElementById('nlMarker');
+  const label = document.getElementById('nlMarkerLabel');
+  const targetPct = info.roundsUp ? 100 : 0;
+
+  marker.classList.add('animating');
+  requestAnimationFrame(() => {
+    marker.style.left = targetPct + '%';
+  });
+
+  const startVal = currentNumber;
+  const endVal = info.rounded;
+  const duration = 1000;
+  const startTime = performance.now();
+
+  function animateLabel(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const current = Math.round(startVal + (endVal - startVal) * eased);
+    label.textContent = formatNum(current);
+
+    if (t < 1) {
+      requestAnimationFrame(animateLabel);
+    } else {
+      label.textContent = formatNum(endVal);
+      marker.classList.remove('animating');
+      marker.classList.add('landed');
+
+      document.getElementById('nlFillLower').style.width = targetPct + '%';
+      const fillUpper = document.getElementById('nlFillUpper');
+      fillUpper.style.left = targetPct + '%';
+      fillUpper.style.width = (100 - targetPct) + '%';
+
+      if (callback) callback();
+    }
+  }
+  requestAnimationFrame(animateLabel);
+}
+
+/* ══════════════════════════════════════════════
+   ROUNDING LEVEL TOGGLE
+══════════════════════════════════════════════ */
+function buildRoundToggle() {
+  const wrap = document.getElementById('roundToggle');
+  wrap.innerHTML = '';
+
+  const numDigits = Math.abs(Math.round(currentNumber)).toString().length;
+
+  ROUND_LEVELS.forEach(level => {
+    if (level.pow >= numDigits) return;
+    const btn = document.createElement('button');
+    btn.className = 'round-btn' + (level.pow === roundLevel ? ' active' : '');
+    btn.textContent = level.label;
+    btn.addEventListener('click', () => {
+      roundLevel = level.pow;
+      animStep = 1;
+      buildRoundToggle();
+      buildStage();
+      updateNumberLine();
+      highlightAllRoles();
+      document.getElementById('btnRound').disabled = false;
+      document.getElementById('btnRound').textContent = 'Show the answer';
+    });
+    wrap.appendChild(btn);
+  });
+
+  // If current roundLevel is too large, adjust
+  if (roundLevel >= numDigits) {
+    roundLevel = Math.min(numDigits - 1, ROUND_LEVELS[ROUND_LEVELS.length - 1].pow);
+    if (roundLevel < 1) roundLevel = 1;
+    buildRoundToggle();
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INPUT
+══════════════════════════════════════════════ */
+function setFromInput() {
+  const val = document.getElementById('numInput').value.trim().replace(/,/g, '');
+  const num = parseInt(val);
+  if (isNaN(num) || num < 10 || num > 99999999) {
+    return;
+  }
+  setNumber(num);
+}
+
+function setNumber(num) {
+  currentNumber = Math.abs(Math.round(num));
+  if (currentNumber < 10) currentNumber = 10;
+  if (currentNumber > 99999999) currentNumber = 99999999;
+  animStep = 1;
+
+  buildRoundToggle();
+  buildStage();
+  updateNumberLine();
+  highlightAllRoles();
+  document.getElementById('btnRound').disabled = false;
+  document.getElementById('btnRound').textContent = 'Show the answer';
+}
+
+/* ══════════════════════════════════════════════
+   ROUNDING, STEP THROUGH
+══════════════════════════════════════════════ */
+function doRound() {
+  if (animating || animStep !== 1) return;
+
+  const info = getRoundingInfo(currentNumber, roundLevel);
+  animStep = 2;
+  animating = true;
+
+  animateNumberLine(() => {
+    showRoundedDigits(info.rounded);
+
+    animating = false;
+    document.getElementById('btnRound').disabled = true;
+  });
+}
+
+function resetRound() {
+  animStep = 1;
+  buildStage();
+  updateNumberLine();
+  highlightAllRoles();
+  document.getElementById('btnRound').disabled = false;
+  document.getElementById('btnRound').textContent = 'Show the answer';
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+buildRoundToggle();
+buildStage();
+updateNumberLine();
+highlightAllRoles();
+
+document.getElementById('numInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') setFromInput();
+});
+
+</script>
+
+</body>
+</html>

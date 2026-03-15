@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 7: The Error Analysis Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:#4ECDC4;--teal-dark:#38b2aa;--amber:#FFD93D;--amber-dark:#e0b030;
+    --red:#FF6B6B;--red-dark:#c0392b;--orange:#FF8400;--blue:#3498DB;
+    --blue-dark:#2176ae;--green:#2ECC71;--green-dark:#1a9c51;
+    --cream:#FFF8F0;--card-bg:#ffffff;--text:#2D3436;--muted:#636E72;
+    --border:#f1f5f9;--shadow:0 8px 32px rgba(0,0,0,0.10);--radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Fredoka',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+  header{background:#2D3436;color:#fff;padding:36px 48px 28px;position:relative;overflow:hidden;}
+  header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(255,107,107,0.22) 0%,transparent 65%);pointer-events:none;}
+  header .eyebrow{font-size:12px;font-weight:700;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:8px;}
+  header h1{font-size:clamp(22px,4vw,38px);font-weight:700;line-height:1.15;margin-bottom:10px;}
+  header h1 span{color:var(--amber);}
+  header p{color:rgba(255,255,255,0.6);font-size:16px;max-width:900px;font-weight:500;}
+  .header-icon{position:absolute;right:40px;top:50%;transform:translateY(-50%);font-size:80px;opacity:0.10;}
+  .phase-nav{display:flex;gap:8px;padding:14px 48px;background:#3d4347;flex-wrap:wrap;}
+  .phase-nav button{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;border-radius:30px;padding:8px 20px;font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .phase-nav button:hover{background:rgba(255,255,255,0.16);color:#fff;}
+  .phase-nav button.active{background:var(--red);color:#fff;}
+  main{max-width:1400px;margin:0 auto;padding:28px 32px 60px;}
+  .section{display:none;animation:fadeIn 0.35s ease;}
+  .section.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .section-title{font-size:11px;font-weight:700;letter-spacing:3px;color:var(--red-dark);text-transform:uppercase;margin-bottom:6px;}
+  .section-heading{font-size:clamp(22px,3vw,34px);font-weight:700;margin-bottom:20px;color:var(--text);}
+  .card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 32px;margin-bottom:20px;border:2px solid var(--border);}
+  .card h3{font-size:22px;font-weight:700;margin-bottom:12px;}
+  .card p,.card li{font-size:17px;line-height:1.7;color:#445;font-weight:400;}
+  .card ul{padding-left:20px;}
+  .card ul li{margin-bottom:6px;}
+  .callout{border-radius:12px;padding:18px 22px;margin:16px 0;}
+  .callout .label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:block;}
+  .callout p{font-size:16px;line-height:1.6;font-weight:400;}
+  .callout-amber{background:#fffbf0;border-left:5px solid var(--amber);}
+  .callout-amber .label{color:var(--amber-dark);}
+  .callout-amber p{color:#665500;}
+  .callout-blue{background:#f0f7ff;border-left:5px solid var(--blue);}
+  .callout-blue .label{color:var(--blue-dark);}
+  .callout-blue p{color:#0a2f6e;}
+  .callout-teal{background:#f0fafa;border-left:5px solid var(--teal);}
+  .callout-teal .label{color:var(--teal-dark);}
+  .callout-teal p{color:#0a3832;}
+  .callout-red{background:#fff4f4;border-left:5px solid var(--red);}
+  .callout-red .label{color:#c0392b;}
+  .callout-red p{color:#7a0000;}
+  .callout-green{background:#f0fff6;border-left:5px solid var(--green);}
+  .callout-green .label{color:var(--green-dark);}
+  .callout-green p{color:#0a3820;}
+  .reveal-btn{border:none;border-radius:30px;padding:10px 24px;font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+  .reveal-btn.red{background:var(--red);color:#fff;}
+  .reveal-btn.red:hover{background:var(--red-dark);}
+  .reveal-btn.teal{background:var(--teal);color:var(--text);}
+  .reveal-btn.teal:hover{background:var(--teal-dark);color:#fff;}
+  .reveal-btn.green{background:var(--green);color:#fff;}
+  .reveal-btn.green:hover{background:var(--green-dark);}
+  .step-reveal{display:none;}
+  .step-reveal.shown{display:block;animation:fadeIn 0.25s ease;}
+  .golden-rule{background:linear-gradient(135deg,#FFD93D 0%,#FF8400 100%);border-radius:14px;padding:24px 30px;margin:24px 0;text-align:center;}
+  .golden-rule .gr-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,0.5);margin-bottom:10px;}
+  .golden-rule .gr-rules{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+  .gr-rule{background:rgba(255,255,255,0.7);border-radius:10px;padding:16px 24px;font-size:16px;font-weight:700;color:var(--text);flex:1;min-width:180px;}
+  .gr-rule span{display:block;font-size:20px;margin-bottom:4px;}
+  .tag{display:inline-block;background:var(--text);color:#fff;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:20px;padding:3px 12px;margin-right:6px;margin-bottom:6px;font-family:'Fredoka',sans-serif;}
+  .tag.red{background:var(--red);color:#fff;}
+  .tag.teal{background:var(--teal);color:var(--text);}
+  .tag.amber{background:var(--amber);color:var(--text);}
+  .tag.green{background:var(--green);color:#fff;}
+  .tag.blue{background:var(--blue);color:#fff;}
+  .tier-header{font-family:'Fredoka',sans-serif;font-size:19px;font-weight:700;padding:14px 24px;border-radius:12px;margin-bottom:16px;display:inline-block;}
+  .tier-1{background:#d4f7e0;color:#1a5c35;}
+  .tier-2{background:#d4e8ff;color:#0a2f6e;}
+  .tier-3{background:#ffe8cc;color:#7a3000;}
+  .pa{font-family:'Space Mono',monospace;font-size:20px;border-collapse:collapse;margin:10px 0 4px;background:#f8faff;border:2px solid var(--border);border-radius:10px;padding:10px;display:inline-table;}
+  .pa td{padding:2px 7px;text-align:center;min-width:26px;line-height:1.9;color:var(--text);}
+  .pa td.op{text-align:left;min-width:18px;color:var(--muted);padding-right:4px;}
+  .pa td.fix{color:var(--green-dark);font-weight:700;}
+  .pa tr.ans td{color:var(--teal-dark);font-weight:700;border-top:2px solid var(--text);}
+  .pa tr.wrong-ans td{color:var(--red);font-weight:700;border-top:2px solid var(--red);}
+  .anno{color:var(--muted);font-size:13px;display:block;margin-top:4px;font-style:italic;font-family:'Fredoka',sans-serif;}
+  .algo-box{background:#f8faff;border:2px solid var(--border);border-radius:16px;padding:20px 24px;margin:16px 0;display:inline-block;}
+  .algo-box.error-border{border-color:var(--red);background:#fff8f8;}
+  .algo-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:'Fredoka',sans-serif;margin-bottom:10px;display:block;}
+  .algo-label.wrong{color:var(--red);}
+  .algo-label.correct{color:var(--green-dark);}
+  .step-row{display:flex;align-items:flex-start;gap:12px;padding:18px 0;border-bottom:1px solid var(--border);}
+  .step-row:last-child{border-bottom:none;}
+  .step-row-content{flex:1;}
+  .step-row-content strong{font-size:17px;display:block;margin-bottom:4px;}
+  .step-row-content p{font-size:16px;color:var(--muted);}
+  .step-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-weight:700;font-size:16px;flex-shrink:0;font-family:'Space Mono',monospace;}
+  .step-badge.red{background:var(--red);color:#fff;}
+  .step-badge.amber{background:var(--amber);color:var(--text);}
+  .step-badge.green{background:var(--green);color:#fff;}
+  .wedo-slides{position:relative;}
+  .wedo-slide{display:none;animation:fadeIn 0.3s ease;}
+  .wedo-slide.active{display:block;}
+  .wedo-nav{display:flex;align-items:center;justify-content:space-between;margin-top:24px;gap:12px;}
+  .wedo-nav-btn{background:var(--red);color:#fff;border:none;border-radius:30px;padding:10px 24px;font-family:'Fredoka',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;}
+  .wedo-nav-btn:hover{background:var(--red-dark);}
+  .wedo-nav-btn:disabled{background:var(--border);color:var(--muted);cursor:default;}
+  .wedo-counter{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--muted);background:#f8faff;border-radius:20px;padding:8px 18px;border:2px solid var(--border);}
+  .wedo-dots{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+  .wedo-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background 0.2s;}
+  .wedo-dot.active{background:var(--red);}
+  .worked-toggle{width:100%;background:#fff4f4;border:2px solid #ffd4d4;border-radius:12px;cursor:pointer;padding:16px 22px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;font-family:'Fredoka',sans-serif;font-size:16px;font-weight:700;color:var(--red-dark);transition:all 0.2s;}
+  .worked-toggle:hover{background:#ffe8e8;}
+  .worked-toggle .wt-chevron{font-size:18px;color:var(--muted);transition:transform 0.25s;}
+  .worked-toggle.open .wt-chevron{transform:rotate(180deg);}
+  .worked-body{display:none;margin-top:14px;animation:fadeIn 0.25s ease;}
+  .worked-body.shown{display:block;}
+  /* Diagnosis cards grid */
+  .diag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:18px;margin-top:8px;}
+  .diag-card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid var(--border);padding:24px 26px;position:relative;overflow:hidden;}
+  .diag-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:var(--radius) var(--radius) 0 0;}
+  .dc-red::before{background:linear-gradient(135deg,#FF6B6B,#c0392b);}
+  .dc-blue::before{background:linear-gradient(135deg,#3498DB,#2176ae);}
+  .dc-amber::before{background:linear-gradient(135deg,#FFD93D,#FF8400);}
+  .dc-teal::before{background:linear-gradient(135deg,#4ECDC4,#38b2aa);}
+  .dc-purple::before{background:linear-gradient(135deg,#AD1DEB,#6E3AFF);}
+  .dc-dark::before{background:linear-gradient(135deg,#2D3436,#636E72);}
+  .dc-qnum{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .diag-toggle{background:none;border:2px solid var(--border);border-radius:30px;padding:7px 18px;font-family:'Fredoka',sans-serif;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;margin-top:12px;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;}
+  .diag-toggle:hover{border-color:var(--text);color:var(--text);}
+  .diag-toggle.active{background:var(--text);color:#fff;border-color:var(--text);}
+  .diag-reveal{display:none;}
+  .diag-reveal.shown{display:block;animation:fadeIn 0.25s ease;}
+  /* Worded problem box */
+  .word-problem{background:#f0f7ff;border:2px solid #d0e8ff;border-radius:14px;padding:18px 22px;margin:14px 0;font-size:17px;font-weight:500;color:var(--text);line-height:1.8;}
+  .word-problem strong{color:var(--blue-dark);}
+  /* Practice section */
+  .practice-set{margin-bottom:32px;}
+  .practice-set-title{font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+  .prac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:16px;}
+  .prac-q{background:var(--card-bg);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.07);border:2px solid var(--border);padding:20px 22px;position:relative;}
+  .prac-q::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0;}
+  .pq-green::before{background:linear-gradient(135deg,#2ECC71,#1a9c51);}
+  .pq-blue::before{background:linear-gradient(135deg,#3498DB,#2176ae);}
+  .pq-amber::before{background:linear-gradient(135deg,#FFD93D,#FF8400);}
+  .pq-teal::before{background:linear-gradient(135deg,#4ECDC4,#38b2aa);}
+  .pq-purple::before{background:linear-gradient(135deg,#AD1DEB,#6E3AFF);}
+  .pq-dark::before{background:linear-gradient(135deg,#2D3436,#636E72);}
+  .prac-num{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .prac-q p{font-size:16px;line-height:1.7;color:#445;margin-bottom:12px;}
+  .prac-space{background:#fafbff;border:2px dashed var(--border);border-radius:10px;padding:28px 16px;text-align:center;color:var(--muted);font-size:13px;font-family:'Fredoka',sans-serif;letter-spacing:1px;}
+  .prac-ans-toggle{background:none;border:2px solid var(--border);border-radius:30px;padding:5px 14px;font-family:'Fredoka',sans-serif;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;margin-top:8px;transition:all 0.2s;}
+  .prac-ans-toggle:hover{border-color:var(--green-dark);color:var(--green-dark);}
+  .prac-ans-toggle.active{background:var(--green);color:#fff;border-color:var(--green);}
+  .prac-ans{display:none;margin-top:10px;}
+  .prac-ans.shown{display:block;animation:fadeIn 0.2s ease;}
+  .ans-chip{display:inline-block;background:#d4f7e0;color:#1a5c35;font-weight:700;font-size:15px;border-radius:8px;padding:4px 14px;font-family:'Space Mono',monospace;}
+  /* radar */
+  .radar-panel{background:linear-gradient(135deg,#2D3436,#3d4347);border-radius:16px;padding:24px 30px;margin:20px 0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .radar-icon{font-size:52px;}
+  .radar-text h4{color:var(--amber);font-size:20px;font-weight:700;margin-bottom:6px;}
+  .radar-text p{color:rgba(255,255,255,0.75);font-size:16px;line-height:1.6;}
+  .estimate-chip{display:inline-block;background:var(--amber);color:var(--text);font-weight:700;font-size:15px;border-radius:8px;padding:4px 14px;margin:4px 4px 4px 0;font-family:'Space Mono',monospace;}
+  /* radar rounding grid */
+  .radar-rounding-grid{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;}
+  .radar-row{display:flex;align-items:center;gap:0.75rem;}
+  .radar-original{font-family:'Space Mono',monospace;font-size:1.15rem;color:var(--text);background:#fff;border:2px solid var(--border);border-radius:10px;padding:0.35rem 0.9rem;min-width:4.5rem;text-align:right;font-weight:600;}
+  .radar-arrow{font-size:1.3rem;color:var(--amber-dark);font-weight:700;}
+  .radar-rounded{font-family:'Space Mono',monospace;font-size:1.15rem;color:var(--amber-dark);background:#fff8e0;border:2px solid var(--amber);border-radius:10px;padding:0.35rem 0.9rem;min-width:4.5rem;text-align:right;font-weight:700;}
+  .radar-total{margin-top:0.5rem;padding:0.6rem 1rem;background:#fff;border-radius:10px;border:2px dashed var(--amber);font-family:'Space Mono',monospace;font-size:1.05rem;display:inline-block;}
+  .answer-chip{display:inline-block;background:#ffd4d4;color:#7a0000;font-weight:700;font-size:15px;border-radius:8px;padding:4px 14px;margin:4px;font-family:'Space Mono',monospace;}
+  .scenario{background:#f8faff;border-radius:14px;padding:20px 24px;margin:16px 0;font-size:17px;font-weight:500;color:var(--text);border:2px solid #d0e8ff;line-height:1.8;}
+  .example-divider{display:flex;align-items:center;gap:16px;margin:32px 0 8px;}
+  .example-divider::before,.example-divider::after{content:'';flex:1;height:2px;background:var(--border);}
+  .example-divider span{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+  @media(max-width:600px){
+    header{padding:24px 20px;}
+    .phase-nav{padding:12px 16px;}
+    main{padding:24px 12px 60px;}
+    .card{padding:20px 18px;}
+    .diag-grid,.prac-grid{grid-template-columns:1fr;}
+    .header-icon{display:none;}
+    .gr-rules{flex-direction:column;}
+    .wedo-nav{flex-wrap:wrap;justify-content:center;}
+  }
+
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--red);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* IDO Progression Styles */
+  .ido-progression { margin-bottom: 2rem; }
+  .ido-dots { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
+  .ido-dot { width: 10px; height: 10px; border-radius: 50%; background: #DDD; transition: all 0.3s ease; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.4); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 1.25rem; gap: 0.75rem; }
+  .ido-step-nav button { padding: 0.6rem 1.5rem; border: none; border-radius: 10px; cursor: pointer; font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+  .ido-step-nav button.next { background: var(--red); color: white; margin-left: auto; }
+  .ido-step-nav button.next:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,107,0.3); }
+  .ido-step-nav button.prev { background: white; color: var(--text); border: 2px solid var(--muted); }
+  .ido-step-nav button.prev:hover { transform: translateY(-2px); border-color: var(--text); }
+  /* Go Deeper Extension */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+      width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+      border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+      font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+      max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+      background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+      width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+      font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+      transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+      display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+      border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+      font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+      display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+      padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+      font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+      background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+      border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+      font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Year 5 Mathematics · Addition &amp; Subtraction · Lesson 7</div>
+  <h1>The Error <span>Analysis Lab</span></h1>
+  <p>Using place value and estimation to spot, and fix, mistakes in algorithms</p>
+  <div class="header-icon">🔬</div>
+</header>
+<nav class="phase-nav">
+  <button class="active" onclick="showSection(&#39;hook&#39;,this)">🎣 Hook</button>
+  <button onclick="showSection(&#39;ido&#39;,this)">👁️ I Do</button>
+  <button onclick="showSection(&#39;wedo&#39;,this)">🤝 We Do</button>
+  <button onclick="showSection(&#39;diagnose&#39;,this)">🔬 Diagnose It</button>
+  <button onclick="showSection(&#39;youdo&#39;,this)">✏️ Your Turn</button>
+  <button onclick="showSection(&#39;wrapup&#39;,this)">🏁 Wrap Up</button>
+</nav>
+<main>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use estimation and place value knowledge to find and fix mistakes in algorithms.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can estimate an answer to prove an algorithm is wrong</li>
+            <li>I can identify exactly where a place value or trading mistake happened</li>
+            <li>I can correct the error and explain what went wrong</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ══ HOOK ════════════════════════════════════════════════════════ -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · The Hook</div>
+  <div class="section-heading">A Very Bad Test Paper</div>
+  <div class="card">
+    <div class="tag amber">5 Minutes</div>
+    <h3>The Scenario</h3>
+    <div class="scenario">
+      📋 Today we have been given a test paper from a student at another school. This student got <strong>every single question wrong</strong>, not one correct answer. Our job is to become <em>maths detectives</em> and figure out exactly why each answer is wrong.
+    </div>
+  </div>
+  <div class="card">
+    <h3>What We're Learning Today</h3>
+    <div class="callout callout-blue">
+      <span class="label">We Are Learning To</span>
+      <p>Use our <strong>Radar for Error</strong> and place value knowledge to find and fix mistakes in algorithms.</p>
+    </div>
+    <div class="callout callout-teal">
+      <span class="label">What I'm Looking For</span>
+      <p>✅ &nbsp;I can <strong>estimate</strong> an answer to prove an algorithm is wrong.<br>
+         ✅ &nbsp;I can identify exactly <strong>where</strong> a place value or trading mistake happened.<br>
+         ✅ &nbsp;I can solve addition and subtraction problems correctly myself.</p>
+    </div>
+    <div class="radar-panel">
+      <div class="radar-icon">📡</div>
+      <div class="radar-text">
+        <h4>The Radar for Error</h4>
+        <p>Before checking any calculation, we activate our Radar. We estimate the answer first. If the student's answer doesn't match our radar reading, something has gone very wrong, and we need to find out what.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ I DO ════════════════════════════════════════════════════════ -->
+<div id="ido" class="section">
+  <div class="section-title">Phase 2 · Watch and Learn</div>
+  <div class="section-heading">See the Three-Step Method in Action</div>
+  <div class="card">
+    <div class="tag amber">15 Minutes</div>
+    <h3>The Three-Step Diagnosis</h3>
+    <div class="golden-rule">
+      <div class="gr-title">🔬 The Error Analysis Method</div>
+      <div class="gr-rules">
+        <div class="gr-rule"><span>📡</span>Step 1: The Radar<br><small>Estimate first, always</small></div>
+        <div class="gr-rule"><span>🚨</span>Step 2: The Check<br><small>Compare your radar to their answer</small></div>
+        <div class="gr-rule"><span>🔎</span>Step 3: The Diagnosis<br><small>Trace the column where it went wrong</small></div>
+      </div>
+    </div>
+  </div>
+  <!-- EXAMPLE 1 -->
+  <h3 style="margin: 24px 0 12px; font-size: 20px;">Example 1: Four Numbers, One Big Mistake</h3>
+  <div class="ido-progression" id="ex1-progression">
+    <div class="ido-dots" id="ex1-dots">
+      <div class="ido-dot active"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+    </div>
+
+    <!-- STEP 1: The Problem -->
+    <div class="ido-step active card" id="ex1-step-1">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge red">1</div>
+        <div style="font-size:1.15rem;font-weight:600;">The Problem</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Here is the student's answer. Have a look, what do you think has gone wrong?</p>
+      <div style="margin:20px 0;">
+        <div class="algo-label wrong">⚠️ Student's Answer</div>
+        <div style="background:#fff8f8;border:2px solid var(--red);border-radius:14px;padding:18px 26px;display:inline-block;">
+          <span style="font-family: 'Space Mono',monospace;font-size:22px;color:var(--text);">302 + 317 + 303 + 34 = </span><span style="font-family: 'Space Mono',monospace;font-size:22px;color:var(--red);font-weight:700;">3,953</span>
+        </div>
+      </div>
+      <div class="callout callout-blue">
+        <span class="label">💬 Think about it</span>
+        <p>Does that answer look right to you? Talk to your partner, what is it about <strong>3,953</strong> that seems impossible? Can you explain why before we look at the working?</p>
+      </div>
+      <div class="ido-step-nav">
+        <button class="next" onclick="goToIdoStep('ex1', 2, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: The Student's Working -->
+    <div class="ido-step card" id="ex1-step-2">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge red">2</div>
+        <div style="font-size:1.15rem;font-weight:600;">The Student's Working</div>
+      </div>
+      <p style="font-size:16px;color:var(--muted);margin-bottom:10px;">Here is how the student actually set out their algorithm. Now, can you see exactly <em>where</em> the mistake is?</p>
+      <div class="algo-label wrong">⚠️ Student's Algorithm</div>
+      <div class="algo-box error-border" style="display:inline-block;">
+        <table class="pa">
+          <tbody><tr><td class="op"></td><td>3</td><td>0</td><td>2</td></tr>
+          <tr><td class="op"></td><td>3</td><td>1</td><td>7</td></tr>
+          <tr><td class="op"></td><td>3</td><td>0</td><td>3</td></tr>
+          <tr><td class="op">+</td><td>3</td><td>4</td><td></td></tr>
+          <tr class="wrong-ans"><td class="op"></td><td>3</td><td>,</td><td>9</td><td>5</td><td>3</td></tr>
+        </tbody></table>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('ex1', 1, 5)">← Back</button>
+        <button class="next" onclick="goToIdoStep('ex1', 3, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Activate the Radar -->
+    <div class="ido-step card" id="ex1-step-3">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge red">3</div>
+        <div style="font-size:1.15rem;font-weight:600;">Step 1: Activate the Radar</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Before looking at the answer, round each number and estimate what the total should be.</p>
+      <div class="callout callout-amber"><span class="label">Radar Estimation</span>
+        <p style="margin-bottom:0.75rem;">Round each number to the nearest hundred (or ten):</p>
+        <div class="radar-rounding-grid">
+          <div class="radar-row">
+            <span class="radar-original">302</span>
+            <span class="radar-arrow">→</span>
+            <span class="radar-rounded">300</span>
+          </div>
+          <div class="radar-row">
+            <span class="radar-original">317</span>
+            <span class="radar-arrow">→</span>
+            <span class="radar-rounded">300</span>
+          </div>
+          <div class="radar-row">
+            <span class="radar-original">303</span>
+            <span class="radar-arrow">→</span>
+            <span class="radar-rounded">300</span>
+          </div>
+          <div class="radar-row">
+            <span class="radar-original">34</span>
+            <span class="radar-arrow">→</span>
+            <span class="radar-rounded">30</span>
+          </div>
+        </div>
+        <div class="radar-total">
+          <span>300 + 300 + 300 + 30 = <strong>930</strong></span>
+        </div>
+        <div style="margin-top:0.5rem;">Radar reading: <span class="estimate-chip">≈ 930</span></div>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('ex1', 2, 5)">← Back</button>
+        <button class="next" onclick="goToIdoStep('ex1', 4, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: The Check -->
+    <div class="ido-step card" id="ex1-step-4">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge amber">4</div>
+        <div style="font-size:1.15rem;font-weight:600;">Step 2: Compare to the Student's Answer</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Now look at what the student wrote. Does it match the radar?</p>
+      <div class="callout callout-red"><span class="label">The Check</span>
+        <p>Radar says: <span class="estimate-chip">≈ 930</span> &nbsp; Student's answer: <span class="answer-chip">3,953</span><br><strong>Verdict: IMPOSSIBLE.</strong> More than four times too large. Our radar has gone off.</p>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('ex1', 3, 5)">← Back</button>
+        <button class="next" onclick="goToIdoStep('ex1', 5, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: The Diagnosis -->
+    <div class="ido-step card" id="ex1-step-5">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge green">5</div>
+        <div style="font-size:1.15rem;font-weight:600;">Step 3: Trace the Columns</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Work down each column, ones, tens, hundreds, until you find where the problem began.</p>
+      <div class="callout callout-green"><span class="label">Diagnosis</span>
+        <p>The number <strong>34</strong> has a <strong>3</strong> in the tens place and a <strong>4</strong> in the ones place. But the student wrote it as if it were a three-digit number, placing the <strong>3</strong> into the hundreds column. This created thousands that don't exist in any of the original numbers.</p>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="algo-label correct">✅ Correct Algorithm</div>
+        <div class="algo-box" style="display:inline-block;">
+          <table class="pa">
+            <tbody><tr><td class="op"></td><td>3</td><td>0</td><td>2</td></tr>
+            <tr><td class="op"></td><td>3</td><td>1</td><td>7</td></tr>
+            <tr><td class="op"></td><td>3</td><td>0</td><td>3</td></tr>
+            <tr><td class="op">+</td><td></td><td class="fix">3</td><td class="fix">4</td></tr>
+            <tr class="ans"><td class="op"></td><td>9</td><td>5</td><td>6</td></tr>
+          </tbody></table>
+          <span class="anno">34 aligned correctly: 3 in tens, 4 in ones. Answer: 956.</span>
+        </div>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('ex1', 4, 5)">← Back</button>
+      </div>
+    </div>
+  </div>
+  <!-- EXAMPLE 2 -->
+  <div class="example-divider"><span>Example 2</span></div>
+  <h3 style="margin: 24px 0 12px; font-size: 20px;">Example 2: A Subtraction Gone Wrong</h3>
+  <div class="ido-progression" id="ex2-progression">
+    <div class="ido-dots" id="ex2-dots">
+      <div class="ido-dot active"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+    </div>
+
+    <!-- STEP 1: The Problem -->
+    <div class="ido-step active card" id="ex2-step-1">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge red">1</div>
+        <div style="font-size:1.15rem;font-weight:600;">The Problem</div>
+      </div>
+      <p style="margin-bottom: 1rem;">The student was asked to subtract these two numbers. Here is their working:</p>
+      <div style="margin:20px 0;">
+        <div class="algo-label wrong">⚠️ Student's Algorithm</div>
+        <div class="algo-box error-border" style="display:inline-block;">
+          <table class="pa">
+            <tbody><tr><td class="op"></td><td>7</td><td>,</td><td>0</td><td>0</td><td>4</td></tr>
+            <tr><td class="op">−</td><td>2</td><td>,</td><td>3</td><td>8</td><td>9</td></tr>
+            <tr class="wrong-ans"><td class="op"></td><td>5</td><td>,</td><td>3</td><td>8</td><td>5</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="ido-step-nav">
+        <button class="next" onclick="goToIdoStep('ex2', 2, 4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Activate the Radar -->
+    <div class="ido-step card" id="ex2-step-2">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge red">2</div>
+        <div style="font-size:1.15rem;font-weight:600;">Step 1: Activate the Radar</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Before looking at the answer, round each number and estimate the difference.</p>
+      <div class="callout callout-amber"><span class="label">Radar Estimation</span>
+        <p style="margin-bottom:0.75rem;">Round each number to the nearest hundred:</p>
+        <div class="radar-rounding-grid">
+          <div class="radar-row">
+            <span class="radar-original">7,004</span>
+            <span class="radar-arrow">→</span>
+            <span class="radar-rounded">7,000</span>
+          </div>
+          <div class="radar-row">
+            <span class="radar-original">2,389</span>
+            <span class="radar-arrow">→</span>
+            <span class="radar-rounded">2,400</span>
+          </div>
+        </div>
+        <div class="radar-total">
+          <span>7,000 − 2,400 = <strong>4,600</strong></span>
+        </div>
+        <div style="margin-top:0.5rem;">Radar reading: <span class="estimate-chip">≈ 4,600</span></div>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('ex2', 1, 4)">← Back</button>
+        <button class="next" onclick="goToIdoStep('ex2', 3, 4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: The Check -->
+    <div class="ido-step card" id="ex2-step-3">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge amber">3</div>
+        <div style="font-size:1.15rem;font-weight:600;">Step 2: Compare to the Student's Answer</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Now look at what the student wrote. Does it match the radar?</p>
+      <div class="callout callout-red"><span class="label">The Check</span>
+        <p>Radar says: <span class="estimate-chip">≈ 4,600</span> &nbsp; Student's answer: <span class="answer-chip">5,385</span><br><strong>Verdict: Something is wrong.</strong> Around 800 too large. The radar has gone off.</p>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('ex2', 2, 4)">← Back</button>
+        <button class="next" onclick="goToIdoStep('ex2', 4, 4)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: The Diagnosis -->
+    <div class="ido-step card" id="ex2-step-4">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge green">4</div>
+        <div style="font-size:1.15rem;font-weight:600;">Step 3: Trace the Columns</div>
+      </div>
+      <p style="margin-bottom: 1rem;">Start at the ones column and work left. Notice the zeros, trading will be needed.</p>
+      <div class="callout callout-green"><span class="label">Diagnosis</span>
+        <p><strong>Ones column:</strong> 4 − 9 is impossible without trading. But the tens and hundreds columns both hold zeros. Trading must cascade all the way from the thousands. The student appears to have copied the hundreds and tens digits from the bottom number unchanged into the answer, showing the trading through zeros was not completed.</p>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="algo-label correct">✅ Correct Algorithm</div>
+        <div class="algo-box" style="display:inline-block;">
+          <table class="pa">
+            <tbody><tr><td class="op"></td><td class="fix" style="font-size:13px;color:#888;">⁶</td><td>,</td><td class="fix" style="font-size:13px;color:#888;">⁹</td><td class="fix" style="font-size:13px;color:#888;">⁹</td><td class="fix" style="font-size:13px;color:#888;">¹⁴</td></tr>
+            <tr><td class="op"></td><td>7</td><td>,</td><td>0</td><td>0</td><td>4</td></tr>
+            <tr><td class="op">−</td><td>2</td><td>,</td><td>3</td><td>8</td><td>9</td></tr>
+            <tr class="ans"><td class="op"></td><td class="fix">4</td><td>,</td><td class="fix">6</td><td class="fix">1</td><td class="fix">5</td></tr>
+          </tbody></table>
+          <span class="anno">Cascading trades through two zeros. Answer: 4,615.</span>
+        </div>
+      </div>
+      <div class="ido-step-nav">
+        <button class="prev" onclick="goToIdoStep('ex2', 3, 4)">← Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WE DO ═══════════════════════════════════════════════════════ -->
+<div id="wedo" class="section">
+  <div class="section-title">Phase 3 · Guided Practice</div>
+  <div class="section-heading">We Diagnose Together</div>
+  <div class="card">
+    <div class="tag amber">10 Minutes</div>
+    <p>Work through each problem using the three-step method. Write your <strong>Radar Estimate</strong> on your mini-whiteboard before looking at the student's answer.</p>
+  </div>
+  <div class="card">
+    <div class="wedo-slides">
+      <!-- SLIDE 1 -->
+      <div class="wedo-slide active" id="wedo-slide-1">
+        <div class="tag red">Problem 1 of 2</div>
+        <h3>Something Is Off Here…</h3>
+        <p>Here is a student's subtraction. Use the three steps to figure out what went wrong.</p>
+        <div style="margin:20px 0;">
+          <div class="algo-label wrong">⚠️ Student's Algorithm</div>
+          <div class="algo-box error-border" style="display:inline-block;">
+            <table class="pa">
+              <tbody><tr><td class="op"></td><td>8</td><td>,</td><td>3</td><td>5</td><td>2</td></tr>
+              <tr><td class="op">−</td><td>3</td><td>,</td><td>7</td><td>6</td><td>4</td></tr>
+              <tr class="wrong-ans"><td class="op"></td><td>5</td><td>,</td><td>4</td><td>1</td><td>2</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+        <div class="callout callout-blue"><span class="label">Whiteboard Challenge</span>
+          <p>1️⃣ Write your <strong>Radar Estimate</strong>. &nbsp;|&nbsp; 2️⃣ Is the student's answer possible? &nbsp;|&nbsp; 3️⃣ Go column by column, where exactly did the error happen?</p>
+        </div>
+        <button class="worked-toggle" onclick="toggleWorked(this,&#39;wedo1-worked&#39;)"><span>🔑 Show Diagnosis</span><span class="wt-chevron">▾</span></button>
+        <div id="wedo1-worked" class="worked-body">
+          <div class="callout callout-amber"><span class="label">Step 1: Radar</span>
+            <p style="margin-bottom:0.75rem;">Round each number to the nearest thousand:</p>
+            <div class="radar-rounding-grid">
+              <div class="radar-row">
+                <span class="radar-original">8,352</span>
+                <span class="radar-arrow">→</span>
+                <span class="radar-rounded">8,000</span>
+              </div>
+              <div class="radar-row">
+                <span class="radar-original">3,764</span>
+                <span class="radar-arrow">→</span>
+                <span class="radar-rounded">4,000</span>
+              </div>
+            </div>
+            <div class="radar-total">
+              <span>8,000 − 4,000 = <strong>4,000</strong></span>
+            </div>
+            <div style="margin-top:0.5rem;">Radar: <span class="estimate-chip">≈ 4,000</span></div>
+          </div>
+          <div class="callout callout-red"><span class="label">Step 2: The Check</span>
+            <p>Student's answer: <span class="answer-chip">5,412</span>, The radar says around 4,000. An answer over 5,000 is not possible here.</p>
+          </div>
+          <div class="callout callout-green"><span class="label">Step 3: Diagnosis</span>
+            <p><strong>Ones column:</strong> 2 − 4 requires trading. Instead of trading, the student worked upward, calculating 4 − 2 = 2. The same pattern appears in the tens column: rather than trading, the student calculated 6 − 5 = 1. The error occurs in every column where the top digit is smaller than the bottom digit.</p>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="algo-label correct">✅ Correct Algorithm</div>
+            <div class="algo-box" style="display:inline-block;">
+              <table class="pa">
+                <tbody><tr><td class="op"></td><td>8</td><td>,</td><td class="fix" style="font-size:13px;color:#888;">²</td><td class="fix" style="font-size:13px;color:#888;">⁴</td><td class="fix" style="font-size:13px;color:#888;">¹²</td></tr>
+                <tr><td class="op"></td><td>8</td><td>,</td><td>3</td><td>5</td><td>2</td></tr>
+                <tr><td class="op">−</td><td>3</td><td>,</td><td>7</td><td>6</td><td>4</td></tr>
+                <tr class="ans"><td class="op"></td><td class="fix">4</td><td>,</td><td class="fix">5</td><td class="fix">8</td><td class="fix">8</td></tr>
+              </tbody></table>
+              <span class="anno">Correct answer: 4,588.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- SLIDE 2 -->
+      <div class="wedo-slide" id="wedo-slide-2">
+        <div class="tag red">Problem 2 of 2</div>
+        <h3>This Answer Doesn't Look Right…</h3>
+        <p>Here is a student's addition. Something about their answer looks strange. Use the three steps.</p>
+        <div style="margin:20px 0;">
+          <div class="algo-label wrong">⚠️ Student's Algorithm</div>
+          <div class="algo-box error-border" style="display:inline-block;">
+            <table class="pa">
+              <tbody><tr><td class="op"></td><td>5</td><td>6</td><td>9</td></tr>
+              <tr><td class="op">+</td><td>2</td><td>8</td><td>7</td></tr>
+              <tr class="wrong-ans"><td class="op"></td><td>7</td><td>15</td><td>6</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+        <div class="callout callout-blue"><span class="label">Whiteboard Challenge</span>
+          <p>1️⃣ Write your <strong>Radar Estimate</strong>. &nbsp;|&nbsp; 2️⃣ Does the student's answer make sense as a number? &nbsp;|&nbsp; 3️⃣ Find the exact column where the problem is.</p>
+        </div>
+        <button class="worked-toggle" onclick="toggleWorked(this,&#39;wedo2-worked&#39;)"><span>🔑 Show Diagnosis</span><span class="wt-chevron">▾</span></button>
+        <div id="wedo2-worked" class="worked-body">
+          <div class="callout callout-amber"><span class="label">Step 1: Radar</span>
+            <p style="margin-bottom:0.75rem;">Round each number to the nearest hundred:</p>
+            <div class="radar-rounding-grid">
+              <div class="radar-row">
+                <span class="radar-original">569</span>
+                <span class="radar-arrow">→</span>
+                <span class="radar-rounded">600</span>
+              </div>
+              <div class="radar-row">
+                <span class="radar-original">287</span>
+                <span class="radar-arrow">→</span>
+                <span class="radar-rounded">300</span>
+              </div>
+            </div>
+            <div class="radar-total">
+              <span>600 + 300 = <strong>900</strong></span>
+            </div>
+            <div style="margin-top:0.5rem;">Radar: <span class="estimate-chip">≈ 900</span></div>
+          </div>
+          <div class="callout callout-red"><span class="label">Step 2: The Check</span>
+            <p>Student's answer: <span class="answer-chip">7,156?</span>, A column can never hold two digits. The answer doesn't even make sense as a number.</p>
+          </div>
+          <div class="callout callout-green"><span class="label">Step 3: Diagnosis</span>
+            <p><strong>Tens column:</strong> 6 + 8 = 14. Each column holds <strong>one digit only</strong>. The 4 belongs in the tens place and the 1 must be carried into the hundreds column. Without that carry, the hundreds calculation is also wrong.</p>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="algo-label correct">✅ Correct Algorithm</div>
+            <div class="algo-box" style="display:inline-block;">
+              <table class="pa">
+                <tbody><tr><td class="op"></td><td class="fix" style="font-size:13px;color:#888;">¹</td><td class="fix" style="font-size:13px;color:#888;">¹</td><td></td></tr>
+                <tr><td class="op"></td><td>5</td><td>6</td><td>9</td></tr>
+                <tr><td class="op">+</td><td>2</td><td>8</td><td>7</td></tr>
+                <tr class="ans"><td class="op"></td><td class="fix">8</td><td class="fix">5</td><td class="fix">6</td></tr>
+              </tbody></table>
+              <span class="anno">Correct answer: 856.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wedo-nav">
+      <button class="wedo-nav-btn" id="wedo-prev" onclick="changeWedo(-1)" disabled="">◀ Previous</button>
+      <span class="wedo-counter"><span id="wedo-current">1</span> / 2</span>
+      <button class="wedo-nav-btn" id="wedo-next" onclick="changeWedo(1)">Next ▶</button>
+    </div>
+    <div class="wedo-dots"><div class="wedo-dot active" id="dot-1"></div><div class="wedo-dot" id="dot-2"></div></div>
+  </div>
+</div>
+
+<!-- ══ DIAGNOSE IT ════════════════════════════════════════════════ -->
+<div id="diagnose" class="section">
+  <div class="section-title">Phase 4 · Error Hunt</div>
+  <div class="section-heading">Diagnose the Mistakes 🔬</div>
+  <div class="card">
+    <div class="tag red">Your Three Jobs</div>
+    <p style="margin-top:8px;">For every question: &nbsp;📡 <strong>Radar first</strong> &nbsp;→&nbsp; 🔴 <strong>Circle the mistake</strong> &nbsp;→&nbsp; ✅ <strong>Correct algorithm</strong></p>
+  </div>
+
+  <!-- TIER 1: Algorithm errors -->
+  <div class="tier-header tier-1">⭐ Tier 1, Algorithm Errors</div>
+  <div class="diag-grid">
+
+    <div class="diag-card dc-red">
+      <div class="dc-qnum">Question 1</div>
+      <p style="font-size:16px;margin-bottom:12px;font-weight:500;">Calculate <strong>246 + 178</strong></p>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>2</td><td>4</td><td>6</td></tr><tr><td class="op">+</td><td>1</td><td>7</td><td>8</td></tr><tr class="wrong-ans"><td class="op"></td><td>3</td><td>11</td><td>4</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d1&#39;)">🔑 Show Solution ▾</button>
+      <div id="d1" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>250 + 180 = <span class="estimate-chip">≈ 430</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>Tens column: 4 + 7 = 14. Each column holds one digit only. The 4 belongs in the tens place; the 1 carries into hundreds.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td></td><td class="fix" style="font-size:12px;color:#888;">¹</td><td></td></tr><tr><td class="op"></td><td>2</td><td>4</td><td>6</td></tr><tr><td class="op">+</td><td>1</td><td>7</td><td>8</td></tr><tr class="ans"><td class="op"></td><td class="fix">4</td><td class="fix">2</td><td class="fix">4</td></tr></tbody></table>
+        <span class="anno">Answer: 424 ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-blue">
+      <div class="dc-qnum">Question 2</div>
+      <p style="font-size:16px;margin-bottom:12px;font-weight:500;">Calculate <strong>1,402 + 65</strong></p>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td>,</td><td>4</td><td>0</td><td>2</td></tr><tr><td class="op">+</td><td>6</td><td></td><td>5</td><td></td><td></td></tr><tr class="wrong-ans"><td class="op"></td><td>7</td><td>,</td><td>9</td><td>0</td><td>2</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d2&#39;)">🔑 Show Solution ▾</button>
+      <div id="d2" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>1,400 + 65 = <span class="estimate-chip">≈ 1,465</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>65 has two digits, it must sit in the tens and ones columns. The student placed the 6 in the thousands and 5 in the hundreds. Numbers must always be right-aligned so each digit sits in its correct place value column.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td>,</td><td>4</td><td>0</td><td>2</td></tr><tr><td class="op">+</td><td></td><td></td><td class="fix">6</td><td class="fix">5</td><td></td></tr><tr class="ans"><td class="op"></td><td>1</td><td>,</td><td class="fix">4</td><td class="fix">6</td><td class="fix">7</td></tr></tbody></table>
+        <span class="anno">Answer: 1,467 ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-amber">
+      <div class="dc-qnum">Question 3</div>
+      <p style="font-size:16px;margin-bottom:12px;font-weight:500;">Calculate <strong>803 − 467</strong></p>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>8</td><td>0</td><td>3</td></tr><tr><td class="op">−</td><td>4</td><td>6</td><td>7</td></tr><tr class="wrong-ans"><td class="op"></td><td>4</td><td>6</td><td>4</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d3&#39;)">🔑 Show Solution ▾</button>
+      <div id="d3" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>800 − 470 = <span class="estimate-chip">≈ 330</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>The ones column requires a trade, 3 − 7 is impossible. The tens column holds 0, so the trade must cascade from hundreds. The tens digit in the answer (6) matches the bottom number exactly, strong evidence that no trading happened at all.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td class="fix" style="font-size:12px;color:#888;">⁷</td><td class="fix" style="font-size:12px;color:#888;">⁹</td><td class="fix" style="font-size:12px;color:#888;">¹³</td></tr><tr><td class="op"></td><td>8</td><td>0</td><td>3</td></tr><tr><td class="op">−</td><td>4</td><td>6</td><td>7</td></tr><tr class="ans"><td class="op"></td><td class="fix">3</td><td class="fix">3</td><td class="fix">6</td></tr></tbody></table>
+        <span class="anno">Answer: 336 ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-teal">
+      <div class="dc-qnum">Question 4</div>
+      <p style="font-size:16px;margin-bottom:12px;font-weight:500;">Calculate <strong>4,000 − 1,783</strong></p>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>4</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>1</td><td>,</td><td>7</td><td>8</td><td>3</td></tr><tr class="wrong-ans"><td class="op"></td><td>3</td><td>,</td><td>7</td><td>8</td><td>3</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d4&#39;)">🔑 Show Solution ▾</button>
+      <div id="d4" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>4,000 − 1,800 = <span class="estimate-chip">≈ 2,200</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>The hundreds, tens and ones in the answer are <em>identical</em> to the bottom number, the student left those columns completely untouched. Trading through three consecutive zeros requires a cascade from the thousands, which was not done.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td class="fix" style="font-size:12px;color:#888;">³</td><td>,</td><td class="fix" style="font-size:12px;color:#888;">⁹</td><td class="fix" style="font-size:12px;color:#888;">⁹</td><td class="fix" style="font-size:12px;color:#888;">¹⁰</td></tr><tr><td class="op"></td><td>4</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>1</td><td>,</td><td>7</td><td>8</td><td>3</td></tr><tr class="ans"><td class="op"></td><td class="fix">2</td><td>,</td><td class="fix">2</td><td class="fix">1</td><td class="fix">7</td></tr></tbody></table>
+        <span class="anno">Answer: 2,217 ✅</span>
+      </div>
+    </div>
+
+  </div><!-- end tier 1 grid -->
+
+  <!-- TIER 2: Worded problems with errors -->
+  <div class="tier-header tier-2" style="margin-top:32px;">🔷 Tier 2, Worded Problems</div>
+  <p style="margin-bottom:16px;font-size:16px;color:var(--muted);">For each question below, the student set up the algorithm <em>and</em> made an error. First check whether they set it up correctly, then find the calculation mistake.</p>
+  <div class="diag-grid">
+
+    <div class="diag-card dc-blue">
+      <div class="dc-qnum">Question 5</div>
+      <div class="word-problem">A school fundraiser collected <strong>$2,345</strong> on Friday and <strong>$1,876</strong> on Saturday. How much was collected in total over the two days?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>2</td><td>,</td><td>3</td><td>4</td><td>5</td></tr><tr><td class="op">+</td><td>1</td><td>,</td><td>8</td><td>7</td><td>6</td></tr><tr class="wrong-ans"><td class="op"></td><td>3</td><td>,</td><td>1</td><td>1</td><td>1</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d5&#39;)">🔑 Show Solution ▾</button>
+      <div id="d5" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>$2,300 + $1,900 = <span class="estimate-chip">≈ $4,200</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>The setup is correct. But the student added each column independently without carrying. Ones: 5+6=11, wrote 1 (forgot carry). Tens: 4+7=11, wrote 1 (forgot the carry from ones AND this column's own carry). Hundreds: 3+8=11, wrote 1. Every carry was dropped, a cascade of missing carries producing a wildly small answer.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td class="fix" style="font-size:12px;color:#888;">¹</td><td>,</td><td class="fix" style="font-size:12px;color:#888;">¹</td><td class="fix" style="font-size:12px;color:#888;">¹</td><td></td></tr><tr><td class="op"></td><td>2</td><td>,</td><td>3</td><td>4</td><td>5</td></tr><tr><td class="op">+</td><td>1</td><td>,</td><td>8</td><td>7</td><td>6</td></tr><tr class="ans"><td class="op"></td><td class="fix">4</td><td>,</td><td class="fix">2</td><td class="fix">2</td><td class="fix">1</td></tr></tbody></table>
+        <span class="anno">Answer: $4,221 ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-purple">
+      <div class="dc-qnum">Question 6</div>
+      <div class="word-problem">A hiking trail is <strong>12,500 m</strong> long. Priya has already walked <strong>4,750 m</strong>. How far does she still have to walk?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td>2</td><td>,</td><td>5</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>4</td><td>,</td><td>7</td><td>5</td><td>0</td></tr><tr class="wrong-ans"><td class="op"></td><td></td><td>8</td><td>,</td><td>2</td><td>5</td><td>0</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d6&#39;)">🔑 Show Solution ▾</button>
+      <div id="d6" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>12,500 − 4,750 ≈ 12,500 − 5,000 = <span class="estimate-chip">≈ 7,500</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>The radar says around 7,500 but the student got 8,250, about 750 too large. Setup is correct. The hundreds column is where the mistake hides: 5 − 7 requires a trade. The student appears to have reversed it (7 − 5 = 2) rather than trading from the thousands. The tens and ones are correct, making the error harder to spot by eye.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td class="fix" style="font-size:12px;color:#888;">¹</td><td>,</td><td class="fix" style="font-size:12px;color:#888;">⁴</td><td class="fix" style="font-size:12px;color:#888;">¹⁰</td><td></td></tr><tr><td class="op"></td><td>1</td><td>2</td><td>,</td><td>5</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>4</td><td>,</td><td>7</td><td>5</td><td>0</td></tr><tr class="ans"><td class="op"></td><td></td><td class="fix">7</td><td>,</td><td class="fix">7</td><td class="fix">5</td><td class="fix">0</td></tr></tbody></table>
+        <span class="anno">Answer: 7,750 m ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-amber">
+      <div class="dc-qnum">Question 7</div>
+      <div class="word-problem">A bookshop sold <strong>1,204</strong> books in Term 1 and <strong>987</strong> books in Term 2. How many books were sold altogether?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td>,</td><td>2</td><td>0</td><td>4</td></tr><tr><td class="op">+</td><td>9</td><td></td><td>8</td><td>7</td><td></td></tr><tr class="wrong-ans"><td class="op"></td><td>1</td><td>0</td><td>,</td><td>8</td><td>7</td><td>4</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d7&#39;)">🔑 Show Solution ▾</button>
+      <div id="d7" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>1,200 + 1,000 = <span class="estimate-chip">≈ 2,200</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>987 is a three-digit number, it belongs in the hundreds, tens and ones columns. The student misaligned it, placing the 9 in the thousands column and the 8 and 7 in the hundreds and tens. The ones column of 987 (which is a blank/zero) ended up in the ones column, so only the 4 appears there unchanged. This inflated the total massively.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td></td><td class="fix" style="font-size:12px;color:#888;">¹</td><td></td><td></td></tr><tr><td class="op"></td><td>1</td><td>,</td><td>2</td><td>0</td><td>4</td></tr><tr><td class="op">+</td><td></td><td></td><td class="fix">9</td><td class="fix">8</td><td class="fix">7</td></tr><tr class="ans"><td class="op"></td><td>2</td><td>,</td><td class="fix">1</td><td class="fix">9</td><td class="fix">1</td></tr></tbody></table>
+        <span class="anno">Answer: 2,191 books ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-teal">
+      <div class="dc-qnum">Question 8</div>
+      <div class="word-problem">A swimming pool holds <strong>45,000 litres</strong>. After a week of use, <strong>3,847 litres</strong> have evaporated or been splashed out. How many litres remain?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>4</td><td>5</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>3</td><td>,</td><td>8</td><td>4</td><td>7</td></tr><tr class="wrong-ans"><td class="op"></td><td>4</td><td>2</td><td>,</td><td>1</td><td>5</td><td>3</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d8&#39;)">🔑 Show Solution ▾</button>
+      <div id="d8" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>45,000 − 3,847 ≈ 45,000 − 4,000 = <span class="estimate-chip">≈ 41,000</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>The radar says around 41,000; the student has 42,153, about 1,000 too large. The setup is correct. Trade correctly through three zeros from the ten-thousands. After cascading, 45,000 becomes 44,999 with a 10 in the ones position. Subtracting 3,847: 10−7=3 ✓, 9−4=5 ✓, 9−8=1 ✓, 4−3=1 ✗, the student wrote 2 here instead of 1, seemingly forgetting the trade that reduced the ten-thousands digit.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td class="fix" style="font-size:12px;color:#888;">⁴</td><td class="fix" style="font-size:12px;color:#888;">⁴</td><td>,</td><td class="fix" style="font-size:12px;color:#888;">⁹</td><td class="fix" style="font-size:12px;color:#888;">⁹</td><td class="fix" style="font-size:12px;color:#888;">¹⁰</td></tr><tr><td class="op"></td><td>4</td><td>5</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>3</td><td>,</td><td>8</td><td>4</td><td>7</td></tr><tr class="ans"><td class="op"></td><td class="fix">4</td><td class="fix">1</td><td>,</td><td class="fix">1</td><td class="fix">5</td><td class="fix">3</td></tr></tbody></table>
+        <span class="anno">Answer: 41,153 L ✅</span>
+      </div>
+    </div>
+
+  </div><!-- end tier 2 grid -->
+
+  <!-- TIER 3: Multi-step with hidden errors -->
+  <div class="tier-header tier-3" style="margin-top:32px;">🔶 Tier 3, Multi-Step &amp; Tricky Ones</div>
+  <p style="margin-bottom:16px;font-size:16px;color:var(--muted);">These questions involve multiple steps. The error might be in the setup, in the arithmetic, or buried inside a step that <em>looks</em> correct.</p>
+  <div class="diag-grid">
+
+    <div class="diag-card dc-purple">
+      <div class="dc-qnum">Question 9</div>
+      <div class="word-problem">Calculate <strong>$14.50 + $3.25</strong></div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td>4</td><td>.</td><td>5</td><td></td></tr><tr><td class="op">+</td><td></td><td>3</td><td>.</td><td>2</td><td>5</td></tr><tr class="wrong-ans"><td class="op"></td><td>1</td><td>7</td><td>.</td><td>7</td><td>5</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d9&#39;)">🔑 Show Solution ▾</button>
+      <div id="d9" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>$14 + $3 = <span class="estimate-chip">≈ $17</span>, close to the student's answer, so the radar won't catch this one. You need to inspect the columns.</p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>The student's answer of $17.75 is actually correct, but the working is not set out safely. The 5 in $14.5 is in the <strong>tenths</strong> place. Without a placeholder zero ($14.50), the two decimal portions appear to align, but on a different question this layout would cause a misalignment error. Correct working always shows matching decimal places before adding.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct Working</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td>4</td><td>.</td><td>5</td><td class="fix">0</td></tr><tr><td class="op">+</td><td></td><td>3</td><td>.</td><td>2</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>1</td><td>7</td><td>.</td><td>7</td><td>5</td></tr></tbody></table>
+        <span class="anno">Always write a placeholder zero. Answer: $17.75 ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-dark">
+      <div class="dc-qnum">Question 10</div>
+      <div class="word-problem">Calculate <strong>$20.00 − $7.85</strong></div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <table class="pa"><tbody><tr><td class="op"></td><td>2</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>7</td><td>.</td><td>8</td><td>5</td></tr><tr class="wrong-ans"><td class="op"></td><td>1</td><td>3</td><td>.</td><td>2</td><td>5</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d10&#39;)">🔑 Show Solution ▾</button>
+      <div id="d10" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>$20 − $8 = <span class="estimate-chip">≈ $12</span>. The student got $13.25, about $1.10 too large.</p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>Both decimal columns hold zeros, so trading must cascade from the tens: 20.00 → 19.90 → 19.9(10). The student appears to have traded once rather than fully cascading, leaving the tenths and whole number digits slightly wrong.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td>2</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td></td><td>7</td><td>.</td><td>8</td><td>5</td></tr><tr class="ans"><td class="op"></td><td>1</td><td>2</td><td>.</td><td class="fix">1</td><td class="fix">5</td></tr></tbody></table>
+        <span class="anno">Answer: $12.15 ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-red">
+      <div class="dc-qnum">Question 11, 🌶️ Tricky</div>
+      <div class="word-problem">A sports club has <strong>3,050</strong> members. After a recruitment drive they gained <strong>847</strong> new members, but then <strong>1,203</strong> members did not renew. How many members does the club now have?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 1: Add new members</p>
+        <table class="pa" style="margin-bottom:8px;"><tbody><tr><td class="op"></td><td>3</td><td>,</td><td>0</td><td>5</td><td>0</td></tr><tr><td class="op">+</td><td></td><td></td><td>8</td><td>4</td><td>7</td></tr><tr class="ans" style="color:var(--teal-dark);"><td class="op"></td><td>3</td><td>,</td><td>8</td><td>9</td><td>7</td></tr></tbody></table>
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 2: Subtract non-renewals</p>
+        <table class="pa"><tbody><tr><td class="op"></td><td>3</td><td>,</td><td>8</td><td>9</td><td>7</td></tr><tr><td class="op">−</td><td>1</td><td>,</td><td>2</td><td>0</td><td>3</td></tr><tr class="wrong-ans"><td class="op"></td><td>1</td><td>,</td><td>6</td><td>9</td><td>4</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d11&#39;)">🔑 Show Solution ▾</button>
+      <div id="d11" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>Step 1: 3,050 + 850 ≈ 3,900 ✓ &nbsp;|&nbsp; Step 2: 3,900 − 1,200 ≈ <span class="estimate-chip">≈ 2,700</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis, where is the error?</span><p>Step 1 is actually <strong>correct</strong>: 3,050 + 847 = 3,897 ✓. The error is in Step 2. Subtracting: ones 7−3=4 ✓, tens 9−0=9 ✓, hundreds 8−2=6 ✓, but the <strong>thousands column</strong>: 3−1=2, not 1. The student wrote 1 instead of 2. A single wrong digit in the thousands place, hidden at the start of a long calculation and easy to overlook when checking.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct Step 2</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td>3</td><td>,</td><td>8</td><td>9</td><td>7</td></tr><tr><td class="op">−</td><td>1</td><td>,</td><td>2</td><td>0</td><td>3</td></tr><tr class="ans"><td class="op"></td><td class="fix">2</td><td>,</td><td>6</td><td>9</td><td>4</td></tr></tbody></table>
+        <span class="anno">Final answer: 2,694 members ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-dark">
+      <div class="dc-qnum">Question 12, 🌶️🌶️ Very Tricky</div>
+      <div class="word-problem">Maya buys items costing <strong>$3.50</strong>, <strong>$12.99</strong> and <strong>$0.75</strong>. She pays with a <strong>$20 note</strong>. How much change does she receive?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 1: Total cost</p>
+        <table class="pa" style="margin-bottom:8px;"><tbody><tr><td class="op"></td><td></td><td>3</td><td>.</td><td>5</td><td>0</td></tr><tr><td class="op"></td><td>1</td><td>2</td><td>.</td><td>9</td><td>9</td></tr><tr><td class="op">+</td><td></td><td>7</td><td>5</td><td></td><td></td></tr><tr class="wrong-ans"><td class="op"></td><td>9</td><td>3</td><td>.</td><td>4</td><td>9</td></tr></tbody></table>
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 2: Change</p>
+        <table class="pa"><tbody><tr><td class="op"></td><td>2</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>9</td><td>3</td><td>.</td><td>4</td><td>9</td></tr><tr class="wrong-ans"><td class="op"></td><td>?</td><td>?</td><td>.</td><td>?</td><td>?</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d12&#39;)">🔑 Show Solution ▾</button>
+      <div id="d12" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>$3.50 + $13 + $0.75 ≈ $17 total. Change from $20 ≈ <span class="estimate-chip">≈ $3</span>. A total of $93.49 is impossible, radar alarm fires immediately.</p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>$0.75 has been written without its decimal point, "75" placed in the tens and ones columns as though it were a whole number. This inflates the total by approximately $74. Step 2 cannot be completed correctly because $93.49 is already larger than $20.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct Step 1</div>
+        <table class="pa" style="margin-bottom:8px;"><tbody><tr><td class="op"></td><td></td><td>3</td><td>.</td><td>5</td><td>0</td></tr><tr><td class="op"></td><td>1</td><td>2</td><td>.</td><td>9</td><td>9</td></tr><tr><td class="op">+</td><td></td><td class="fix">0</td><td>.</td><td class="fix">7</td><td class="fix">5</td></tr><tr class="ans"><td class="op"></td><td>1</td><td>7</td><td>.</td><td>2</td><td>4</td></tr></tbody></table>
+        <div class="algo-label correct">✅ Correct Step 2</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td>2</td><td>0</td><td>.</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>1</td><td>7</td><td>.</td><td>2</td><td>4</td></tr><tr class="ans"><td class="op"></td><td></td><td class="fix">2</td><td>.</td><td class="fix">7</td><td class="fix">6</td></tr></tbody></table>
+        <span class="anno">Correct change: $2.76 ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-purple">
+      <div class="dc-qnum">Question 13, 🌶️🌶️ Very Tricky</div>
+      <div class="word-problem">A factory produces <strong>10,000</strong> items per day. On Monday they produced the full amount; on Tuesday a machine broke down and they produced only <strong>6,384</strong>. Over those two days, <strong>8,917</strong> items passed quality control and the rest were rejected. How many items were rejected?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 1: Total produced</p>
+        <table class="pa" style="margin-bottom:8px;"><tbody><tr><td class="op"></td><td>1</td><td>0</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">+</td><td></td><td>6</td><td>,</td><td>3</td><td>8</td><td>4</td></tr><tr class="ans" style="color:var(--teal-dark);"><td class="op"></td><td>1</td><td>6</td><td>,</td><td>3</td><td>8</td><td>4</td></tr></tbody></table>
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 2: Items rejected</p>
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td>6</td><td>,</td><td>3</td><td>8</td><td>4</td></tr><tr><td class="op">−</td><td></td><td>8</td><td>,</td><td>9</td><td>1</td><td>7</td></tr><tr class="wrong-ans"><td class="op"></td><td></td><td>8</td><td>,</td><td>5</td><td>7</td><td>7</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d13&#39;)">🔑 Show Solution ▾</button>
+      <div id="d13" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>Step 1: 10,000 + 6,384 = 16,384 ✓ &nbsp;|&nbsp; Step 2: 16,384 − 8,917 ≈ 16,400 − 9,000 = <span class="estimate-chip">≈ 7,400</span></p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis</span><p>Step 1 is <strong>correct</strong>. Step 2 is where the error hides. Tracing the columns: ones 4−7 requires trade, giving 14−7=7 ✓; tens: after trade, 7−1=6, but the student wrote 7, meaning they forgot to reduce the tens digit by 1 after trading from it to the ones. This then makes the hundreds correct by coincidence: 3−9 requires a trade... Checking fully: the correct answer is 7,467, not 8,577. The student forgot to reduce the tens after trading, and the error cascaded.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Correct Step 2</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td>1</td><td class="fix" style="font-size:12px;color:#888;">⁵</td><td>,</td><td class="fix" style="font-size:12px;color:#888;">¹³</td><td class="fix" style="font-size:12px;color:#888;">⁷</td><td class="fix" style="font-size:12px;color:#888;">¹⁴</td></tr><tr><td class="op"></td><td>1</td><td>6</td><td>,</td><td>3</td><td>8</td><td>4</td></tr><tr><td class="op">−</td><td></td><td>8</td><td>,</td><td>9</td><td>1</td><td>7</td></tr><tr class="ans"><td class="op"></td><td></td><td class="fix">7</td><td>,</td><td class="fix">4</td><td class="fix">6</td><td class="fix">7</td></tr></tbody></table>
+        <span class="anno">Answer: 7,467 items rejected ✅</span>
+      </div>
+    </div>
+
+    <div class="diag-card dc-red">
+      <div class="dc-qnum">Question 14, 🌶️🌶️🌶️ Expert</div>
+      <div class="word-problem">Three towns raise money for a new library. Northvale raises <strong>$24,650</strong>, Southbrook raises <strong>$18,475</strong> and Eastfield raises <strong>$9,308</strong>. The library costs <strong>$55,000</strong>. How much more money do the towns still need to raise?</div>
+      <div class="algo-label wrong">Student's Working</div>
+      <div class="algo-box error-border" style="display:block;">
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 1: Total raised</p>
+        <table class="pa" style="margin-bottom:8px;"><tbody><tr><td class="op"></td><td>2</td><td>4</td><td>,</td><td>6</td><td>5</td><td>0</td></tr><tr><td class="op"></td><td>1</td><td>8</td><td>,</td><td>4</td><td>7</td><td>5</td></tr><tr><td class="op">+</td><td></td><td>9</td><td>,</td><td>3</td><td>0</td><td>8</td></tr><tr class="ans" style="color:var(--teal-dark);"><td class="op"></td><td>5</td><td>2</td><td>,</td><td>4</td><td>3</td><td>3</td></tr></tbody></table>
+        <p style="font-family: 'Space Mono',monospace;font-size:13px;margin-bottom:6px;">Step 2: Shortfall</p>
+        <table class="pa"><tbody><tr><td class="op"></td><td>5</td><td>5</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>5</td><td>2</td><td>,</td><td>4</td><td>3</td><td>3</td></tr><tr class="wrong-ans"><td class="op"></td><td></td><td>2</td><td>,</td><td>6</td><td>6</td><td>7</td></tr></tbody></table>
+      </div>
+      <button class="diag-toggle" onclick="toggleDiag(this,&#39;d14&#39;)">🔑 Show Solution ▾</button>
+      <div id="d14" class="diag-reveal">
+        <div class="callout callout-amber" style="margin-top:12px;"><span class="label">Radar</span><p>$24,650 + $18,475 + $9,308 ≈ $25,000 + $18,500 + $9,000 = <span class="estimate-chip">≈ $52,500</span>. Shortfall ≈ $55,000 − $52,500 = <span class="estimate-chip">≈ $2,500</span>. Student's answer of $2,667 seems plausible, the radar won't catch this one. Time to check the columns carefully.</p></div>
+        <div class="callout callout-green"><span class="label">Diagnosis, this one is very well hidden</span><p><strong>Step 1 has an error.</strong> Adding the ones: 0+5+8=13, write 3 carry 1 ✓. Tens: 5+7+0=12, plus carry 1 = 13, write 3 carry 1 ✓. Hundreds: 6+4+3=13, plus carry 1 = 14, write 4 carry 1 ✓. Ten-thousands: 2+1+0=3, plus carry 1 = 4, write 4 ✓. But wait, thousands: 4+8+9=21, plus carry 1 from hundreds = 22, write 2 carry 2. The student wrote 2 but only carried 1 (not 2) into the ten-thousands. So the ten-thousands should be: 2+1+0+2(carry)=5, not 4. Step 1 answer should be 52,433, the student has it as 52,433 which actually IS correct! Now check Step 2: 55,000 − 52,433: ones 0−3 requires trade... correct answer is 2,567, not 2,667. The student made an error in the hundreds column of Step 2: after trading, they had 9−4=5 but wrote 6.</p></div>
+        <div class="algo-label correct" style="margin-top:8px;">✅ Step 1 is correct: $52,433</div>
+        <div class="algo-label correct">✅ Correct Step 2</div>
+        <table class="pa"><tbody><tr><td class="op"></td><td class="fix" style="font-size:12px;color:#888;">⁴</td><td class="fix" style="font-size:12px;color:#888;">¹⁴</td><td>,</td><td class="fix" style="font-size:12px;color:#888;">⁹</td><td class="fix" style="font-size:12px;color:#888;">⁹</td><td class="fix" style="font-size:12px;color:#888;">¹⁰</td></tr><tr><td class="op"></td><td>5</td><td>5</td><td>,</td><td>0</td><td>0</td><td>0</td></tr><tr><td class="op">−</td><td>5</td><td>2</td><td>,</td><td>4</td><td>3</td><td>3</td></tr><tr class="ans"><td class="op"></td><td></td><td class="fix">2</td><td>,</td><td class="fix">5</td><td class="fix">6</td><td class="fix">7</td></tr></tbody></table>
+        <span class="anno">Answer: $2,567 still needed ✅</span>
+      </div>
+    </div>
+
+  </div><!-- end tier 3 grid -->
+</div><!-- end diagnose section -->
+
+<!-- ══ YOUR TURN ═════════════════════════════════════════════════ -->
+<div id="youdo" class="section">
+  <div class="section-title">Phase 5 · Your Turn</div>
+  <div class="section-heading">Practise Doing It Right ✏️</div>
+  <div class="card">
+    <div class="tag green">Independent Work</div>
+    <div class="tag amber">25 Minutes</div>
+    <h3>Show your working for every question.</h3>
+    <p>Set out each algorithm carefully in columns, show your trading/carrying marks, and use your Radar to check your answer makes sense.</p>
+  </div>
+
+  <!-- SET A: Addition -->
+  <div class="practice-set">
+    <div class="card">
+      <h3>Set A, Addition</h3>
+      <div class="tier-header tier-1" style="margin-bottom:20px;">⭐ Core</div>
+      <div class="prac-grid">
+
+        <div class="prac-q pq-green">
+          <div class="prac-num">A1</div>
+          <p>Calculate <strong>347 + 285</strong></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a1&#39;)">✅ Check Answer</button>
+          <div id="a1" class="prac-ans"><span class="ans-chip">632</span></div>
+        </div>
+
+        <div class="prac-q pq-green">
+          <div class="prac-num">A2</div>
+          <p>Calculate <strong>1,563 + 748</strong></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a2&#39;)">✅ Check Answer</button>
+          <div id="a2" class="prac-ans"><span class="ans-chip">2,311</span></div>
+        </div>
+
+        <div class="prac-q pq-green">
+          <div class="prac-num">A3</div>
+          <p>Calculate <strong>4,875 + 3,648</strong></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a3&#39;)">✅ Check Answer</button>
+          <div id="a3" class="prac-ans"><span class="ans-chip">8,523</span></div>
+        </div>
+
+        <div class="prac-q pq-green">
+          <div class="prac-num">A4</div>
+          <p>Calculate <strong>6,209 + 94</strong><br><small style="color:var(--muted);">(Careful with alignment!)</small></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a4&#39;)">✅ Check Answer</button>
+          <div id="a4" class="prac-ans"><span class="ans-chip">6,303</span></div>
+        </div>
+
+        <div class="prac-q pq-blue">
+          <div class="prac-num">A5</div>
+          <p>Calculate <strong>12,476 + 9,855</strong></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a5&#39;)">✅ Check Answer</button>
+          <div id="a5" class="prac-ans"><span class="ans-chip">22,331</span></div>
+        </div>
+
+        <div class="prac-q pq-blue">
+          <div class="prac-num">A6</div>
+          <p>Calculate <strong>8,307 + 2,694 + 486</strong><br><small style="color:var(--muted);">(Three addends, set out carefully)</small></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a6&#39;)">✅ Check Answer</button>
+          <div id="a6" class="prac-ans"><span class="ans-chip">11,487</span></div>
+        </div>
+
+      </div>
+
+      <div class="tier-header tier-2" style="margin-bottom:16px;margin-top:8px;">🔷 Worded</div>
+      <div class="prac-grid">
+
+        <div class="prac-q pq-blue">
+          <div class="prac-num">A7</div>
+          <p>A library has <strong>14,382</strong> fiction books and <strong>8,749</strong> non-fiction books. How many books are there altogether?</p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a7&#39;)">✅ Check Answer</button>
+          <div id="a7" class="prac-ans"><span class="ans-chip">23,131 books</span></div>
+        </div>
+
+        <div class="prac-q pq-blue">
+          <div class="prac-num">A8</div>
+          <p>On three consecutive days, a café sold <strong>247</strong>, <strong>315</strong> and <strong>198</strong> coffees. What was the total number of coffees sold?</p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a8&#39;)">✅ Check Answer</button>
+          <div id="a8" class="prac-ans"><span class="ans-chip">760 coffees</span></div>
+        </div>
+
+        <div class="prac-q pq-blue">
+          <div class="prac-num">A9</div>
+          <p>A charity raised <strong>$23,500</strong> in its first year, <strong>$31,275</strong> in its second year, and <strong>$4,860</strong> from a special event. What was the total raised?</p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;a9&#39;)">✅ Check Answer</button>
+          <div id="a9" class="prac-ans"><span class="ans-chip">$59,635</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SET B: Subtraction -->
+  <div class="practice-set">
+    <div class="card">
+      <h3>Set B, Subtraction</h3>
+      <div class="tier-header tier-1" style="margin-bottom:20px;">⭐ Core</div>
+      <div class="prac-grid">
+
+        <div class="prac-q pq-amber">
+          <div class="prac-num">B1</div>
+          <p>Calculate <strong>724 − 368</strong></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b1&#39;)">✅ Check Answer</button>
+          <div id="b1" class="prac-ans"><span class="ans-chip">356</span></div>
+        </div>
+
+        <div class="prac-q pq-amber">
+          <div class="prac-num">B2</div>
+          <p>Calculate <strong>5,000 − 2,347</strong><br><small style="color:var(--muted);">(Trading through zeros)</small></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b2&#39;)">✅ Check Answer</button>
+          <div id="b2" class="prac-ans"><span class="ans-chip">2,653</span></div>
+        </div>
+
+        <div class="prac-q pq-amber">
+          <div class="prac-num">B3</div>
+          <p>Calculate <strong>8,403 − 5,768</strong></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b3&#39;)">✅ Check Answer</button>
+          <div id="b3" class="prac-ans"><span class="ans-chip">2,635</span></div>
+        </div>
+
+        <div class="prac-q pq-amber">
+          <div class="prac-num">B4</div>
+          <p>Calculate <strong>20,000 − 7,654</strong><br><small style="color:var(--muted);">(Trading through four zeros)</small></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b4&#39;)">✅ Check Answer</button>
+          <div id="b4" class="prac-ans"><span class="ans-chip">12,346</span></div>
+        </div>
+
+        <div class="prac-q pq-teal">
+          <div class="prac-num">B5</div>
+          <p>Calculate <strong>34,072 − 18,965</strong></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b5&#39;)">✅ Check Answer</button>
+          <div id="b5" class="prac-ans"><span class="ans-chip">15,107</span></div>
+        </div>
+
+        <div class="prac-q pq-teal">
+          <div class="prac-num">B6</div>
+          <p>Calculate <strong>100,000 − 63,487</strong><br><small style="color:var(--muted);">(The ultimate zero challenge!)</small></p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b6&#39;)">✅ Check Answer</button>
+          <div id="b6" class="prac-ans"><span class="ans-chip">36,513</span></div>
+        </div>
+
+      </div>
+
+      <div class="tier-header tier-2" style="margin-bottom:16px;margin-top:8px;">🔷 Worded</div>
+      <div class="prac-grid">
+
+        <div class="prac-q pq-teal">
+          <div class="prac-num">B7</div>
+          <p>A plane has <strong>253 seats</strong>. <strong>178</strong> are occupied. How many seats are empty?</p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b7&#39;)">✅ Check Answer</button>
+          <div id="b7" class="prac-ans"><span class="ans-chip">75 seats</span></div>
+        </div>
+
+        <div class="prac-q pq-teal">
+          <div class="prac-num">B8</div>
+          <p>A dam holds <strong>50,000 megalitres</strong> when full. After a dry summer it holds <strong>34,876 megalitres</strong>. How much water has been lost?</p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b8&#39;)">✅ Check Answer</button>
+          <div id="b8" class="prac-ans"><span class="ans-chip">15,124 ML</span></div>
+        </div>
+
+        <div class="prac-q pq-teal">
+          <div class="prac-num">B9</div>
+          <p>A mountain is <strong>8,849 m</strong> high. A base camp is located at <strong>5,364 m</strong>. What is the vertical distance from base camp to the summit?</p>
+          <div class="prac-space">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;b9&#39;)">✅ Check Answer</button>
+          <div id="b9" class="prac-ans"><span class="ans-chip">3,485 m</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SET C: Multi-step -->
+  <div class="practice-set">
+    <div class="card">
+      <h3>Set C, Multi-Step Problems</h3>
+      <p style="margin-bottom:16px;">Show <strong>each step separately</strong> with a label. Use your Radar after every step.</p>
+      <div class="tier-header tier-3" style="margin-bottom:20px;">🔶 Challenge</div>
+      <div class="prac-grid">
+
+        <div class="prac-q pq-purple">
+          <div class="prac-num">C1</div>
+          <p>A baker made <strong>480</strong> biscuits. She sold <strong>137</strong> in the morning and <strong>214</strong> in the afternoon. How many biscuits were left?</p>
+          <div class="prac-space" style="min-height:80px;">Step 1 &amp; Step 2, show both</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;c1&#39;)">✅ Check Answer</button>
+          <div id="c1" class="prac-ans"><span class="ans-chip">129 biscuits</span><br><small style="color:var(--muted);font-size:13px;margin-top:4px;display:block;">Step 1: 137+214=351 &nbsp;|&nbsp; Step 2: 480−351=129</small></div>
+        </div>
+
+        <div class="prac-q pq-purple">
+          <div class="prac-num">C2</div>
+          <p>Town A has a population of <strong>42,650</strong>. Town B has a population of <strong>27,834</strong>. How many more people would Town B need to equal Town A's population?</p>
+          <div class="prac-space" style="min-height:80px;">Show your working here</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;c2&#39;)">✅ Check Answer</button>
+          <div id="c2" class="prac-ans"><span class="ans-chip">14,816 people</span></div>
+        </div>
+
+        <div class="prac-q pq-purple">
+          <div class="prac-num">C3</div>
+          <p>Tickets to a concert cost <strong>$85</strong> each. Liam buys <strong>3 tickets</strong> and pays with <strong>$300</strong>. How much change does he receive?<br><small style="color:var(--muted);">(First find total cost, then find change)</small></p>
+          <div class="prac-space" style="min-height:80px;">Step 1 &amp; Step 2, show both</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;c3&#39;)">✅ Check Answer</button>
+          <div id="c3" class="prac-ans"><span class="ans-chip">$45 change</span><br><small style="color:var(--muted);font-size:13px;margin-top:4px;display:block;">Step 1: 3×$85=$255 &nbsp;|&nbsp; Step 2: $300−$255=$45</small></div>
+        </div>
+
+        <div class="prac-q pq-dark">
+          <div class="prac-num">C4</div>
+          <p>Three friends each save money over the holidays. Ava saves <strong>$1,248</strong>, Ben saves <strong>$976</strong>, and Chloe saves <strong>$1,105</strong>. Together they want to buy a games console that costs <strong>$3,499</strong>. Do they have enough, and if not, how much are they short?</p>
+          <div class="prac-space" style="min-height:80px;">Step 1 &amp; Step 2, show both</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;c4&#39;)">✅ Check Answer</button>
+          <div id="c4" class="prac-ans"><span class="ans-chip">$170 short</span><br><small style="color:var(--muted);font-size:13px;margin-top:4px;display:block;">Step 1: 1,248+976+1,105=3,329 &nbsp;|&nbsp; Step 2: 3,499−3,329=170</small></div>
+        </div>
+
+        <div class="prac-q pq-dark">
+          <div class="prac-num">C5</div>
+          <p>A council has a budget of <strong>$200,000</strong> for parks. They spend <strong>$78,350</strong> on a playground, <strong>$43,720</strong> on paths, and <strong>$56,085</strong> on planting. How much of the budget is remaining?</p>
+          <div class="prac-space" style="min-height:80px;">Show all steps</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;c5&#39;)">✅ Check Answer</button>
+          <div id="c5" class="prac-ans"><span class="ans-chip">$21,845 remaining</span><br><small style="color:var(--muted);font-size:13px;margin-top:4px;display:block;">Total spent: 78,350+43,720+56,085=178,155 &nbsp;|&nbsp; Remaining: 200,000−178,155=21,845</small></div>
+        </div>
+
+        <div class="prac-q pq-dark">
+          <div class="prac-num">C6 ⭐</div>
+          <p>A country's population is <strong>4,837,200</strong>. In one year, <strong>62,450</strong> people were born, <strong>38,720</strong> people died, <strong>14,305</strong> people moved into the country, and <strong>9,870</strong> people moved away. What is the new population?</p>
+          <div class="prac-space" style="min-height:100px;">Show all steps, label each one</div>
+          <button class="prac-ans-toggle" onclick="toggleAns(this,&#39;c6&#39;)">✅ Check Answer</button>
+          <div id="c6" class="prac-ans"><span class="ans-chip">4,865,365</span><br><small style="color:var(--muted);font-size:13px;margin-top:4px;display:block;">+births: 4,899,650 &nbsp;|&nbsp; −deaths: 4,860,930 &nbsp;|&nbsp; +arrivals: 4,875,235 &nbsp;|&nbsp; −departures: 4,865,365</small></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div><!-- end youdo -->
+
+<!-- ══ GO DEEPER ════════════════════════════════════════════════════ -->
+<div id="go-deeper-section" class="go-deeper-section" style="opacity:0.5;pointer-events:none;">
+  <div style="position:relative;z-index:10;padding:24px;background:white;border-radius:20px;border:2px solid #ddd;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+    <div style="font-size:48px;margin-bottom:12px;">🔐</div>
+    <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;color:#2D3436;">Go Deeper: Locked</h3>
+    <p style="font-family:'Fredoka',sans-serif;font-size:15px;color:#636E72;margin-bottom:16px;max-width:400px;margin-left:auto;margin-right:auto;">Finish the "Your Turn" section with a good score to unlock these three investigation challenges.</p>
+  </div>
+</div>
+
+<!-- Hidden Go Deeper content (unlocked via JavaScript) -->
+<div id="go-deeper-content-hidden" style="display:none;">
+  <div class="go-deeper-section">
+    <button class="go-deeper-toggle" onclick="this.classList.toggle('open'); this.nextElementSibling.style.display = this.classList.contains('open') ? 'block' : 'none';">
+      <span>🚀 Go Deeper: Extension Challenges</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="go-deeper-content" style="display:none;">
+      <p style="font-family:'Fredoka',sans-serif;font-size:1rem;color:#636E72;margin-bottom:1.5rem;">Ready to think like a mathematician? These three challenges ask you to investigate error patterns more deeply, test boundaries, and discover why certain mistakes happen.</p>
+
+      <!-- Task 1: Specialising - Investigate specific error pattern -->
+      <div class="ext-task">
+        <div class="ext-task-label">Challenge 1 of 3 · Specialising</div>
+        <div class="ext-task-prompt">Investigate the error where you forget to carry the tens digit in addition. Design a <span class="ext-numbers">3</span>-digit addition where forgetting to carry the tens gives an answer that is exactly <span class="ext-numbers">100</span> less than the correct answer.</div>
+        <div class="ext-task-sub"><em>How many different solutions can you find? What do the tens digits have in common in each case?</em></div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Mathematician's thinking</div>
+          <p>Let me start by thinking about what causes a difference of exactly <span class="ext-numbers">100</span>. That must mean a missing hundred, so I need to find where a carry of <span class="ext-numbers">1</span> to the hundreds column is being made.</p>
+          <p>First, I'll try <span class="ext-numbers">235 + 168</span>.</p>
+          <p>Ones: <span class="ext-numbers">5 + 8 = 13</span> (carry <span class="ext-numbers">1</span>)</p>
+          <p>Tens: <span class="ext-numbers">3 + 6 + 1 = 10</span> (carry <span class="ext-numbers">1</span>) → Correct answer: <span class="ext-numbers">403</span></p>
+          <p>If I forget the carry to hundreds: I'd get <span class="ext-numbers">303</span>. Difference: <span class="ext-numbers">403 - 303 = 100</span> ✓</p>
+          <p>But wait, let me try <span class="ext-numbers">162 + 237</span> to see if this is always true...</p>
+          <p>Ones: <span class="ext-numbers">2 + 7 = 9</span> (no carry)</p>
+          <p>Tens: <span class="ext-numbers">6 + 3 = 9</span> (no carry) → Correct answer: <span class="ext-numbers">399</span></p>
+          <p>That doesn't work because the tens didn't carry. I see. The tens digits must add to <span class="ext-numbers">10</span> or more to create a carry.</p>
+          <p>So the pattern is: <strong>both pairs where the tens digits add to at least <span class="ext-numbers">10</span> will work</strong>. Examples: <span class="ext-numbers">154 + 156</span>, <span class="ext-numbers">173 + 137</span>, <span class="ext-numbers">245 + 268</span>. Hundreds of solutions!</p>
+          <div class="mathematician-box">
+            The key constraint: the tens column must produce a carry of <span class="ext-numbers">1</span>. When you forget that carry to the hundreds, you always lose exactly <span class="ext-numbers">100</span>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 2: Conjecturing - Test the limits of estimation -->
+      <div class="ext-task">
+        <div class="ext-task-label">Challenge 2 of 3 · Conjecturing</div>
+        <div class="ext-task-prompt">You make an error in your calculation, but your estimate is still very close to your answer. Does this mean your calculation must be correct?</div>
+        <div class="ext-task-sub"><em>Investigate this by designing examples. What is the largest error that could "hide" inside a close estimate?</em></div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Mathematician's thinking</div>
+          <p>This seems obvious at first. Let me test it. If I calculate <span class="ext-numbers">1,247 + 3,856</span> and estimate <span class="ext-numbers">1,000 + 4,000 = 5,000</span>, my estimate is roughly <span class="ext-numbers">5,000</span>.</p>
+          <p>Correct answer: <span class="ext-numbers">5,103</span>. Close to my estimate!</p>
+          <p>But what if I made an error and got <span class="ext-numbers">5,099</span>? My estimate says I'm right, but I'm actually off by <span class="ext-numbers">4</span>.</p>
+          <p>What if the error was even bigger? Say I forgot to carry the tens and got <span class="ext-numbers">5,003</span>. My estimate of <span class="ext-numbers">5,000</span> is still close, yet I'm wrong by <span class="ext-numbers">100</span>!</p>
+          <p>Aha! So the Radar (estimation) catches big errors like forgetting entire carries, but what about cascading errors where mistakes cancel out? If I add one digit wrong but miss trading in another column, the errors might partly cancel.</p>
+          <p>Let me check if estimation can catch an error of <span class="ext-numbers">50</span>: <span class="ext-numbers">2,340 + 1,670</span> estimates to roughly <span class="ext-numbers">4,000</span>. Correct answer: <span class="ext-numbers">4,010</span>. If I got <span class="ext-numbers">3,960</span> (off by <span class="ext-numbers">50</span>), my estimate <span class="ext-numbers">≈4,000</span> still looks close!</p>
+          <p><strong>Answer: No, definitely NOT always true.</strong> Your estimate can hide errors up to about <span class="ext-numbers">10%</span> of the size of your number. That could be <span class="ext-numbers">50</span> in a <span class="ext-numbers">500</span>, or <span class="ext-numbers">200</span> in a <span class="ext-numbers">2,000</span>.</p>
+          <div class="mathematician-box">
+            Estimation is powerful for catching gross errors, but it's not a complete check. A "close" estimate doesn't guarantee your work is correct. The Radar spots problems, but it's not perfect proof.
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 3: Justifying - Debug a multi-step error -->
+      <div class="ext-task">
+        <div class="ext-task-label">Challenge 3 of 3 · Justifying</div>
+        <div class="ext-task-prompt">A student calculated <span class="ext-numbers">5,304 - 2,867</span> and wrote:</div>
+        <div style="background:#fff9e6;border-left:4px solid #FFD93D;border-radius:8px;padding:1.2rem;margin:1rem 0;font-family:'Space Mono',monospace;font-size:0.9rem;">
+          <div style="text-align:center;margin-bottom:0.75rem;">5304</div>
+          <div style="text-align:center;margin-bottom:0.75rem;">−2867</div>
+          <div style="text-align:center;border-top:2px solid #FFD93D;padding-top:0.75rem;">2567</div>
+        </div>
+        <div class="ext-task-prompt">This student made exactly ONE error. But the effect spreads to two columns of their answer.</div>
+        <div class="ext-task-sub"><em>Where is the root cause? Explain why this error cascaded into the next column.</em></div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Mathematician's thinking</div>
+          <p>Let me check the student's answer against the correct working. First, I'll calculate correctly: <span class="ext-numbers">5,304 - 2,867 = 2,437</span>.</p>
+          <p>They got <span class="ext-numbers">2,567</span>, so the hundreds and tens are wrong.</p>
+          <p>Let me trace through their work column by column.</p>
+          <p><strong>Ones:</strong> <span class="ext-numbers">4 - 7</span> needs borrowing. <span class="ext-numbers">14 - 7 = 7</span>. They got <span class="ext-numbers">7</span>. ✓ Correct.</p>
+          <p><strong>Tens (where the error is):</strong> After borrowing <span class="ext-numbers">1</span> from the tens, I have <span class="ext-numbers">0 - 1 = -1</span> remaining in the tens. Now subtract: <span class="ext-numbers">-1 - 6 = -7</span>. So I must borrow from hundreds: <span class="ext-numbers">10 - 1 - 6 = 3</span>.</p>
+          <p>But wait. I think the student forgot to reduce the tens digit by <span class="ext-numbers">1</span> after borrowing for the ones. So they thought the tens digit was still <span class="ext-numbers">0</span> (not <span class="ext-numbers">-1</span>). Then <span class="ext-numbers">0 - 6 = -6</span>, borrow: <span class="ext-numbers">10 - 6 = 4</span>... no, they got <span class="ext-numbers">6</span>, so that's not it either.</p>
+          <p>Let me look at the hundreds: after borrowing for tens, I have <span class="ext-numbers">3 - 1 = 2</span>. Then <span class="ext-numbers">2 - 8 = -6</span>, so borrow from thousands: <span class="ext-numbers">12 - 8 = 4</span>. They got <span class="ext-numbers">5</span>. That's wrong too.</p>
+          <p><strong>The root error:</strong> The student didn't carry/reduce the tens digit after borrowing from it for the ones. This means in the tens column they calculated <span class="ext-numbers">0 - 6</span> instead of the correct <span class="ext-numbers">-1 - 6</span>. That error forced them to borrow from the hundreds, and since they borrowed wrong, the hundreds column answer was also wrong.</p>
+          <p><strong>Correct answer: <span class="ext-numbers">2,437</span></strong></p>
+          <div class="mathematician-box">
+            When you trade/borrow from a column, you must reduce that column by <span class="ext-numbers">1</span>. If you skip that step, the error propagates down the line. One mistake causes the next column to be wrong too.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ WRAP UP ════════════════════════════════════════════════════ -->
+<div id="wrapup" class="section">
+  <div class="section-title">Phase 6 · Plenary</div>
+  <div class="section-heading">Debrief &amp; Reflection 🏁</div>
+  <div class="card">
+    <div class="tag amber">5 Minutes</div>
+    <h3>The Big Question</h3>
+    <div class="scenario" style="font-size:22px;text-align:center;">
+      💬 "What is the most common mistake you found today?"
+    </div>
+  </div>
+  <div class="card">
+    <h3>The Key Message</h3>
+    <div class="radar-panel">
+      <div class="radar-icon">📡</div>
+      <div class="radar-text">
+        <h4>Algorithms Are Dangerous Without a Radar</h4>
+        <p>An algorithm can produce an answer instantly, but without the Radar for Error switched on, there's no way to know if that answer makes sense. Always estimate before you calculate, and check after.</p>
+      </div>
+    </div>
+    <div class="golden-rule">
+      <div class="gr-title">🎯 The Three Most Common Errors We Found Today</div>
+      <div class="gr-rules">
+        <div class="gr-rule"><span>⚠️</span>Misalignment<br><small>Digits placed in the wrong column</small></div>
+        <div class="gr-rule"><span>🔄</span>Avoiding Trading<br><small>Flipping digits instead of trading through</small></div>
+        <div class="gr-rule"><span>↑</span>Failed to Carry<br><small>Two digits written in one column</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Exit Ticket</h3>
+    <div class="callout callout-blue">
+      <span class="label">Before you go, on a sticky note, write:</span>
+      <p>✏️ <strong>One type of error</strong> you feel confident spotting now.<br>
+      ✏️ <strong>One type of error</strong> you still find tricky.<br>
+      ✏️ <strong>One question</strong> you have about place value or trading.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+  function showSection(id,btn){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.phase-nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    window.scrollTo(0,0);
+  }
+  function toggleReveal(btn,id){
+    const el=document.getElementById(id);
+    const shown=el.classList.toggle('shown');
+    btn.textContent=shown?btn.textContent.replace('▾','▴'):btn.textContent.replace('▴','▾');
+  }
+  function toggleWorked(btn,id){
+    const body=document.getElementById(id);
+    const shown=body.classList.toggle('shown');
+    btn.classList.toggle('open',shown);
+    btn.querySelector('span:first-child').textContent=shown?'🔑 Hide Diagnosis':'🔑 Show Diagnosis';
+  }
+  function toggleDiag(btn,id){
+    const body=document.getElementById(id);
+    const shown=body.classList.toggle('shown');
+    btn.classList.toggle('active',shown);
+    btn.textContent=shown?'🔑 Hide Solution ▴':'🔑 Show Solution ▾';
+  }
+  function toggleAns(btn,id){
+    const body=document.getElementById(id);
+    const shown=body.classList.toggle('shown');
+    btn.classList.toggle('active',shown);
+    btn.textContent=shown?'Hide Answer':'✅ Check Answer';
+    if(shown) unlockGoDeeperIfComplete();
+  }
+  let currentWedo=1;
+  const totalWedo=2;
+  function changeWedo(dir){
+    currentWedo=Math.min(Math.max(currentWedo+dir,1),totalWedo);
+    document.querySelectorAll('.wedo-slide').forEach((s,i)=>s.classList.toggle('active',(i+1)===currentWedo));
+    document.getElementById('wedo-current').textContent=currentWedo;
+    document.getElementById('wedo-prev').disabled=(currentWedo===1);
+    document.getElementById('wedo-next').disabled=(currentWedo===totalWedo);
+    for(let i=1;i<=totalWedo;i++)document.getElementById('dot-'+i).classList.toggle('active',i===currentWedo);
+  }
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+
+  function goToIdoStep(prefix, stepNum, totalSteps) {
+    // Hide all steps in this progression
+    document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+
+    // Update dots
+    const dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.remove('active', 'visited');
+      if (i === stepNum - 1) dot.classList.add('active');
+      else if (i < stepNum - 1) dot.classList.add('visited');
+    });
+  }
+
+  function openGoDeeper() {
+    const section = document.getElementById('go-deeper-section');
+    const hidden = document.getElementById('go-deeper-content-hidden');
+    if (section && hidden) {
+      section.innerHTML = hidden.innerHTML;
+      section.style.opacity = '1';
+      section.style.pointerEvents = 'auto';
+      hidden.style.display = 'none';
+      window.scrollTo({ top: section.offsetTop - 100, behaviour: 'smooth' });
+    }
+  }
+
+  function unlockGoDeeperIfComplete() {
+    // Check if all You Do questions have been marked as complete
+    const youdoAnswers = document.querySelectorAll('#youdo .prac-q');
+    let completed = 0;
+    youdoAnswers.forEach(q => {
+      const toggle = q.querySelector('.prac-ans-toggle');
+      if (toggle && toggle.classList.contains('active')) {
+        completed++;
+      }
+    });
+    // Unlock if student has checked at least 80% of answers
+    const threshold = Math.ceil(youdoAnswers.length * 0.8);
+    if (completed >= threshold) {
+      openGoDeeper();
+    }
+  }
+</script>
+
+
+</body></html>

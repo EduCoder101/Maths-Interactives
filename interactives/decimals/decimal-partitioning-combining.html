@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Partitioning &amp; Combining</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+            --tenths-color: #3a7bd5;
+            --hundredths-color: #9B59B6;
+            --thousandths-color: #E67E22;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+
+        .bg-shape { position: absolute; border-radius: 50%; opacity: 0.1; }
+        .bg-shape-1 { width: 250px; height: 250px; background: var(--primary-accent); top: -80px; right: -50px; }
+        .bg-shape-2 { width: 180px; height: 180px; background: var(--level2-color); bottom: 10%; left: -50px; }
+        .bg-shape-3 { width: 120px; height: 120px; background: var(--level3-color); top: 50%; right: 5%; }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 900px; margin: 0 auto; padding: 1.5rem;
+        }
+
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-header { text-align: center; margin-bottom: 2rem; }
+        .landing-header h1 {
+            font-size: 2.4rem; font-weight: 700;
+            color: var(--text-dark); margin-bottom: 0.3rem; letter-spacing: -0.5px;
+        }
+        .landing-header h1 span { color: var(--primary-accent); }
+        .landing-header .subtitle {
+            font-size: 1.1rem; color: var(--text-light); font-weight: 500;
+        }
+
+        .learning-card {
+            background: white; border-radius: 20px;
+            padding: 1.5rem; box-shadow: var(--card-shadow);
+            margin-bottom: 2rem; border-top: 5px solid var(--primary-accent);
+        }
+        .learning-card h2 {
+            font-size: 1.2rem; color: var(--text-dark);
+            margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .learning-card h2::before { content: "🔢"; font-size: 1.3rem; }
+        .learning-card h2 .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        .learning-card p { color: var(--text-light); font-size: 0.95rem; line-height: 1.6; }
+        .learning-content {
+            display: none;
+            margin-top: 1rem;
+        }
+        .learning-content.open {
+            display: block;
+        }
+        .learning-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .learning-content p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+        .success-criteria {
+            list-style: none;
+            margin-left: 0;
+            margin-top: 0.75rem;
+        }
+        .success-criteria li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        .success-criteria li::before {
+            content: "–";
+            position: absolute;
+            left: 0;
+        }
+
+        .key-concept {
+            background: #F8F9FA; border-radius: 12px;
+            padding: 1rem; margin-top: 1rem;
+        }
+        .key-concept h3 {
+            font-size: 1rem; color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        .key-concept ul {
+            list-style: none; padding: 0;
+        }
+        .key-concept li {
+            padding: 0.3rem 0; font-size: 0.9rem;
+            color: var(--text-light); padding-left: 1.2rem;
+            position: relative;
+        }
+        .key-concept li::before {
+            content: "→"; position: absolute; left: 0;
+            color: var(--primary-accent); font-weight: 700;
+        }
+
+        .example-box {
+            background: white; border-radius: 10px;
+            padding: 0.75rem 1rem; margin-top: 0.75rem;
+            border: 2px solid var(--primary-accent);
+            font-size: 0.9rem; color: var(--text-dark);
+        }
+        .example-box strong { display: block; margin-bottom: 0.3rem; color: var(--primary-accent); }
+
+        .level-section-title {
+            font-size: 1.3rem; font-weight: 700;
+            color: var(--text-dark); text-align: center; margin-bottom: 1.5rem;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-btn {
+            background: white; border: 3px solid transparent;
+            border-radius: 16px; padding: 1.25rem;
+            cursor: pointer; text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s; font-family: 'Fredoka', sans-serif;
+        }
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        .level-btn h3 { font-size: 1.2rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .level-btn p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.5rem; }
+        .level-btn.level-1 { border-color: var(--level1-color); }
+        .level-btn.level-1:hover { background: #E0FAF7; }
+        .level-btn.level-2 { border-color: var(--level2-color); }
+        .level-btn.level-2:hover { background: #FFE8E8; }
+        .level-btn.level-3 { border-color: var(--level3-color); }
+        .level-btn.level-3:hover { background: #F0E8FF; }
+
+        .level-meta {
+            display: flex; justify-content: center; gap: 1rem;
+            font-size: 0.8rem; color: var(--text-light); font-weight: 600;
+        }
+
+        .home-btn {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            background: white; color: var(--text-dark);
+            text-decoration: none; padding: 0.5rem 1rem;
+            border-radius: 10px; font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem; font-weight: 600;
+            border: 2px solid #E0E0E0; transition: all 0.2s;
+        }
+        .home-btn:hover { border-color: var(--primary-accent); background: #F0FAF9; }
+
+        .back-btn {
+            background: white; color: var(--text-dark);
+            border: 2px solid #E0E0E0; border-radius: 10px;
+            padding: 0.5rem 1rem; font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .back-btn:hover { border-color: var(--text-dark); }
+
+        .question-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .question-progress {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem; color: var(--text-light); font-weight: 700;
+        }
+
+        .question-card {
+            background: white; border-radius: 20px;
+            padding: 1.75rem; box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--level1-color);
+        }
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+
+        .question-label {
+            font-size: 0.85rem; font-weight: 700;
+            color: var(--text-light); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.75rem;
+        }
+        .question-text {
+            font-size: 1.1rem; color: var(--text-dark);
+            line-height: 1.6; margin-bottom: 1rem; font-weight: 500;
+        }
+
+        .parts-display {
+            display: flex; flex-wrap: wrap; gap: 0.6rem;
+            align-items: center; justify-content: center;
+            margin: 1.25rem 0; padding: 1.25rem;
+            background: #F8F9FA; border-radius: 16px;
+            border: 2px solid #E8ECEF;
+        }
+
+        .part-chip {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem; font-weight: 700;
+            border-radius: 12px; padding: 0.6rem 1.1rem;
+            color: white; display: inline-block;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+        }
+        .part-chip.tenths { background: var(--tenths-color); }
+        .part-chip.hundredths { background: var(--hundredths-color); }
+        .part-chip.thousandths { background: var(--thousandths-color); }
+        .part-chip.ones { background: #27AE60; }
+
+        .part-plus {
+            font-size: 1.3rem; font-weight: 700;
+            color: var(--text-light); font-family: 'Space Mono', monospace;
+        }
+
+        .answer-input-wrapper {
+            margin: 1.25rem 0;
+        }
+        .answer-input-wrapper label {
+            display: block; font-size: 0.9rem; font-weight: 600;
+            color: var(--text-dark); margin-bottom: 0.5rem;
+        }
+
+        .answer-input {
+            width: 100%; padding: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem; text-align: center;
+            border: 2px solid #E0E0E0; border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .answer-input:focus {
+            outline: none; border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+        .answer-input.correct {
+            border-color: var(--correct-color);
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+        }
+        .answer-input.incorrect {
+            border-color: var(--incorrect-color);
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+        }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px; padding: 1rem; margin-top: 1rem;
+            display: none; border-left: 4px solid #2196F3;
+        }
+        .feedback-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+        .feedback-box.correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left-color: var(--correct-color);
+        }
+        .feedback-box.incorrect {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border-left-color: var(--incorrect-color);
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .feedback-box h4 {
+            font-size: 0.9rem; color: var(--text-dark);
+            margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.3rem;
+        }
+        .feedback-box.correct h4::before { content: "✓"; color: var(--correct-color); font-size: 1.3rem; }
+        .feedback-box.incorrect h4::before { content: "✗"; color: var(--incorrect-color); font-size: 1.3rem; }
+        .feedback-box p {
+            color: var(--text-dark); font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .button-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+        .btn {
+            flex: 1; padding: 0.85rem; border: none; border-radius: 12px;
+            cursor: pointer; font-family: 'Fredoka', sans-serif;
+            font-size: 0.95rem; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary-accent); color: white; }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+        .btn-secondary {
+            background: white; color: var(--text-dark);
+            border: 2px solid var(--text-light);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-2px); border-color: var(--text-dark);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .progress-tracker {
+            background: white; border-radius: 16px;
+            padding: 1rem 1.5rem; box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+        .progress-grid {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+            justify-content: center;
+        }
+        .progress-circle {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 3px solid #E0E0E0; background: white;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem; font-weight: 700;
+            color: var(--text-light); cursor: pointer;
+            transition: all 0.2s; position: relative;
+        }
+        .progress-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .progress-circle.current {
+            border-color: var(--primary-accent);
+            border-width: 4px; color: var(--primary-accent); font-weight: 700;
+        }
+        .progress-circle.correct {
+            background: var(--correct-color);
+            border-color: var(--correct-color); color: white;
+        }
+        .progress-circle.incorrect {
+            background: var(--incorrect-color);
+            border-color: var(--incorrect-color); color: white;
+        }
+        .progress-circle.correct::after {
+            content: "✓"; position: absolute; font-size: 0.7rem;
+            bottom: -2px; right: -2px;
+            background: var(--correct-color);
+            width: 16px; height: 16px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+        .progress-circle.incorrect::after {
+            content: "✗"; position: absolute; font-size: 0.7rem;
+            bottom: -2px; right: -2px;
+            background: var(--incorrect-color);
+            width: 16px; height: 16px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+
+        .completion-page { text-align: center; padding: 2rem 0; }
+        .completion-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .completion-page h2 { font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem; }
+        .completion-page p { font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem; }
+
+        .score-display {
+            background: white; border-radius: 16px;
+            padding: 1.5rem; box-shadow: var(--card-shadow);
+            margin-bottom: 2rem; max-width: 400px;
+            margin-left: auto; margin-right: auto;
+        }
+        .score-number {
+            font-size: 3rem; font-weight: 700;
+            color: var(--primary-accent); font-family: 'Space Mono', monospace;
+        }
+        .score-label { font-size: 1rem; color: var(--text-light); margin-top: 0.5rem; }
+
+        .direction-tag {
+            display: inline-block; font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+            border-radius: 8px; padding: 0.25rem 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .direction-tag.build { background: #E0FAF7; color: #0a3832; }
+        .direction-tag.expand { background: #FFF3E0; color: #7a3d00; }
+
+        .decimal-to-expand {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem; font-weight: 700;
+            color: var(--text-dark); text-align: center;
+            margin: 1rem 0; padding: 1rem;
+            background: #F8F9FA; border-radius: 16px;
+            border: 2px solid #E8ECEF;
+        }
+
+        .expand-inputs {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+            align-items: center; justify-content: center;
+            margin: 1rem 0;
+        }
+        .expand-input {
+            width: 80px; padding: 0.6rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem; text-align: center;
+            border: 2px solid #E0E0E0; border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .expand-input:focus {
+            outline: none; border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+        .expand-label {
+            font-size: 0.85rem; font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .thinking-prompt {
+            background: #FFF8E1; border-radius: 12px;
+            padding: 0.75rem 1rem; margin-bottom: 1rem;
+            border-left: 4px solid #FFD93D;
+            font-size: 0.9rem; color: #665500;
+        }
+        .thinking-prompt strong { color: var(--text-dark); }
+
+        /* === Go Deeper Extension Styles === */
+        .go-deeper-level-btn { grid-column: 1 / -1; background: white; border: 2px dashed #4ECDC4; border-radius: 16px; padding: 1.2rem; text-align: center; cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s ease; }
+        .go-deeper-level-btn.locked { opacity: 0.55; cursor: not-allowed; border-color: #ccc; }
+        .go-deeper-level-btn:not(.locked):hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(78,205,196,0.25); border-color: #4ECDC4; }
+        .go-deeper-level-btn h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.3rem 0; color: #2D3436; }
+        .go-deeper-level-btn p { font-size: 0.9rem; color: #636E72; margin: 0; }
+        .go-deeper-card { background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border-top: 5px solid #4ECDC4; padding: 2rem; max-width: 700px; margin: 2rem auto; }
+        .go-deeper-card h2 { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+        .go-deeper-card > p { color: #636E72; margin-bottom: 1.5rem; }
+        .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #4ECDC4; margin-bottom: 0.75rem; }
+        .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; line-height: 1.6; color: #2D3436; margin-bottom: 0.75rem; }
+        .ext-task-sub { font-family: 'Fredoka', sans-serif; font-style: italic; color: #636E72; margin-bottom: 1rem; font-size: 0.95rem; }
+        .ext-thinking-area { width: 100%; min-height: 90px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 0.8rem; font-family: 'Fredoka', sans-serif; font-size: 0.95rem; resize: vertical; transition: border-color 0.3s ease; box-sizing: border-box; }
+        .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+        .ext-reveal-btn { display: inline-block; margin-top: 0.75rem; padding: 0.5rem 1.2rem; border: 2px solid #4ECDC4; border-radius: 10px; background: white; color: #4ECDC4; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; }
+        .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+        .ext-model-response { display: none; background: white; border-radius: 10px; padding: 1.2rem; margin-top: 0.75rem; border: 1px solid #e0e0e0; }
+        .ext-model-response.visible { display: block; }
+        .ext-model-response .model-label { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 0.85rem; color: #4ECDC4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .ext-model-response p { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.6; color: #2D3436; margin: 0.5rem 0; }
+        .mathematician-box { margin-top: 1rem; padding: 1rem; border: 2px dashed #4ECDC4; border-radius: 10px; background: linear-gradient(135deg, #f0fdfa 0%, #e6faf7 100%); font-family: 'Fredoka', sans-serif; font-size: 0.9rem; line-height: 1.5; color: #2D3436; }
+        .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+        .go-deeper-back-btn { display: inline-block; margin-bottom: 1.5rem; padding: 0.5rem 1rem; border: none; border-radius: 10px; background: #f0f0f0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; color: #2D3436; }
+        .go-deeper-back-btn:hover { background: #e0e0e0; }
+
+        @media (max-width: 600px) {
+            .landing-header h1 { font-size: 1.8rem; }
+            .part-chip { font-size: 0.95rem; padding: 0.5rem 0.8rem; }
+            .answer-input { font-size: 1.1rem; }
+            .decimal-to-expand { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+            <!-- LANDING PAGE -->
+            <div id="landing-page" class="page active">
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <a href="index.html" class="home-btn">🏠 All Activities</a>
+                </div>
+                <div class="landing-header">
+                    <h1>Decimal <span>Partitioning</span></h1>
+                    <p class="subtitle">Partition and combine decimals in standard &amp; non-standard forms</p>
+                </div>
+
+                <div class="learning-card">
+                    <h2 onclick="toggleLearningSection()">
+                        Learning Intention &amp; Success Criteria
+                        <span class="toggle-icon" id="learningToggle">▼</span>
+                    </h2>
+                    <div class="learning-content" id="learningContent">
+                        <h3>Learning Intention</h3>
+                        <p>We are learning to practise partitioning and combining decimals, including recognising when a zero placeholder is needed.</p>
+                        <h3>Success Criteria</h3>
+                        <ul class="success-criteria">
+                            <li>I can break a decimal into its place value parts</li>
+                            <li>I can combine parts like 2 tenths + 3 thousandths and write the correct decimal (0.203)</li>
+                            <li>I can explain why zero placeholders are needed in some decimal numbers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="learning-card">
+                    <h2>How Decimal Partitioning Works</h2>
+                    <p>Just like whole numbers live in "houses", decimal digits each have a place value. You can break a decimal into parts, and sometimes the parts don't look like you'd expect!</p>
+
+                    <div class="key-concept">
+                        <h3>Standard vs Non-Standard Forms</h3>
+                        <ul>
+                            <li><strong>Standard:</strong> 0.123 = 0.1 + 0.02 + 0.003 (each digit gets its own place)</li>
+                            <li><strong>Non-standard:</strong> 0.123 = 1 tenth + 23 thousandths</li>
+                            <li><strong>Non-standard:</strong> 0.123 = 12 hundredths + 3 thousandths</li>
+                            <li><strong>Zero trap:</strong> 2 tenths + 3 thousandths = 0.203 (the hundredths place needs a zero!)</li>
+                        </ul>
+
+                        <div class="example-box">
+                            <strong>Example</strong>
+                            "2 tenths + 3 thousandths" → the hundredths house is empty, so we fill it with <strong>0</strong> → <strong>0.203</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="level-section-title">Choose a Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>Level 1</h3>
+                        <p>Standard Parts</p>
+                        <div class="level-meta">
+                            <span>Tenths &amp; hundredths</span>
+                            <span>16 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>Level 2</h3>
+                        <p>The Zero Trap</p>
+                        <div class="level-meta">
+                            <span>Missing places</span>
+                            <span>18 questions</span>
+                        </div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>Level 3</h3>
+                        <p>Non-Standard Partitioning</p>
+                        <div class="level-meta">
+                            <span>Mixed challenges</span>
+                            <span>18 questions</span>
+                        </div>
+                    </button>
+                    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+                        <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Decimal Partitioning Investigations</h3>
+                        <p>Complete Level 3 to unlock</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUESTION PAGE -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="back-btn" onclick="backToLanding()">← Back</button>
+                        <a href="index.html" class="home-btn">🏠 Home</a>
+                    </div>
+                    <div class="question-progress">
+                        <span id="current-q">1</span> / <span id="total-q">8</span>
+                    </div>
+                </div>
+
+                <div class="progress-tracker">
+                    <div class="progress-grid" id="progress-grid"></div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div id="direction-tag" class="direction-tag build">Build the decimal</div>
+                    <div class="question-text" id="question-text">Combine these parts to make a decimal number:</div>
+
+                    <div id="thinking-prompt" class="thinking-prompt" style="display:none;"></div>
+
+                    <!-- BUILD mode: show chips, student types decimal -->
+                    <div id="build-wrap">
+                        <div class="parts-display" id="parts-display"></div>
+                        <div class="answer-input-wrapper">
+                            <label for="answer-input">Write the decimal:</label>
+                            <input type="text" id="answer-input" class="answer-input" placeholder="e.g. 0.35" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <!-- EXPAND mode: show decimal, student types expanded parts -->
+                    <div id="expand-wrap" style="display:none;">
+                        <div class="decimal-to-expand" id="decimal-to-expand"></div>
+                        <div class="answer-input-wrapper">
+                            <label for="expand-answer">Write the expanded form:</label>
+                            <input type="text" id="expand-answer" class="answer-input" placeholder="e.g. 0.1 + 0.02 + 0.003" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="feedback-box" id="feedback-box">
+                        <h4 id="feedback-title">Feedback</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">🎉</div>
+                <h2 id="completion-message">Awesome work!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="final-score">0/8</div>
+                    <div class="score-label">Correct Answers</div>
+                </div>
+                <p>You've mastered this level!</p>
+                <button class="btn btn-primary" id="go-deeper-btn" onclick="openGoDeeper()" style="display:none; margin-bottom: 1rem;">
+                    <span style="font-size:1.3rem;">✨</span> Go Deeper: Decimal Partitioning Investigations
+                </button>
+                <div class="button-row" style="max-width: 500px; margin: 0 auto;">
+                    <button class="btn btn-secondary" onclick="backToLanding()">Choose Another Level</button>
+                    <a href="index.html" class="home-btn" style="flex: 1; justify-content: center;">🏠 All Activities</a>
+                </div>
+            </div>
+
+            <!-- GO DEEPER PAGE -->
+            <div id="go-deeper-page" class="page">
+                <div class="container">
+                    <button class="go-deeper-back-btn" onclick="backToLanding()">← Back</button>
+                    <div class="go-deeper-card">
+                        <h2>Decimal Partitioning Investigations</h2>
+                        <p>You've completed all three levels! Now it's time to explore decimals in deeper, more creative ways. These challenges will help you discover patterns and connections in how decimals work.</p>
+
+                        <!-- Task 1: Specialising -->
+                        <div class="ext-task">
+                            <div class="ext-task-label">Task 1: Specialising (What if...?)</div>
+                            <div class="ext-task-prompt">The decimal <span class="ext-numbers">0.75</span> can be partitioned as <span class="ext-numbers">0.7 + 0.05</span>. But what if you could only use hundredths? Then it would be <span class="ext-numbers">0.01 + 0.01 + 0.01 + ...</span> (75 times). That's not very useful! But what about using ONLY tenths and hundredths in different combinations? How many different ways can you partition <span class="ext-numbers">0.75</span> into exactly two parts, where each part is either a number of tenths or a number of hundredths?</div>
+                            <div class="ext-task-sub">List all the ways you find. Is there a pattern?</div>
+                            <textarea class="ext-thinking-area" id="task1-answer" placeholder="Show your thinking here..."></textarea>
+                            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                            <div class="ext-model-response" id="task1-model">
+                                <div class="model-label">A mathematician's response</div>
+                                <p>Let me try. <span class="ext-numbers">0.75 = 0.7 + 0.05</span> (7 tenths + 5 hundredths). What about <span class="ext-numbers">0.6 + 0.15</span>? That's 6 tenths + 15 hundredths. <span class="ext-numbers">0.5 + 0.25</span>? 5 tenths + 25 hundredths. <span class="ext-numbers">0.4 + 0.35</span>, <span class="ext-numbers">0.3 + 0.45</span>, <span class="ext-numbers">0.2 + 0.55</span>, <span class="ext-numbers">0.1 + 0.65</span>. And <span class="ext-numbers">0.0 + 0.75</span> if we allow zero tenths.</p>
+                                <p>I initially thought there might only be a few ways, but the pattern is clear: every time I take away one tenth (<span class="ext-numbers">0.1</span>), I need to add ten hundredths (<span class="ext-numbers">0.10</span>) to keep the total at <span class="ext-numbers">0.75</span>. That gives us <span class="ext-numbers">8</span> ways (from <span class="ext-numbers">0</span> tenths to <span class="ext-numbers">7</span> tenths). This is because <span class="ext-numbers">1</span> tenth = <span class="ext-numbers">10</span> hundredths.</p>
+                            </div>
+                            <div class="mathematician-box">
+                                <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+                            </div>
+                        </div>
+
+                        <!-- Task 2: Conjecturing -->
+                        <div class="ext-task">
+                            <div class="ext-task-label">Task 2: Conjecturing (Always/Sometimes/Never)</div>
+                            <div class="ext-task-prompt">When you partition a decimal into its place value parts, the tenths part is always bigger than the hundredths part.</div>
+                            <div class="ext-task-sub">Is this always true, sometimes true, or never true? Find examples to support your answer.</div>
+                            <textarea class="ext-thinking-area" id="task2-answer" placeholder="Show your thinking here..."></textarea>
+                            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                            <div class="ext-model-response" id="task2-model">
+                                <div class="model-label">A mathematician's response</div>
+                                <p>Let me check some examples. In <span class="ext-numbers">3.84</span>, tenths = <span class="ext-numbers">0.8</span> and hundredths = <span class="ext-numbers">0.04</span>, so tenths IS bigger. In <span class="ext-numbers">3.48</span>, tenths = <span class="ext-numbers">0.4</span> and hundredths = <span class="ext-numbers">0.08</span>, tenths is still bigger.</p>
+                                <p>Wait, let me think more carefully. Even if the hundredths digit is <span class="ext-numbers">9</span> (like in <span class="ext-numbers">3.19</span>), the hundredths part is only <span class="ext-numbers">0.09</span>, while the tenths part is <span class="ext-numbers">0.1</span>. Since <span class="ext-numbers">0.1 > 0.09</span>, the tenths part is always... actually, what about <span class="ext-numbers">3.05</span>? The tenths part is <span class="ext-numbers">0.0</span> and the hundredths part is <span class="ext-numbers">0.05</span>. So <span class="ext-numbers">0 < 0.05</span>. That breaks it!</p>
+                                <p><strong>Answer: SOMETIMES.</strong> It's true unless the tenths digit is <span class="ext-numbers">0</span>.</p>
+                            </div>
+                            <div class="mathematician-box">
+                                <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are testing a claim to see if it is always true, sometimes true, or never true. Finding even one counterexample is enough to prove an "always" statement false.
+                            </div>
+                        </div>
+
+                        <!-- Task 3: Justifying -->
+                        <div class="ext-task">
+                            <div class="ext-task-label">Task 3: Justifying (Connection Task)</div>
+                            <div class="ext-task-prompt">A student says: "Partitioning <span class="ext-numbers">4.56</span> and partitioning <span class="ext-numbers">456</span> are completely different things because one has a decimal point and one doesn't." Explain how the two processes are actually connected. What is the same about them, and what is different?</div>
+                            <div class="ext-task-sub">Think about place value in both cases.</div>
+                            <textarea class="ext-thinking-area" id="task3-answer" placeholder="Show your thinking here..."></textarea>
+                            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                            <div class="ext-model-response" id="task3-model">
+                                <div class="model-label">A mathematician's response</div>
+                                <p>At first I thought the student had a point, because decimals feel different. But let me look closely. <span class="ext-numbers">456 = 400 + 50 + 6</span>. Each part matches a column: hundreds, tens, ones. <span class="ext-numbers">4.56 = 4 + 0.5 + 0.06</span>. Each part matches a column: ones, tenths, hundredths.</p>
+                                <p>The PROCESS is identical: break the number into its place value columns. The difference is just which columns you use. In both cases, each column is <span class="ext-numbers">10</span> times bigger than the one to its right. <span class="ext-numbers">400</span> is to <span class="ext-numbers">50</span> as <span class="ext-numbers">4</span> is to <span class="ext-numbers">0.5</span>, they're both "10 times" relationships. The decimal point doesn't change how place value works. It just tells you where the ones column is.</p>
+                            </div>
+                            <div class="mathematician-box">
+                                <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are building a clear argument that explains <em>why</em> something is true, not just <em>that</em> it is true. You connected two ideas (whole number partitioning and decimal partitioning) to show they follow the same structure.
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e0e0e0;">
+                            <p style="color: #636E72; font-size: 0.95rem;">Great work exploring these deeper concepts!</p>
+                            <button class="btn btn-secondary" onclick="backToLanding()" style="margin-top: 1rem;">Back to Level Selection</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="results-to-sheet.js?v=2"></script>
+    <script>
+        const questions = {
+            1: [
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '3 tenths', placeClass: 'tenths' },
+                        { value: '5 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.35',
+                    explanation: '3 tenths = 0.3 and 5 hundredths = 0.05 → 0.3 + 0.05 = 0.35'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '7 tenths', placeClass: 'tenths' },
+                        { value: '2 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.72',
+                    explanation: '7 tenths = 0.7 and 2 hundredths = 0.02 → 0.7 + 0.02 = 0.72'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '1 tenth', placeClass: 'tenths' },
+                        { value: '8 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.18',
+                    explanation: '1 tenth = 0.1 and 8 hundredths = 0.08 → 0.1 + 0.08 = 0.18'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '6 tenths', placeClass: 'tenths' },
+                        { value: '4 hundredths', placeClass: 'hundredths' },
+                        { value: '9 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.649',
+                    explanation: '0.6 + 0.04 + 0.009 = 0.649'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '2 tenths', placeClass: 'tenths' },
+                        { value: '5 hundredths', placeClass: 'hundredths' },
+                        { value: '1 thousandth', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.251',
+                    explanation: '0.2 + 0.05 + 0.001 = 0.251'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '9 tenths', placeClass: 'tenths' },
+                        { value: '0 hundredths', placeClass: 'hundredths' },
+                        { value: '7 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.907',
+                    think: 'What goes in the hundredths place when there are 0 hundredths?',
+                    explanation: '0.9 + 0.00 + 0.007 = 0.907, the 0 holds the hundredths place'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '4 tenths', placeClass: 'tenths' },
+                        { value: '3 hundredths', placeClass: 'hundredths' },
+                        { value: '6 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.436',
+                    explanation: '0.4 + 0.03 + 0.006 = 0.436'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '5 tenths', placeClass: 'tenths' },
+                        { value: '1 hundredth', placeClass: 'hundredths' },
+                        { value: '2 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.512',
+                    explanation: '0.5 + 0.01 + 0.002 = 0.512'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '8 tenths', placeClass: 'tenths' },
+                        { value: '6 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.86',
+                    explanation: '8 tenths = 0.8 and 6 hundredths = 0.06 → 0.8 + 0.06 = 0.86'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '4 tenths', placeClass: 'tenths' },
+                        { value: '1 hundredth', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.41',
+                    explanation: '4 tenths = 0.4 and 1 hundredth = 0.01 → 0.4 + 0.01 = 0.41'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '9 tenths', placeClass: 'tenths' },
+                        { value: '9 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.99',
+                    explanation: '9 tenths = 0.9 and 9 hundredths = 0.09 → 0.9 + 0.09 = 0.99'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '3 tenths', placeClass: 'tenths' },
+                        { value: '7 hundredths', placeClass: 'hundredths' },
+                        { value: '4 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.374',
+                    explanation: '0.3 + 0.07 + 0.004 = 0.374'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '8 tenths', placeClass: 'tenths' },
+                        { value: '2 hundredths', placeClass: 'hundredths' },
+                        { value: '5 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.825',
+                    explanation: '0.8 + 0.02 + 0.005 = 0.825'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '1 tenth', placeClass: 'tenths' },
+                        { value: '6 hundredths', placeClass: 'hundredths' },
+                        { value: '3 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.163',
+                    explanation: '0.1 + 0.06 + 0.003 = 0.163'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '7 tenths', placeClass: 'tenths' },
+                        { value: '0 hundredths', placeClass: 'hundredths' },
+                        { value: '8 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.708',
+                    think: 'What goes in the hundredths place when there are 0 hundredths?',
+                    explanation: '0.7 + 0.00 + 0.008 = 0.708, the 0 holds the hundredths place'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '5 tenths', placeClass: 'tenths' },
+                        { value: '9 hundredths', placeClass: 'hundredths' },
+                        { value: '4 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.594',
+                    explanation: '0.5 + 0.09 + 0.004 = 0.594'
+                }
+            ],
+            2: [
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '2 tenths', placeClass: 'tenths' },
+                        { value: '3 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.203',
+                    think: 'There are no hundredths listed. What must go in the hundredths place?',
+                    explanation: '2 tenths = 0.2 and 3 thousandths = 0.003. The hundredths place is empty → fill with 0 → 0.203'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '5 tenths', placeClass: 'tenths' },
+                        { value: '6 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.506',
+                    think: 'No hundredths are given. What digit holds that place?',
+                    explanation: '5 tenths = 0.5 and 6 thousandths = 0.006 → 0.506 (zero in hundredths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '8 hundredths', placeClass: 'hundredths' },
+                        { value: '4 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.084',
+                    think: 'No tenths are given. What happens to the tenths place?',
+                    explanation: '8 hundredths = 0.08 and 4 thousandths = 0.004 → 0.084 (zero in tenths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '1 tenth', placeClass: 'tenths' },
+                        { value: '5 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.105',
+                    think: 'The hundredths are missing. Where does the zero go?',
+                    explanation: '1 tenth = 0.1 and 5 thousandths = 0.005 → 0.105 (zero in hundredths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '3 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.003',
+                    think: 'Only thousandths, what fills the tenths and hundredths places?',
+                    explanation: '3 thousandths = 0.003. Both the tenths and hundredths places need zeros.'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '7 tenths', placeClass: 'tenths' },
+                        { value: '9 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.709',
+                    think: 'No hundredths again. What digit fills that gap?',
+                    explanation: '7 tenths = 0.7 and 9 thousandths = 0.009 → 0.709'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '4 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.04',
+                    think: 'Just hundredths on their own. What goes in the tenths place?',
+                    explanation: '4 hundredths = 0.04. The tenths place needs a zero.'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '6 tenths', placeClass: 'tenths' },
+                        { value: '2 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.602',
+                    explanation: '6 tenths = 0.6 and 2 thousandths = 0.002 → 0.602 (zero in hundredths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '9 hundredths', placeClass: 'hundredths' },
+                        { value: '1 thousandth', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.091',
+                    think: 'No tenths given. What must go in the tenths place?',
+                    explanation: '9 hundredths = 0.09 and 1 thousandth = 0.001 → 0.091 (zero in tenths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '3 tenths', placeClass: 'tenths' },
+                        { value: '8 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.308',
+                    explanation: '3 tenths = 0.3 and 8 thousandths = 0.008 → 0.308 (zero in hundredths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '4 tenths', placeClass: 'tenths' },
+                        { value: '1 thousandth', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.401',
+                    think: 'No hundredths, what fills that place?',
+                    explanation: '4 tenths = 0.4 and 1 thousandth = 0.001 → 0.401 (zero in hundredths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '7 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.007',
+                    think: 'Only thousandths. Two places need filling with zeros!',
+                    explanation: '7 thousandths = 0.007. Both tenths and hundredths places need zeros.'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '2 hundredths', placeClass: 'hundredths' },
+                        { value: '5 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.025',
+                    think: 'No tenths given. What goes in the tenths place?',
+                    explanation: '2 hundredths = 0.02 and 5 thousandths = 0.005 → 0.025 (zero in tenths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '9 tenths', placeClass: 'tenths' },
+                        { value: '4 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.904',
+                    think: 'Hundredths are missing again. What holds that place?',
+                    explanation: '9 tenths = 0.9 and 4 thousandths = 0.004 → 0.904 (zero in hundredths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '6 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.06',
+                    think: 'Just hundredths on their own. What goes in the tenths place?',
+                    explanation: '6 hundredths = 0.06. The tenths place needs a zero.'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '1 tenth', placeClass: 'tenths' },
+                        { value: '8 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.108',
+                    think: 'No hundredths listed. What digit fills the gap?',
+                    explanation: '1 tenth = 0.1 and 8 thousandths = 0.008 → 0.108 (zero in hundredths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '5 hundredths', placeClass: 'hundredths' },
+                        { value: '3 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.053',
+                    think: 'No tenths are given. What must go in the tenths place?',
+                    explanation: '5 hundredths = 0.05 and 3 thousandths = 0.003 → 0.053 (zero in tenths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '8 tenths', placeClass: 'tenths' },
+                        { value: '2 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.802',
+                    explanation: '8 tenths = 0.8 and 2 thousandths = 0.002 → 0.802 (zero in hundredths)'
+                }
+            ],
+            3: [
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '1 tenth', placeClass: 'tenths' },
+                        { value: '23 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.123',
+                    think: '23 thousandths is not just thousandths, it takes up two places. How many hundredths and thousandths is that?',
+                    explanation: '1 tenth = 0.1, 23 thousandths = 0.023 → 0.1 + 0.023 = 0.123'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '12 hundredths', placeClass: 'hundredths' },
+                        { value: '3 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.123',
+                    think: '12 hundredths is more than 9, it spills into the tenths place. How?',
+                    explanation: '12 hundredths = 0.12, 3 thousandths = 0.003 → 0.12 + 0.003 = 0.123'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '45 hundredths', placeClass: 'hundredths' },
+                        { value: '6 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.456',
+                    think: '45 hundredths fills both the tenths and hundredths places.',
+                    explanation: '45 hundredths = 0.45, 6 thousandths = 0.006 → 0.45 + 0.006 = 0.456'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '3 tenths', placeClass: 'tenths' },
+                        { value: '56 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.356',
+                    think: '56 thousandths = how many hundredths + how many thousandths?',
+                    explanation: '3 tenths = 0.3, 56 thousandths = 0.056 → 0.3 + 0.056 = 0.356'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '100 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.1',
+                    think: '100 thousandths, that seems like a lot of thousandths! What decimal does it equal?',
+                    explanation: '100 thousandths = 100 × 0.001 = 0.100 = 0.1 (same as 1 tenth)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '50 hundredths', placeClass: 'hundredths' }
+                    ],
+                    answer: '0.5',
+                    think: '50 hundredths, is that the same as something simpler?',
+                    explanation: '50 hundredths = 50 × 0.01 = 0.50 = 0.5 (same as 5 tenths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '2 tenths', placeClass: 'tenths' },
+                        { value: '15 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.215',
+                    think: '15 thousandths = 0.015. Where do the 1 and 5 go?',
+                    explanation: '2 tenths = 0.2, 15 thousandths = 0.015 → 0.2 + 0.015 = 0.215'
+                },
+                {
+                    type: 'expand',
+                    decimal: '0.347',
+                    acceptedAnswers: [
+                        '0.3 + 0.04 + 0.007',
+                        '3 tenths + 4 hundredths + 7 thousandths',
+                        '34 hundredths + 7 thousandths',
+                        '3 tenths + 47 thousandths',
+                        '347 thousandths'
+                    ],
+                    explanation: 'Standard: 0.3 + 0.04 + 0.007. Non-standard examples: 34 hundredths + 7 thousandths, or 3 tenths + 47 thousandths.'
+                },
+                {
+                    type: 'expand',
+                    decimal: '0.502',
+                    acceptedAnswers: [
+                        '0.5 + 0.002',
+                        '0.5 + 0.00 + 0.002',
+                        '0.5 + 0 + 0.002',
+                        '5 tenths + 2 thousandths',
+                        '5 tenths + 0 hundredths + 2 thousandths',
+                        '50 hundredths + 2 thousandths',
+                        '502 thousandths'
+                    ],
+                    explanation: 'Standard: 0.5 + 0.00 + 0.002. The hundredths place is 0. Non-standard: 5 tenths + 2 thousandths.'
+                },
+                {
+                    type: 'expand',
+                    decimal: '0.080',
+                    acceptedAnswers: [
+                        '0.08',
+                        '0.08 + 0',
+                        '0.0 + 0.08 + 0.000',
+                        '8 hundredths',
+                        '0 tenths + 8 hundredths + 0 thousandths',
+                        '80 thousandths',
+                        '0 tenths + 8 hundredths'
+                    ],
+                    explanation: 'Standard: 0.0 + 0.08 + 0.000 = 0.08. Non-standard: 8 hundredths, or 80 thousandths.'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '7 tenths', placeClass: 'tenths' },
+                        { value: '34 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.734',
+                    think: '34 thousandths takes up two decimal places. Which ones?',
+                    explanation: '7 tenths = 0.7, 34 thousandths = 0.034 → 0.7 + 0.034 = 0.734'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '25 hundredths', placeClass: 'hundredths' },
+                        { value: '8 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.258',
+                    think: '25 hundredths spills into the tenths place. What does 25 hundredths look like as a decimal?',
+                    explanation: '25 hundredths = 0.25, 8 thousandths = 0.008 → 0.25 + 0.008 = 0.258'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '200 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.2',
+                    think: '200 thousandths, that is a lot of thousandths! Can you simplify it?',
+                    explanation: '200 thousandths = 200 × 0.001 = 0.200 = 0.2 (same as 2 tenths)'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '31 hundredths', placeClass: 'hundredths' },
+                        { value: '5 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.315',
+                    think: '31 hundredths fills the tenths and hundredths places.',
+                    explanation: '31 hundredths = 0.31, 5 thousandths = 0.005 → 0.31 + 0.005 = 0.315'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '4 tenths', placeClass: 'tenths' },
+                        { value: '62 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.462',
+                    think: '62 thousandths = 0.062. Where do the 6 and 2 go?',
+                    explanation: '4 tenths = 0.4, 62 thousandths = 0.062 → 0.4 + 0.062 = 0.462'
+                },
+                {
+                    type: 'expand',
+                    decimal: '0.619',
+                    acceptedAnswers: [
+                        '0.6 + 0.01 + 0.009',
+                        '6 tenths + 1 hundredth + 9 thousandths',
+                        '61 hundredths + 9 thousandths',
+                        '6 tenths + 19 thousandths',
+                        '619 thousandths'
+                    ],
+                    explanation: 'Standard: 0.6 + 0.01 + 0.009. Non-standard examples: 61 hundredths + 9 thousandths, or 6 tenths + 19 thousandths.'
+                },
+                {
+                    type: 'expand',
+                    decimal: '0.205',
+                    acceptedAnswers: [
+                        '0.2 + 0.005',
+                        '0.2 + 0.00 + 0.005',
+                        '0.2 + 0 + 0.005',
+                        '2 tenths + 5 thousandths',
+                        '2 tenths + 0 hundredths + 5 thousandths',
+                        '20 hundredths + 5 thousandths',
+                        '205 thousandths'
+                    ],
+                    explanation: 'Standard: 0.2 + 0.00 + 0.005. The hundredths place is 0. Non-standard: 2 tenths + 5 thousandths.'
+                },
+                {
+                    type: 'build',
+                    parts: [
+                        { value: '75 hundredths', placeClass: 'hundredths' },
+                        { value: '4 thousandths', placeClass: 'thousandths' }
+                    ],
+                    answer: '0.754',
+                    think: '75 hundredths fills two places, the tenths and hundredths.',
+                    explanation: '75 hundredths = 0.75, 4 thousandths = 0.004 → 0.75 + 0.004 = 0.754'
+                }
+            ]
+        };
+
+        const levelNames = {
+            1: "Standard Parts",
+            2: "The Zero Trap",
+            3: "Non-Standard Partitioning"
+        };
+
+        let currentLevel = 1;
+        let currentQuestion = 0;
+        let questionStatus = [];
+        let initialQuestionResult = [];
+        let score = 0;
+        let hasChecked = false;
+        let isRevisionRound = false;
+        let revisionIndices = [];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function createProgressTracker() {
+            const grid = document.getElementById('progress-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            const total = isRevisionRound
+                ? revisionIndices.length
+                : (questions[currentLevel] ? questions[currentLevel].length : 8);
+            if (!isRevisionRound) {
+                questionStatus = new Array(total).fill(null);
+                initialQuestionResult = new Array(total).fill(null);
+            }
+            for (let i = 0; i < total; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = 'progress-' + i;
+                circle.onclick = () => jumpToQuestion(i);
+                grid.appendChild(circle);
+            }
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            const total = isRevisionRound ? revisionIndices.length : questionStatus.length;
+            if (!total) return;
+            for (let i = 0; i < total; i++) {
+                const circle = document.getElementById('progress-' + i);
+                if (!circle) continue;
+                const actualIndex = isRevisionRound ? revisionIndices[i] : i;
+                circle.classList.remove('current', 'correct', 'incorrect');
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
+            }
+        }
+
+        function jumpToQuestion(index) {
+            currentQuestion = index;
+            loadQuestion();
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function backToLanding() {
+            showPage('landing-page');
+        }
+
+        function loadQuestion() {
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentLevel][actualIndex];
+            const card = document.getElementById('question-card');
+            card.className = 'question-card level-' + currentLevel;
+
+            const totalInRound = isRevisionRound
+                ? revisionIndices.length
+                : questions[currentLevel].length;
+
+            document.getElementById('question-label').textContent = isRevisionRound
+                ? 'Revision \u2013 Question ' + (currentQuestion + 1) + ' of ' + totalInRound
+                : levelNames[currentLevel] + ' \u2013 Question ' + (currentQuestion + 1);
+
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = totalInRound;
+
+            const buildWrap = document.getElementById('build-wrap');
+            const expandWrap = document.getElementById('expand-wrap');
+            const dirTag = document.getElementById('direction-tag');
+            const thinkPrompt = document.getElementById('thinking-prompt');
+
+            if (q.type === 'build') {
+                buildWrap.style.display = 'block';
+                expandWrap.style.display = 'none';
+                dirTag.className = 'direction-tag build';
+                dirTag.textContent = 'Build the decimal';
+                document.getElementById('question-text').textContent = 'Combine these parts to make a decimal number:';
+
+                const partsDisplay = document.getElementById('parts-display');
+                partsDisplay.innerHTML = '';
+                q.parts.forEach(function(part, i) {
+                    if (i > 0) {
+                        const plus = document.createElement('span');
+                        plus.className = 'part-plus';
+                        plus.textContent = '+';
+                        partsDisplay.appendChild(plus);
+                    }
+                    const chip = document.createElement('span');
+                    chip.className = 'part-chip ' + part.placeClass;
+                    chip.textContent = part.value;
+                    partsDisplay.appendChild(chip);
+                });
+
+                const input = document.getElementById('answer-input');
+                input.value = '';
+                input.className = 'answer-input';
+                input.disabled = false;
+
+                if (q.think) {
+                    thinkPrompt.style.display = 'block';
+                    thinkPrompt.innerHTML = '<strong>💬 Think:</strong> ' + q.think;
+                } else {
+                    thinkPrompt.style.display = 'none';
+                }
+
+                setTimeout(function() { input.focus(); }, 100);
+
+            } else if (q.type === 'expand') {
+                buildWrap.style.display = 'none';
+                expandWrap.style.display = 'block';
+                dirTag.className = 'direction-tag expand';
+                dirTag.textContent = 'Expand the decimal';
+                document.getElementById('question-text').textContent = 'Write this decimal in expanded form (standard or non-standard):';
+                document.getElementById('decimal-to-expand').textContent = q.decimal;
+
+                const expInput = document.getElementById('expand-answer');
+                expInput.value = '';
+                expInput.className = 'answer-input';
+                expInput.disabled = false;
+
+                thinkPrompt.style.display = 'none';
+
+                setTimeout(function() { expInput.focus(); }, 100);
+            }
+
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('next-btn').disabled = true;
+            hasChecked = false;
+            updateProgressTracker();
+        }
+
+        function normaliseDecimal(s) {
+            var cleaned = s.replace(/\s/g, '').toLowerCase();
+            var num = parseFloat(cleaned);
+            if (!isNaN(num)) return num;
+            return cleaned;
+        }
+
+        function normaliseExpandedText(s) {
+            return s.replace(/\s+/g, ' ').trim().toLowerCase()
+                .replace(/,/g, '')
+                .replace(/\band\b/g, '+')          // treat "and" as "+" so students can write "3 tenths and 4 hundredths"
+                .replace(/\s*\+\s*/g, ' + ');
+        }
+
+        function checkAnswer() {
+            if (hasChecked) return;
+            const actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            const q = questions[currentLevel][actualIndex];
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackText = document.getElementById('feedback-text');
+            hasChecked = true;
+            let correct = false;
+            let userRaw = '';
+
+            if (q.type === 'build') {
+                const input = document.getElementById('answer-input');
+                userRaw = input.value.trim();
+                var userNum = parseFloat(userRaw);
+                var ansNum = parseFloat(q.answer);
+                correct = !isNaN(userNum) && !isNaN(ansNum) && Math.abs(userNum - ansNum) < 0.0001;
+                input.className = 'answer-input ' + (correct ? 'correct' : 'incorrect');
+                input.disabled = true;
+            } else if (q.type === 'expand') {
+                const expInput = document.getElementById('expand-answer');
+                userRaw = expInput.value.trim();
+                var userNorm = normaliseExpandedText(userRaw);
+
+                // Prepare a version of userRaw with "and" converted to "+" for numeric splitting
+                var userForSplit = userRaw.replace(/\band\b/gi, '+');
+
+                correct = q.acceptedAnswers.some(function(accepted) {
+                    var accNorm = normaliseExpandedText(accepted);
+                    if (userNorm === accNorm) return true;
+                    var accParts = accepted.replace(/\s/g, '').split('+').map(parseFloat).filter(function(n) { return !isNaN(n); });
+                    var userParts = userForSplit.replace(/\s/g, '').split('+').map(parseFloat).filter(function(n) { return !isNaN(n); });
+                    if (accParts.length > 0 && userParts.length > 0 && accParts.length === userParts.length) {
+                        var accSum = accParts.reduce(function(a, b) { return a + b; }, 0);
+                        var userSum = userParts.reduce(function(a, b) { return a + b; }, 0);
+                        if (Math.abs(accSum - userSum) < 0.0001) {
+                            var accSorted = accParts.slice().sort();
+                            var userSorted = userParts.slice().sort();
+                            return accSorted.every(function(v, i) {
+                                return Math.abs(v - userSorted[i]) < 0.0001;
+                            });
+                        }
+                    }
+                    return false;
+                });
+
+                if (!correct && userRaw !== '') {
+                    var decimalVal = parseFloat(q.decimal);
+                    var userExpandParts = userForSplit.replace(/\s/g, '').split('+').map(parseFloat).filter(function(n) { return !isNaN(n); });
+                    if (userExpandParts.length > 0) {
+                        var userExpandSum = userExpandParts.reduce(function(a, b) { return a + b; }, 0);
+                        if (Math.abs(userExpandSum - decimalVal) < 0.0001 && userExpandParts.length > 1) {
+                            correct = true;
+                        }
+                    }
+                }
+
+                expInput.className = 'answer-input ' + (correct ? 'correct' : 'incorrect');
+                expInput.disabled = true;
+            }
+
+            feedbackBox.classList.add('visible');
+
+            if (correct) {
+                score++;
+                questionStatus[actualIndex] = 'correct';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'correct';
+                }
+                feedbackBox.classList.add('correct');
+                feedbackBox.classList.remove('incorrect');
+                feedbackText.textContent = 'Well done! ' + q.explanation;
+            } else {
+                questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
+                feedbackBox.classList.add('incorrect');
+                feedbackBox.classList.remove('correct');
+                var correctDisplay = q.type === 'build' ? q.answer : q.acceptedAnswers[0];
+                let fbText = 'You wrote <span style="font-family:\'Space Mono\',monospace;">' + (userRaw || '(blank)') + '</span>';
+                fbText += '<br>The answer is <strong><span style="font-family:\'Space Mono\',monospace;">' + correctDisplay + '</span></strong>';
+                fbText += '<br>' + q.explanation;
+                feedbackText.innerHTML = fbText;
+            }
+
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+            updateProgressTracker();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            var totalForLevel = questions[currentLevel].length;
+
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) {
+                    finishLevel();
+                } else {
+                    loadQuestion();
+                }
+                return;
+            }
+
+            if (currentQuestion >= totalForLevel) {
+                var incorrectIndices = [];
+                for (var i = 0; i < totalForLevel; i++) {
+                    if (questionStatus[i] === 'incorrect') incorrectIndices.push(i);
+                }
+                if (incorrectIndices.length === 0) {
+                    finishLevel();
+                } else {
+                    startRevisionRound(incorrectIndices);
+                }
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            createProgressTracker();
+            loadQuestion();
+        }
+
+        function finishLevel() {
+            var total = questions[currentLevel].length;
+            document.getElementById('completion-message').textContent =
+                'Awesome work! You\'ve completed ' + levelNames[currentLevel] + '!';
+            document.getElementById('final-score').textContent = score + '/' + total;
+            if (currentLevel === 3) {
+                unlockGoDeeper();
+            }
+            if (typeof submitResult === 'function') {
+                var initialScore = initialQuestionResult.filter(function(s) { return s === 'correct'; }).length;
+                var qData = typeof buildQuestionData === 'function'
+                    ? buildQuestionData(initialQuestionResult, total)
+                    : [];
+                submitResult('decimal-partitioning', 'Decimal Partitioning', initialScore, total, levelNames[currentLevel], qData);
+            }
+            showPage('completion-page');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var nextBtn = document.querySelector('.page.active #next-btn');
+                var checkBtn = document.querySelector('.page.active #check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
+
+        /* LEARNING CARD TOGGLE */
+        function toggleLearningSection() {
+            const content = document.getElementById('learningContent');
+            const toggle = document.getElementById('learningToggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+
+        /* GO DEEPER EXTENSION */
+        function unlockGoDeeper() {
+            const btn = document.getElementById('go-deeper-card');
+            if (btn) {
+                btn.classList.remove('locked');
+                btn.disabled = false;
+                btn.innerHTML = '<h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F513;</span> Go Deeper: Decimal Partitioning Investigations</h3><p>Challenge yourself with deeper investigations</p>';
+            }
+            const deePerBtn = document.getElementById('go-deeper-btn');
+            if (deePerBtn) {
+                deePerBtn.style.display = 'block';
+            }
+        }
+
+        function openGoDeeper() {
+            showPage('go-deeper-page');
+        }
+
+    </script>
+</body>
+</html>

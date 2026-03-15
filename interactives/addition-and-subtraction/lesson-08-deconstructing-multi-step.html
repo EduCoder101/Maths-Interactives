@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 8: Deconstructing Multi-Step Problems</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --pink: #FF67E7;
+    --purple: #AD1DEB;
+    --blue: #3a7bd5;
+    --blue-dark: #2c5ea8;
+    --green: #2ecc71;
+    --green-dark: #1a8a4a;
+    --cream: #FFF8F0;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: #2D3436;
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,107,107,0.20) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--red); text-transform: uppercase; margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 640px; font-weight: 500; }
+  .header-icon {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.10;
+  }
+
+  .phase-nav {
+    display: flex; gap: 10px; padding: 18px 48px;
+    background: #3d4347; flex-wrap: wrap;
+  }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 8px 20px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--red); color: #fff; }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--red);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-heading {
+    font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; color: var(--text);
+  }
+
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 16px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 20px; }
+  .card ul li { margin-bottom: 6px; }
+  .card ol { padding-left: 20px; }
+  .card ol li { margin-bottom: 8px; }
+
+  .collapse-header {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: #2D3436;
+    padding: 16px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .collapse-header:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    transform: translateY(-2px);
+  }
+  .collapse-header.blue {
+    background: linear-gradient(135deg, #b3d9ff, #3a7bd5);
+    color: #fff;
+  }
+  .collapse-header.red {
+    background: linear-gradient(135deg, #ffb3b3, #FF6B6B);
+    color: #fff;
+  }
+  .collapse-icon {
+    font-size: 24px;
+    transition: transform 0.3s;
+  }
+  .collapse-header.expanded .collapse-icon {
+    transform: rotate(180deg);
+  }
+  .collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .collapse-content.expanded {
+    max-height: 4000px;
+  }
+
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; border-radius: 20px; padding: 4px 14px; margin-right: 6px; margin-bottom: 10px;
+    background: #eef2ff; color: var(--blue);
+  }
+  .tag.green { background: #e8fdf0; color: var(--green-dark); }
+  .tag.amber { background: #fffbf0; color: var(--amber-dark); }
+  .tag.red { background: #fff4f4; color: #c0392b; }
+  .tag.purple { background: #f5eeff; color: var(--purple); }
+
+  .callout {
+    border-radius: 12px; padding: 18px 22px; margin: 16px 0;
+  }
+  .callout .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 6px; display: block;
+  }
+  .callout p { font-size: 16px; line-height: 1.6; font-weight: 400; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; }
+  .callout-red { background: #fff4f4; border-left: 5px solid var(--red); }
+  .callout-red .label { color: #c0392b; }
+  .callout-red p { color: #5c1a1a; }
+
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.green { background: var(--teal); color: var(--text); }
+  .reveal-btn.green:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.amber { background: var(--amber); color: var(--text); }
+  .reveal-btn.amber:hover { background: var(--amber-dark); color: #fff; }
+  .reveal-btn.red { background: var(--red); color: #fff; }
+  .reveal-btn.red:hover { background: #e05555; color: #fff; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Bar model */
+  .bar-model {
+    font-family: 'Space Mono', monospace;
+    margin: 20px 0;
+  }
+  .bar-whole {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2D3436;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .bar-parts {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .bar-part {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    padding: 14px 8px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    min-height: 52px;
+  }
+  .bar-part.blue { background: #dbeafe; color: var(--blue-dark); border: 2px solid var(--blue); }
+  .bar-part.teal { background: #ccfbf1; color: var(--teal-dark); border: 2px solid var(--teal); }
+  .bar-part.amber { background: #fef9c3; color: #92400e; border: 2px solid var(--amber); }
+  .bar-part.red { background: #fee2e2; color: #991b1b; border: 2px solid var(--red); }
+  .bar-part.unknown { background: #f5eeff; color: var(--purple); border: 2px dashed var(--purple); }
+
+  /* Protocol steps */
+  .protocol-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    border: 2px solid var(--border);
+    background: white;
+  }
+  .protocol-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+    color: white;
+  }
+  .protocol-step.step-1 .protocol-number { background: var(--blue); }
+  .protocol-step.step-2 .protocol-number { background: var(--amber-dark); }
+  .protocol-step.step-3 .protocol-number { background: var(--teal-dark); }
+  .protocol-step.step-4 .protocol-number { background: var(--green-dark); }
+  .protocol-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .protocol-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .protocol-desc { font-size: 15px; color: #445; line-height: 1.6; }
+
+  /* Practice cards */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .practice-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .practice-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .practice-problem {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    margin: 12px 0;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--border);
+  }
+  .practice-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .hint-btn, .answer-btn {
+    flex: 1;
+    background: var(--amber);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .hint-btn:hover { background: var(--amber-dark); }
+  .answer-btn { background: var(--teal); }
+  .answer-btn:hover { background: var(--teal-dark); }
+  .practice-hint, .practice-answer {
+    margin-top: 12px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+  }
+  .practice-hint { background: #fffbf0; border-left: 4px solid var(--amber); color: #665500; }
+  .practice-answer { background: #f0fafa; border-left: 4px solid var(--teal); }
+  .practice-hint.shown, .practice-answer.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  .tier-header {
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 17px;
+    margin: 24px 0 16px;
+    color: white;
+  }
+  .tier-1 { background: linear-gradient(135deg, var(--teal), var(--blue)); }
+  .tier-2 { background: linear-gradient(135deg, var(--amber), var(--orange)); color: #2D3436; }
+  .tier-3 { background: linear-gradient(135deg, var(--purple), #6E3AFF); }
+
+  /* Hidden-step highlight */
+  .hidden-step-tag {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 20px;
+    padding: 3px 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .highlight-number {
+    background: #fef9c3;
+    border-bottom: 2px solid var(--amber-dark);
+    padding: 0 3px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+  .highlight-hidden {
+    background: #fee2e2;
+    border-bottom: 2px solid var(--red);
+    padding: 0 3px;
+    border-radius: 3px;
+    font-weight: 700;
+    color: #991b1b;
+  }
+
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--red);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* Go Deeper Extension */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+    width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+    border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+    font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+    background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+    width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+    transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+    display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+    border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+    display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+    padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+    background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+    border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+
+  /* I Do Progression Pattern */
+  .ido-progression { margin-bottom: 2rem; position: relative; }
+  .ido-dots { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .ido-dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; transition: all 0.3s ease; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: var(--red); opacity: 0.4; }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 1.5rem; gap: 0.75rem; }
+  .ido-step-nav button { padding: 0.6rem 1.5rem; border: none; border-radius: 12px; font-family: 'Fredoka', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+  .ido-step-nav button.next { background: var(--red); color: white; margin-left: auto; }
+  .ido-step-nav button.next:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,107,0.3); }
+  .ido-step-nav button.back { background: #e0e0e0; color: var(--text); }
+  .ido-step-nav button.back:hover { transform: translateY(-2px); background: #d0d0d0; }
+  .step-badge { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+  .step-badge.red { background: var(--red); }
+  .step-badge.amber { background: var(--amber); color: var(--text); }
+  .step-badge.green { background: var(--green); }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Word Problems &amp; Multi-Step Reasoning</div>
+  <h1>Lesson 8: <span>Hidden Steps</span></h1>
+  <p>Translating complex text into a mathematical plan, and spotting the trap-doors</p>
+  <div class="header-icon">🕵️</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection('hook', this)">The Hook</button>
+  <button onclick="showSection('ido', this)">I Do</button>
+  <button onclick="showSection('wedo', this)">We Do</button>
+  <button onclick="showSection('youdo', this)">You Do</button>
+  <button onclick="showSection('practice', this)">Practice</button>
+  <button onclick="showSection('plenary', this)">Plenary</button>
+</nav>
+
+<main>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning a 4-step protocol to break down multi-step word problems and spot hidden steps that try to trick us.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can use the 4-step protocol: Visualise, Estimate, Calculate, Check</li>
+            <li>I can identify hidden steps in a word problem (like return trips or repeated items)</li>
+            <li>I can draw a bar model that has more than two parts</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ────────────── SECTION 1: THE HOOK ────────────── -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · The Hook, 10 mins</div>
+  <div class="section-heading">When the obvious answer is wrong</div>
+
+  <!-- HOOK PROBLEM 1: Alex's bike ride -->
+  <div class="card">
+    <h3>🎯 Problem 1, Alex's Bike Ride</h3>
+    <p style="margin-bottom:16px;">Read the whole problem carefully, then shout out your answer:</p>
+
+    <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:1.9; color:var(--text);">
+      On Tuesday, Alex rode <span class="highlight-number">4 km</span> to a friend's house, then <span class="highlight-number">12 km</span> to the beach.<br><br>
+      <strong>How far did Alex travel before he got home?</strong>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="reveal-btn red" onclick="toggleReveal('trap1-reveal')">▶ Reveal the answer</button>
+    </div>
+
+    <div id="trap1-reveal" class="step-reveal" style="margin-top:20px;">
+      <div class="callout callout-red">
+        <span class="label">🪤 The Hidden Step</span>
+        <p>Most people blurt out <strong>16 km</strong>, but the question asks how far Alex travelled <em>before he got home</em>. That means the return journey is included: 4 km + 12 km + 12 km + 4 km = <strong>32 km</strong>.</p>
+        <p style="margin-top:10px;">The hidden step is the return trip, which the question implies without spelling out. Reading "before he got home" carefully is the key.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOOK PROBLEM 2: Swimming carnival -->
+  <div class="card">
+    <h3>🎯 Problem 2, The Swimming Carnival</h3>
+    <p style="margin-bottom:16px;">Here's another one. Read every word:</p>
+
+    <div style="background:#f0fafa; border:3px solid var(--teal); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:1.9; color:var(--text);">
+      At the school swimming carnival, the Year 5 relay team swam <span class="highlight-number">4 laps</span> of the <span class="highlight-number">25 m</span> pool in the heats. In the final, they swam <span class="highlight-number">6 laps</span>.<br><br>
+      <strong>How many metres did the team swim across both races in total?</strong>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="reveal-btn red" onclick="toggleReveal('trap2-reveal')">▶ Reveal the answer</button>
+    </div>
+
+    <div id="trap2-reveal" class="step-reveal" style="margin-top:20px;">
+      <div class="callout callout-red">
+        <span class="label">🪤 The Hidden Step</span>
+        <p>The trap is adding 4 + 6 = 10 and stopping there. But 10 what? The pool is 25 m long, you have to multiply by 25 to get metres. The hidden step is converting laps to metres <em>first</em>: (4 × 25) + (6 × 25) = 100 + 150 = <strong>250 m</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOOK PROBLEM 3: School tuck shop -->
+  <div class="card">
+    <h3>🎯 Problem 3, Tuck Shop Tuesday</h3>
+    <p style="margin-bottom:16px;">One more, this one has a different kind of hidden step:</p>
+
+    <div style="background:#fffbf0; border:3px solid var(--amber); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:1.9; color:var(--text);">
+      The school tuck shop sells pies for <span class="highlight-number">$3.50</span> each. On Tuesday, <span class="highlight-number">3 students</span> each buy a pie and a drink. The drinks cost <span class="highlight-number">$2.00</span> each.<br><br>
+      <strong>How much does the tuck shop collect from these 3 students in total?</strong>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="reveal-btn red" onclick="toggleReveal('trap3-reveal')">▶ Reveal the answer</button>
+    </div>
+
+    <div id="trap3-reveal" class="step-reveal" style="margin-top:20px;">
+      <div class="callout callout-red">
+        <span class="label">🪤 The Hidden Step</span>
+        <p>Some students add $3.50 + $2.00 = $5.50 and call it done. But <em>each of 3 students</em> buys both items, the hidden step is multiplying the per-person cost by 3: $5.50 × 3 = <strong>$16.50</strong>.</p>
+        <p style="margin-top:10px;">The word "each" is almost always a signal that a multiplication step is hiding inside the problem.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg, #fff8f0, #fffbf0); border:2px solid var(--amber);">
+    <h3>💡 What do these three problems have in common?</h3>
+    <div style="text-align:center; margin:16px 0;">
+      <button class="reveal-btn amber" onclick="toggleReveal('pattern-reveal')">▶ Show the pattern</button>
+    </div>
+    <div id="pattern-reveal" class="step-reveal">
+      <div class="callout callout-amber">
+        <span class="label">The Pattern</span>
+        <p>Every problem contains information that <em>sounds</em> straightforward but contains a step that is easy to skip. The problems are not trying to trick you unfairly, all the information is there. But you have to read every single word and ask: <strong>"Have I used all of the important information?"</strong></p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; margin-top:14px;">
+        <div style="background:white; border-radius:10px; padding:14px; border:2px solid var(--blue); text-align:center;">
+          <div style="font-size:22px; margin-bottom:6px;">🚲</div>
+          <div style="font-size:13px; font-weight:700; color:var(--blue-dark);">Return journey</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">"same way" means double</div>
+        </div>
+        <div style="background:white; border-radius:10px; padding:14px; border:2px solid var(--teal); text-align:center;">
+          <div style="font-size:22px; margin-bottom:6px;">🏊</div>
+          <div style="font-size:13px; font-weight:700; color:var(--teal-dark);">Units conversion</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">laps × metres per lap</div>
+        </div>
+        <div style="background:white; border-radius:10px; padding:14px; border:2px solid var(--amber-dark); text-align:center;">
+          <div style="font-size:22px; margin-bottom:6px;">🥧</div>
+          <div style="font-size:13px; font-weight:700; color:var(--amber-dark);">"Each" means multiply</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">per-person × number of people</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapse-header blue" onclick="toggleCollapse('teacher-hook')">
+    <span>📋 Teacher Notes, Running the Hook</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="teacher-hook" class="collapse-content">
+    <div class="card">
+      <p style="margin-bottom:14px;">Present each problem one at a time. Pause after each for students to call out answers, then reveal.</p>
+      <ul>
+        <li style="margin-bottom:10px;"><strong>Problem 1:</strong> Students who say 16 km missed the return journey. Ask: <em>"Did we use all the important information in the problem?"</em></li>
+        <li style="margin-bottom:10px;"><strong>Problem 2:</strong> The key misconception is treating laps as metres. Ask: <em>"What unit is the question asking for? Do our numbers give us that unit yet?"</em></li>
+        <li style="margin-bottom:10px;"><strong>Problem 3:</strong> The word "each" is the signal. Once students identify it, write it on the board and tell them: "From now on, whenever you see the word 'each' in a word problem, circle it immediately, it almost always means a hidden multiplication."</li>
+        <li>Frame the whole sequence positively: the problems aren't tricks. All the information is there. The skill is learning to slow down and read everything.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 2: I DO ────────────── -->
+<div id="ido" class="section">
+  <div class="section-title">Phase 2 · Explicit Instruction (I Do), 15 mins</div>
+  <div class="section-heading">The 4-Step Protocol in Action</div>
+
+  <!-- I Do Progression -->
+  <div id="msp-progression" class="ido-progression">
+    <!-- Progress dots -->
+    <div id="msp-dots" class="ido-dots">
+      <div class="ido-dot active"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+    </div>
+
+    <!-- Step 1: Meet the problem -->
+    <div id="msp-step-1" class="ido-step active">
+      <div class="card">
+        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+          <div class="step-badge red">1</div>
+          <div>
+            <h3>Meet the Problem</h3>
+            <p style="margin-top: 4px; color: var(--muted); font-size: 15px;">Alex is going on a bike ride.</p>
+          </div>
+        </div>
+
+        <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:16px; line-height:1.9; color:var(--text);">
+          Alex cycles 4 km to his friend's house, then 12 km to the beach. After visiting, he cycles home the same way.<br>
+          <strong>How far does he cycle in total before getting home?</strong>
+        </div>
+
+        <p style="color: #445; font-size: 15px; line-height: 1.6;">Read the problem carefully. What is being asked? What numbers are given? What's the hidden information?</p>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="next" onclick="goToIdoStep('msp', 2, 6)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Visualise -->
+    <div id="msp-step-2" class="ido-step">
+      <div class="card">
+        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+          <div class="step-badge red">2</div>
+          <div>
+            <h3>Step 1: Visualise, Draw the Bar Model</h3>
+            <p style="margin-top: 4px; color: var(--muted); font-size: 15px;">Show the hidden information.</p>
+          </div>
+        </div>
+
+        <p style="color: #445; font-size: 15px; line-height: 1.6; margin-bottom: 18px;">The problem asks about a return journey. Draw all four parts:</p>
+
+        <div class="bar-model">
+          <div class="bar-whole">❓ Total distance (Whole)</div>
+          <div class="bar-parts">
+            <div class="bar-part blue" style="flex:4;">4 km<br><span style="font-size:12px; font-weight:400;">to friend's</span></div>
+            <div class="bar-part teal" style="flex:12;">12 km<br><span style="font-size:12px; font-weight:400;">to beach</span></div>
+            <div class="bar-part red" style="flex:12;">12 km <span class="hidden-step-tag">hidden!</span><br><span style="font-size:12px; font-weight:400;">beach back</span></div>
+            <div class="bar-part amber" style="flex:4;">4 km <span class="hidden-step-tag">hidden!</span><br><span style="font-size:12px; font-weight:400;">home</span></div>
+          </div>
+        </div>
+
+        <div class="callout callout-red">
+          <span class="label">🪤 The Hidden Steps</span>
+          <p>The problem doesn't explicitly say Alex cycles 12 km back from the beach and 4 km from his friend's home, but "the same way" means he must. These are the hidden steps.</p>
+        </div>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('msp', 1, 6)">Back</button>
+        <button class="next" onclick="goToIdoStep('msp', 3, 6)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Estimate -->
+    <div id="msp-step-3" class="ido-step">
+      <div class="card">
+        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+          <div class="step-badge amber">3</div>
+          <div>
+            <h3>Step 2: Estimate, Radar for Error</h3>
+            <p style="margin-top: 4px; color: var(--muted); font-size: 15px;">Set your safety net.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-amber">
+          <span class="label">📡 Round and estimate</span>
+          <p style="font-family:'Space Mono', monospace; font-size:16px; margin-bottom: 12px;">4 + 12 is about 15. The whole trip is there and back, so double it: 15 × 2 = <strong>30</strong></p>
+          <p><strong>My answer should be near 30.</strong> If I get something very different, I'll know something is wrong.</p>
+        </div>
+
+        <p style="color: #445; font-size: 15px; line-height: 1.6; margin-top: 18px;">Before calculating the exact answer, always estimate. This is your safety net.</p>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('msp', 2, 6)">Back</button>
+        <button class="next" onclick="goToIdoStep('msp', 4, 6)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Calculate -->
+    <div id="msp-step-4" class="ido-step">
+      <div class="card">
+        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+          <div class="step-badge amber">4</div>
+          <div>
+            <h3>Step 3: Calculate, Do the Maths</h3>
+            <p style="margin-top: 4px; color: var(--muted); font-size: 15px;">Use your chosen method.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-teal">
+          <span class="label">🔢 Exact calculation</span>
+          <p style="font-family:'Space Mono', monospace; font-size:18px; font-weight: 600;">4 + 12 + 12 + 4 = <strong>32 km</strong></p>
+        </div>
+
+        <p style="color: #445; font-size: 15px; line-height: 1.6; margin-top: 18px;">We could use a mental strategy here because the numbers are friendly. We could also write it as an algorithm. The method is our choice.</p>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('msp', 3, 6)">Back</button>
+        <button class="next" onclick="goToIdoStep('msp', 5, 6)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Check -->
+    <div id="msp-step-5" class="ido-step">
+      <div class="card">
+        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+          <div class="step-badge green">5</div>
+          <div>
+            <h3>Step 4: Check, Compare to Estimate</h3>
+            <p style="margin-top: 4px; color: var(--muted); font-size: 15px;">Does the answer make sense?</p>
+          </div>
+        </div>
+
+        <div class="callout callout-blue">
+          <span class="label">✅ Does it match?</span>
+          <p><strong>Our estimate:</strong> 30 km<br><strong>Our exact answer:</strong> 32 km<br><br>32 is very close to 30. ✓ Confidence is high. We can be sure our answer is correct.</p>
+        </div>
+
+        <p style="color: #445; font-size: 15px; line-height: 1.6; margin-top: 18px;">Always compare your exact answer to your estimate. A result of 320 km when you estimated 30 would be a red flag. Always go back and find the error.</p>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('msp', 4, 6)">Back</button>
+        <button class="next" onclick="goToIdoStep('msp', 6, 6)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Another example -->
+    <div id="msp-step-6" class="ido-step">
+      <div class="card">
+        <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+          <div class="step-badge green">6</div>
+          <div>
+            <h3>The Protocol Works for Subtraction Too</h3>
+            <p style="margin-top: 4px; color: var(--muted); font-size: 15px;">Finding a missing part.</p>
+          </div>
+        </div>
+
+        <p style="color: #445; font-size: 15px; line-height: 1.6; margin-bottom: 18px;">Some problems give you the whole and two of the parts. You need to subtract to find the missing part.</p>
+
+        <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:16px; line-height:1.9; color:var(--text);">
+          A shire has a total population of <span class="highlight-number">35,084</span>. Town A has <span class="highlight-number">14,230</span> people. Town B has <span class="highlight-number">12,100</span> people.<br>
+          <strong>How many people live in the rest of the shire?</strong>
+        </div>
+
+        <div class="bar-model">
+          <div class="bar-whole">35,084 (Whole, given)</div>
+          <div class="bar-parts">
+            <div class="bar-part blue" style="flex:14;">14,230<br><span style="font-size:12px; font-weight:400;">Town A</span></div>
+            <div class="bar-part teal" style="flex:12;">12,100<br><span style="font-size:12px; font-weight:400;">Town B</span></div>
+            <div class="bar-part unknown" style="flex:9;">❓<br><span style="font-size:12px; font-weight:400;">Rest of shire</span></div>
+          </div>
+        </div>
+
+        <div class="callout callout-amber" style="margin-top:16px;">
+          <span class="label">🔑 Key Insight</span>
+          <p>You must subtract <em>both</em> known parts from the whole, not just one. The hidden step is remembering to use both numbers.</p>
+        </div>
+
+        <div class="callout callout-amber">
+          <span class="label">📡 Estimate</span>
+          <p>35,000 − 14,000 − 12,000 ≈ 9,000. Answer should be near 9,000.</p>
+        </div>
+
+        <div class="callout callout-teal">
+          <span class="label">🔢 Calculate</span>
+          <p style="font-family:'Space Mono', monospace; font-size:16px;">35,084 − 14,230 = 20,854<br>20,854 − 12,100 = <strong>8,754</strong></p>
+        </div>
+
+        <div class="callout callout-blue">
+          <span class="label">✅ Check</span>
+          <p>8,754 is close to our estimate of 9,000. ✓ The 4-step protocol works for all problem types.</p>
+        </div>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('msp', 5, 6)">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapse-header" onclick="toggleCollapse('teacher-ido')">
+    <span>📋 Teacher Notes, Modelling Tips</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="teacher-ido" class="collapse-content">
+    <div class="card">
+      <ul>
+        <li style="margin-bottom:10px;">Draw the Bar Model on the board in real time, do not pre-draw it. Let students see the thinking process.</li>
+        <li style="margin-bottom:10px;">When you reach the return journey parts, pause and say: <em>"Wait, I haven't finished reading the problem."</em> Model the habit of reading all the way to the end before drawing anything.</li>
+        <li style="margin-bottom:10px;">Emphasise that the Bar Model works for both addition problems (unknown whole) and subtraction problems (unknown part). The structure is the same.</li>
+        <li>For the population problem, explicitly name the hidden step: <em>"The problem asks about 'the rest of the shire', that means I need to subtract both Town A and Town B, not just one."</em></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 3: WE DO ────────────── -->
+<div id="wedo" class="section">
+  <div class="section-title">Phase 3 · Guided Practice (We Do), 10 mins</div>
+  <div class="section-heading">Find the hidden step together</div>
+
+  <div class="card">
+    <h3>✏️ Mini-Whiteboard Challenge</h3>
+
+    <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin-bottom:20px; font-size:18px; line-height:1.9; color:var(--text);">
+      I have <span class="highlight-number">$50</span>. I buy a book for <span class="highlight-number">$14</span> and two pens for <span class="highlight-number">$3 each</span>.<br>
+      <strong>How much change do I get?</strong>
+    </div>
+
+    <p style="font-size:16px; margin-bottom:16px;">On your mini-whiteboards: draw the Bar Model and write down the hidden step <strong>before you calculate</strong>.</p>
+
+    <div style="text-align:center; margin-bottom:20px;">
+      <button class="reveal-btn amber" onclick="toggleReveal('wedo-hidden')">▶ What is the hidden step?</button>
+    </div>
+
+    <div id="wedo-hidden" class="step-reveal">
+      <div class="callout callout-red">
+        <span class="label">🪤 The Hidden Step</span>
+        <p>The problem says <em>"two pens for $3 each"</em>, you must calculate the cost of two pens first: $3 × 2 = $6. If you just use $3, you will get the wrong answer.</p>
+      </div>
+
+      <div class="bar-model" style="margin-top:16px;">
+        <div class="bar-whole">$50 (Whole, what I started with)</div>
+        <div class="bar-parts">
+          <div class="bar-part blue" style="flex:14;">$14<br><span style="font-size:12px; font-weight:400;">Book</span></div>
+          <div class="bar-part red" style="flex:6;">$6 <span class="hidden-step-tag">hidden!</span><br><span style="font-size:12px; font-weight:400;">2 × $3 pens</span></div>
+          <div class="bar-part unknown" style="flex:30;">❓<br><span style="font-size:12px; font-weight:400;">Change</span></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin:20px 0;">
+        <button class="reveal-btn green" onclick="toggleReveal('wedo-answer')">▶ Show full working</button>
+      </div>
+    </div>
+
+    <div id="wedo-answer" class="step-reveal">
+      <div class="callout callout-amber">
+        <span class="label">📡 Estimate</span>
+        <p>I'm spending about $14 + $6 = $20. Change should be about $30.</p>
+      </div>
+      <div class="callout callout-teal">
+        <span class="label">🔢 Calculate</span>
+        <p style="font-family:'Space Mono', monospace; font-size:16px;">Step 1: 2 × $3 = $6 (hidden step!)<br>Step 2: $14 + $6 = $20 (total spent)<br>Step 3: $50 − $20 = <strong>$30 change</strong></p>
+      </div>
+      <div class="callout callout-blue">
+        <span class="label">✅ Check</span>
+        <p>$30 matches our estimate. ✓</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapse-header blue" onclick="toggleCollapse('teacher-wedo')">
+    <span>📋 Teacher Notes, Guided Practice</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="teacher-wedo" class="collapse-content">
+    <div class="card">
+      <ul>
+        <li style="margin-bottom:10px;">Circulate and check mini-whiteboards <em>before</em> students calculate. The bar model must be drawn first.</li>
+        <li style="margin-bottom:10px;">Look specifically for students who write $3 instead of $6 for the pens. Use this as a teachable moment for the whole class.</li>
+        <li>If a student gets the hidden step immediately, ask them to explain their thinking to a partner rather than calling it out, this gives other students more time to identify it themselves.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 4: YOU DO ────────────── -->
+<div id="youdo" class="section">
+  <div class="section-title">Phase 4 · Independent Practice (You Do), 20 mins</div>
+  <div class="section-heading">Work through your problem set independently</div>
+
+  <div class="card">
+    <div class="callout callout-amber" style="margin-bottom:20px;">
+      <span class="label">📌 The Rule, Every Problem, Every Time</span>
+      <p>Highlighters out. Highlight the useful numbers in one colour. Circle any hidden-step signal words ("each", "same way", "both", "per"). Write all 4 steps, Visualise, Estimate, Calculate, Check, in your book before moving to the next problem.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:8px;">
+      <div style="background:#dbeafe; border-radius:12px; padding:16px; border:2px solid var(--blue); text-align:center;">
+        <div style="font-size:24px; margin-bottom:6px;">🟢</div>
+        <div style="font-weight:700; font-size:15px; color:var(--blue-dark);">Tier 1</div>
+        <div style="font-size:13px; color:#1e3a6e; margin-top:4px;">Go to the Practice tab → Problems 1 and 2</div>
+      </div>
+      <div style="background:#fef9c3; border-radius:12px; padding:16px; border:2px solid var(--amber-dark); text-align:center;">
+        <div style="font-size:24px; margin-bottom:6px;">🟡</div>
+        <div style="font-weight:700; font-size:15px; color:#78350f;">Tier 2</div>
+        <div style="font-size:13px; color:#78350f; margin-top:4px;">Go to the Practice tab → Problems 3 and 4</div>
+      </div>
+      <div style="background:#f5eeff; border-radius:12px; padding:16px; border:2px solid var(--purple); text-align:center;">
+        <div style="font-size:24px; margin-bottom:6px;">🟣</div>
+        <div style="font-weight:700; font-size:15px; color:var(--purple);">Tier 3</div>
+        <div style="font-size:13px; color:#4c1d95; margin-top:4px;">Go to the Practice tab → All 5 problems</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapse-header" onclick="toggleCollapse('teacher-youdo')">
+    <span>📋 Teacher Notes, Independent Practice</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="teacher-youdo" class="collapse-content">
+    <div class="card">
+      <ul>
+        <li style="margin-bottom:10px;"><strong>Before they begin:</strong> Ask students to scan each problem and circle any signal words before writing anything. This makes the hidden-step hunting explicit rather than accidental.</li>
+        <li style="margin-bottom:10px;"><strong>Watch for:</strong> Students who skip the Bar Model and jump straight to calculation. Redirect firmly, the Bar Model is non-negotiable today.</li>
+        <li style="margin-bottom:10px;"><strong>Problem 4 (Mia):</strong> Students who haven't internalised the return-journey pattern from the hook will fall for the same trap. Use this as a low-stakes chance to catch and fix it.</li>
+        <li><strong>Problem 5</strong> is a genuine extension. A student who completes it correctly and can articulate both hidden steps is demonstrating strong Stage 3 reasoning.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 5: PRACTICE ────────────── -->
+<div id="practice" class="section">
+  <div class="section-title">Phase 4 · Practice Problems</div>
+  <div class="section-heading">5 problems · 4 steps every time · highlighters out</div>
+
+  <div class="card">
+    <div class="callout callout-amber" style="margin-bottom:24px;">
+      <span class="label">📌 Reminder</span>
+      <p>For every problem: draw the Bar Model first, write your Radar estimate, show your calculation, then check. Do not skip steps.</p>
+    </div>
+
+    <div class="tier-header tier-1">🟢 Tier 1, Whole Numbers</div>
+
+    <div class="practice-grid">
+      <div class="practice-card">
+        <div class="practice-num">Problem 1</div>
+        <div class="practice-problem">
+          The school library has 1,240 fiction books and 876 non-fiction books. A donation adds another 350 books, all fiction. How many fiction books does the library have now?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q1')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q1')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="q1-hint">Draw the bar model. The hidden step: the 350 adds only to fiction, not to the total library. What is the question actually asking for?</div>
+        <div class="practice-answer" id="q1-answer">
+          <strong>1,590 fiction books.</strong><br>
+          <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">1,240 + 350 = 1,590</span><br>
+          <span style="font-size:13px; color:var(--muted);">The 876 non-fiction books is extraneous, the question only asks about fiction.</span>
+        </div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Problem 2</div>
+        <div class="practice-problem">
+          A town has a population of 24,500. Over summer, 3,120 people move in and 1,875 people move out. What is the population at the end of summer?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q2')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q2')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="q2-hint">Two operations in this one, you both add and subtract. Which happens first? Does it matter? Try both ways and see.</div>
+        <div class="practice-answer" id="q2-answer">
+          <strong>25,745 people.</strong><br>
+          <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">24,500 + 3,120 = 27,620<br>27,620 − 1,875 = 25,745</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tier-header tier-2" style="margin-top:28px;">🟡 Tier 2, Decimals</div>
+
+    <div class="practice-grid">
+      <div class="practice-card">
+        <div class="practice-num">Problem 3</div>
+        <div class="practice-problem">
+          A plank is 4.5 m long. Two pieces measuring 1.15 m each are cut off. How much plank is left?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q3')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q3')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="q3-hint">Hidden step: TWO pieces are cut off. Find the total removed first: 1.15 + 1.15 = 2.30. Then subtract from 4.5. Line up your decimal points!</div>
+        <div class="practice-answer" id="q3-answer">
+          <strong>2.2 m remaining.</strong><br>
+          <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">1.15 + 1.15 = 2.30<br>4.50 − 2.30 = 2.20</span>
+        </div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Problem 4</div>
+        <div class="practice-problem">
+          Mia runs 2.75 km to the park, then 1.8 km to her grandmother's house. After visiting, she runs home the same way. How far does she run in total before getting home?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q4')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q4')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="q4-hint">Return journey, just like Alex! She runs the same route back. Draw all 4 parts in your bar model: park, grandmother, grandmother back, home.</div>
+        <div class="practice-answer" id="q4-answer">
+          <strong>9.1 km total.</strong><br>
+          <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">2.75 + 1.80 + 1.80 + 2.75 = 9.10</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tier-header tier-3" style="margin-top:28px;">🟣 Tier 3, Extension</div>
+
+    <div class="practice-grid">
+      <div class="practice-card" style="border-color:var(--purple);">
+        <div class="practice-num" style="color:var(--purple);">Problem 5 ⭐</div>
+        <div class="practice-problem">
+          A recipe needs 0.75 kg of flour per batch. Ava wants to make 3 batches. The bag of flour she has weighs 2.5 kg. How much flour will be left in the bag after she bakes all 3 batches?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q5')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q5')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="q5-hint">Two hidden steps: first find total flour used (0.75 × 3 = ?). Then subtract from 2.5. Draw a bar model where the whole is the bag and the parts are each batch plus the leftovers.</div>
+        <div class="practice-answer" id="q5-answer">
+          <strong>0.25 kg left.</strong><br>
+          <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">0.75 × 3 = 2.25 (total used)<br>2.50 − 2.25 = 0.25 (remaining)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── GO DEEPER EXTENSION ────────────── -->
+<div class="go-deeper-section">
+  <button class="go-deeper-toggle" onclick="this.classList.toggle('open');">
+    <span>🎯 Go Deeper, Specialising, Justifying, Generalising</span>
+    <span class="arrow">▼</span>
+  </button>
+
+  <div class="go-deeper-content">
+    <p style="font-family:'Fredoka',sans-serif; font-size:1rem; color:#636E72; line-height:1.7; margin-bottom:1.5rem;">
+      You've mastered the 4-step protocol. Ready to think like a mathematician? Here are three challenges to stretch your thinking.
+    </p>
+
+    <!-- TASK 1: SPECIALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 1, Specialising (Create Your Own)</div>
+      <div class="ext-task-prompt">Write a 2-step word problem where the hidden step is finding the total BEFORE you can find the difference.</div>
+      <div class="ext-task-sub">Your problem must use these numbers: <span class="ext-numbers">245</span>, <span class="ext-numbers">380</span>, and <span class="ext-numbers">175</span>.</div>
+      <p style="font-family:'Fredoka',sans-serif; font-size:0.95rem; color:#2D3436; margin-bottom:1rem; line-height:1.6;">Write the problem, then solve it showing all steps. Hint: Think about problems where two amounts need to be added first, then something is subtracted from that total.</p>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">Mathematician's thinking:</div>
+        <p><strong>Example problem:</strong> A school collected <span class="ext-numbers">245</span> books in Week 1 and <span class="ext-numbers">380</span> books in Week 2. They gave <span class="ext-numbers">175</span> books to the library. How many books do they have left?</p>
+        <p style="margin-top:1rem;"><strong>Solution:</strong></p>
+        <p style="font-family:'Space Mono',monospace; font-size:0.9rem; margin:0.5rem 0; color:#4ECDC4;">Hidden Step 1: Find total books collected<br>
+        245 + 380 = 625 books</p>
+        <p style="font-family:'Space Mono',monospace; font-size:0.9rem; margin:0.5rem 0; color:#4ECDC4;">Hidden Step 2: Subtract books given away<br>
+        625 − 175 = 450 books left</p>
+        <div class="mathematician-box">
+          <strong>Why this works:</strong> The bar model shows the whole (total books) split into "given away" and "kept". To find the kept amount, you first need the whole amount. That's why finding the total is a hidden step.
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK 2: JUSTIFYING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 2, Justifying (Explain Your Reasoning)</div>
+      <div class="ext-task-prompt">A student solved this problem two different ways:</div>
+      <p style="font-family:'Fredoka',sans-serif; font-size:0.95rem; color:#2D3436; margin-bottom:1rem; line-height:1.6;"><strong>Problem:</strong> A shop had <span class="ext-numbers">1,250</span> apples. They sold <span class="ext-numbers">478</span> on Monday and <span class="ext-numbers">356</span> on Tuesday. How many are left?</p>
+      <p style="font-family:'Fredoka',sans-serif; font-size:0.95rem; color:#2D3436; margin-bottom:0.5rem; line-height:1.6;"><strong>Method 1:</strong> One bar model showing <span class="ext-numbers">1,250</span> at the top, with <span class="ext-numbers">478</span> and <span class="ext-numbers">356</span> as parts, and the unknown as a third part.</p>
+      <p style="font-family:'Fredoka',sans-serif; font-size:0.95rem; color:#2D3436; margin-bottom:1rem; line-height:1.6;"><strong>Method 2:</strong> Two bar models, first showing <span class="ext-numbers">478</span> + <span class="ext-numbers">356</span> = <span class="ext-numbers">834</span>, then showing <span class="ext-numbers">1,250</span> − <span class="ext-numbers">834</span> = <span class="ext-numbers">416</span>.</p>
+      <p style="font-family:'Fredoka',sans-serif; font-size:0.95rem; color:#2D3436; margin-bottom:1rem; line-height:1.6;">Both students got the same answer: <span class="ext-numbers">416</span> apples. Which bar model approach is better, and why?</p>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">Mathematician's thinking:</div>
+        <p><strong>Both methods are correct and give <span class="ext-numbers">416</span> apples.</strong> But the two-model approach is better for avoiding errors.</p>
+        <p style="margin-top:1rem;">With Method 1, you have one bar model with three parts: you can see <span class="ext-numbers">478</span> and <span class="ext-numbers">356</span>, but the problem hides the fact that you need to add them first. A student might try to subtract each separately (1,250 − 478 − 356 = 416) and get the same answer by luck, but without understanding why.</p>
+        <p style="margin-top:0.75rem;">With Method 2, the hidden step becomes visible:
+        <ul style="margin-top:0.75rem; margin-left:1.5rem;">
+          <li style="margin-bottom:0.5rem;">First bar shows what you must calculate: <span class="ext-numbers">478</span> + <span class="ext-numbers">356</span> = <span class="ext-numbers">834</span> (total sold)</li>
+          <li style="margin-bottom:0.5rem;">Second bar shows what you then calculate: <span class="ext-numbers">1,250</span> − <span class="ext-numbers">834</span> = <span class="ext-numbers">416</span> (left)</li>
+        </ul></p>
+        <div class="mathematician-box">
+          <strong>The lesson:</strong> When you draw TWO models instead of one, each step is separate and checkable. The hidden step is no longer hidden.
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK 3: GENERALISING -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 3, Generalising (Find the Pattern)</div>
+      <div class="ext-task-prompt">When you solve a multi-step problem, does it matter what ORDER you do the steps in?</div>
+      <p style="font-family:'Fredoka',sans-serif; font-size:0.95rem; color:#2D3436; margin-bottom:1rem; line-height:1.6;"><strong>Think about this problem:</strong> Sam had $<span class="ext-numbers">500</span>. He spent $<span class="ext-numbers">125</span> on shoes and $<span class="ext-numbers">230</span> on a jacket. How much is left?</p>
+      <p style="font-family:'Fredoka',sans-serif; font-size:0.95rem; color:#2D3436; margin-bottom:1rem; line-height:1.6;">Try solving it in two different orders. Does the order matter? Can you write a rule about when order matters and when it does not?</p>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">Mathematician's thinking:</div>
+        <p><strong>Order 1:</strong> <span class="ext-numbers">500</span> − <span class="ext-numbers">125</span> = <span class="ext-numbers">375</span>, then <span class="ext-numbers">375</span> − <span class="ext-numbers">230</span> = <span class="ext-numbers">145</span></p>
+        <p><strong>Order 2:</strong> <span class="ext-numbers">500</span> − <span class="ext-numbers">230</span> = <span class="ext-numbers">270</span>, then <span class="ext-numbers">270</span> − <span class="ext-numbers">125</span> = <span class="ext-numbers">145</span></p>
+        <p style="margin-top:1rem;"><strong>Same answer! Order does not matter in this case.</strong></p>
+        <p style="margin-top:1rem;"><strong>The rule:</strong></p>
+        <ul style="margin-top:0.75rem; margin-left:1.5rem;">
+          <li style="margin-bottom:0.5rem;">If the steps are <strong>independent</strong> (subtracting different amounts from the same total), order does not matter. You get the same answer.</li>
+          <li style="margin-bottom:0.5rem;">If one step's answer feeds into the next step as a NEW quantity (like calculating a total first, then using that total), the order matters.</li>
+        </ul>
+        <div class="mathematician-box">
+          <strong>Why this matters:</strong> Understanding when order matters helps you set up your bar models correctly. Independent steps can be drawn as separate branches. Dependent steps must be drawn one after the other.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 6: PLENARY ────────────── -->
+<div id="plenary" class="section">
+  <div class="section-title">Phase 6 · Plenary (Wrap Up), 5 mins</div>
+  <div class="section-heading">The Bar Model works for everything</div>
+
+  <div class="card">
+    <h3>💬 Discussion, Tier 3 Share</h3>
+    <p style="font-size:16px; line-height:1.7; margin-bottom:16px; background:#f5eeff; border-left:4px solid var(--purple); border-radius:0 10px 10px 0; padding:14px 18px;">
+      Ask a Tier 3 student: <em>"Walk us through how you tackled the flour problem. What was the hidden step? How did you know you needed two calculations?"</em>
+    </p>
+
+    <div class="callout callout-teal">
+      <span class="label">✅ Key Takeaway to Emphasise</span>
+      <p>Drawing the Bar Model works exactly the same whether the numbers are whole numbers or decimals. The structure of the problem does not change, only the arithmetic changes. If you can draw it, you can solve it.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 The 4-Step Protocol, Quick Reference</h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:14px;">
+      <div style="background:#dbeafe; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--blue);">
+        <div style="font-size:28px; margin-bottom:6px;">🎨</div>
+        <div style="font-weight:700; font-size:16px; color:var(--blue-dark);">1. Visualise</div>
+        <div style="font-size:13px; color:#1e3a6e; margin-top:6px;">Draw the Bar Model. Every time.</div>
+      </div>
+      <div style="background:#fef9c3; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--amber);">
+        <div style="font-size:28px; margin-bottom:6px;">📡</div>
+        <div style="font-weight:700; font-size:16px; color:#92400e;">2. Estimate</div>
+        <div style="font-size:13px; color:#78350f; margin-top:6px;">Radar for Error. Write it down.</div>
+      </div>
+      <div style="background:#ccfbf1; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--teal);">
+        <div style="font-size:28px; margin-bottom:6px;">🔢</div>
+        <div style="font-weight:700; font-size:16px; color:var(--teal-dark);">3. Calculate</div>
+        <div style="font-size:13px; color:#0a3832; margin-top:6px;">Mental, written, or calculator?</div>
+      </div>
+      <div style="background:#e8fdf0; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--green);">
+        <div style="font-size:28px; margin-bottom:6px;">✅</div>
+        <div style="font-weight:700; font-size:16px; color:var(--green-dark);">4. Check</div>
+        <div style="font-size:13px; color:#064e26; margin-top:6px;">Does it match the Radar?</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleCollapse(id) {
+    const content = document.getElementById(id);
+    const header = content.previousElementSibling;
+    content.classList.toggle('expanded');
+    header.classList.toggle('expanded');
+  }
+
+  function toggleReveal(id) {
+    document.getElementById(id).classList.toggle('shown');
+  }
+
+  function togglePractice(btn, type, questionId) {
+    const element = document.getElementById(questionId + '-' + type);
+    element.classList.toggle('shown');
+    if (element.classList.contains('shown')) {
+      btn.textContent = type === 'hint' ? 'Hide hint' : 'Hide answer';
+    } else {
+      btn.textContent = type === 'hint' ? 'Need a hint?' : 'Show answer';
+    }
+  }
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+
+  // I Do Step Progression
+  function goToIdoStep(prefix, stepNum, totalSteps) {
+    document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+    const dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.remove('active', 'visited');
+      if (i === stepNum - 1) dot.classList.add('active');
+      else if (i < stepNum - 1) dot.classList.add('visited');
+    });
+  }
+</script>
+
+</body>
+</html>

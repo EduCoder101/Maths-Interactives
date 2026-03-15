@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worksheet Generator, Maths Interactives</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --accent: #4ECDC4;
+            --accent-dark: #3db8b0;
+            --accent-light: #e8faf8;
+            --border: #e8e2da;
+            --success: #27AE60;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --sidebar-w: 340px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { font-family: 'Fredoka', sans-serif; background: var(--bg-cream); color: var(--text-dark); min-height: 100vh; }
+        h1, h2, h3, h4, label, .btn { font-family: 'Fredoka', sans-serif; }
+
+        /* ===== HEADER ===== */
+        .site-header {
+            position: sticky; top: 0; z-index: 100;
+            background: #fff; border-bottom: 1px solid var(--border);
+            padding: 0.65rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+        }
+        .site-header a.back { color: var(--accent-dark); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+        .site-header a.back:hover { text-decoration: underline; }
+        .site-header h1 { font-size: 1.25rem; font-weight: 600; color: var(--text-dark); }
+        .site-header h1 span { color: var(--accent); }
+
+        /* ===== LAYOUT ===== */
+        .app-layout { display: flex; min-height: calc(100vh - 52px); }
+        .sidebar {
+            width: var(--sidebar-w); flex-shrink: 0;
+            background: #fff; border-right: 1px solid var(--border);
+            padding: 1.25rem; overflow-y: auto; max-height: calc(100vh - 52px);
+            position: sticky; top: 52px;
+        }
+        .main-content { flex: 1; padding: 1.5rem; min-width: 0; }
+
+        /* ===== SIDEBAR FORM ===== */
+        .form-group { margin-bottom: 1.1rem; }
+        .form-group > label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem; color: var(--text-dark); }
+        .form-group .hint { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.3rem; }
+        select, textarea, input[type="text"] {
+            width: 100%; padding: 0.5rem 0.65rem; border: 1.5px solid var(--border);
+            border-radius: 8px; font-family: 'Fredoka', sans-serif; font-size: 0.88rem;
+            background: #fff; color: var(--text-dark); transition: border-color 0.2s;
+        }
+        select:focus, textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--accent); }
+        textarea { resize: vertical; min-height: 52px; }
+
+        .info-card {
+            background: var(--accent-light); border: 1px solid #c5eae7; border-radius: 10px;
+            padding: 0.75rem; margin-bottom: 1.1rem; font-size: 0.82rem; line-height: 1.55;
+            display: none;
+        }
+        .info-card.visible { display: block; }
+        .info-card strong { color: var(--accent-dark); }
+        .info-card .tag { display: inline-block; background: #fff; border: 1px solid #c5eae7; border-radius: 4px; padding: 0.1rem 0.4rem; font-size: 0.72rem; margin: 0.15rem 0.15rem 0 0; }
+
+        .checkbox-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .checkbox-grid label {
+            display: flex; align-items: center; gap: 0.3rem;
+            background: #fff; border: 1.5px solid var(--border); border-radius: 6px;
+            padding: 0.3rem 0.55rem; font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+            font-family: 'Fredoka', sans-serif; font-weight: 500;
+        }
+        .checkbox-grid label:has(input:checked) { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+        .checkbox-grid input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+            padding: 0.6rem 1.2rem; border-radius: 8px; border: none; cursor: pointer;
+            font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; width: 100%; }
+        .btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #fff; color: var(--accent-dark); border: 1.5px solid var(--accent); }
+        .btn-secondary:hover { background: var(--accent-light); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+
+        /* ===== MAIN CONTENT ===== */
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 60vh; text-align: center; color: var(--text-light);
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+        .empty-state h2 { font-size: 1.3rem; color: var(--text-dark); margin-bottom: 0.4rem; }
+        .empty-state p { font-size: 0.95rem; max-width: 360px; }
+
+        .output-area { display: none; }
+        .output-area.visible { display: block; }
+
+        .tab-bar { display: flex; gap: 0; margin-bottom: 1rem; border-bottom: 2px solid var(--border); }
+        .tab-btn {
+            padding: 0.55rem 1.2rem; font-family: 'Fredoka', sans-serif; font-size: 0.92rem;
+            font-weight: 600; background: none; border: none; cursor: pointer;
+            color: var(--text-light); border-bottom: 2px solid transparent; margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+        .tab-btn:hover:not(.active) { color: var(--text-dark); }
+
+        .actions-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+        .status-summary {
+            margin-left: auto; font-size: 0.82rem; color: var(--text-light);
+            background: var(--accent-light); padding: 0.3rem 0.7rem; border-radius: 6px;
+        }
+
+        .preview-frame {
+            width: 100%; border: 1px solid var(--border); border-radius: 10px;
+            background: #fff; min-height: 600px;
+        }
+
+        /* ===== LOADING ===== */
+        .generating { position: relative; pointer-events: none; }
+        .generating::after {
+            content: "Generating..."; position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,248,240,0.85); font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem; color: var(--accent-dark); border-radius: 10px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 860px) {
+            .app-layout { flex-direction: column; }
+            .sidebar {
+                width: 100%; max-height: none; position: static;
+                border-right: none; border-bottom: 1px solid var(--border);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <a href="index.html" class="back">&larr; Back to Hub</a>
+    <h1>Worksheet <span>Generator</span></h1>
+</header>
+
+<div class="app-layout">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+        <div class="form-group">
+            <label for="activity-select">Activity</label>
+            <select id="activity-select">
+                <option value="">,  Choose an activity , </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="year-group-select">Year group</label>
+            <div class="hint">Questions will be pitched to this year level</div>
+            <select id="year-group-select">
+                <option value="3">Year 3</option>
+                <option value="4">Year 4</option>
+                <option value="5" selected>Year 5</option>
+                <option value="6">Year 6</option>
+            </select>
+        </div>
+
+        <div id="activity-info" class="info-card"></div>
+
+        <div class="form-group">
+            <label for="learning-intention">Learning Intention</label>
+            <textarea id="learning-intention" rows="2" placeholder="Auto-fills when you select an activity..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Levels to Include</label>
+            <div class="hint">Questions will draw from selected levels</div>
+            <div id="levels-checkboxes" class="checkbox-grid"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Question Formats</label>
+            <div class="hint">Untick any you don't want</div>
+            <div id="formats-checkboxes" class="checkbox-grid"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="number-ranges">Number Ranges / Constraints</label>
+            <div class="hint">Optional, e.g. "only thousands", "no money"</div>
+            <textarea id="number-ranges" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="extension-territory">Extension Territory</label>
+            <div class="hint">Optional, topic connections for Extension questions</div>
+            <textarea id="extension-territory" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="avoid">Anything to Avoid</label>
+            <div class="hint">Optional, e.g. "no division", "avoid negatives"</div>
+            <textarea id="avoid" rows="2"></textarea>
+        </div>
+
+        <button id="generate-btn" class="btn btn-primary" disabled>Generate Worksheets</button>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+        <div id="empty-state" class="empty-state">
+            <div class="icon">&#128221;</div>
+            <h2>Ready to generate</h2>
+            <p>Select an activity and configure your settings, then click Generate to create print-ready worksheets.</p>
+        </div>
+
+        <div id="output-area" class="output-area">
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="progressive">Progressive</button>
+                <button class="tab-btn" data-tab="differentiated">Differentiated</button>
+            </div>
+            <div class="actions-bar">
+                <button id="btn-download" class="btn btn-secondary btn-sm">&#11015; Download HTML</button>
+                <button id="btn-print" class="btn btn-secondary btn-sm">&#128424; Print Preview</button>
+                <button id="btn-regenerate" class="btn btn-secondary btn-sm">&#8635; Regenerate</button>
+                <div id="status-summary" class="status-summary"></div>
+            </div>
+            <iframe id="preview-frame" class="preview-frame"></iframe>
+        </div>
+    </main>
+</div>
+
+<script>
+// ============================================================
+//  REGISTRY, Activity metadata
+// ============================================================
+const REGISTRY = {
+    'rounding': {
+        name: 'Rounding Ranger',
+        file: 'rounding.html',
+        skill: 'Rounding whole numbers and money amounts to specified place values; using rounding for estimation.',
+        curriculum: 'Year 5 Number & Place Value, Use estimation and rounding to check reasonableness of answers (ACMNA099)',
+        defaultLI: 'I can round whole numbers and money amounts to a given place value and use rounding to estimate calculations.',
+        tags: ['rounding', 'estimation', 'money', 'place value'],
+        levels: [
+            { id: 1, name: 'Support, Number Lines', desc: '2-digit to tens, dollars to nearest dollar' },
+            { id: 2, name: 'Core, Multiple Place Values', desc: 'Numbers to ~15,000; tens, hundreds, thousands' },
+            { id: 3, name: 'Mid-Core, Applied Estimation', desc: 'Multi-step estimation; money & measurement' },
+            { id: 4, name: 'Extension, Logic & Analysis', desc: 'Inverse rounding, accuracy, paradoxes' }
+        ]
+    },
+    'number-ordering': {
+        name: 'Number Ordering Detective',
+        file: 'number-ordering.html',
+        skill: 'Ordering whole numbers from thousands to trillions in ascending and descending order by comparing place-value columns systematically.',
+        curriculum: 'Year 5 Number & Place Value, Compare, order and represent whole numbers; identify the place value of digits in large numbers.',
+        defaultLI: 'I can compare and order whole numbers by examining place-value columns systematically.',
+        tags: ['ordering', 'comparing', 'place value', 'large numbers'],
+        levels: [
+            { id: 1, name: 'Thousands', desc: '3–4 digit numbers; same digits rearranged' },
+            { id: 2, name: 'Ten-Thousands', desc: '4–5 digit numbers; zeros, shared prefixes' },
+            { id: 3, name: 'Millions', desc: '6–7 digit numbers; very similar, one-column differences' },
+            { id: 4, name: 'Billions', desc: '9–11 digit numbers; zeros, near-identical strings' },
+            { id: 5, name: 'Trillions', desc: '12–14 digit numbers; extreme length, tiny differences' }
+        ]
+    }
+};
+
+const QUESTION_FORMATS = [
+    { id: 'fill-blank',     label: 'Fill-in-the-blank' },
+    { id: 'spot-mistake',   label: 'Spot the mistake' },
+    { id: 'asn',            label: 'Always / Sometimes / Never' },
+    { id: 'missing-number', label: 'Missing number' },
+    { id: 'prove-it',       label: 'Prove it' },
+    { id: 'ordering',       label: 'Ordering / Sequencing' },
+    { id: 'worded',         label: 'Worded problem' },
+    { id: 'create-own',     label: 'Create your own' },
+    { id: 'matching',       label: 'Matching' },
+    { id: 'tf-justify',     label: 'True or False + justify' },
+    { id: 'odd-one-out',    label: 'Odd one out' },
+    { id: 'convince-me',    label: 'Convince me' }
+];
+
+const GIRL_NAMES = ['Mia','Zara','Priya','Lila','Eva','Ruby','Sophie','Amara','Isla','Chloe','Anika','Tara','Nadia','Jasmine','Leila'];
+
+// ============================================================
+//  UTILITIES
+// ============================================================
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[randInt(0, arr.length - 1)]; }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = randInt(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pickN(arr, n) { return shuffle(arr).slice(0, n); }
+function pickName() { return pick(GIRL_NAMES); }
+
+function fmtNum(n) {
+    if (n == null) return '';
+    return Number(n).toLocaleString('en-AU');
+}
+function fmtMoney(n) {
+    return '$' + Math.abs(n).toFixed(2);
+}
+
+function roundTo(n, place) {
+    return Math.round(n / place) * place;
+}
+function roundMoney(dollars) {
+    return Math.round(dollars);
+}
+
+// ============================================================
+//  YEAR GROUP LIMITS (number ranges appropriate for each year)
+// ============================================================
+function getRoundingLimits(yearGroup) {
+    const y = Number(yearGroup) || 5;
+    if (y <= 3) return { maxNum: 999, places: [10, 100], maxNumMoney: 20 };
+    if (y === 4) return { maxNum: 9999, places: [10, 100, 1000], maxNumMoney: 50 };
+    if (y >= 6) return { maxNum: 999999, places: [10, 100, 1000, 10000], maxNumMoney: 200 };
+    return { maxNum: 15000, places: [10, 100, 1000], maxNumMoney: 50 };
+}
+
+function getOrderingMaxLevel(yearGroup) {
+    const y = Number(yearGroup) || 5;
+    if (y <= 3) return 2;   // thousands / ten-thousands
+    if (y === 4) return 3;   // up to millions
+    return 5;                // Year 5–6: all levels including trillions
+}
+
+// ============================================================
+//  ROUNDING QUESTION GENERATORS
+// ============================================================
+const RoundingGen = {
+
+    // ----- Helper: create a rounding question with computed answer -----
+    _roundQ(num, place, isMoney) {
+        if (isMoney) {
+            const rounded = roundMoney(num);
+            return { num, place: '$1', rounded, isMoney: true };
+        }
+        const rounded = roundTo(num, place);
+        return { num, place, rounded, isMoney: false };
+    },
+
+    // ----- GRASP stage questions (procedural, scaffolded) -----
+    graspQuestions(levels, formats, count, config) {
+        const limits = getRoundingLimits(config && config.yearGroup);
+        const avail = [];
+
+        // Fill-in-blank rounding
+        if (formats.has('fill-blank')) {
+            for (let i = 0; i < 8; i++) {
+                const useMoney = i % 3 === 2 && levels.has(1);
+                if (useMoney) {
+                    const dollars = randInt(0, limits.maxNumMoney) + randInt(0, 99) / 100;
+                    const r = roundMoney(dollars);
+                    avail.push({
+                        type: 'fill-blank',
+                        text: `Round ${fmtMoney(dollars)} to the nearest dollar.`,
+                        answer: fmtMoney(r),
+                        notes: `${fmtMoney(dollars)} → cents ${dollars % 1 >= 0.50 ? '≥' : '<'} 50c → ${fmtMoney(r)}`,
+                        lines: 1
+                    });
+                } else {
+                    const num = levels.has(2) ? randInt(10, limits.maxNum) : randInt(10, Math.min(99, limits.maxNum));
+                    const place = num < 100 ? 10 : pick(num < 1000 ? limits.places.filter(p => p <= 100) : limits.places);
+                    const r = roundTo(num, place);
+                    const placeWord = place === 10 ? 'ten' : place === 100 ? 'hundred' : place === 1000 ? 'thousand' : 'ten thousand';
+                    avail.push({
+                        type: 'fill-blank',
+                        text: `Round ${fmtNum(num)} to the nearest ${placeWord}.`,
+                        answer: fmtNum(r),
+                        notes: `Look at the ${place === 10 ? 'ones' : place === 100 ? 'tens' : place === 1000 ? 'hundreds' : 'thousands'} digit: ${Math.floor((num % (place * 10)) / place) >= 5 ? '≥ 5 → round up' : '< 5 → round down'}.`,
+                        lines: 1
+                    });
+                }
+            }
+        }
+
+        // Missing number
+        if (formats.has('missing-number')) {
+            for (let i = 0; i < 4; i++) {
+                const place = pick(limits.places.filter(p => p <= 100));
+                const rounded = place === 10 ? randInt(1, 15) * 10 : randInt(1, 15) * 100;
+                const lo = rounded - place / 2;
+                const hi = rounded + place / 2 - 1;
+                avail.push({
+                    type: 'missing-number',
+                    text: `When I am rounded to the nearest ${place === 10 ? 'ten' : 'hundred'}, the answer is ${fmtNum(rounded)}. Write one number I could be.`,
+                    answer: `Any whole number from ${fmtNum(lo)} to ${fmtNum(hi)}`,
+                    notes: `Range: ${fmtNum(lo)}–${fmtNum(hi)}. Midpoint ${fmtNum(lo)} rounds up to ${fmtNum(rounded)}.`,
+                    lines: 1
+                });
+            }
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- CONSOLIDATE stage questions -----
+    consolidateQuestions(levels, formats, count, config) {
+        const limits = getRoundingLimits(config && config.yearGroup);
+        const avail = [];
+        const maxNum = levels.has(2) ? limits.maxNum : Math.min(99, limits.maxNum);
+
+        // Spot the mistake
+        if (formats.has('spot-mistake')) {
+            for (let i = 0; i < 3; i++) {
+                const name = pickName();
+                const num = randInt(100, maxNum);
+                const place = pick(num < 1000 ? limits.places.filter(p => p <= 100) : limits.places);
+                const correct = roundTo(num, place);
+                // Generate a plausible wrong answer
+                let wrong;
+                if (Math.random() < 0.5) {
+                    // Rounded the wrong way
+                    wrong = correct === num ? correct + place : (correct > num ? correct - place : correct + place);
+                } else {
+                    // Used wrong place value
+                    const wrongPlace = place === 10 ? 100 : 10;
+                    wrong = roundTo(num, wrongPlace);
+                    if (wrong === correct) wrong = correct + place;
+                }
+                const placeWord = place === 10 ? 'ten' : place === 100 ? 'hundred' : place === 1000 ? 'thousand' : 'ten thousand';
+                avail.push({
+                    type: 'spot-mistake',
+                    text: `<strong>Spot the Mistake:</strong> ${name} says that ${fmtNum(num)} rounded to the nearest ${placeWord} is ${fmtNum(wrong)}.<br>Find her mistake and write the correct answer with an explanation.`,
+                    answer: fmtNum(correct),
+                    notes: `${fmtNum(num)} → nearest ${placeWord} = ${fmtNum(correct)}. ${name}'s error: ${wrong < correct ? 'rounded down instead of up' : wrong > correct ? 'rounded up instead of down' : 'used wrong place value'}.`,
+                    lines: 3
+                });
+            }
+        }
+
+        // True / False + justify
+        if (formats.has('tf-justify')) {
+            const tfPairs = [];
+            for (let i = 0; i < 4; i++) {
+                const num = randInt(50, maxNum);
+                const place = pick(num < 1000 ? limits.places.filter(p => p <= 100) : limits.places);
+                const correct = roundTo(num, place);
+                const isTrue = Math.random() < 0.5;
+                const shown = isTrue ? correct : (correct + (Math.random() < 0.5 ? place : -place));
+                const placeWord = place === 10 ? 'ten' : place === 100 ? 'hundred' : place === 1000 ? 'thousand' : 'ten thousand';
+                tfPairs.push({
+                    type: 'tf-justify',
+                    text: `<strong>True or False?</strong> ${fmtNum(num)} rounded to the nearest ${placeWord} is ${fmtNum(shown)}. Explain your answer.`,
+                    answer: isTrue ? 'True' : `False, the correct answer is ${fmtNum(correct)}`,
+                    notes: isTrue ? `True. ${fmtNum(num)} rounds to ${fmtNum(correct)}.` : `False. ${fmtNum(num)} rounds to ${fmtNum(correct)}, not ${fmtNum(shown)}.`,
+                    lines: 2
+                });
+            }
+            avail.push(...tfPairs);
+        }
+
+        // Odd one out
+        if (formats.has('odd-one-out')) {
+            for (let i = 0; i < 2; i++) {
+                const place = 10;
+                const target = randInt(2, 12) * 10;
+                const nums = [];
+                for (let j = 0; j < 3; j++) nums.push(randInt(target - 4, target + 4));
+                // Make sure they all round to target
+                const valid = nums.filter(n => roundTo(n, 10) === target);
+                while (valid.length < 3) valid.push(target + randInt(-4, 4));
+                // Add the odd one
+                const oddTarget = target + (Math.random() < 0.5 ? 10 : -10);
+                const oddNum = randInt(oddTarget - 4, oddTarget + 4);
+                const finalNums = shuffle([...valid.slice(0, 3), oddNum]);
+                avail.push({
+                    type: 'odd-one-out',
+                    text: `<strong>Odd One Out:</strong> When rounded to the nearest ten, which number gives a different result?<br><span class="q-options">${finalNums.map(n => fmtNum(n)).join(' &nbsp;&nbsp;&nbsp; ')}</span><br>Circle the odd one out and explain why.`,
+                    answer: `${fmtNum(oddNum)} rounds to ${fmtNum(roundTo(oddNum, 10))} while the others round to ${fmtNum(target)}`,
+                    notes: `${finalNums.map(n => `${fmtNum(n)} → ${fmtNum(roundTo(n, 10))}`).join(', ')}. ${fmtNum(oddNum)} is the odd one out.`,
+                    lines: 2
+                });
+            }
+        }
+
+        // Matching
+        if (formats.has('matching')) {
+            const place = levels.has(2) ? pick(limits.places.filter(p => p <= 100)) : 10;
+            const placeWord = place === 10 ? 'ten' : 'hundred';
+            const pairs = [];
+            const usedRounded = new Set();
+            for (let i = 0; i < 5; i++) {
+                let num, rounded;
+                do {
+                    num = randInt(50, 5000);
+                    rounded = roundTo(num, place);
+                } while (usedRounded.has(rounded));
+                usedRounded.add(rounded);
+                pairs.push({ num, rounded });
+            }
+            const shuffledRounded = shuffle(pairs.map(p => p.rounded));
+            const letters = 'ABCDE';
+            avail.push({
+                type: 'matching',
+                text: `<strong>Match</strong> each number to its rounded value (nearest ${placeWord}):<br><div class="match-layout"><div class="match-col">${pairs.map((p, i) => `${i + 1}. ${fmtNum(p.num)} ____`).join('<br>')}</div><div class="match-col">${shuffledRounded.map((r, i) => `${letters[i]}) ${fmtNum(r)}`).join('<br>')}</div></div>`,
+                answer: pairs.map((p, i) => `${i + 1} → ${letters[shuffledRounded.indexOf(p.rounded)]}`).join(', '),
+                notes: pairs.map(p => `${fmtNum(p.num)} → ${fmtNum(p.rounded)}`).join('; '),
+                lines: 0
+            });
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- APPLY stage questions (worded, real-world) -----
+    applyQuestions(levels, formats, count, config) {
+        const limits = getRoundingLimits(config && config.yearGroup);
+        const avail = [];
+        const contexts = [
+            { setup: 'At the school canteen, {name} buys a sandwich for {a} and a drink for {b}.', op: '+', genA: () => (randInt(2, 8) + randInt(10, 95) / 100), genB: () => (randInt(1, 4) + randInt(5, 95) / 100), unit: '$', roundPlace: 'dollar' },
+            { setup: '{name} is saving up. She has {a} and earns {b} from a bake sale.', op: '+', genA: () => (randInt(5, 25) + randInt(10, 95) / 100), genB: () => (randInt(3, 15) + randInt(10, 95) / 100), unit: '$', roundPlace: 'dollar' },
+            { setup: 'The distance from the school to the library is {a} m and from the library to the park is {b} m.', op: '+', genA: () => randInt(150, 950), genB: () => randInt(100, 800), unit: 'm', roundPlace: 'hundred' },
+            { setup: '{name} has {a}. She spends {b} on a book.', op: '-', genA: () => (randInt(10, 30) + randInt(0, 99) / 100), genB: () => (randInt(3, 12) + randInt(10, 95) / 100), unit: '$', roundPlace: 'dollar' },
+            { setup: 'There are {a} students in Year 5 and {b} in Year 6.', op: '+', genA: () => randInt(40, 130), genB: () => randInt(40, 130), unit: '', roundPlace: 'ten' },
+            { setup: '{name} buys {n} notebooks at {a} each.', op: '*', genA: () => (randInt(1, 5) + randInt(50, 99) / 100), genN: () => randInt(3, 8), unit: '$', roundPlace: 'dollar' },
+        ];
+
+        // Worded estimation problems
+        if (formats.has('worded')) {
+            for (let i = 0; i < 6; i++) {
+                const ctx = pick(contexts);
+                const name = pickName();
+                const a = ctx.genA();
+                const b = ctx.genB ? ctx.genB() : 0;
+                const n = ctx.genN ? ctx.genN() : 0;
+                const isMoney = ctx.unit === '$';
+                const placeVal = ctx.roundPlace === 'dollar' ? 1 : ctx.roundPlace === 'ten' ? 10 : 100;
+
+                let rA, rB, result, explanation;
+                if (ctx.op === '+') {
+                    rA = isMoney ? roundMoney(a) : roundTo(a, placeVal);
+                    rB = isMoney ? roundMoney(b) : roundTo(b, placeVal);
+                    result = rA + rB;
+                    explanation = `${isMoney ? fmtMoney(a) : fmtNum(a)} rounds to ${isMoney ? fmtMoney(rA) : fmtNum(rA)}, ${isMoney ? fmtMoney(b) : fmtNum(b)} rounds to ${isMoney ? fmtMoney(rB) : fmtNum(rB)}. ${rA} + ${rB} = ${result}`;
+                } else if (ctx.op === '-') {
+                    rA = isMoney ? roundMoney(a) : roundTo(a, placeVal);
+                    rB = isMoney ? roundMoney(b) : roundTo(b, placeVal);
+                    result = rA - rB;
+                    explanation = `${isMoney ? fmtMoney(a) : fmtNum(a)} rounds to ${isMoney ? fmtMoney(rA) : fmtNum(rA)}, ${isMoney ? fmtMoney(b) : fmtNum(b)} rounds to ${isMoney ? fmtMoney(rB) : fmtNum(rB)}. ${rA} − ${rB} = ${result}`;
+                } else {
+                    rA = isMoney ? roundMoney(a) : roundTo(a, placeVal);
+                    result = n * rA;
+                    explanation = `${isMoney ? fmtMoney(a) : a} rounds to ${isMoney ? fmtMoney(rA) : rA}. ${n} × ${rA} = ${result}`;
+                }
+
+                let setupText = ctx.setup.replace('{name}', name)
+                    .replace('{a}', isMoney ? fmtMoney(a) : fmtNum(a))
+                    .replace('{b}', isMoney ? fmtMoney(b) : fmtNum(b))
+                    .replace('{n}', String(n));
+
+                avail.push({
+                    type: 'worded',
+                    text: `${setupText}<br>Estimate the ${ctx.op === '-' ? 'difference' : 'total'} by rounding ${ctx.roundPlace === 'dollar' ? 'to the nearest dollar' : 'to the nearest ' + ctx.roundPlace} first. Show your working.`,
+                    answer: isMoney ? fmtMoney(result) : fmtNum(result),
+                    notes: explanation,
+                    lines: 4
+                });
+            }
+        }
+
+        // Prove it
+        if (formats.has('prove-it')) {
+            const a = randInt(2, 8) + 0.50;
+            const b = randInt(2, 8) + 0.50;
+            const exact = a + b;
+            const est = roundMoney(a) + roundMoney(b);
+            avail.push({
+                type: 'prove-it',
+                text: `<strong>Prove It:</strong> ${pickName()} says that estimating ${fmtMoney(a)} + ${fmtMoney(b)} by rounding to the nearest dollar gives an answer that is ${fmtMoney(Math.abs(est - exact))} ${est > exact ? 'too high' : 'too low'}. Is she correct? Prove it with your working.`,
+                answer: `Exact = ${fmtMoney(exact)}. Estimated = ${fmtMoney(est)}. Difference = ${fmtMoney(Math.abs(est - exact))}. ${est > exact ? 'Too high' : est < exact ? 'Too low' : 'Exactly right'}.`,
+                notes: `Check: ${fmtMoney(a)} → $${roundMoney(a)}, ${fmtMoney(b)} → $${roundMoney(b)}. Sum: $${est}. Exact: ${fmtMoney(exact)}. Diff: ${fmtMoney(Math.abs(est - exact))}.`,
+                lines: 4
+            });
+
+            // Second prove-it about estimation accuracy
+            const c = randInt(4, 8) * 100 + randInt(40, 60);
+            const d = randInt(1, 4) * 100 + randInt(1, 99);
+            const exactSum = c + d;
+            const estSum = roundTo(c, 100) + roundTo(d, 100);
+            avail.push({
+                type: 'prove-it',
+                text: `<strong>Prove It:</strong> Estimate ${fmtNum(c)} + ${fmtNum(d)} by rounding to the nearest hundred. Then find the exact answer. How close was your estimate?`,
+                answer: `Estimate: ${fmtNum(estSum)}. Exact: ${fmtNum(exactSum)}. Difference: ${fmtNum(Math.abs(estSum - exactSum))}.`,
+                notes: `${fmtNum(c)} → ${fmtNum(roundTo(c, 100))}, ${fmtNum(d)} → ${fmtNum(roundTo(d, 100))}. Est: ${fmtNum(estSum)}. Exact: ${fmtNum(exactSum)}.`,
+                lines: 4
+            });
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- EXTENSION stage questions -----
+    extensionQuestions(levels, formats, count, config) {
+        const avail = [];
+
+        // Always / Sometimes / Never
+        if (formats.has('asn')) {
+            const stmts = [
+                { s: 'Rounding a number to the nearest ten gives a number ending in zero.', a: 'Always', j: 'By definition, the nearest ten is always a multiple of 10, which ends in zero.' },
+                { s: 'Rounding makes a number bigger.', a: 'Sometimes', j: 'It depends, 23 rounds down to 20 (smaller) but 27 rounds up to 30 (bigger). At the midpoint, it rounds up.' },
+                { s: 'When you round a number to the nearest hundred and then to the nearest thousand, you get the same answer as rounding the original number directly to the nearest thousand.', a: 'Sometimes', j: 'Counter-example: 1,450 → hundreds → 1,500 → thousands → 2,000. But directly: 1,450 → thousands → 1,000. Different answers!' },
+                { s: 'Two different numbers can round to the same value.', a: 'Always', j: 'Yes, e.g. both 23 and 27 round to 30 when rounded to the nearest ten.' },
+                { s: 'Rounding to the nearest ten is always more accurate than rounding to the nearest hundred.', a: 'Always', j: 'Nearest ten can be at most 5 away; nearest hundred can be at most 50 away. So nearest ten is always at least as accurate.' },
+            ];
+            const chosen = pickN(stmts, 2);
+            for (const st of chosen) {
+                avail.push({
+                    type: 'asn',
+                    text: `<strong>Always, Sometimes, or Never?</strong><br>"${st.s}"<br>Circle your answer and justify with examples.`,
+                    answer: st.a,
+                    notes: st.j,
+                    lines: 4
+                });
+            }
+        }
+
+        // Convince me
+        if (formats.has('convince-me')) {
+            const name = pickName();
+            const scenarios = [
+                {
+                    claim: `${name} says: "When you round 145 to the nearest hundred, you should first round to the nearest ten to get 150, then round 150 to the nearest hundred to get 200."`,
+                    answer: `${name} is incorrect. 145 rounded directly to the nearest hundred is 100 (since 145 < 150). Her step-by-step method gives 200, which is wrong. You should always round from the original number.`,
+                    notes: `Direct: 145 → 100. Step method: 145 → 150 → 200. The step method gives a different (incorrect) answer. This is the "double-rounding paradox".`
+                },
+                {
+                    claim: `${name} says: "9,999 rounded to the nearest ten is still 9,999 because you can't go above 9,999 without getting a five-digit number."`,
+                    answer: `${name} is incorrect. 9,999 rounded to the nearest ten is 10,000. Rounding CAN cross a place-value boundary.`,
+                    notes: `The ones digit is 9 (≥ 5), so round up: 9,999 → 10,000. Crossing boundaries is perfectly valid.`
+                },
+                {
+                    claim: `${name} says: "If you round $4.50 to the nearest dollar, you should get $4 because the 50 cents is right in the middle so it doesn't matter which way you go."`,
+                    answer: `${name} is incorrect. The convention is that midpoints always round UP. So $4.50 rounds to $5.00.`,
+                    notes: `Midpoint rule: when exactly at the midpoint, round up. $4.50 → $5.00.`
+                }
+            ];
+            const sc = pick(scenarios);
+            avail.push({
+                type: 'convince-me',
+                text: `<strong>Convince Me:</strong> ${sc.claim}<br>Is ${name} correct? Write a clear response to convince her.`,
+                answer: sc.answer,
+                notes: sc.notes,
+                lines: 5
+            });
+        }
+
+        // Create your own
+        if (formats.has('create-own')) {
+            const target = randInt(2, 8) * 100;
+            avail.push({
+                type: 'create-own',
+                text: `<strong>Create Your Own:</strong> Write three different numbers that all round to ${fmtNum(target)} when rounded to the nearest hundred, but round to three different values when rounded to the nearest ten.`,
+                answer: `Sample: ${fmtNum(target - 30)}, ${fmtNum(target - 10)}, ${fmtNum(target + 20)} → all round to ${fmtNum(target)} (hundreds) but to ${fmtNum(roundTo(target - 30, 10))}, ${fmtNum(roundTo(target - 10, 10))}, ${fmtNum(roundTo(target + 20, 10))} (tens)`,
+                notes: `Accept any three numbers in range ${fmtNum(target - 50)}–${fmtNum(target + 49)} that give different tens-rounding results.`,
+                lines: 3
+            });
+        }
+
+        // Inverse rounding / mystery number
+        if (formats.has('prove-it') || formats.has('fill-blank')) {
+            const place = pick([10, 100]);
+            const rounded = place === 10 ? randInt(3, 15) * 10 : randInt(2, 12) * 100;
+            const lo = rounded - place / 2;
+            const hi = rounded + place / 2 - 1;
+            const rangeSize = hi - lo + 1;
+            const placeWord = place === 10 ? 'ten' : 'hundred';
+            avail.push({
+                type: 'prove-it',
+                text: `<strong>Prove It:</strong> When rounded to the nearest ${placeWord}, the answer is ${fmtNum(rounded)}. Prove that there are exactly ${rangeSize} whole numbers that could give this result. What are the smallest and largest?`,
+                answer: `Smallest: ${fmtNum(lo)}, Largest: ${fmtNum(hi)} (${rangeSize} numbers in total)`,
+                notes: `Range: ${fmtNum(lo)} to ${fmtNum(hi)}. ${fmtNum(lo)} is the midpoint (rounds up), ${fmtNum(hi)} is one less than the next midpoint.`,
+                lines: 4
+            });
+
+            // Double-rounding paradox
+            const baseNum = randInt(1, 9) * 100 + 45;
+            const step1 = roundTo(baseNum, 10);
+            const step2 = roundTo(step1, 100);
+            const direct = roundTo(baseNum, 100);
+            if (step2 !== direct) {
+                avail.push({
+                    type: 'prove-it',
+                    text: `<strong>Prove It:</strong> Round ${fmtNum(baseNum)} to the nearest ten first, then round that result to the nearest hundred. Now round ${fmtNum(baseNum)} directly to the nearest hundred. Do you get the same answer? Explain why or why not.`,
+                    answer: `Step-by-step: ${fmtNum(baseNum)} → ${fmtNum(step1)} → ${fmtNum(step2)}. Direct: ${fmtNum(baseNum)} → ${fmtNum(direct)}. Different answers!`,
+                    notes: `Double-rounding paradox. ${fmtNum(baseNum)} → tens → ${fmtNum(step1)}, then → hundreds → ${fmtNum(step2)}. Direct → hundreds → ${fmtNum(direct)}. They differ because the tens-rounding shifts the number past a midpoint.`,
+                    lines: 5
+                });
+            }
+        }
+
+        // Estimation error analysis
+        const a = randInt(2, 9) + 0.50;
+        const b = randInt(2, 9) + 0.50;
+        const exact = a + b;
+        const est = roundMoney(a) + roundMoney(b);
+        if (est !== exact) {
+            avail.push({
+                type: 'worded',
+                text: `${pickName()} calculates ${fmtMoney(a)} + ${fmtMoney(b)} exactly and gets ${fmtMoney(exact)}. Her friend rounds each price to the nearest dollar first and gets ${fmtMoney(est)}. Explain why their answers are different and which is more useful for quickly checking a bill.`,
+                answer: `Exact: ${fmtMoney(exact)}. Estimated: ${fmtMoney(est)}. Difference: ${fmtMoney(Math.abs(est - exact))}. Estimation is quicker for mental checking even though it's less precise.`,
+                notes: `Both $X.50 round up, adding $0.50 + $0.50 = $1.00 error. Estimation is useful for quick checking.`,
+                lines: 4
+            });
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- MAIN ENTRY: generate full progressive question set -----
+    generateProgressive(config) {
+        const levels = new Set(config.levels);
+        const formats = new Set(config.formats);
+        const grasp = this.graspQuestions(levels, formats, randInt(4, 6), config);
+        const consolidate = this.consolidateQuestions(levels, formats, randInt(4, 6), config);
+        const apply = this.applyQuestions(levels, formats, randInt(3, 5), config);
+        const extension = this.extensionQuestions(levels, formats, randInt(2, 4), config);
+        return { grasp, consolidate, apply, extension };
+    },
+
+    // ----- MAIN ENTRY: generate differentiated sets -----
+    generateDifferentiated(config) {
+        const levels = new Set(config.levels);
+        const formats = new Set(config.formats);
+
+        // Worksheet A, Accessing (Grasp + early Consolidate, smaller numbers)
+        const accessLevels = new Set([1]);
+        if (levels.has(2)) accessLevels.add(2);
+        const wsA = [
+            ...this.graspQuestions(accessLevels, formats, randInt(5, 6), config),
+            ...this.consolidateQuestions(accessLevels, formats, randInt(3, 4), config)
+        ];
+
+        // Worksheet B, Expected (Consolidate + Apply, with 1-2 Extension)
+        const wsB = [
+            ...this.consolidateQuestions(levels, formats, randInt(4, 5), config),
+            ...this.applyQuestions(levels, formats, randInt(4, 5), config),
+            ...this.extensionQuestions(levels, formats, randInt(1, 2), config)
+        ];
+
+        // Worksheet C, Extension (Apply + Extension + connected-skill)
+        const wsC = [
+            ...this.applyQuestions(levels, formats, randInt(3, 4), config),
+            ...this.extensionQuestions(levels, formats, randInt(4, 5), config),
+            ...this.graspConnectedSkill(levels, formats, randInt(2, 3), config)
+        ];
+
+        return { wsA, wsB, wsC };
+    },
+
+    // Connected-skill questions for the extension worksheet
+    graspConnectedSkill(levels, formats, count, config) {
+        const limits = getRoundingLimits(config && config.yearGroup);
+        const avail = [];
+        // Cross-topic: rounding + ordering
+        const nums = Array.from({length: 4}, () => randInt(100, Math.max(999, limits.maxNum)));
+        const rounded = nums.map(n => ({ orig: n, rounded: roundTo(n, 100) }));
+        avail.push({
+            type: 'worded',
+            text: `Round each number to the nearest hundred, then put the rounded values in order from smallest to largest: ${nums.map(n => fmtNum(n)).join(', ')}`,
+            answer: `Rounded: ${rounded.map(r => fmtNum(r.rounded)).join(', ')}. In order: ${rounded.sort((a, b) => a.rounded - b.rounded).map(r => `${fmtNum(r.orig)} (${fmtNum(r.rounded)})`).join(', ')}`,
+            notes: `Round first, then order. Check students round before ordering.`,
+            lines: 3
+        });
+
+        // Cross-topic: rounding + place value (use place value appropriate for year)
+        const placePV = limits.maxNum >= 10000 ? 10000 : limits.maxNum >= 1000 ? 1000 : 100;
+        const bigNum = limits.maxNum >= placePV ? randInt(placePV, Math.min(placePV * 10 - 1, limits.maxNum)) : randInt(100, limits.maxNum);
+        const digitName = placePV === 10000 ? 'thousands' : placePV === 1000 ? 'hundreds' : 'tens';
+        const roundedVal = roundTo(bigNum, placePV);
+        avail.push({
+            type: 'worded',
+            text: `The number ${fmtNum(bigNum)} is rounded to the nearest ${placePV === 10000 ? 'ten thousand' : placePV === 1000 ? 'thousand' : 'hundred'}. What digit did you look at to decide whether to round up or down? What is the rounded value?`,
+            answer: `Look at the ${digitName} digit: ${placePV === 10000 ? Math.floor((bigNum % 10000) / 1000) : placePV === 1000 ? Math.floor((bigNum % 1000) / 100) : Math.floor((bigNum % 100) / 10)}. Rounded: ${fmtNum(roundedVal)}.`,
+            notes: `The ${digitName} digit determines rounding direction. ${(bigNum % (placePV * 10)) >= placePV * 5 ? 'It is ≥ 5, so round up.' : 'It is < 5, so round down.'}`,
+            lines: 3
+        });
+
+        // Real-world multi-step
+        const items = Array.from({length: 4}, () => randInt(1, 12) + randInt(10, 99) / 100);
+        const exact = items.reduce((s, x) => s + x, 0);
+        const est = items.reduce((s, x) => s + roundMoney(x), 0);
+        avail.push({
+            type: 'worded',
+            text: `${pickName()} buys four items costing ${items.map(x => fmtMoney(x)).join(', ')}. She estimates the total by rounding each to the nearest dollar. Is her estimate higher or lower than the exact total? By how much?`,
+            answer: `Estimate: ${fmtMoney(est)}. Exact: ${fmtMoney(exact)}. ${est > exact ? 'Higher' : est < exact ? 'Lower' : 'Equal'} by ${fmtMoney(Math.abs(est - exact))}.`,
+            notes: `Round each: ${items.map(x => `${fmtMoney(x)} → $${roundMoney(x)}`).join(', ')}. Sum rounded = $${est}. Sum exact = ${fmtMoney(exact)}.`,
+            lines: 4
+        });
+
+        return shuffle(avail).slice(0, count);
+    }
+};
+
+// ============================================================
+//  NUMBER ORDERING QUESTION GENERATORS
+// ============================================================
+const OrderingGen = {
+
+    // Generate a set of confusable numbers for a given level
+    _confusableSet(level, count) {
+        const ranges = {
+            1: [2, 4], 2: [4, 5], 3: [5, 7], 4: [8, 11], 5: [11, 14]
+        };
+        const [minD, maxD] = ranges[level] || [2, 4];
+        const d1 = randInt(1, 9);
+        let d2 = randInt(1, 9);
+        while (d2 === d1) d2 = randInt(1, 9);
+        const pool = [d1, d2, 0];
+        const numbers = new Set();
+        let attempts = 0;
+        while (numbers.size < count && attempts < 2000) {
+            attempts++;
+            const len = randInt(minD, maxD);
+            let s = String(pick([d1, d2])); // no leading zero
+            for (let i = 1; i < len; i++) s += String(pick(pool));
+            const n = parseInt(s, 10);
+            if (n > 0 && !numbers.has(n)) numbers.add(n);
+        }
+        // Pad if needed
+        while (numbers.size < count) {
+            numbers.add(randInt(10 ** (minD - 1), 10 ** maxD - 1));
+        }
+        return Array.from(numbers);
+    },
+
+    // ----- GRASP stage -----
+    graspQuestions(levels, formats, count, config) {
+        const maxLvl = getOrderingMaxLevel(config && config.yearGroup);
+        const avail = [];
+        const lvl = Math.min(maxLvl, Math.min(...levels));
+
+        if (formats.has('ordering') || formats.has('fill-blank')) {
+            for (let i = 0; i < 6; i++) {
+                const asc = Math.random() < 0.5;
+                const nums = this._confusableSet(lvl, randInt(5, 6));
+                const sorted = [...nums].sort((a, b) => asc ? a - b : b - a);
+                avail.push({
+                    type: 'ordering',
+                    text: `Put these numbers in order from <strong>${asc ? 'smallest to largest' : 'largest to smallest'}</strong>:<br><span class="q-options">${nums.map(n => fmtNum(n)).join(' &nbsp;&nbsp;&nbsp; ')}</span>`,
+                    answer: sorted.map(n => fmtNum(n)).join(', '),
+                    notes: `${asc ? 'Ascending' : 'Descending'}: ${sorted.map(n => fmtNum(n)).join(' < ')}`,
+                    lines: 2
+                });
+            }
+        }
+
+        if (formats.has('fill-blank')) {
+            for (let i = 0; i < 3; i++) {
+                const a = this._confusableSet(lvl, 2);
+                const bigger = Math.max(...a);
+                const smaller = Math.min(...a);
+                avail.push({
+                    type: 'fill-blank',
+                    text: `Which is larger: ${fmtNum(a[0])} or ${fmtNum(a[1])}? Write the larger number and explain how you know.`,
+                    answer: fmtNum(bigger),
+                    notes: `${fmtNum(bigger)} > ${fmtNum(smaller)}. Compare from the leftmost digit.`,
+                    lines: 2
+                });
+            }
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- CONSOLIDATE stage -----
+    consolidateQuestions(levels, formats, count, config) {
+        const maxLvl = getOrderingMaxLevel(config && config.yearGroup);
+        const avail = [];
+        const lvl = Math.min(maxLvl, levels.size > 0 ? Math.max(2, Math.min(...levels)) : 2);
+
+        // Spot the mistake
+        if (formats.has('spot-mistake')) {
+            for (let i = 0; i < 3; i++) {
+                const name = pickName();
+                const nums = this._confusableSet(lvl, 5);
+                const correct = [...nums].sort((a, b) => a - b);
+                // Swap two adjacent elements to create a mistake
+                const wrong = [...correct];
+                const swapIdx = randInt(0, wrong.length - 2);
+                [wrong[swapIdx], wrong[swapIdx + 1]] = [wrong[swapIdx + 1], wrong[swapIdx]];
+                avail.push({
+                    type: 'spot-mistake',
+                    text: `<strong>Spot the Mistake:</strong> ${name} ordered these numbers from smallest to largest:<br>${wrong.map(n => fmtNum(n)).join(', ')}<br>Find and correct her mistake. Explain how you know.`,
+                    answer: `${fmtNum(wrong[swapIdx])} and ${fmtNum(wrong[swapIdx + 1])} are in the wrong order. Correct: ${correct.map(n => fmtNum(n)).join(', ')}`,
+                    notes: `${name} swapped ${fmtNum(correct[swapIdx])} and ${fmtNum(correct[swapIdx + 1])}. Correct order: ${correct.map(n => fmtNum(n)).join(', ')}.`,
+                    lines: 3
+                });
+            }
+        }
+
+        // Missing number in ordered sequence
+        if (formats.has('missing-number')) {
+            for (let i = 0; i < 3; i++) {
+                const nums = this._confusableSet(lvl, 5);
+                const sorted = [...nums].sort((a, b) => a - b);
+                const hideIdx = randInt(1, sorted.length - 2);
+                const hidden = sorted[hideIdx];
+                const displayed = sorted.map((n, j) => j === hideIdx ? '___' : fmtNum(n));
+                avail.push({
+                    type: 'missing-number',
+                    text: `These numbers are in order from smallest to largest. What could the missing number be?<br>${displayed.join(', ')}`,
+                    answer: fmtNum(hidden),
+                    notes: `The missing number must be between ${fmtNum(sorted[hideIdx - 1])} and ${fmtNum(sorted[hideIdx + 1])}. The original number was ${fmtNum(hidden)}.`,
+                    lines: 2
+                });
+            }
+        }
+
+        // True / False
+        if (formats.has('tf-justify')) {
+            for (let i = 0; i < 3; i++) {
+                const pair = this._confusableSet(lvl, 2);
+                const isTrue = Math.random() < 0.5;
+                const [a, b] = isTrue ? (pair[0] > pair[1] ? pair : [pair[1], pair[0]]) : (pair[0] > pair[1] ? [pair[1], pair[0]] : pair);
+                avail.push({
+                    type: 'tf-justify',
+                    text: `<strong>True or False?</strong> ${fmtNum(a)} is greater than ${fmtNum(b)}. Explain how you know by referring to place-value columns.`,
+                    answer: isTrue ? `True, ${fmtNum(a)} > ${fmtNum(b)}` : `False, ${fmtNum(a)} < ${fmtNum(b)}`,
+                    notes: `Compare digit-by-digit from the left. ${a > b ? `${fmtNum(a)} > ${fmtNum(b)}` : `${fmtNum(a)} < ${fmtNum(b)}`}.`,
+                    lines: 3
+                });
+            }
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- APPLY stage -----
+    applyQuestions(levels, formats, count, config) {
+        const maxLvl = getOrderingMaxLevel(config && config.yearGroup);
+        const avail = [];
+        const lvl = Math.min(maxLvl, Math.max(...levels, 2));
+
+        const australianContexts = [
+            { type: 'distance', items: [
+                { name: 'Sydney to Melbourne', val: () => randInt(850, 900) },
+                { name: 'Sydney to Brisbane', val: () => randInt(900, 950) },
+                { name: 'Melbourne to Adelaide', val: () => randInt(720, 740) },
+                { name: 'Perth to Adelaide', val: () => randInt(2690, 2710) },
+                { name: 'Sydney to Canberra', val: () => randInt(280, 290) },
+                { name: 'Brisbane to Cairns', val: () => randInt(1670, 1690) },
+            ]},
+            { type: 'population', items: [
+                { name: 'Ballarat', val: () => randInt(100000, 115000) },
+                { name: 'Bendigo', val: () => randInt(95000, 105000) },
+                { name: 'Geelong', val: () => randInt(190000, 210000) },
+                { name: 'Toowoomba', val: () => randInt(130000, 140000) },
+                { name: 'Albury', val: () => randInt(50000, 55000) },
+                { name: 'Townsville', val: () => randInt(175000, 185000) },
+            ]},
+            { type: 'attendance', items: [
+                { name: 'AFL Round 1', val: () => randInt(40000, 95000) },
+                { name: 'AFL Round 5', val: () => randInt(30000, 80000) },
+                { name: 'AFL Round 12', val: () => randInt(25000, 70000) },
+                { name: 'AFL Finals Week 1', val: () => randInt(60000, 100000) },
+                { name: 'AFL Grand Final', val: () => randInt(95000, 100024) },
+            ]}
+        ];
+
+        if (formats.has('worded')) {
+            for (let i = 0; i < 5; i++) {
+                const ctx = pick(australianContexts);
+                const chosen = pickN(ctx.items, randInt(4, 5));
+                const data = chosen.map(c => ({ name: c.name, value: c.val() }));
+                const asc = Math.random() < 0.5;
+                const sorted = [...data].sort((a, b) => asc ? a.value - b.value : b.value - a.value);
+
+                let intro, question;
+                if (ctx.type === 'distance') {
+                    intro = `The driving distances between Australian cities are:`;
+                    question = `Put these journeys in order from ${asc ? 'shortest to longest' : 'longest to shortest'}.`;
+                } else if (ctx.type === 'population') {
+                    intro = `The populations of some Australian regional cities are:`;
+                    question = `Put these cities in order from ${asc ? 'smallest to largest' : 'largest to smallest'} population.`;
+                } else {
+                    intro = `Crowd numbers at recent AFL matches were:`;
+                    question = `Put these matches in order from ${asc ? 'smallest to largest' : 'largest to smallest'} crowd.`;
+                }
+
+                avail.push({
+                    type: 'worded',
+                    text: `${intro}<br>${data.map(d => `• ${d.name}: ${fmtNum(d.value)}${ctx.type === 'distance' ? ' km' : ''}`).join('<br>')}<br>${question}`,
+                    answer: sorted.map(d => `${d.name} (${fmtNum(d.value)})`).join(', '),
+                    notes: `${asc ? 'Ascending' : 'Descending'}: ${sorted.map(d => fmtNum(d.value)).join(asc ? ' < ' : ' > ')}`,
+                    lines: 3
+                });
+            }
+        }
+
+        // Which column? (place-value analysis)
+        if (formats.has('prove-it') || formats.has('fill-blank')) {
+            for (let i = 0; i < 2; i++) {
+                const pair = this._confusableSet(Math.min(lvl, 3), 2);
+                // Ensure same number of digits
+                const maxLen = Math.max(String(pair[0]).length, String(pair[1]).length);
+                const a = String(pair[0]).padStart(maxLen, '0');
+                const b = String(pair[1]).padStart(maxLen, '0');
+                let diffCol = -1;
+                for (let c = 0; c < maxLen; c++) {
+                    if (a[c] !== b[c]) { diffCol = c; break; }
+                }
+                const colName = ['ones','tens','hundreds','thousands','ten-thousands','hundred-thousands','millions'][maxLen - 1 - diffCol] || `column ${diffCol + 1}`;
+                avail.push({
+                    type: 'fill-blank',
+                    text: `Look at ${fmtNum(pair[0])} and ${fmtNum(pair[1])}. In which place-value column do they first differ (reading from the left)? Which number is larger?`,
+                    answer: `They first differ in the ${colName} column. ${fmtNum(Math.max(...pair))} is larger.`,
+                    notes: `Compare left to right: first difference at position ${diffCol + 1} from left (${colName}).`,
+                    lines: 2
+                });
+            }
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- EXTENSION stage -----
+    extensionQuestions(levels, formats, count, config) {
+        const maxLvl = Math.min(getOrderingMaxLevel(config && config.yearGroup), Math.max(...levels, 3));
+        const avail = [];
+
+        // Convince me
+        if (formats.has('convince-me')) {
+            const name = pickName();
+            const scenarios = [
+                {
+                    claim: `${name} says: "When comparing numbers, the one with more digits is always bigger."`,
+                    answer: `${name} is correct for whole numbers, a number with more digits always has a higher place value. But this thinking breaks down with decimals (0.5 > 0.12).`,
+                    notes: `For whole numbers, more digits = larger (the smallest 4-digit number 1,000 > any 3-digit number). Award full marks for "True for whole numbers" with reasoning.`
+                },
+                {
+                    claim: `${name} says: "To compare ${fmtNum(90900)} and ${fmtNum(91000)}, I only need to look at the first two digits because they're different there."`,
+                    answer: `${name} is correct, since both numbers have 5 digits, start from the left. The first digit (9) is the same, but the second digit differs: 0 vs 1. Since 1 > 0, ${fmtNum(91000)} > ${fmtNum(90900)}.`,
+                    notes: `Correct reasoning. The second digit (ten-thousands) is where they first differ. 1 > 0, so 91,000 > 90,900.`
+                },
+                {
+                    claim: `${name} says: "I can tell ${fmtNum(50505)} is bigger than ${fmtNum(50055)} just by looking at the first digit."`,
+                    answer: `${name} is incorrect. Both start with 5 in the ten-thousands column. You need to look further: the hundreds column shows 5 vs 0, confirming 50,505 > 50,055, but you can't tell from the first digit alone.`,
+                    notes: `First digits are the same (5). Need to compare further: 50,505 vs 50,055 differ in the hundreds column.`
+                }
+            ];
+            const sc = pick(scenarios);
+            avail.push({
+                type: 'convince-me',
+                text: `<strong>Convince Me:</strong> ${sc.claim}<br>Is ${name} correct? Write a clear response with examples.`,
+                answer: sc.answer,
+                notes: sc.notes,
+                lines: 5
+            });
+        }
+
+        // Create your own
+        if (formats.has('create-own')) {
+            const lvl = Math.min(maxLvl, 3);
+            const ranges = { 1: [100, 9999], 2: [1000, 99999], 3: [10000, 999999] };
+            const [lo, hi] = ranges[lvl] || [100, 9999];
+            avail.push({
+                type: 'create-own',
+                text: `<strong>Create Your Own:</strong> Write a set of 5 numbers between ${fmtNum(lo)} and ${fmtNum(hi)} that would be tricky to put in order. At least two numbers must use the same digits in a different arrangement.`,
+                answer: `Sample: accept any 5 numbers in range where at least one pair uses the same digits rearranged.`,
+                notes: `Check: (1) all numbers in range, (2) at least one pair has same digits rearranged, (3) the set is genuinely confusable. Award marks for creativity and mathematical validity.`,
+                lines: 3
+            });
+        }
+
+        // Always / Sometimes / Never
+        if (formats.has('asn')) {
+            const stmts = [
+                { s: 'A number with more digits is always larger than a number with fewer digits.', a: 'Always', j: 'For whole numbers, this is always true. The smallest n-digit number (10^(n-1)) is always greater than the largest (n-1)-digit number (10^(n-1) - 1).' },
+                { s: 'If two numbers start with the same digit, the one with more digits is larger.', a: 'Always', j: 'True for whole numbers. More digits means a higher place-value position for the leading digit.' },
+                { s: 'Reversing the digits of a number gives a smaller number.', a: 'Sometimes', j: 'Counter-examples: reversing 123 gives 321 (bigger). Reversing 321 gives 123 (smaller). Reversing 121 gives 121 (same).' },
+            ];
+            const st = pick(stmts);
+            avail.push({
+                type: 'asn',
+                text: `<strong>Always, Sometimes, or Never?</strong><br>"${st.s}"<br>Circle your answer and justify with examples.`,
+                answer: st.a,
+                notes: st.j,
+                lines: 4
+            });
+        }
+
+        // Prove it, ordering logic
+        if (formats.has('prove-it')) {
+            avail.push({
+                type: 'prove-it',
+                text: `<strong>Prove It:</strong> Explain why, when comparing two whole numbers, you should always start comparing from the leftmost digit. Use an example with two numbers that have the same number of digits to support your answer.`,
+                answer: `The leftmost digit has the highest place value. For example, in 5,234 vs 4,987: the thousands digit (5 vs 4) already tells us 5,234 > 4,987, even though 987 > 234.`,
+                notes: `Key idea: leftmost digit = highest place value. Accept any clear example showing that leftmost digit determines order regardless of other digits.`,
+                lines: 5
+            });
+        }
+
+        return shuffle(avail).slice(0, count);
+    },
+
+    // ----- MAIN ENTRY: generate progressive -----
+    generateProgressive(config) {
+        const levels = new Set(config.levels);
+        const formats = new Set(config.formats);
+        const grasp = this.graspQuestions(levels, formats, randInt(4, 6), config);
+        const consolidate = this.consolidateQuestions(levels, formats, randInt(4, 6), config);
+        const apply = this.applyQuestions(levels, formats, randInt(3, 5), config);
+        const extension = this.extensionQuestions(levels, formats, randInt(2, 4), config);
+        return { grasp, consolidate, apply, extension };
+    },
+
+    // ----- MAIN ENTRY: generate differentiated -----
+    generateDifferentiated(config) {
+        const levels = new Set(config.levels);
+        const formats = new Set(config.formats);
+
+        const loLevel = new Set([Math.min(...levels)]);
+        const wsA = [
+            ...this.graspQuestions(loLevel, formats, randInt(5, 6), config),
+            ...this.consolidateQuestions(loLevel, formats, randInt(3, 4), config)
+        ];
+
+        const wsB = [
+            ...this.consolidateQuestions(levels, formats, randInt(4, 5), config),
+            ...this.applyQuestions(levels, formats, randInt(4, 5), config),
+            ...this.extensionQuestions(levels, formats, randInt(1, 2), config)
+        ];
+
+        const hiLevel = new Set([Math.max(...levels)]);
+        const wsC = [
+            ...this.applyQuestions(levels, formats, randInt(3, 4), config),
+            ...this.extensionQuestions(hiLevel, formats, randInt(4, 5), config),
+            ...this.extensionCrossSkill(levels, formats, randInt(2, 3), config)
+        ];
+
+        return { wsA, wsB, wsC };
+    },
+
+    // Connected skill for Extension tier
+    extensionCrossSkill(levels, formats, count) {
+        const avail = [];
+
+        // Cross with rounding
+        const nums = this._confusableSet(2, 5);
+        const sorted = [...nums].sort((a, b) => a - b);
+        avail.push({
+            type: 'worded',
+            text: `Put these numbers in ascending order: ${nums.map(n => fmtNum(n)).join(', ')}. Then round each to the nearest thousand and check whether the order stays the same.`,
+            answer: `Order: ${sorted.map(n => fmtNum(n)).join(', ')}. Rounded: ${sorted.map(n => fmtNum(roundTo(n, 1000))).join(', ')}.`,
+            notes: `Order may change after rounding if two numbers are close and rounding pushes one past the other. Check student reasoning.`,
+            lines: 4
+        });
+
+        // Digit manipulation
+        avail.push({
+            type: 'worded',
+            text: `Using only the digits 3, 5, 0, and 7 (each used exactly once), write the largest possible 4-digit number and the smallest possible 4-digit number. What is the difference?`,
+            answer: `Largest: 7,530. Smallest: 3,057. Difference: 4,473.`,
+            notes: `Largest: arrange digits descending (7,5,3,0). Smallest: smallest non-zero digit first, then ascending (3,0,5,7). Diff: 7,530 − 3,057 = 4,473.`,
+            lines: 3
+        });
+
+        // Pattern question
+        avail.push({
+            type: 'prove-it',
+            text: `<strong>Prove It:</strong> ${pickName()} claims that for any two 5-digit numbers, you never need to compare more than 5 digits to decide which is larger. Is she correct? Explain.`,
+            answer: `She is correct. With at most 5 digits to compare, you will always find a difference (or confirm they are equal) within 5 comparisons.`,
+            notes: `True, two 5-digit numbers have exactly 5 columns. You compare left to right and stop at the first difference. If all 5 match, the numbers are equal.`,
+            lines: 4
+        });
+
+        return shuffle(avail).slice(0, count);
+    }
+};
+
+// ============================================================
+//  GENERATORS MAP
+// ============================================================
+const GENERATORS = {
+    'rounding': RoundingGen,
+    'number-ordering': OrderingGen
+};
+
+// ============================================================
+//  WORKSHEET HTML BUILDER
+// ============================================================
+function worksheetCSS() {
+    return `
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap');
+        @page { size: A4; margin: 18mm; }
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .page-break { page-break-before: always; }
+            .no-break { page-break-inside: avoid; }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Fredoka', sans-serif; font-size: 12pt; color: #2D3436; line-height: 1.6; padding: 0; }
+        h1, h2, h3, .q-num { font-family: 'Fredoka', sans-serif; }
+
+        .cover { text-align: center; padding: 60px 20px 40px; page-break-after: always; }
+        .cover h1 { font-size: 26pt; color: #2D3436; margin-bottom: 6px; }
+        .cover h1 span { color: #4ECDC4; }
+        .cover .subtitle { font-size: 13pt; color: #636E72; margin-bottom: 30px; }
+        .cover .li-box {
+            background: #e8faf8; border: 1.5px solid #c5eae7; border-radius: 10px;
+            padding: 14px 20px; max-width: 520px; margin: 0 auto 30px;
+            font-size: 11.5pt; line-height: 1.5;
+        }
+        .cover .li-box strong { color: #3db8b0; }
+        .cover .name-fields { margin-top: 20px; font-size: 12pt; }
+        .cover .name-fields .field { display: inline-block; margin: 0 18px; }
+        .cover .name-fields .line { display: inline-block; width: 180px; border-bottom: 1.5px solid #aaa; margin-left: 6px; }
+
+        .section-header {
+            border-left: 5px solid #4ECDC4; padding: 6px 0 6px 14px;
+            margin: 28px 0 18px; font-size: 15pt; font-weight: 600; color: #2D3436;
+        }
+        .section-desc { font-size: 10pt; color: #636E72; margin: -12px 0 16px 19px; }
+
+        .question { margin-bottom: 22px; page-break-inside: avoid; }
+        .q-num { color: #4ECDC4; font-weight: 600; font-size: 13pt; margin-right: 4px; }
+        .q-text { font-size: 12pt; line-height: 1.55; }
+        .q-text strong { color: #2D3436; }
+        .q-options { display: inline-block; margin: 6px 0; font-weight: 600; letter-spacing: 0.5px; }
+
+        .answer-line { border-bottom: 1.5px solid #ccc; height: 1.8rem; margin: 6px 0; }
+        .answer-lines-wide .answer-line { height: 2.2rem; }
+
+        .match-layout { display: flex; gap: 40px; margin: 8px 0; }
+        .match-col { line-height: 2; }
+
+        .asn-boxes, .tf-boxes { display: flex; gap: 12px; margin: 8px 0; }
+        .asn-box, .tf-box {
+            border: 1.5px solid #ccc; border-radius: 6px; padding: 4px 16px;
+            font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: 11pt;
+        }
+
+        /* ===== ANSWER KEY ===== */
+        .answer-key-page { padding-top: 10px; }
+        .ak-header {
+            font-size: 18pt; font-weight: 700; color: #2D3436;
+            border-bottom: 3px solid #4ECDC4; padding-bottom: 8px; margin-bottom: 16px;
+        }
+        .ak-section { font-size: 12pt; font-weight: 600; color: #4ECDC4; margin: 16px 0 8px; border-bottom: 1px solid #e8e2da; padding-bottom: 4px; }
+        .ak-table { width: 100%; border-collapse: collapse; font-size: 10.5pt; }
+        .ak-table th { text-align: left; font-weight: 600; color: #636E72; font-size: 9pt; padding: 4px 8px; border-bottom: 2px solid #e8e2da; }
+        .ak-table td { padding: 6px 8px; border-bottom: 1px solid #f0ebe5; vertical-align: top; }
+        .ak-table .q-col { width: 36px; font-weight: 600; color: #4ECDC4; }
+        .ak-table .a-col { font-weight: 700; color: #2D3436; max-width: 280px; }
+        .ak-table .n-col { font-size: 9pt; color: #636E72; font-weight: 400; }
+    `;
+}
+
+function renderQuestion(q, num) {
+    let html = `<div class="question no-break"><span class="q-num">${num}.</span> <span class="q-text">${q.text}</span>`;
+    if (q.type === 'asn') {
+        html += `<div class="asn-boxes"><span class="asn-box">Always</span><span class="asn-box">Sometimes</span><span class="asn-box">Never</span></div>`;
+    }
+    if (q.type === 'tf-justify' && !q.text.includes('tf-boxes')) {
+        html += `<div class="tf-boxes"><span class="tf-box">True</span><span class="tf-box">False</span></div>`;
+    }
+    const lineCount = q.lines || 2;
+    for (let i = 0; i < lineCount; i++) html += `<div class="answer-line"></div>`;
+    html += `</div>`;
+    return html;
+}
+
+function renderAnswerRow(q, num) {
+    return `<tr><td class="q-col">${num}</td><td class="a-col">${q.answer}</td><td class="n-col">${q.notes || ''}</td></tr>`;
+}
+
+function buildProgressiveHTML(questions, config) {
+    const { grasp, consolidate, apply, extension } = questions;
+    const activityName = REGISTRY[config.activity].name;
+    const li = config.learningIntention;
+
+    const stages = [
+        { name: 'Stage 1: Grasp', desc: 'Show what you know, one step at a time.', qs: grasp },
+        { name: 'Stage 2: Consolidate', desc: 'Build confidence, varied practice with less scaffolding.', qs: consolidate },
+        { name: 'Stage 3: Apply', desc: 'Use your skills, real-world problems and multi-step thinking.', qs: apply },
+        { name: 'Stage 4: Extension', desc: 'Go deeper, reason, justify, and prove.', qs: extension }
+    ];
+
+    let qNum = 1;
+    let body = '';
+    let answerRows = '';
+
+    // Cover
+    body += `<div class="cover">
+        <h1>${activityName}, <span>Worksheet</span></h1>
+        <div class="subtitle">Progressive Practice</div>
+        <div class="li-box"><strong>Learning Intention:</strong> ${li}</div>
+        <div class="name-fields">
+            <span class="field">Name: <span class="line"></span></span>
+            <span class="field">Date: <span class="line"></span></span>
+        </div>
+    </div>`;
+
+    stages.forEach((stage, si) => {
+        if (stage.qs.length === 0) return;
+        if (si === 2) body += `<div class="page-break"></div>`;
+        body += `<h2 class="section-header">${stage.name}</h2>`;
+        body += `<p class="section-desc">${stage.desc}</p>`;
+        answerRows += `<tr><td colspan="3" style="padding:10px 0 4px; font-weight:600; color:#4ECDC4; border-bottom:2px solid #e8e2da;">${stage.name}</td></tr>`;
+        stage.qs.forEach(q => {
+            body += renderQuestion(q, qNum);
+            answerRows += renderAnswerRow(q, qNum);
+            qNum++;
+        });
+    });
+
+    // Answer key
+    body += `<div class="page-break"></div>`;
+    body += `<div class="answer-key-page">
+        <h2 class="ak-header">ANSWER KEY, Teacher Copy</h2>
+        <table class="ak-table"><tr><th>Q</th><th>Answer</th><th>Marking Notes</th></tr>${answerRows}</table>
+    </div>`;
+
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${activityName}, Progressive Worksheet</title><style>${worksheetCSS()}</style></head><body>${body}</body></html>`;
+}
+
+function buildDifferentiatedHTML(sets, config) {
+    const { wsA, wsB, wsC } = sets;
+    const activityName = REGISTRY[config.activity].name;
+    const li = config.learningIntention;
+
+    const tiers = [
+        { label: 'Worksheet A', teacherLabel: 'Accessing', qs: wsA },
+        { label: 'Worksheet B', teacherLabel: 'Expected', qs: wsB },
+        { label: 'Worksheet C', teacherLabel: 'Extension', qs: wsC }
+    ];
+
+    let body = '';
+    let answerRows = '';
+    let globalQ = 1;
+
+    tiers.forEach((tier, ti) => {
+        // Each tier starts on new page (except first which has cover)
+        if (ti === 0) {
+            body += `<div class="cover">
+                <h1>${activityName}, <span>${tier.label}</span></h1>
+                <div class="subtitle">Practice Worksheet</div>
+                <div class="li-box"><strong>Learning Intention:</strong> ${li}</div>
+                <div class="name-fields">
+                    <span class="field">Name: <span class="line"></span></span>
+                    <span class="field">Date: <span class="line"></span></span>
+                </div>
+            </div>`;
+        } else {
+            body += `<div class="page-break"></div>`;
+            body += `<div class="cover">
+                <h1>${activityName}, <span>${tier.label}</span></h1>
+                <div class="subtitle">Practice Worksheet</div>
+                <div class="li-box"><strong>Learning Intention:</strong> ${li}</div>
+                <div class="name-fields">
+                    <span class="field">Name: <span class="line"></span></span>
+                    <span class="field">Date: <span class="line"></span></span>
+                </div>
+            </div>`;
+        }
+
+        answerRows += `<tr><td colspan="3" style="padding:12px 0 4px; font-weight:700; color:#4ECDC4; font-size:12pt; border-bottom:2px solid #e8e2da;">${tier.label} (${tier.teacherLabel})</td></tr>`;
+
+        let localQ = 1;
+        tier.qs.forEach(q => {
+            body += renderQuestion(q, localQ);
+            answerRows += renderAnswerRow(q, `${tier.label.slice(-1)}${localQ}`);
+            localQ++;
+        });
+    });
+
+    // Answer key
+    body += `<div class="page-break"></div>`;
+    body += `<div class="answer-key-page">
+        <h2 class="ak-header">ANSWER KEY, Teacher Copy</h2>
+        <p style="font-size:9pt;color:#636E72;margin-bottom:12px;">Tier labels, A: Accessing, B: Expected, C: Extension (not shown to students)</p>
+        <table class="ak-table"><tr><th>Q</th><th>Answer</th><th>Marking Notes</th></tr>${answerRows}</table>
+    </div>`;
+
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${activityName}, Differentiated Worksheets</title><style>${worksheetCSS()}</style></head><body>${body}</body></html>`;
+}
+
+// ============================================================
+//  UI CONTROLLER
+// ============================================================
+const $ = id => document.getElementById(id);
+let generatedHTML = { progressive: null, differentiated: null };
+let activeTab = 'progressive';
+
+// ----- Populate initial UI -----
+function initUI() {
+    const sel = $('activity-select');
+    for (const [key, meta] of Object.entries(REGISTRY)) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = meta.name;
+        sel.appendChild(opt);
+    }
+
+    // Question format checkboxes
+    const fmtDiv = $('formats-checkboxes');
+    QUESTION_FORMATS.forEach(f => {
+        const lbl = document.createElement('label');
+        lbl.innerHTML = `<input type="checkbox" value="${f.id}" checked> ${f.label}`;
+        fmtDiv.appendChild(lbl);
+    });
+
+    sel.addEventListener('change', onActivityChange);
+    $('generate-btn').addEventListener('click', onGenerate);
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeTab = btn.dataset.tab;
+            showPreview();
+        });
+    });
+
+    $('btn-download').addEventListener('click', onDownload);
+    $('btn-print').addEventListener('click', onPrint);
+    $('btn-regenerate').addEventListener('click', onGenerate);
+}
+
+function onActivityChange() {
+    const key = $('activity-select').value;
+    const info = $('activity-info');
+    const levDiv = $('levels-checkboxes');
+    const genBtn = $('generate-btn');
+
+    if (!key) {
+        info.classList.remove('visible');
+        levDiv.innerHTML = '';
+        genBtn.disabled = true;
+        $('learning-intention').value = '';
+        return;
+    }
+
+    const meta = REGISTRY[key];
+    info.innerHTML = `<strong>Skill:</strong> ${meta.skill}<br><strong>Curriculum:</strong> ${meta.curriculum}<br><div style="margin-top:4px">${meta.tags.map(t => `<span class="tag">${t}</span>`).join(' ')}</div>`;
+    info.classList.add('visible');
+
+    $('learning-intention').value = meta.defaultLI;
+
+    levDiv.innerHTML = '';
+    meta.levels.forEach(lv => {
+        const lbl = document.createElement('label');
+        lbl.innerHTML = `<input type="checkbox" value="${lv.id}" checked> ${lv.name}`;
+        lbl.title = lv.desc;
+        levDiv.appendChild(lbl);
+    });
+
+    genBtn.disabled = false;
+}
+
+function getConfig() {
+    const activity = $('activity-select').value;
+    const yearGroup = Number($('year-group-select').value) || 5;
+    const levels = [...document.querySelectorAll('#levels-checkboxes input:checked')].map(cb => Number(cb.value));
+    const formats = [...document.querySelectorAll('#formats-checkboxes input:checked')].map(cb => cb.value);
+    const learningIntention = $('learning-intention').value.trim() || REGISTRY[activity].defaultLI;
+    const numberRanges = $('number-ranges').value.trim();
+    const extensionTerritory = $('extension-territory').value.trim();
+    const avoid = $('avoid').value.trim();
+    return { activity, yearGroup, levels, formats, learningIntention, numberRanges, extensionTerritory, avoid };
+}
+
+function onGenerate() {
+    const config = getConfig();
+    if (!config.activity || config.levels.length === 0) return;
+
+    const gen = GENERATORS[config.activity];
+    if (!gen) return;
+
+    // Generate both types
+    const progQs = gen.generateProgressive(config);
+    const diffQs = gen.generateDifferentiated(config);
+
+    generatedHTML.progressive = buildProgressiveHTML(progQs, config);
+    generatedHTML.differentiated = buildDifferentiatedHTML(diffQs, config);
+
+    // Count questions
+    const progCount = progQs.grasp.length + progQs.consolidate.length + progQs.apply.length + progQs.extension.length;
+    const diffCount = diffQs.wsA.length + diffQs.wsB.length + diffQs.wsC.length;
+
+    $('status-summary').textContent = `Progressive: ${progCount} Qs (${progQs.grasp.length}+${progQs.consolidate.length}+${progQs.apply.length}+${progQs.extension.length}) · Differentiated: ${diffCount} Qs (A:${diffQs.wsA.length} B:${diffQs.wsB.length} C:${diffQs.wsC.length})`;
+
+    // Show output
+    $('empty-state').style.display = 'none';
+    $('output-area').classList.add('visible');
+    showPreview();
+}
+
+function showPreview() {
+    const html = generatedHTML[activeTab];
+    if (!html) return;
+    const frame = $('preview-frame');
+    frame.srcdoc = html;
+}
+
+function onDownload() {
+    const html = generatedHTML[activeTab];
+    if (!html) return;
+    const activity = $('activity-select').value;
+    const name = REGISTRY[activity]?.name.replace(/\s+/g, '-').toLowerCase() || 'worksheet';
+    const filename = `${name}-${activeTab}.html`;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function onPrint() {
+    const frame = $('preview-frame');
+    if (frame.contentWindow) {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+    }
+}
+
+// ----- Init -----
+initUI();
+</script>
+</body>
+</html>

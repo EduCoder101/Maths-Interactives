@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10: The School Fete Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --pink: #FF67E7;
+    --purple: #AD1DEB;
+    --blue: #3a7bd5;
+    --blue-dark: #2c5ea8;
+    --green: #2ecc71;
+    --green-dark: #1a8a4a;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: #2D3436;
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,217,61,0.20) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  header h1 span { color: var(--teal); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 640px; font-weight: 500; }
+  .header-icon {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.10;
+  }
+
+  .phase-nav {
+    display: flex; gap: 10px; padding: 18px 48px;
+    background: #3d4347; flex-wrap: wrap;
+  }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 8px 20px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--amber); color: #2D3436; }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--amber-dark);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-heading {
+    font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; color: var(--text);
+  }
+
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 16px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 20px; }
+  .card ul li { margin-bottom: 8px; }
+  .card ol { padding-left: 20px; }
+  .card ol li { margin-bottom: 8px; }
+
+  .collapse-header {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: #2D3436;
+    padding: 16px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .collapse-header:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.18); transform: translateY(-2px); }
+  .collapse-header.blue { background: linear-gradient(135deg, #b3d9ff, #3a7bd5); color: #fff; }
+  .collapse-header.green { background: linear-gradient(135deg, #a7f3d0, #1a8a4a); color: #fff; }
+  .collapse-icon { font-size: 24px; transition: transform 0.3s; }
+  .collapse-header.expanded .collapse-icon { transform: rotate(180deg); }
+  .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .collapse-content.expanded { max-height: 5000px; }
+
+  .callout { border-radius: 12px; padding: 18px 22px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout p { font-size: 16px; line-height: 1.6; font-weight: 400; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; }
+  .callout-red { background: #fff4f4; border-left: 5px solid var(--red); }
+  .callout-red .label { color: #c0392b; }
+  .callout-red p { color: #5c1a1a; }
+  .callout-green { background: #e8fdf0; border-left: 5px solid var(--green); }
+  .callout-green .label { color: var(--green-dark); }
+  .callout-green p { color: #064e26; }
+
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.green { background: var(--teal); color: var(--text); }
+  .reveal-btn.green:hover { background: var(--teal-dark); color: #fff; }
+  .reveal-btn.amber { background: var(--amber); color: var(--text); }
+  .reveal-btn.amber:hover { background: var(--amber-dark); color: #fff; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Fete item cards */
+  .fete-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .fete-item {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .fete-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+  .fete-item.selected { border-color: var(--teal); background: #f0fafa; }
+  .fete-item.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px; right: 10px;
+    background: var(--teal);
+    color: white;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .fete-emoji { font-size: 36px; margin-bottom: 8px; }
+  .fete-name { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 6px; }
+  .fete-price-t1 { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--blue-dark); }
+  .fete-price-t2 { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--amber-dark); }
+  .fete-note { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .fete-hidden-tag {
+    display: inline-block;
+    background: #fee2e2;
+    color: #991b1b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 10px;
+    padding: 2px 8px;
+    margin-top: 4px;
+  }
+
+  /* Budget display */
+  .budget-bar-wrap {
+    margin: 20px 0;
+  }
+  .budget-bar {
+    height: 28px;
+    background: #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .budget-bar-fill {
+    height: 100%;
+    border-radius: 14px;
+    transition: width 0.5s ease;
+    background: linear-gradient(90deg, var(--teal), var(--green));
+  }
+  .budget-bar-fill.warning { background: linear-gradient(90deg, var(--amber), var(--orange)); }
+  .budget-bar-fill.over { background: linear-gradient(90deg, var(--red), #c0392b); }
+
+  /* Task requirements */
+  .requirement-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    background: white;
+    border: 2px solid var(--border);
+  }
+  .req-number {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .req-text { font-size: 15px; line-height: 1.6; color: var(--text); }
+
+  /* Strategy justification */
+  .strategy-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .strategy-card {
+    border-radius: 12px;
+    padding: 16px 18px;
+    border: 2px solid var(--border);
+    background: white;
+  }
+  .strategy-icon { font-size: 28px; margin-bottom: 8px; }
+  .strategy-name { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .strategy-when { font-size: 13px; line-height: 1.5; color: var(--muted); }
+
+  /* Tier banners */
+  .tier-panel {
+    border-radius: 16px;
+    padding: 22px 28px;
+    margin-bottom: 20px;
+  }
+  .tier-panel.t1 { background: linear-gradient(135deg, #dbeafe, #e0f2fe); border: 2px solid var(--blue); }
+  .tier-panel.t2 { background: linear-gradient(135deg, #fef9c3, #fef3c7); border: 2px solid var(--amber-dark); }
+  .tier-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
+  .t1 .tier-label { color: var(--blue-dark); }
+  .t2 .tier-label { color: #92400e; }
+  .tier-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .t1 .tier-title { color: var(--blue-dark); }
+  .t2 .tier-title { color: #78350f; }
+  .tier-desc { font-size: 15px; line-height: 1.6; }
+  .t1 .tier-desc { color: #1e3a6e; }
+  .t2 .tier-desc { color: #78350f; }
+
+  /* Interactive budget planner */
+  .planner-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 28px;
+    border: 2px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .running-total-display {
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    padding: 16px;
+    border-radius: 12px;
+    background: #f0fafa;
+    border: 2px solid var(--teal);
+    color: var(--teal-dark);
+    margin: 16px 0;
+  }
+  .running-total-display.warning { background: #fffbf0; border-color: var(--amber-dark); color: var(--amber-dark); }
+  .running-total-display.over { background: #fff4f4; border-color: var(--red); color: var(--red); }
+
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--amber);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* Go Deeper Extension */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+    width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+    border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+    font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+    background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+    width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+    transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+    display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+    border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+    display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+    padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+    background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+    border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .go-deeper-section { max-width: 100%; padding: 0 1rem; }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Reasonableness Assessment</div>
+  <h1>Lesson 10: <span>The School Fete</span></h1>
+  <p>Plan a budget, prove your calculations are reasonable, and don't let the fete be cancelled</p>
+  <div class="header-icon">🎡</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection('hook', this)">The Hook</button>
+  <button onclick="showSection('setup', this)">Task Setup</button>
+  <button onclick="showSection('t1task', this)">Tier 1 Task</button>
+  <button onclick="showSection('t2task', this)">Tier 2/3 Task</button>
+  <button onclick="showSection('deeper', this)">Go Deeper</button>
+  <button onclick="showSection('plenary', this)">Plenary</button>
+</nav>
+
+<main>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to plan a budget using our addition and subtraction strategies, proving that our calculations are reasonable and accurate.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can keep a running total of expenses</li>
+            <li>I can estimate the cost of multiple items before calculating the exact amount</li>
+            <li>I can explain why I chose to calculate a certain way (mental, written, calculator)</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ────────────── SECTION 1: THE HOOK ────────────── -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · The Hook, 5 mins</div>
+  <div class="section-heading">The fete is in your hands</div>
+
+  <div style="background:linear-gradient(135deg, #2D3436, #3d4347); border-radius:24px; padding:36px 40px; margin-bottom:24px; color:white; text-align:center; position:relative; overflow:hidden;">
+    <div style="position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%, rgba(255,217,61,0.15) 0%, transparent 60%); pointer-events:none;"></div>
+    <div style="font-size:64px; margin-bottom:16px;">🎡</div>
+    <div style="font-size:28px; font-weight:700; margin-bottom:12px; line-height:1.3;">Year 5 have been given the job of running the <span style="color:var(--amber);">School Fete</span></div>
+    <div style="font-size:17px; color:rgba(255,255,255,0.75); line-height:1.7; max-width:600px; margin:0 auto;">The Principal has handed you a budget. You must plan which attractions to hire. There are two rules, and they are non-negotiable.</div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
+    <div style="background:#fff4f4; border:3px solid var(--red); border-radius:16px; padding:24px; text-align:center;">
+      <div style="font-size:40px; margin-bottom:10px;">💸</div>
+      <div style="font-weight:700; font-size:17px; color:#c0392b; margin-bottom:8px;">Rule 1</div>
+      <div style="font-size:16px; color:#5c1a1a; line-height:1.6;">If you go <strong>over budget</strong>, the fete is cancelled.</div>
+    </div>
+    <div style="background:#fff4f4; border:3px solid var(--red); border-radius:16px; padding:24px; text-align:center;">
+      <div style="font-size:40px; margin-bottom:10px;">❌</div>
+      <div style="font-weight:700; font-size:17px; color:#c0392b; margin-bottom:8px;">Rule 2</div>
+      <div style="font-size:16px; color:#5c1a1a; line-height:1.6;">If your <strong>maths is wrong</strong>, the fete is cancelled.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-teal">
+    <span class="label">💡 What this really means</span>
+    <p>Every calculation must be checked against your Radar for Error. An answer that doesn't match your estimate is a red flag. Today, estimation is not just useful, it is your safety net between success and cancellation.</p>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 2: TASK SETUP ────────────── -->
+<div id="setup" class="section">
+  <div class="section-title">Phase 2 · Task Setup (I Do), 10 mins</div>
+  <div class="section-heading">What you must show</div>
+
+  <div class="card">
+    <h3>📋 Assessment Expectations</h3>
+    <p style="margin-bottom:20px;">Hand out the task sheet. Model each of these expectations explicitly before students begin.</p>
+
+    <div class="requirement-item">
+      <div class="req-number">1</div>
+      <div class="req-text"><strong>Select at least 5 items</strong> from the price list. You must stay within your budget. You cannot select more than your budget allows.</div>
+    </div>
+    <div class="requirement-item">
+      <div class="req-number">2</div>
+      <div class="req-text"><strong>Radar for Error first.</strong> Before calculating your exact total, estimate the total cost by rounding each price. Write your estimate clearly.</div>
+    </div>
+    <div class="requirement-item">
+      <div class="req-number">3</div>
+      <div class="req-text"><strong>Show your exact working.</strong> Use whatever method you choose, but the working must be visible. No answers without working.</div>
+    </div>
+    <div class="requirement-item">
+      <div class="req-number">4</div>
+      <div class="req-text"><strong>Write one justification sentence.</strong> Explain why you chose the strategy you used. Use the sentence starters provided.</div>
+    </div>
+    <div class="requirement-item">
+      <div class="req-number">5</div>
+      <div class="req-text"><strong>Check.</strong> Compare your exact answer to your estimate. Write a sentence confirming they are close (or explaining any significant difference).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>✏️ Strategy Justification Sentence Starters</h3>
+    <p style="margin-bottom:16px;">Students must use one of these to explain their method choice.</p>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="background:#dbeafe; border-radius:10px; padding:14px 18px; font-size:15px; color:var(--blue-dark); border-left:4px solid var(--blue);">
+        "I used a <strong>written algorithm</strong> because..."<br>
+        <span style="font-size:13px; color:#1e3a6e; margin-top:4px; display:block;">e.g. "...I had to add several decimals with different numbers of decimal places."</span>
+      </div>
+      <div style="background:#fef9c3; border-radius:10px; padding:14px 18px; font-size:15px; color:#78350f; border-left:4px solid var(--amber-dark);">
+        "I used a <strong>mental strategy</strong> because..."<br>
+        <span style="font-size:13px; color:#78350f; margin-top:4px; display:block;">e.g. "...the numbers were whole hundreds and I could use levelling."</span>
+      </div>
+      <div style="background:#e8fdf0; border-radius:10px; padding:14px 18px; font-size:15px; color:var(--green-dark); border-left:4px solid var(--green);">
+        "I used a <strong>calculator</strong> because..."<br>
+        <span style="font-size:13px; color:#064e26; margin-top:4px; display:block;">e.g. "...there were 7 items with complex decimal prices and I wanted to make sure I didn't make an error."</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapse-header blue" onclick="toggleCollapse('teacher-setup')">
+    <span>📋 Teacher Notes, Modelling the Task</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="teacher-setup" class="collapse-content">
+    <div class="card">
+      <ul>
+        <li style="margin-bottom:10px;">Model the estimation step using the first two items from the relevant tier's price list. Show the rounding clearly on the board before revealing the calculation.</li>
+        <li style="margin-bottom:10px;">Explicitly model a justification sentence for each method type so students understand what "explain your strategy" actually looks like in practice.</li>
+        <li style="margin-bottom:10px;">Emphasise that the goal of this task is <strong>reasonableness</strong>: an exact answer that is wildly different from the estimate is not acceptable, they must go back and find the error.</li>
+        <li>Remind Tier 2/3 students that some items on their list have a hidden step (quantity × unit price). They must identify these before estimating.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 3: TIER 1 TASK ────────────── -->
+<div id="t1task" class="section">
+  <div class="section-title">Phase 3 · Assessment Task, Tier 1</div>
+  <div class="section-heading">🔵 School Fete Planner, Whole Numbers</div>
+
+  <div class="tier-panel t1">
+    <div class="tier-label">Tier 1</div>
+    <div class="tier-title">Your Budget: $5,000</div>
+    <div class="tier-desc">Select at least 5 items from the list below. All prices are whole dollar amounts. Stay within your $5,000 budget.</div>
+  </div>
+
+  <div class="card">
+    <h3>🎪 Available Attractions, Whole Number Prices</h3>
+
+    <div class="fete-grid" id="t1-grid">
+      <div class="fete-item" onclick="toggleFete(this, 't1', 1250, 'Jumping Castle')">
+        <div class="fete-emoji">🏰</div>
+        <div class="fete-name">Jumping Castle</div>
+        <div class="fete-price-t1">$1,250</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 400, 'DJ')">
+        <div class="fete-emoji">🎧</div>
+        <div class="fete-name">DJ</div>
+        <div class="fete-price-t1">$400</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 750, 'Carnival Games Stall')">
+        <div class="fete-emoji">🎯</div>
+        <div class="fete-name">Carnival Games Stall</div>
+        <div class="fete-price-t1">$750</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 320, 'Face Painting')">
+        <div class="fete-emoji">🎨</div>
+        <div class="fete-name">Face Painting</div>
+        <div class="fete-price-t1">$320</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 580, 'Pony Rides')">
+        <div class="fete-emoji">🐴</div>
+        <div class="fete-name">Pony Rides</div>
+        <div class="fete-price-t1">$580</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 1100, 'Giant Slide')">
+        <div class="fete-emoji">🎢</div>
+        <div class="fete-name">Giant Slide</div>
+        <div class="fete-price-t1">$1,100</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 460, 'Sausage Sizzle')">
+        <div class="fete-emoji">🌭</div>
+        <div class="fete-name">Sausage Sizzle</div>
+        <div class="fete-price-t1">$460</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 270, 'Prizes Stock')">
+        <div class="fete-emoji">🏆</div>
+        <div class="fete-name">Prizes Stock</div>
+        <div class="fete-price-t1">$270</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 850, 'Fairy Floss Machine')">
+        <div class="fete-emoji">🍭</div>
+        <div class="fete-name">Fairy Floss Machine</div>
+        <div class="fete-price-t1">$850</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't1', 190, 'Decorations')">
+        <div class="fete-emoji">🎉</div>
+        <div class="fete-name">Decorations</div>
+        <div class="fete-price-t1">$190</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:20px 24px; background:#f0fafa; border-radius:14px; border:2px solid var(--teal);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--teal-dark); margin-bottom:4px;">Items selected</div>
+          <div id="t1-count" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--text);">0 / 5 minimum</div>
+        </div>
+        <div id="t1-budget-status" style="font-size:14px; font-weight:600; color:var(--green-dark);">Within budget</div>
+      </div>
+    </div>
+
+    <div id="t1-items-list" style="margin-top:14px; font-size:14px; color:var(--muted);"></div>
+  </div>
+
+  <div class="card">
+    <h3>📝 Working It Out, What to Write in Your Book</h3>
+    <ol>
+      <li><strong>List your items</strong> and their prices clearly.</li>
+      <li><strong>Radar for Error:</strong> Round each price to the nearest hundred and write your estimate total.</li>
+      <li><strong>Exact calculation:</strong> Show your written algorithm OR mental strategy working.</li>
+      <li><strong>Strategy justification sentence</strong> (use the sentence starters).</li>
+      <li><strong>Check:</strong> Write a sentence comparing your exact answer to your estimate.</li>
+    </ol>
+  </div>
+
+  <div class="collapse-header" onclick="toggleCollapse('t1-worked')">
+    <span>📋 Teacher Notes, Tier 1 Sample Answer</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="t1-worked" class="collapse-content">
+    <div class="card">
+      <p style="margin-bottom:14px;"><strong>Example: selecting Jumping Castle ($1,250), DJ ($400), Face Painting ($320), Prizes ($270), Decorations ($190).</strong></p>
+      <div class="callout callout-amber">
+        <span class="label">📡 Radar for Error</span>
+        <p style="font-family:'Space Mono',monospace; font-size:14px;">$1,300 + $400 + $300 + $300 + $200 = $2,500 (estimate)</p>
+      </div>
+      <div class="callout callout-teal">
+        <span class="label">🔢 Exact Calculation</span>
+        <p style="font-family:'Space Mono',monospace; font-size:14px;">$1,250 + $400 = $1,650<br>$1,650 + $320 = $1,970<br>$1,970 + $270 = $2,240<br>$2,240 + $190 = $2,430</p>
+      </div>
+      <div class="callout callout-blue">
+        <span class="label">✅ Check</span>
+        <p>My exact answer of $2,430 is close to my estimate of $2,500. The difference is only $70. My calculation is reasonable. Budget remaining: $5,000 − $2,430 = $2,570.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 4: TIER 2/3 TASK ────────────── -->
+<div id="t2task" class="section">
+  <div class="section-title">Phase 3 · Assessment Task, Tier 2/3</div>
+  <div class="section-heading">🟡 School Fete Planner, Decimals &amp; Hidden Steps</div>
+
+  <div class="tier-panel t2">
+    <div class="tier-label">Tier 2 / 3</div>
+    <div class="tier-title">Your Budget: $1,500.00</div>
+    <div class="tier-desc">Select at least 5 items from the list below. Prices include decimals. Some items require you to buy a set quantity, watch for the hidden step. Stay within your $1,500.00 budget.</div>
+  </div>
+
+  <div class="card">
+    <h3>🎪 Available Attractions, Decimal Prices</h3>
+
+    <div class="fete-grid" id="t2-grid">
+      <div class="fete-item" onclick="toggleFete(this, 't2', 455.50, 'Jumping Castle')">
+        <div class="fete-emoji">🏰</div>
+        <div class="fete-name">Jumping Castle</div>
+        <div class="fete-price-t2">$455.50</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 178.75, 'DJ (half-day)')">
+        <div class="fete-emoji">🎧</div>
+        <div class="fete-name">DJ (half-day)</div>
+        <div class="fete-price-t2">$178.75</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 209.40, 'Games Stall Kit')">
+        <div class="fete-emoji">🎯</div>
+        <div class="fete-name">Games Stall Kit</div>
+        <div class="fete-price-t2">$209.40</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 104.25, 'Face Paint Supplies × 3 boxes')">
+        <div class="fete-emoji">🎨</div>
+        <div class="fete-name">Face Paint Supplies</div>
+        <div class="fete-price-t2">$34.75 per box</div>
+        <div class="fete-note">Must buy 3 boxes</div>
+        <div class="fete-hidden-tag">⚠️ Hidden step</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 86.40, 'Prizes Stock × 4 packs')">
+        <div class="fete-emoji">🏆</div>
+        <div class="fete-name">Prizes Stock</div>
+        <div class="fete-price-t2">$21.60 per pack</div>
+        <div class="fete-note">Must buy 4 packs</div>
+        <div class="fete-hidden-tag">⚠️ Hidden step</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 132.00, 'Fairy Floss Machine')">
+        <div class="fete-emoji">🍭</div>
+        <div class="fete-name">Fairy Floss Machine</div>
+        <div class="fete-price-t2">$132.00</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 67.80, 'Balloon Package')">
+        <div class="fete-emoji">🎈</div>
+        <div class="fete-name">Balloon Package</div>
+        <div class="fete-price-t2">$67.80</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 115.50, 'Sausage Sizzle Supplies × 3 bags')">
+        <div class="fete-emoji">🌭</div>
+        <div class="fete-name">Sausage Sizzle Supplies</div>
+        <div class="fete-price-t2">$38.50 per bag</div>
+        <div class="fete-note">Must buy 3 bags</div>
+        <div class="fete-hidden-tag">⚠️ Hidden step</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 249.95, 'Photo Booth Hire')">
+        <div class="fete-emoji">📸</div>
+        <div class="fete-name">Photo Booth Hire</div>
+        <div class="fete-price-t2">$249.95</div>
+      </div>
+      <div class="fete-item" onclick="toggleFete(this, 't2', 44.90, 'Decorations Pack')">
+        <div class="fete-emoji">🎉</div>
+        <div class="fete-name">Decorations Pack</div>
+        <div class="fete-price-t2">$44.90</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:20px 24px; background:#fffbf0; border-radius:14px; border:2px solid var(--amber-dark);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--amber-dark); margin-bottom:4px;">Items selected</div>
+          <div id="t2-count" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--text);">0 / 5 minimum</div>
+        </div>
+        <div id="t2-budget-status" style="font-size:14px; font-weight:600; color:var(--green-dark);">Within budget</div>
+      </div>
+    </div>
+
+    <div id="t2-items-list" style="margin-top:14px; font-size:14px; color:var(--muted);"></div>
+
+    <div class="callout callout-red" style="margin-top:16px;">
+      <span class="label">⚠️ Items with hidden steps</span>
+      <p>Face Paint Supplies, Prizes Stock, and Sausage Sizzle Supplies all have a quantity. You must calculate the total cost for each (<em>unit price × quantity</em>) before adding it to your running total. The price shown in the interactive above already reflects the full cost, in your written working you must show the multiplication step.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📝 Working It Out, What to Write in Your Book</h3>
+    <ol>
+      <li><strong>List your items.</strong> For quantity items, show the unit price × quantity calculation first.</li>
+      <li><strong>Radar for Error:</strong> Round each total price to the nearest dollar and write your estimate.</li>
+      <li><strong>Exact calculation:</strong> Show your algorithm with decimal points aligned, or your mental strategy steps.</li>
+      <li><strong>Strategy justification sentence.</strong></li>
+      <li><strong>Check:</strong> Compare your exact answer to your estimate. Are they close?</li>
+    </ol>
+  </div>
+
+  <div class="collapse-header blue" onclick="toggleCollapse('t2-worked')">
+    <span>📋 Teacher Notes, Tier 2/3 Sample Answer</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="t2-worked" class="collapse-content">
+    <div class="card">
+      <p style="margin-bottom:14px;"><strong>Example: Jumping Castle ($455.50), Face Paint Supplies (3 × $34.75 = $104.25), Balloon Package ($67.80), Decorations ($44.90), Photo Booth ($249.95).</strong></p>
+      <div class="callout callout-amber">
+        <span class="label">📡 Radar for Error</span>
+        <p style="font-family:'Space Mono',monospace; font-size:13px; line-height:1.8;">Hidden steps first:<br>3 × $35 ≈ $105<br><br>Then estimate total:<br>$456 + $105 + $68 + $45 + $250 ≈ $924</p>
+      </div>
+      <div class="callout callout-teal">
+        <span class="label">🔢 Exact Calculation</span>
+        <p style="font-family:'Space Mono',monospace; font-size:13px; line-height:1.8;">3 × $34.75 = $104.25 (hidden step)<br><br>$455.50<br>$104.25<br>$ 67.80<br>$ 44.90<br>$249.95<br>────────<br>$922.40</p>
+      </div>
+      <div class="callout callout-blue">
+        <span class="label">✅ Check</span>
+        <p>My exact answer of $922.40 is very close to my estimate of $924. My calculation is reasonable. Budget remaining: $1,500.00 − $922.40 = $577.60.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── GO DEEPER EXTENSION ────────────── -->
+<div id="deeper" class="section">
+  <div class="section-title">Extension · Go Deeper, Challenge Yourself</div>
+  <div class="section-heading">🚀 Extension Tasks for Mathematicians</div>
+
+  <div class="go-deeper-section" style="margin: 20px auto;">
+    <button class="go-deeper-toggle" onclick="this.classList.toggle('open'); this.nextElementSibling.style.maxHeight = this.classList.contains('open') ? '5000px' : '0';">
+      <span>Conjecture, Justify, Generalise</span>
+      <span class="arrow">▼</span>
+    </button>
+  <div class="go-deeper-content">
+    <div style="padding: 1.5rem;">
+      <p style="font-size: 0.95rem; color: #636E72; margin-bottom: 1.5rem; line-height: 1.6;">You have mastered the core task. These three challenges will push your thinking further. Each one asks you to conjecture, justify, and generalise, the marks of a true mathematician.</p>
+
+      <!-- Extension Task 1: Conjecturing -->
+      <div class="ext-task">
+        <div class="ext-task-label">Extension Task 1: Conjecturing</div>
+        <div class="ext-task-prompt">When planning a budget, rounding every cost UP before adding gives you a safer estimate than rounding to the nearest hundred. Always, sometimes, or never?</div>
+        <div class="ext-task-sub">Explain your thinking with an example or counterexample.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Mathematician's Response</div>
+          <p><strong>Answer: ALWAYS for staying under budget, but with a caveat.</strong></p>
+          <p style="margin-top: 0.75rem;">If you round every cost <span class="ext-numbers">UP</span>, your estimate will always be equal to or greater than the real total. This is mathematically guaranteed. So if your rounded total fits within the budget, the real total definitely will too.</p>
+          <p style="margin-top: 0.75rem;">For example:</p>
+          <ul style="margin: 0.75rem 0 0 1.5rem; line-height: 1.7;">
+            <li>Real costs: <span class="ext-numbers">$450, $175, $380, $290, $350</span></li>
+            <li>Rounding UP: <span class="ext-numbers">$500, $200, $400, $300, $400 = $1,800</span></li>
+            <li>Real total: <span class="ext-numbers">$1,645</span></li>
+          </ul>
+          <p style="margin-top: 0.75rem;">The estimate is <span class="ext-numbers">$155 higher</span> than reality, but you're safe.</p>
+          <p style="margin-top: 0.75rem;"><strong>But here's the downside:</strong> Rounding UP might make you think you can't afford something when actually you can. With <span class="ext-numbers">$2,000</span> to spend, you'd estimate <span class="ext-numbers">$1,800</span> left for decorations. But the real leftover is <span class="ext-numbers">$355</span>. So "safer" means "overcautious", but that's not always a bad thing in budgeting!</p>
+        </div>
+      </div>
+
+      <!-- Extension Task 2: Justifying (Error/Counterexample) -->
+      <div class="ext-task">
+        <div class="ext-task-label">Extension Task 2: Justifying Your Thinking</div>
+        <div class="ext-task-prompt">A student planned a school fete budget with <span class="ext-numbers">$2,000</span> to spend. Here are their costs: Bouncy castle <span class="ext-numbers">$450</span>, Face painting <span class="ext-numbers">$175</span>, Food stall supplies <span class="ext-numbers">$380</span>, Prizes <span class="ext-numbers">$290</span>, DJ <span class="ext-numbers">$350</span>. The student estimated by rounding each to the nearest hundred: <span class="ext-numbers">$500 + $200 + $400 + $300 + $400 = $1,800</span>. They said: "We have <span class="ext-numbers">$200</span> left over for decorations." Is the student's conclusion correct? Explain why or why not.</div>
+        <div class="ext-task-sub">Show the exact total and compare it to the student's estimate.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Mathematician's Response</div>
+          <p><strong>Answer: No, the student's conclusion is wrong.</strong></p>
+          <p style="margin-top: 0.75rem;">The student calculated correctly that the rounded estimate is <span class="ext-numbers">$1,800</span>, but they didn't calculate the real total.</p>
+          <p style="margin-top: 0.75rem;">Let me work it out:</p>
+          <ul style="margin: 0.75rem 0 0 1.5rem; line-height: 1.7;">
+            <li><span class="ext-numbers">$450 + $175 = $625</span></li>
+            <li><span class="ext-numbers">$625 + $380 = $1,005</span></li>
+            <li><span class="ext-numbers">$1,005 + $290 = $1,295</span></li>
+            <li><span class="ext-numbers">$1,295 + $350 = $1,645</span> (real total)</li>
+          </ul>
+          <p style="margin-top: 0.75rem;">The real leftover is: <span class="ext-numbers">$2,000 − $1,645 = $355</span>, not <span class="ext-numbers">$200</span>.</p>
+          <p style="margin-top: 0.75rem;"><strong>Here's what went wrong:</strong> The student's rounding overestimated the actual cost. They rounded each number up, so <span class="ext-numbers">$1,800</span> (estimate) is higher than <span class="ext-numbers">$1,645</span> (reality). This is good news, they actually have MORE money left than they think!</p>
+          <p style="margin-top: 0.75rem;"><strong>The lesson:</strong> If your exact answer is significantly different from your estimate, you must investigate. In this case, the student was lucky, but they didn't know why their estimate was high, and that's a problem.</p>
+        </div>
+      </div>
+
+      <!-- Extension Task 3: Generalising -->
+      <div class="ext-task">
+        <div class="ext-task-label">Extension Task 3: Generalising Across All Problems</div>
+        <div class="ext-task-prompt">Think about all the strategies you have learned in this unit: Radar for Error, bar models, hidden steps, extraneous information, and strategy choice. Write 3 rules that a Year 4 student should follow when solving ANY multi-step word problem. Your rules should be general enough to work for any problem, not just budget problems.</div>
+        <div class="ext-task-sub">Make them clear, memorable, and practical.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">Mathematician's Response</div>
+          <p><strong>Here are three essential rules:</strong></p>
+          <div class="mathematician-box">
+            <p style="margin: 0 0 1rem 0;"><strong>Rule 1: Read and Prepare (Before You Calculate)</strong></p>
+            <p style="margin: 0;">Read the whole problem twice. Cross out any information you don't need. Underline the question you're answering. Draw a bar model if the problem is tricky. If there's a hidden step (like multiplying first), identify it now, not halfway through your calculation.</p>
+          </div>
+          <div class="mathematician-box">
+            <p style="margin: 0 0 1rem 0;"><strong>Rule 2: Estimate First (Your Safety Net)</strong></p>
+            <p style="margin: 0;">Round the numbers in a sensible way and work out an approximate answer. Write it down. This is your Radar for Error, if your final answer is wildly different, something has gone wrong and you need to find the mistake before you hand it in.</p>
+          </div>
+          <div class="mathematician-box">
+            <p style="margin: 0 0 1rem 0;"><strong>Rule 3: Break It Into Steps (One Step at a Time)</strong></p>
+            <p style="margin: 0;">Don't try to do everything in one go. Write out each step clearly. After each step, check: "Does this number make sense?" If you're not sure which calculation tool to use (mental, written, or calculator), choose the one that matches the numbers you have. Always show your working so you can find any mistakes.</p>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size: 0.85rem; color: #636E72; margin-top: 2rem; text-align: center;">These three tasks will help you see how the strategies you learned today apply to every maths problem you solve, not just fete budgets.</p>
+    </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 5: PLENARY ────────────── -->
+<div id="plenary" class="section">
+  <div class="section-title">Phase 5 · Plenary (Wrap Up), 5 mins</div>
+  <div class="section-heading">Did your Radar save the fete?</div>
+
+  <div class="card">
+    <h3>💬 Share and Reflect</h3>
+    <p style="font-size:16px; line-height:1.7; margin-bottom:20px;">Ask a few students to share their final budgets and estimates. Use these questions to guide the discussion.</p>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="background:#f0fafa; border-left:4px solid var(--teal); border-radius:0 12px 12px 0; padding:14px 18px; font-size:16px; color:var(--text);">
+        "Did anyone's estimate stop them from going over budget today?"
+      </div>
+      <div style="background:#f0fafa; border-left:4px solid var(--teal); border-radius:0 12px 12px 0; padding:14px 18px; font-size:16px; color:var(--text);">
+        "Did anyone's exact answer surprise them compared to their estimate? What did you do?"
+      </div>
+      <div style="background:#f0fafa; border-left:4px solid var(--teal); border-radius:0 12px 12px 0; padding:14px 18px; font-size:16px; color:var(--text);">
+        "Who used a calculator? Who used a written algorithm? Did it matter which tool you used, as long as you checked with the Radar?"
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🎉 Congratulations</h3>
+    <div class="callout callout-green">
+      <span class="label">✅ What You Have Built</span>
+      <p>Over these lessons you have built a highly tuned <strong>Radar for Error</strong>. You can estimate, calculate, and check. You can identify hidden steps, spot extraneous information, and choose the right strategy for the right numbers. These are the marks of a mathematician who genuinely understands, not just one who follows rules.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:20px;">
+      <div style="background:#dbeafe; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--blue);">
+        <div style="font-size:28px; margin-bottom:6px;">🎨</div>
+        <div style="font-weight:700; font-size:14px; color:var(--blue-dark);">Bar Models</div>
+        <div style="font-size:12px; color:#1e3a6e; margin-top:4px;">Visualise every problem</div>
+      </div>
+      <div style="background:#fef9c3; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--amber-dark);">
+        <div style="font-size:28px; margin-bottom:6px;">📡</div>
+        <div style="font-weight:700; font-size:14px; color:#78350f;">Radar for Error</div>
+        <div style="font-size:12px; color:#78350f; margin-top:4px;">Estimate before you calculate</div>
+      </div>
+      <div style="background:#fff4f4; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--red);">
+        <div style="font-size:28px; margin-bottom:6px;">🕵️</div>
+        <div style="font-weight:700; font-size:14px; color:#c0392b;">Hidden Steps</div>
+        <div style="font-size:12px; color:#5c1a1a; margin-top:4px;">Read every word carefully</div>
+      </div>
+      <div style="background:#fee2e2; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--red);">
+        <div style="font-size:28px; margin-bottom:6px;">🚫</div>
+        <div style="font-weight:700; font-size:14px; color:#c0392b;">Extraneous Info</div>
+        <div style="font-size:12px; color:#5c1a1a; margin-top:4px;">Ignore what you don't need</div>
+      </div>
+      <div style="background:#e8fdf0; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--green);">
+        <div style="font-size:28px; margin-bottom:6px;">🧠</div>
+        <div style="font-weight:700; font-size:14px; color:var(--green-dark);">Strategy Choice</div>
+        <div style="font-size:12px; color:#064e26; margin-top:4px;">Choose the right tool</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  // Budget tracker state
+  const t1 = { budget: 5000, items: {} };
+  const t2 = { budget: 1500, items: {} };
+
+  function toggleFete(el, tier, price, name) {
+    const state = tier === 't1' ? t1 : t2;
+    if (el.classList.contains('selected')) {
+      el.classList.remove('selected');
+      delete state.items[name];
+    } else {
+      const newTotal = Object.values(state.items).reduce((a, b) => a + b, 0) + price;
+      if (newTotal > state.budget) {
+        el.style.animation = 'shake 0.3s ease';
+        setTimeout(() => el.style.animation = '', 300);
+        return;
+      }
+      el.classList.add('selected');
+      state.items[name] = price;
+    }
+    updateBudget(tier);
+  }
+
+  function updateBudget(tier) {
+    const state = tier === 't1' ? t1 : t2;
+    const total = Object.values(state.items).reduce((a, b) => a + b, 0);
+    const count = Object.keys(state.items).length;
+    const pct = (total / state.budget) * 100;
+
+    // Update item count
+    document.getElementById(tier + '-count').textContent = count + ' / 5 minimum' + (count >= 5 ? ' ✓' : '');
+
+    // Update budget status (no exact figures -- students must calculate these themselves)
+    const statusEl = document.getElementById(tier + '-budget-status');
+    if (pct > 90) {
+      statusEl.textContent = 'Getting close to the limit!';
+      statusEl.style.color = '#92400e';
+    } else {
+      statusEl.textContent = 'Within budget';
+      statusEl.style.color = '#1a8a4a';
+    }
+
+    // Items list (names only -- no prices, students must look these up from the cards)
+    const listEl = document.getElementById(tier + '-items-list');
+    const keys = Object.keys(state.items);
+    if (keys.length === 0) {
+      listEl.textContent = 'No items selected yet.';
+    } else {
+      listEl.innerHTML = '<strong>Selected:</strong> ' + keys.join(' · ');
+    }
+  }
+
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleCollapse(id) {
+    const content = document.getElementById(id);
+    const header = content.previousElementSibling;
+    content.classList.toggle('expanded');
+    header.classList.toggle('expanded');
+  }
+
+  function toggleReveal(id) {
+    document.getElementById(id).classList.toggle('shown');
+  }
+
+  // Shake animation
+  const style = document.createElement('style');
+  style.textContent = '@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }';
+  document.head.appendChild(style);
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+</script>
+
+</body>
+</html>

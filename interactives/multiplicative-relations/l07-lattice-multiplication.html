@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 7: Lattice Multiplication - Maths Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa;
+    --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #27AE60; --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  header { background: #2D3436; color: #fff; padding: 36px 48px 28px; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%); pointer-events: none; }
+  header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  header h1 { font-size: clamp(26px, 5vw, 42px); font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 560px; font-weight: 500; }
+
+  .phase-nav { display: flex; gap: 10px; padding: 18px 48px; background: #3d4347; flex-wrap: wrap; }
+  .phase-nav button { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: none; border-radius: 30px; padding: 8px 20px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .lisc-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 28px; margin-bottom: 24px; border-top: 5px solid var(--teal); }
+  .lisc-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .lisc-header h2 { font-size: 17px; font-weight: 700; }
+  .lisc-toggle { font-size: 15px; transition: transform 0.3s; }
+  .lisc-body { display: none; margin-top: 16px; }
+  .lisc-body.open { display: block; }
+  .lisc-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--teal-dark); }
+  .lisc-body p { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+  .lisc-body ul { list-style: none; margin: 0 0 12px 0; }
+  .lisc-body li { padding: 4px 0 4px 22px; position: relative; font-size: 14px; line-height: 1.5; }
+  .lisc-body li::before { content: "\2014"; position: absolute; left: 0; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 6px; }
+  .section-heading { font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  .step-row { display: flex; align-items: baseline; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 16px; }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { font-weight: 700; color: var(--teal-dark); min-width: 28px; }
+  .step-hidden { visibility: hidden; }
+  .step-reveal-btn { background: var(--teal); color: #fff; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; transition: all 0.2s; }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { background: #c8d6d4; cursor: not-allowed; transform: none; }
+  .check-btn { background: var(--blue); color: #fff; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover { background: var(--blue-dark); }
+  .check-btn:disabled { background: #b0c4d0; cursor: not-allowed; }
+
+  .reveal-btn { background: var(--amber); color: var(--text); border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; transition: all 0.2s; }
+  .reveal-btn:hover { background: var(--amber-dark); transform: translateY(-2px); }
+
+  .radar-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+  .radar-input {
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    width: 120px; text-align: center; padding: 8px; border: 3px solid var(--amber);
+    border-radius: 14px; outline: none; background: #fffbf0;
+  }
+  .radar-input:focus { border-color: var(--orange); }
+  .radar-label { font-size: 15px; font-weight: 700; color: var(--amber-dark); }
+
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .summary-card { display: none; text-align: center; }
+  .summary-card.show { display: block; }
+  .summary-score { font-size: 48px; font-weight: 700; color: var(--teal-dark); margin: 12px 0; }
+
+  /* ── LATTICE GRID ── */
+  .lattice-wrap { display: flex; justify-content: center; margin: 20px 0; }
+  .lattice-container { position: relative; display: inline-block; }
+
+  .lattice-grid { border-collapse: collapse; }
+  .lattice-grid td {
+    width: 70px; height: 70px; position: relative;
+    border: 2px solid var(--text);
+  }
+  .lattice-grid .header-cell {
+    border: none; width: 70px; height: 36px;
+    text-align: center; vertical-align: bottom;
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    color: var(--blue);
+  }
+  .lattice-grid .side-cell {
+    border: none; width: 36px; height: 70px;
+    text-align: left; vertical-align: middle; padding-left: 8px;
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    color: var(--blue);
+  }
+  .lattice-grid .corner-cell { border: none; width: 36px; height: 36px; }
+
+  /* Diagonal line via SVG overlay */
+  .lattice-cell {
+    position: relative;
+    overflow: visible;
+  }
+  .lattice-cell svg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .lattice-cell .tens-val {
+    position: absolute; top: 4px; left: 8px;
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+  }
+  .lattice-cell .ones-val {
+    position: absolute; bottom: 4px; right: 8px;
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+  }
+
+  .lattice-cell input {
+    font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700;
+    width: 28px; height: 26px; text-align: center; border: 2px solid var(--border);
+    border-radius: 6px; outline: none; background: white; position: absolute; z-index: 2;
+  }
+  .lattice-cell input.tens-input { top: 2px; left: 4px; }
+  .lattice-cell input.ones-input { bottom: 2px; right: 4px; }
+  .lattice-cell input:focus { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(78,205,196,0.25); }
+  .lattice-cell input.correct { border-color: var(--green); background: var(--green-light); }
+  .lattice-cell input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* Diagonal sums row/col */
+  .diag-cell {
+    border: none !important; width: 36px; height: 36px;
+    text-align: center; vertical-align: middle;
+  }
+  .diag-cell input {
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+    width: 34px; height: 30px; text-align: center; border: 2px solid var(--amber);
+    border-radius: 6px; outline: none; background: #fffbf0;
+  }
+  .diag-cell input:focus { border-color: var(--orange); }
+  .diag-cell input.correct { border-color: var(--green); background: var(--green-light); }
+  .diag-cell input.wrong { border-color: var(--red); background: var(--red-light); }
+  .diag-cell .diag-static {
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+    color: var(--purple);
+  }
+
+  .answer-row-lattice {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin: 16px 0; font-size: 18px; font-weight: 600;
+  }
+  .answer-input-lattice {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 120px; text-align: center; padding: 8px; border: 3px solid var(--teal);
+    border-radius: 14px; outline: none; background: white;
+  }
+  .answer-input-lattice:focus { border-color: var(--teal-dark); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .answer-input-lattice.correct { border-color: var(--green); background: var(--green-light); }
+  .answer-input-lattice.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* Diagonal highlight for teaching */
+  .diag-highlight-0 { background: rgba(78,205,196,0.15); }
+  .diag-highlight-1 { background: rgba(255,217,61,0.15); }
+  .diag-highlight-2 { background: rgba(52,152,219,0.15); }
+  .diag-highlight-3 { background: rgba(155,93,229,0.15); }
+  .diag-highlight-4 { background: rgba(255,107,107,0.15); }
+
+  /* Staged reveal for lattice grids */
+  .lattice-staged .lattice-cell .tens-val,
+  .lattice-staged .lattice-cell .ones-val { opacity: 0; transition: opacity 0.4s ease; }
+  .lattice-staged .lattice-cell .tens-val.show,
+  .lattice-staged .lattice-cell .ones-val.show { opacity: 1; }
+  .lattice-staged .diag-cell .diag-static { opacity: 0; transition: opacity 0.4s ease; }
+  .lattice-staged .diag-cell .diag-static.show { opacity: 1; }
+  .lattice-staged .lattice-answer-text { opacity: 0; transition: opacity 0.4s ease; }
+  .lattice-staged .lattice-answer-text.show { opacity: 1; }
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); max-width: 700px; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  @media (max-width: 600px) {
+    header { padding: 28px 20px 20px; }
+    .phase-nav { padding: 14px 20px; gap: 6px; }
+    .phase-nav button { font-size: 13px; padding: 6px 14px; }
+    main { padding: 20px 16px 40px; }
+    .card { padding: 20px 18px; }
+    .lattice-grid td { width: 56px; height: 56px; }
+    .lattice-grid .header-cell { width: 56px; font-size: 18px; }
+    .lattice-grid .side-cell { font-size: 18px; }
+    .lattice-cell .tens-val, .lattice-cell .ones-val { font-size: 14px; }
+    .lattice-cell input { width: 24px; height: 22px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Lesson 7 &middot; Year 5 Mathematics &middot; Multiplicative Relations</div>
+  <h1>Lattice <span>Multiplication</span></h1>
+  <p>A different scaffold for the same maths - used by merchants for centuries</p>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showPhase('hook', this)">Hook</button>
+  <button onclick="showPhase('ido', this)">I Do</button>
+  <button onclick="showPhase('wedo', this)">We Do</button>
+  <button onclick="showPhase('youdo', this)">You Do</button>
+</nav>
+
+<main>
+
+<!-- LISC CARD -->
+<div class="lisc-card">
+  <div class="lisc-header" onclick="toggleLISC()">
+    <h2>Learning Intention &amp; Success Criteria</h2>
+    <span class="lisc-toggle" id="liscToggle">&#x25BC;</span>
+  </div>
+  <div class="lisc-body" id="liscBody">
+    <h3>We are learning to...</h3>
+    <p>Use the lattice method to multiply two-digit numbers, and explain how it connects to place value.</p>
+    <h3>I will know I can do this when...</h3>
+    <ul>
+      <li>I can set up a lattice grid correctly for a 2-digit by 2-digit multiplication.</li>
+      <li>I can fill in the diagonal cells and add along the diagonals correctly.</li>
+      <li>I can explain what each diagonal strip represents in place value terms.</li>
+      <li>I can check my lattice answer using a Radar estimate.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════ HOOK ═══════════ -->
+<div class="section active" id="hook">
+  <div class="section-title">The Hook</div>
+  <div class="section-heading">A Different Arrangement</div>
+
+  <div class="card">
+    <h3>The Challenge</h3>
+    <p>Try to solve this multiplication using whichever method you prefer:</p>
+    <p style="text-align:center; margin: 20px 0;"><span class="mono" style="font-size: 28px;">47 &times; 38</span></p>
+    <p>Take a moment to work through it - then we will see a method used by merchants across the Middle East and Europe hundreds of years ago.</p>
+  </div>
+
+  <div class="card">
+    <h3>Radar Estimate</h3>
+    <p>Before we solve, let us estimate.</p>
+    <div class="callout callout-amber">
+      <div class="label">Radar</div>
+      <p><strong>47</strong> rounds to <strong>50</strong>, and <strong>38</strong> rounds to <strong>40</strong>.</p>
+      <p>So our answer should be near <span class="mono">50 &times; 40 = 2,000</span>.</p>
+      <p>We rounded both numbers up, so the true answer will be a bit less than 2,000.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <button class="reveal-btn" onclick="revealHookLattice()">Show the lattice method</button>
+  </div>
+
+  <div class="card" id="hook-lattice" style="display:none;">
+    <h3>The Lattice Method</h3>
+    <p>Here is the lattice grid for 47 &times; 38. Each cell holds one single-digit multiplication, split into tens and ones by the diagonal.</p>
+    <div id="hook-lattice-grid"></div>
+    <div style="text-align:center; margin-top:16px;">
+      <button class="am-reveal-btn" id="hook-lattice-reveal-btn" style="display:none;" onclick="nextHookLatticeReveal()">Fill the first cell: 4 &times; 3 &rarr;</button>
+    </div>
+    <div id="hook-lattice-check" style="display:none;">
+      <div class="callout callout-teal" style="margin-top:12px;">
+        <div class="label">Check</div>
+        <p><span class="mono">1,786</span> is close to our Radar estimate of about 2,000. It is a bit less, as expected.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ I DO ═══════════ -->
+<div class="section" id="ido">
+  <div class="section-title">Explicit Teaching</div>
+  <div class="section-heading">How the Lattice Works</div>
+
+  <div class="card">
+    <h3>Setting Up: 47 &times; 38</h3>
+    <p>Follow along step by step.</p>
+
+    <div class="step-row step-hidden" data-group="setup">
+      <span class="step-num">1.</span>
+      <span>Draw a 2 &times; 2 grid. Write <strong class="mono">4</strong> and <strong class="mono">7</strong> along the top. Write <strong class="mono">3</strong> and <strong class="mono">8</strong> down the right side.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="setup">
+      <span class="step-num">2.</span>
+      <span>Draw a diagonal line from top-right to bottom-left through each cell. This splits each cell into a <strong>tens</strong> triangle (top-left) and an <strong>ones</strong> triangle (bottom-right).</span>
+    </div>
+    <div class="step-row step-hidden" data-group="setup">
+      <span class="step-num">3a.</span>
+      <span>Top-left cell: <span class="mono">4 &times; 3 = 12</span>. Write <strong class="mono">1</strong> above the diagonal, <strong class="mono">2</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="setup">
+      <span class="step-num">3b.</span>
+      <span>Top-right cell: <span class="mono">7 &times; 3 = 21</span>. Write <strong class="mono">2</strong> above, <strong class="mono">1</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="setup">
+      <span class="step-num">3c.</span>
+      <span>Bottom-left cell: <span class="mono">4 &times; 8 = 32</span>. Write <strong class="mono">3</strong> above, <strong class="mono">2</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="setup">
+      <span class="step-num">3d.</span>
+      <span>Bottom-right cell: <span class="mono">7 &times; 8 = 56</span>. Write <strong class="mono">5</strong> above, <strong class="mono">6</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="setup">
+      <span class="step-num">4.</span>
+      <span>Add along diagonals from bottom-right: <strong class="mono">6</strong>, then <strong class="mono">2 + 5 + 1 = 8</strong>, then <strong class="mono">3 + 2 + 2 = 7</strong>, then <strong class="mono">1</strong>. Read the answer: <span class="mono">1,786</span>.</span>
+    </div>
+    <button class="step-reveal-btn" onclick="revealGroup('setup')">Reveal next step</button>
+
+    <div id="ido-lattice-grid" style="margin-top:20px;"></div>
+  </div>
+
+  <div class="card">
+    <h3>Why the Diagonals Work</h3>
+    <div class="callout callout-teal">
+      <div class="label">Place Value Connection</div>
+      <p>Each diagonal strip corresponds to a place value column. The bottom-right diagonal is <strong>ones</strong>, the next is <strong>tens</strong>, then <strong>hundreds</strong>, then <strong>thousands</strong>.</p>
+      <p>This is why the lattice avoids carrying errors - the place value alignment is built into the grid.</p>
+    </div>
+    <p style="margin-top:12px;">The lattice, area model, and standard algorithm are all the same maths arranged differently. The lattice just handles the place value automatically through its diagonals.</p>
+  </div>
+
+  <div class="card">
+    <h3>Example 2: 63 &times; 45</h3>
+    <p>Radar: <span class="mono">60 &times; 45 = 2,700</span>. Answer should be near 2,700, but a bit more (we rounded 63 down).</p>
+
+    <div class="step-row step-hidden" data-group="ex2">
+      <span class="step-num">1.</span>
+      <span>Set up: <strong class="mono">6</strong> and <strong class="mono">3</strong> along the top, <strong class="mono">4</strong> and <strong class="mono">5</strong> down the right.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="ex2">
+      <span class="step-num">2a.</span>
+      <span>Top-left cell: <span class="mono">6 &times; 4 = 24</span>. Write <strong class="mono">2</strong> above, <strong class="mono">4</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="ex2">
+      <span class="step-num">2b.</span>
+      <span>Top-right cell: <span class="mono">3 &times; 4 = 12</span>. Write <strong class="mono">1</strong> above, <strong class="mono">2</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="ex2">
+      <span class="step-num">2c.</span>
+      <span>Bottom-left cell: <span class="mono">6 &times; 5 = 30</span>. Write <strong class="mono">3</strong> above, <strong class="mono">0</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="ex2">
+      <span class="step-num">2d.</span>
+      <span>Bottom-right cell: <span class="mono">3 &times; 5 = 15</span>. Write <strong class="mono">1</strong> above, <strong class="mono">5</strong> below.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="ex2">
+      <span class="step-num">3.</span>
+      <span>Add diagonals from bottom-right: <strong class="mono">5</strong>, then <strong class="mono">1 + 0 + 2 = 3</strong>, then <strong class="mono">3 + 4 + 1 = 8</strong>, then <strong class="mono">2</strong>. Read the answer: <span class="mono">2,835</span>.</span>
+    </div>
+    <div class="step-row step-hidden" data-group="ex2">
+      <span class="step-num">4.</span>
+      <span>Check: <span class="mono">2,835</span> is close to our Radar of 2,700. A bit more, as expected. Correct.</span>
+    </div>
+    <button class="step-reveal-btn" onclick="revealGroup('ex2')">Reveal next step</button>
+
+    <div id="ido-lattice-grid2" style="margin-top:20px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════ WE DO ═══════════ -->
+<div class="section" id="wedo">
+  <div class="section-title">Guided Practice</div>
+  <div class="section-heading">Your turn, with support</div>
+  <div id="wedo-container"></div>
+</div>
+
+<!-- ═══════════ YOU DO ═══════════ -->
+<div class="section" id="youdo">
+  <div class="section-title">Independent Practice</div>
+  <div class="section-heading">Lattice Multiplication Builder</div>
+
+  <div class="card" id="level-select-card">
+    <h3>Choose your level</h3>
+    <p style="margin-bottom:16px;">Each level has 6 problems. You need a Radar estimate before each one.</p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+      <button class="btn btn-primary" onclick="startLevel(1)">Level 1: Small Digits</button>
+      <button class="btn btn-primary" onclick="startLevel(2)">Level 2: With Carries</button>
+      <button class="btn btn-primary" onclick="startLevel(3)">Level 3: 3-digit &times; 2-digit</button>
+    </div>
+  </div>
+
+  <div id="practice-area" style="display:none;">
+    <div class="dot-counter" id="practice-dots"></div>
+    <div class="card" id="practice-card"></div>
+    <div class="summary-card card" id="practice-summary">
+      <h3>Level Complete</h3>
+      <div class="summary-score" id="practice-score"></div>
+      <p id="practice-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+        <button class="btn btn-primary" onclick="retryLevel()">Try Again (New Problems)</button>
+        <button class="btn btn-primary" style="background:var(--purple);" onclick="backToLevels()">Choose Another Level</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ GO DEEPER ═══════════ -->
+<div class="go-deeper-card" id="go-deeper-locked">
+  <h2>Go Deeper</h2>
+  <p>Unlock deeper mathematical thinking by completing all levels in independent practice.</p>
+  <button class="go-deeper-level-btn locked" style="margin-top: 0;">
+    <h3>&#x1F512; Locked until You Do complete</h3>
+    <p>Finish Level 1, Level 2, or Level 3 to access these extension tasks</p>
+  </button>
+</div>
+
+<div class="go-deeper-card" id="go-deeper-content" style="display: none;">
+  <h2>Go Deeper</h2>
+  <p>Three tasks to strengthen your mathematical thinking about the lattice method.</p>
+
+  <!-- Task 1: Specialising -->
+  <div class="ext-task">
+    <div class="ext-task-label">Task 1: Specialising</div>
+    <div class="ext-task-prompt">A student used the lattice method to multiply <span class="ext-numbers">68 × 47</span>. They got all the cell products right, but when they added the diagonals, they got <span class="ext-numbers">2,196</span> instead of <span class="ext-numbers">3,196</span>. Find the diagonal addition error.</div>
+    <div class="ext-task-sub">Hint: Which diagonal carries a value to the next diagonal?</div>
+
+    <textarea class="ext-thinking-area" id="task1-thinking" placeholder="Show your thinking here..."></textarea>
+
+    <button class="ext-reveal-btn" onclick="toggleTask1Response()">Show Model Response</button>
+
+    <div class="ext-model-response" id="task1-response">
+      <div class="model-label">Model Response</div>
+      <p>Let me work through the lattice grid for <span class="ext-numbers">68 × 47</span>.</p>
+      <p>First, the cell products:</p>
+      <ul style="margin-left: 20px; margin-bottom: 10px;">
+        <li><span class="ext-numbers">6 × 4 = 24</span> (tens = <span class="ext-numbers">2</span>, ones = <span class="ext-numbers">4</span>)</li>
+        <li><span class="ext-numbers">8 × 4 = 32</span> (tens = <span class="ext-numbers">3</span>, ones = <span class="ext-numbers">2</span>)</li>
+        <li><span class="ext-numbers">6 × 7 = 42</span> (tens = <span class="ext-numbers">4</span>, ones = <span class="ext-numbers">2</span>)</li>
+        <li><span class="ext-numbers">8 × 7 = 56</span> (tens = <span class="ext-numbers">5</span>, ones = <span class="ext-numbers">6</span>)</li>
+      </ul>
+      <p>Now the diagonals (reading from bottom-right to top-left):</p>
+      <ul style="margin-left: 20px; margin-bottom: 10px;">
+        <li>Ones diagonal: <span class="ext-numbers">6</span></li>
+        <li>Tens diagonal: <span class="ext-numbers">2 + 2 + 5 = 9</span> (no carry)</li>
+        <li>Hundreds diagonal: <span class="ext-numbers">4 + 3 + 4 = 11</span> → write <span class="ext-numbers">1</span>, carry <span class="ext-numbers">1</span></li>
+        <li>Thousands diagonal: <span class="ext-numbers">2 + 1 (carry) = 3</span></li>
+      </ul>
+      <p>The correct answer is <span class="ext-numbers">3,196</span>. The student got <span class="ext-numbers">2,196</span>, which means they wrote <span class="ext-numbers">2</span> in the thousands place instead of <span class="ext-numbers">3</span>. <strong>They forgot to add the carry from the hundreds diagonal.</strong> This is the most common mistake when using the lattice method!</p>
+      <div class="mathematician-box">
+        <strong>Why this matters:</strong> The lattice method still relies on carrying between place values. We need to keep track of those carries even though we're using a different layout. It helps to mark the carry clearly as you write it.
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 2: Conjecturing -->
+  <div class="ext-task">
+    <div class="ext-task-label">Task 2: Conjecturing</div>
+    <div class="ext-task-prompt">In a lattice multiplication, swapping the two numbers (for example, doing <span class="ext-numbers">46 × 73</span> instead of <span class="ext-numbers">73 × 46</span>) gives a different pattern in the grid but should give the same final answer. Is this: Always true, Sometimes true, or Never true?</div>
+    <div class="ext-task-sub">Test your conjecture with at least one example.</div>
+
+    <textarea class="ext-thinking-area" id="task2-thinking" placeholder="Show your thinking here..."></textarea>
+
+    <button class="ext-reveal-btn" onclick="toggleTask2Response()">Show Model Response</button>
+
+    <div class="ext-model-response" id="task2-response">
+      <div class="model-label">Model Response</div>
+      <p>Let me test this with <span class="ext-numbers">46 × 73</span> and <span class="ext-numbers">73 × 46</span>.</p>
+      <p><strong>For <span class="ext-numbers">46 × 73</span>:</strong></p>
+      <ul style="margin-left: 20px; margin-bottom: 10px;">
+        <li>Cell products: <span class="ext-numbers">4 × 7 = 28</span>, <span class="ext-numbers">4 × 3 = 12</span>, <span class="ext-numbers">6 × 7 = 42</span>, <span class="ext-numbers">6 × 3 = 18</span></li>
+        <li>Final answer: <span class="ext-numbers">3,358</span></li>
+      </ul>
+      <p><strong>For <span class="ext-numbers">73 × 46</span>:</strong></p>
+      <ul style="margin-left: 20px; margin-bottom: 10px;">
+        <li>Cell products: <span class="ext-numbers">7 × 4 = 28</span>, <span class="ext-numbers">7 × 6 = 42</span>, <span class="ext-numbers">3 × 4 = 12</span>, <span class="ext-numbers">3 × 6 = 18</span></li>
+        <li>Final answer: <span class="ext-numbers">3,358</span></li>
+      </ul>
+      <p>The grid layout looks different, but all the same products appear (just in different positions), so the diagonal sums are the same. <strong>This is ALWAYS true.</strong></p>
+      <div class="mathematician-box">
+        <strong>Why this works:</strong> Multiplication is commutative, which means <span class="ext-numbers">a × b = b × a</span>. The lattice method is just a tool for organising our multiplying. No matter which order we put the numbers in, we get the same answer.
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 3: Generalising -->
+  <div class="ext-task">
+    <div class="ext-task-label">Task 3: Generalising</div>
+    <div class="ext-task-prompt">Look at the ones diagonal in any two-digit times two-digit lattice multiplication. The ones diagonal always contains just one number: the ones digit of the product of the two ones digits. Is this always true? Why or why not?</div>
+    <div class="ext-task-sub">Test this with at least two examples before explaining your thinking.</div>
+
+    <textarea class="ext-thinking-area" id="task3-thinking" placeholder="Show your thinking here..."></textarea>
+
+    <button class="ext-reveal-btn" onclick="toggleTask3Response()">Show Model Response</button>
+
+    <div class="ext-model-response" id="task3-response">
+      <div class="model-label">Model Response</div>
+      <p>Let me test this with two examples.</p>
+      <p><strong>Example 1: <span class="ext-numbers">46 × 73</span></strong></p>
+      <ul style="margin-left: 20px; margin-bottom: 10px;">
+        <li>Ones digits: <span class="ext-numbers">6</span> and <span class="ext-numbers">3</span></li>
+        <li><span class="ext-numbers">6 × 3 = 18</span> → ones digit is <span class="ext-numbers">8</span></li>
+        <li>The answer <span class="ext-numbers">3,358</span> has a ones digit of <span class="ext-numbers">8</span> ✓</li>
+      </ul>
+      <p><strong>Example 2: <span class="ext-numbers">57 × 34</span></strong></p>
+      <ul style="margin-left: 20px; margin-bottom: 10px;">
+        <li>Ones digits: <span class="ext-numbers">7</span> and <span class="ext-numbers">4</span></li>
+        <li><span class="ext-numbers">7 × 4 = 28</span> → ones digit is <span class="ext-numbers">8</span></li>
+        <li>The answer <span class="ext-numbers">1,938</span> has a ones digit of <span class="ext-numbers">8</span> ✓</li>
+      </ul>
+      <p><strong>This is ALWAYS true.</strong> Here's why: In a <span class="ext-numbers">2 × 2</span> lattice grid, the ones digit of the final answer comes only from the ones diagonal. The ones diagonal contains only the ones digit of the bottom-right cell, which is the product of the two ones digits. The tens values from other cells affect tens and higher places, not the ones place.</p>
+      <div class="mathematician-box">
+        <strong>Big idea:</strong> The ones digit of any product depends only on the ones digits of the numbers being multiplied. This works for any multiplication, not just lattice method! For instance, <span class="ext-numbers">23 × 47</span> has the same ones digit as <span class="ext-numbers">3 × 7</span> because only the ones digits matter for the ones place.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+/* ═══════════ UTILITIES ═══════════ */
+function showPhase(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.phase-nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'wedo' && !weDoBuilt) buildWeDo();
+}
+
+function toggleLISC() {
+  var b = document.getElementById('liscBody');
+  var t = document.getElementById('liscToggle');
+  b.classList.toggle('open');
+  t.innerHTML = b.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+var revealState = {};
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.remove('step-hidden');
+    revealState[group]++;
+
+    // Sync lattice staged reveals with I Do step progression (cell by cell)
+    // Example 1: 47 x 38. Steps: 1=grid, 2=diagonals, 3a-3d=cells, 4=diag sums+answer
+    if (group === 'setup') {
+      var s = revealState[group];
+      if (s === 3) revealLatticeCell('ido-lattice-grid', 0, 0); // 4x3=12
+      if (s === 4) revealLatticeCell('ido-lattice-grid', 0, 1); // 7x3=21
+      if (s === 5) revealLatticeCell('ido-lattice-grid', 1, 0); // 4x8=32
+      if (s === 6) revealLatticeCell('ido-lattice-grid', 1, 1); // 7x8=56
+      if (s === 7) { revealLatticeDiags('ido-lattice-grid'); revealLatticeAnswer('ido-lattice-grid'); }
+    }
+    // Example 2: 63 x 45. Steps: 1=setup, 2a-2d=cells, 3=diag sums+answer, 4=check
+    if (group === 'ex2') {
+      var s2 = revealState[group];
+      if (s2 === 2) revealLatticeCell('ido-lattice-grid2', 0, 0); // 6x4=24
+      if (s2 === 3) revealLatticeCell('ido-lattice-grid2', 0, 1); // 3x4=12
+      if (s2 === 4) revealLatticeCell('ido-lattice-grid2', 1, 0); // 6x5=30
+      if (s2 === 5) revealLatticeCell('ido-lattice-grid2', 1, 1); // 3x5=15
+      if (s2 === 6) { revealLatticeDiags('ido-lattice-grid2'); revealLatticeAnswer('ido-lattice-grid2'); }
+    }
+  }
+}
+
+function updateDots(containerId, total, current) {
+  var html = '';
+  for (var i = 0; i < total; i++) {
+    var cls = 'dot';
+    if (i === current) cls += ' current';
+    html += '<div class="' + cls + '" id="' + containerId + '-' + i + '">' + (i + 1) + '</div>';
+  }
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+
+function randInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+
+/* ═══════════ LATTICE GRID BUILDER ═══════════ */
+function buildLatticeGrid(topDigits, sideDigits, containerId, options) {
+  // options: { interactive: bool, prefix: string, showValues: bool, showDiagSums: bool }
+  var opts = options || {};
+  var cols = topDigits.length;
+  var rows = sideDigits.length;
+  var totalDiags = cols + rows; // number of diagonals before any final carry
+
+  // Calculate all cell products
+  var cells = [];
+  for (var r = 0; r < rows; r++) {
+    cells[r] = [];
+    for (var c = 0; c < cols; c++) {
+      var prod = topDigits[c] * sideDigits[r];
+      cells[r][c] = { tens: Math.floor(prod / 10), ones: prod % 10 };
+    }
+  }
+
+  // Calculate diagonal sums (from bottom-right)
+  // Diagonal index 0 = bottom-right corner (ones place)
+  var diagSums = [];
+  var carry = 0;
+  for (var d = 0; d < totalDiags; d++) {
+    var sum = carry;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var pos = (rows - 1 - r) + (cols - 1 - c);
+        if (pos === d) sum += cells[r][c].ones;
+        if (pos === d - 1) sum += cells[r][c].tens;
+      }
+    }
+    diagSums[d] = sum % 10;
+    carry = Math.floor(sum / 10);
+  }
+  if (carry > 0) diagSums.push(carry);
+
+  var answerDigits = diagSums.slice().reverse();
+  var answer = parseInt(answerDigits.join(''), 10);
+
+  // Build HTML table
+  // Layout: left-side diag sums | grid cells | right-side digit labels
+  //         (empty corner)      | top digits | (empty corner)
+  //         left diag sums      | cells      | side digits
+  //         (empty corner)      | bottom diag sums | (empty corner)
+  //
+  // In a standard lattice, diagonals are read:
+  //   - Along the left side (top to bottom): highest place values
+  //   - Along the bottom (left to right): lower place values
+  // Reading order: left column top-to-bottom, then bottom row left-to-right
+  //
+  // Left side gets diagonal indices: (cols + rows - 1) down to cols  [rows entries]
+  //   But if there's a carry, the very top-left gets an extra one
+  // Bottom gets diagonal indices: (cols - 1) down to 0 [cols entries]
+
+  var stagedClass = opts.staged ? ' lattice-staged' : '';
+  var html = '<div class="lattice-wrap' + stagedClass + '"><div class="lattice-container"><table class="lattice-grid">';
+
+  // Top header row
+  html += '<tr>';
+  html += '<td class="corner-cell"></td>';
+  for (var c = 0; c < cols; c++) {
+    html += '<td class="header-cell">' + topDigits[c] + '</td>';
+  }
+  html += '<td class="corner-cell"></td>';
+  html += '</tr>';
+
+  // Grid rows with left-side diagonal sums
+  for (var r = 0; r < rows; r++) {
+    html += '<tr>';
+
+    // Left side diagonal sum
+    // Row 0 gets the highest diagonal, row (rows-1) gets diagonal index = cols
+    var leftDiagIdx = cols + rows - 1 - r;
+    html += '<td class="diag-cell">';
+    if (opts.showDiagSums) {
+      // For the first row, also prepend carry digit if it exists
+      if (r === 0 && diagSums.length > totalDiags) {
+        html += '<span class="diag-static">' + diagSums[totalDiags] + '</span>';
+      } else if (r === 0 && diagSums.length <= totalDiags) {
+        // Check if we need to show the leftDiagIdx
+        if (leftDiagIdx < diagSums.length) {
+          html += '<span class="diag-static">' + diagSums[leftDiagIdx] + '</span>';
+        }
+      } else {
+        if (leftDiagIdx < diagSums.length) {
+          html += '<span class="diag-static">' + diagSums[leftDiagIdx] + '</span>';
+        }
+      }
+    }
+    html += '</td>';
+
+    for (var c = 0; c < cols; c++) {
+      var prefix = opts.prefix || '';
+      var cellId = prefix + 'r' + r + 'c' + c;
+      html += '<td class="lattice-cell" id="cell-' + cellId + '">';
+      html += '<svg viewBox="0 0 70 70" preserveAspectRatio="none"><line x1="70" y1="0" x2="0" y2="70" stroke="' + (opts.diagColor || '#2D3436') + '" stroke-width="1.5"/></svg>';
+
+      if (opts.interactive) {
+        html += '<input type="number" class="tens-input" id="' + cellId + '-t" data-correct="' + cells[r][c].tens + '">';
+        html += '<input type="number" class="ones-input" id="' + cellId + '-o" data-correct="' + cells[r][c].ones + '">';
+      } else if (opts.showValues) {
+        html += '<span class="tens-val" data-row="' + r + '" data-col="' + c + '">' + cells[r][c].tens + '</span>';
+        html += '<span class="ones-val" data-row="' + r + '" data-col="' + c + '">' + cells[r][c].ones + '</span>';
+      }
+      html += '</td>';
+    }
+    html += '<td class="side-cell">' + sideDigits[r] + '</td>';
+    html += '</tr>';
+  }
+
+  // Bottom row for diagonal sums
+  html += '<tr>';
+  html += '<td class="corner-cell"></td>';
+  for (var c = 0; c < cols; c++) {
+    // Bottom row, from left to right: diagonal indices go (cols-1) down to 0
+    var bottomDiagIdx = cols - 1 - c;
+    html += '<td class="diag-cell">';
+    if (opts.showDiagSums) {
+      html += '<span class="diag-static">' + diagSums[bottomDiagIdx] + '</span>';
+    }
+    html += '</td>';
+  }
+  html += '<td class="corner-cell"></td>';
+  html += '</tr>';
+
+  html += '</table>';
+
+  // For static display with diag sums, show answer
+  if (opts.showDiagSums && !opts.interactive) {
+    html += '<p class="lattice-answer-text" style="text-align:center; margin-top:8px; font-size:15px; color:var(--purple); font-weight:600;">Reading diagonals: <span class="mono">' + answer.toLocaleString() + '</span></p>';
+  }
+
+  html += '</div></div>';
+
+  if (opts.interactive) {
+    // Diagonal sum collection area
+    html += '<div style="text-align:center; margin: 12px 0;">';
+    html += '<p style="font-size:15px; font-weight:600; color:var(--muted); margin-bottom:8px;">Add along each diagonal (from bottom-right):</p>';
+    html += '<div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; align-items:center;">';
+    for (var d = 0; d < diagSums.length; d++) {
+      if (d > 0) html += '<span style="color:var(--muted); font-weight:600;">,</span>';
+      html += '<input type="number" class="diag-sum-input" id="' + (opts.prefix || '') + 'dsum-' + d + '" data-correct="' + diagSums[d] + '" style="font-family:Space Mono,monospace; font-size:18px; font-weight:700; width:40px; height:36px; text-align:center; border:2px solid var(--amber); border-radius:8px; outline:none; background:#fffbf0;">';
+    }
+    html += '</div>';
+    html += '<p style="font-size:13px; color:var(--muted); margin-top:4px;">Ones first, then tens, hundreds, thousands...</p>';
+    html += '</div>';
+
+    // Final answer input
+    html += '<div class="answer-row-lattice">';
+    html += '<span>Answer:</span>';
+    html += '<input type="number" class="answer-input-lattice" id="' + (opts.prefix || '') + 'final" data-correct="' + answer + '">';
+    html += '</div>';
+  }
+
+  document.getElementById(containerId).innerHTML = html;
+  return { cells: cells, diagSums: diagSums, answer: answer };
+}
+
+/* ═══════════ STAGED LATTICE REVEAL ═══════════ */
+// Reveals a single cell's tens and ones values
+function revealLatticeCell(containerId, row, col) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.tens-val[data-row="' + row + '"][data-col="' + col + '"], .ones-val[data-row="' + row + '"][data-col="' + col + '"]').forEach(function(el) {
+    el.classList.add('show');
+  });
+}
+
+// Reveals all cells at once (used when syncing with a single text step)
+function revealAllLatticeCells(containerId) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.tens-val, .ones-val').forEach(function(el) { el.classList.add('show'); });
+}
+
+// Reveals diagonal sums
+function revealLatticeDiags(containerId) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.diag-static').forEach(function(el) { el.classList.add('show'); });
+}
+
+// Reveals the answer text
+function revealLatticeAnswer(containerId) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.lattice-answer-text').forEach(function(el) { el.classList.add('show'); });
+}
+
+/* ═══════════ HOOK ═══════════ */
+// Hook: 47 x 38 in a 2x2 grid. Cells revealed one at a time.
+// Cell order: (0,0)=4x3=12, (0,1)=7x3=21, (1,0)=4x8=32, (1,1)=7x8=56
+var hookLatticeStage = 0;
+var hookCellOrder = [[0,0],[0,1],[1,0],[1,1]];
+var hookCellLabels = [
+  '4 \u00d7 3 = 12. Show 7 \u00d7 3 next \u2192',
+  '7 \u00d7 3 = 21. Show 4 \u00d7 8 next \u2192',
+  '4 \u00d7 8 = 32. Show 7 \u00d7 8 next \u2192',
+  '7 \u00d7 8 = 56. Now add the diagonals \u2192'
+];
+
+function revealHookLattice() {
+  document.getElementById('hook-lattice').style.display = 'block';
+  buildLatticeGrid([4, 7], [3, 8], 'hook-lattice-grid', { showValues: true, showDiagSums: true, prefix: 'hook-', staged: true });
+  document.querySelector('#hook .reveal-btn').style.display = 'none';
+  document.getElementById('hook-lattice-reveal-btn').style.display = 'inline-block';
+}
+
+function nextHookLatticeReveal() {
+  var btn = document.getElementById('hook-lattice-reveal-btn');
+  var totalCells = hookCellOrder.length;
+
+  if (hookLatticeStage < totalCells) {
+    // Reveal one cell at a time
+    var cell = hookCellOrder[hookLatticeStage];
+    revealLatticeCell('hook-lattice-grid', cell[0], cell[1]);
+    btn.textContent = hookCellLabels[hookLatticeStage];
+    hookLatticeStage++;
+  } else if (hookLatticeStage === totalCells) {
+    // Reveal diagonal sums
+    revealLatticeDiags('hook-lattice-grid');
+    btn.textContent = 'Read the answer \u2192';
+    hookLatticeStage++;
+  } else if (hookLatticeStage === totalCells + 1) {
+    // Reveal answer
+    revealLatticeAnswer('hook-lattice-grid');
+    document.getElementById('hook-lattice-check').style.display = 'block';
+    btn.style.display = 'none';
+    hookLatticeStage++;
+  }
+}
+
+/* ═══════════ I DO ═══════════ */
+// Build I Do grids on first visit - staged reveal
+var idoBuilt = false;
+function buildIdoGrids() {
+  if (idoBuilt) return;
+  idoBuilt = true;
+  buildLatticeGrid([4, 7], [3, 8], 'ido-lattice-grid', { showValues: true, showDiagSums: true, prefix: 'ido1-', staged: true });
+  buildLatticeGrid([6, 3], [4, 5], 'ido-lattice-grid2', { showValues: true, showDiagSums: true, prefix: 'ido2-', staged: true });
+}
+
+/* ═══════════ WE DO ═══════════ */
+var weDoBuilt = false;
+var weDoProblems = [
+  { top: [3, 4], side: [2, 5], label: '34 &times; 25' },
+  { top: [6, 2], side: [4, 7], label: '62 &times; 47' }
+];
+var weDoIdx = 0;
+
+function buildWeDo() {
+  weDoBuilt = true;
+  weDoIdx = 0;
+  showWeDoCard();
+}
+
+function showWeDoCard() {
+  var p = weDoProblems[weDoIdx];
+  var prefix = 'w' + weDoIdx + '-';
+  var container = document.getElementById('wedo-container');
+
+  // Calculate expected answer for radar
+  var a = parseInt(p.top.join(''), 10);
+  var b = parseInt(p.side.join(''), 10);
+  var answer = a * b;
+
+  container.innerHTML =
+    '<div class="card" id="wedo-card-' + weDoIdx + '">' +
+    '<h3>Problem ' + (weDoIdx + 1) + ' of ' + weDoProblems.length + '</h3>' +
+    '<p style="text-align:center; margin:12px 0;"><span class="mono" style="font-size:24px;">' + p.label + '</span></p>' +
+    '<div class="callout callout-amber"><div class="label">Radar Estimate</div>' +
+    '<div class="radar-row"><span class="radar-label">My estimate:</span><input type="number" class="radar-input" id="' + prefix + 'radar"></div></div>' +
+    '<p style="font-weight:600; margin:12px 0;">Fill in each cell (tens above the diagonal, ones below), then add the diagonals:</p>' +
+    '<div id="wedo-grid-' + weDoIdx + '"></div>' +
+    '<div style="text-align:center; margin-top:16px;"><button class="check-btn" id="wedo-check" onclick="checkWeDo()">Check</button></div>' +
+    '<div class="feedback" id="wedo-fb-' + weDoIdx + '"></div>' +
+    (weDoIdx < weDoProblems.length - 1 ? '<div style="text-align:center;"><button class="btn btn-primary" id="wedo-next" style="display:none; margin-top:12px;" onclick="nextWeDo()">Next Problem &rarr;</button></div>' : '') +
+    '</div>';
+
+  var result = buildLatticeGrid(p.top, p.side, 'wedo-grid-' + weDoIdx, { interactive: true, prefix: prefix });
+  p._result = result;
+}
+
+function checkWeDo() {
+  var p = weDoProblems[weDoIdx];
+  var prefix = 'w' + weDoIdx + '-';
+  var result = p._result;
+  var allCorrect = true;
+  var rows = p.side.length;
+  var cols = p.top.length;
+
+  // Check cell inputs
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      var tInp = document.getElementById(prefix + 'r' + r + 'c' + c + '-t');
+      var oInp = document.getElementById(prefix + 'r' + r + 'c' + c + '-o');
+      if (tInp) {
+        var tv = parseInt(tInp.value, 10);
+        tInp.disabled = true;
+        if (tv === result.cells[r][c].tens) { tInp.classList.add('correct'); }
+        else { tInp.classList.add('wrong'); allCorrect = false; }
+      }
+      if (oInp) {
+        var ov = parseInt(oInp.value, 10);
+        oInp.disabled = true;
+        if (ov === result.cells[r][c].ones) { oInp.classList.add('correct'); }
+        else { oInp.classList.add('wrong'); allCorrect = false; }
+      }
+    }
+  }
+
+  // Check diagonal sums
+  for (var d = 0; d < result.diagSums.length; d++) {
+    var dsInp = document.getElementById(prefix + 'dsum-' + d);
+    if (dsInp) {
+      var dv = parseInt(dsInp.value, 10);
+      dsInp.disabled = true;
+      if (dv === result.diagSums[d]) { dsInp.style.borderColor = 'var(--green)'; dsInp.style.background = 'var(--green-light)'; }
+      else { dsInp.style.borderColor = 'var(--red)'; dsInp.style.background = 'var(--red-light)'; allCorrect = false; }
+    }
+  }
+
+  // Check final answer
+  var finalInp = document.getElementById(prefix + 'final');
+  if (finalInp) {
+    var fv = parseInt(finalInp.value, 10);
+    finalInp.disabled = true;
+    if (fv === result.answer) { finalInp.classList.add('correct'); }
+    else { finalInp.classList.add('wrong'); allCorrect = false; }
+  }
+
+  var fb = document.getElementById('wedo-fb-' + weDoIdx);
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">' + p.label.replace('&times;', '&times;') + ' = ' + result.answer + '</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The correct answer is <span class="mono">' + result.answer + '</span>. Check the cells highlighted in red.';
+  }
+
+  document.getElementById('wedo-check').disabled = true;
+  var nextBtn = document.getElementById('wedo-next');
+  if (nextBtn) nextBtn.style.display = 'inline-block';
+}
+
+function nextWeDo() {
+  weDoIdx++;
+  showWeDoCard();
+}
+
+/* ═══════════ YOU DO ═══════════ */
+var currentLevel = 0;
+var practiceProblems = [];
+var practiceIdx = 0;
+var practiceResults = [];
+var practiceTotal = 6;
+
+function generateProblems(level) {
+  var problems = [];
+  for (var i = 0; i < practiceTotal; i++) {
+    if (level === 1) {
+      // 2x2 small digits, no carries on diagonals
+      var a = randInt(11, 33);
+      var b = randInt(11, 23);
+      // Ensure small digit products (digits 1-3)
+      var d1 = randInt(1, 3), d2 = randInt(1, 3);
+      var d3 = randInt(1, 2), d4 = randInt(1, 3);
+      a = d1 * 10 + d2;
+      b = d3 * 10 + d4;
+      if (a < 11) a = 11;
+      if (b < 11) b = 11;
+      problems.push({ top: [Math.floor(a/10), a%10], side: [Math.floor(b/10), b%10], a: a, b: b });
+    } else if (level === 2) {
+      // 2x2 with carries
+      var a = randInt(34, 89);
+      var b = randInt(24, 78);
+      // Make sure at least one product > 9 (will carry)
+      while (true) {
+        a = randInt(34, 89);
+        b = randInt(24, 78);
+        var hasCarry = false;
+        var d = [Math.floor(a/10), a%10, Math.floor(b/10), b%10];
+        for (var x = 0; x < 2; x++) {
+          for (var y = 2; y < 4; y++) {
+            if (d[x] * d[y] > 9) hasCarry = true;
+          }
+        }
+        if (hasCarry) break;
+      }
+      problems.push({ top: [Math.floor(a/10), a%10], side: [Math.floor(b/10), b%10], a: a, b: b });
+    } else {
+      // Level 3: 3-digit x 2-digit
+      var a = randInt(123, 489);
+      var b = randInt(23, 67);
+      problems.push({ top: [Math.floor(a/100), Math.floor((a%100)/10), a%10], side: [Math.floor(b/10), b%10], a: a, b: b });
+    }
+  }
+  return problems;
+}
+
+function startLevel(level) {
+  currentLevel = level;
+  practiceProblems = generateProblems(level);
+  practiceIdx = 0;
+  practiceResults = [];
+  document.getElementById('level-select-card').style.display = 'none';
+  document.getElementById('practice-area').style.display = 'block';
+  document.getElementById('practice-summary').classList.remove('show');
+  showPracticeProblem();
+}
+
+function showPracticeProblem() {
+  var p = practiceProblems[practiceIdx];
+  var prefix = 'p' + practiceIdx + '-';
+  updateDots('practice-dots', practiceTotal, practiceIdx);
+
+  var label = p.a + ' &times; ' + p.b;
+  var card = document.getElementById('practice-card');
+  card.style.display = 'block';
+
+  card.innerHTML =
+    '<h3>Question ' + (practiceIdx + 1) + ' of ' + practiceTotal + '</h3>' +
+    '<p style="text-align:center; margin:12px 0;"><span class="mono" style="font-size:24px;">' + label + '</span></p>' +
+    '<div class="callout callout-amber"><div class="label">Radar Estimate</div>' +
+    '<div class="radar-row"><span class="radar-label">My estimate:</span><input type="number" class="radar-input" id="' + prefix + 'radar"></div></div>' +
+    '<p style="font-weight:600; margin:12px 0;">Fill in the lattice grid:</p>' +
+    '<div id="practice-grid-' + practiceIdx + '"></div>' +
+    '<div style="text-align:center; margin-top:16px;"><button class="check-btn" id="practice-check" onclick="checkPractice()">Check</button></div>' +
+    '<div class="feedback" id="practice-fb"></div>' +
+    '<div style="text-align:center;"><button class="btn btn-primary" id="practice-next" style="display:none; margin-top:12px;" onclick="nextPractice()">Next &rarr;</button></div>';
+
+  var result = buildLatticeGrid(p.top, p.side, 'practice-grid-' + practiceIdx, { interactive: true, prefix: prefix });
+  p._result = result;
+}
+
+function checkPractice() {
+  var p = practiceProblems[practiceIdx];
+  var prefix = 'p' + practiceIdx + '-';
+  var result = p._result;
+  var allCorrect = true;
+  var rows = p.side.length;
+  var cols = p.top.length;
+
+  // Check radar (informational only)
+  var radarInp = document.getElementById(prefix + 'radar');
+  if (radarInp) radarInp.disabled = true;
+
+  // Check cell inputs
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      var tInp = document.getElementById(prefix + 'r' + r + 'c' + c + '-t');
+      var oInp = document.getElementById(prefix + 'r' + r + 'c' + c + '-o');
+      if (tInp) {
+        var tv = parseInt(tInp.value, 10);
+        tInp.disabled = true;
+        if (tv === result.cells[r][c].tens) { tInp.classList.add('correct'); }
+        else { tInp.classList.add('wrong'); allCorrect = false; }
+      }
+      if (oInp) {
+        var ov = parseInt(oInp.value, 10);
+        oInp.disabled = true;
+        if (ov === result.cells[r][c].ones) { oInp.classList.add('correct'); }
+        else { oInp.classList.add('wrong'); allCorrect = false; }
+      }
+    }
+  }
+
+  // Check diagonal sums
+  for (var d = 0; d < result.diagSums.length; d++) {
+    var dsInp = document.getElementById(prefix + 'dsum-' + d);
+    if (dsInp) {
+      var dv = parseInt(dsInp.value, 10);
+      dsInp.disabled = true;
+      if (dv === result.diagSums[d]) { dsInp.style.borderColor = 'var(--green)'; dsInp.style.background = 'var(--green-light)'; }
+      else { dsInp.style.borderColor = 'var(--red)'; dsInp.style.background = 'var(--red-light)'; allCorrect = false; }
+    }
+  }
+
+  // Check final answer
+  var finalInp = document.getElementById(prefix + 'final');
+  if (finalInp) {
+    var fv = parseInt(finalInp.value, 10);
+    finalInp.disabled = true;
+    if (fv === result.answer) { finalInp.classList.add('correct'); }
+    else { finalInp.classList.add('wrong'); allCorrect = false; }
+  }
+
+  practiceResults[practiceIdx] = allCorrect;
+
+  var fb = document.getElementById('practice-fb');
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">' + p.a + ' &times; ' + p.b + ' = ' + result.answer + '</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The correct answer is <span class="mono">' + result.answer + '</span>. Check the cells highlighted in red.';
+  }
+
+  // Update dot
+  var dot = document.getElementById('practice-dots-' + practiceIdx);
+  dot.classList.remove('current');
+  dot.classList.add(allCorrect ? 'green' : 'red');
+
+  document.getElementById('practice-check').disabled = true;
+  document.getElementById('practice-next').style.display = 'inline-block';
+}
+
+function nextPractice() {
+  practiceIdx++;
+  if (practiceIdx >= practiceTotal) {
+    showPracticeSummary();
+  } else {
+    showPracticeProblem();
+  }
+}
+
+function showPracticeSummary() {
+  document.getElementById('practice-card').style.display = 'none';
+  var correct = practiceResults.filter(function(r) { return r; }).length;
+  document.getElementById('practice-score').textContent = correct + ' / ' + practiceTotal;
+  var msg = '';
+  if (correct === practiceTotal) msg = 'Excellent. You have mastered the lattice method at this level.';
+  else if (correct >= practiceTotal - 1) msg = 'Very strong. Just one to review.';
+  else if (correct >= practiceTotal / 2) msg = 'Good progress. Keep practising to build accuracy.';
+  else msg = 'Keep working at it. Try the level again with new problems.';
+  document.getElementById('practice-message').textContent = msg;
+  document.getElementById('practice-summary').classList.add('show');
+  unlockGoDeeper();
+}
+
+function retryLevel() {
+  startLevel(currentLevel);
+}
+
+function backToLevels() {
+  document.getElementById('practice-area').style.display = 'none';
+  document.getElementById('level-select-card').style.display = 'block';
+}
+
+function unlockGoDeeper() {
+  document.getElementById('go-deeper-locked').style.display = 'none';
+  document.getElementById('go-deeper-content').style.display = 'block';
+}
+
+function toggleTask1Response() {
+  var resp = document.getElementById('task1-response');
+  resp.classList.toggle('visible');
+}
+
+function toggleTask2Response() {
+  var resp = document.getElementById('task2-response');
+  resp.classList.toggle('visible');
+}
+
+function toggleTask3Response() {
+  var resp = document.getElementById('task3-response');
+  resp.classList.toggle('visible');
+}
+
+/* ═══════════ INIT ═══════════ */
+// Show I Do grids when navigating to I Do (delayed)
+var origShowPhase = showPhase;
+showPhase = function(id, btn) {
+  origShowPhase(id, btn);
+  if (id === 'ido') buildIdoGrids();
+};
+
+</script>
+</body>
+</html>

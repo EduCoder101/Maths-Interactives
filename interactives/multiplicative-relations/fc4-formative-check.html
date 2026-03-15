@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formative Checkpoint 4 (Lesson 12)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #FF6B6B;
+    --accent-dark: #d94848;
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --amber: #FFD93D;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red: #E74C3C;
+    --red-light: #fff4f4;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--teal); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 {
+    font-weight: 700; font-size: clamp(24px, 3.5vw, 36px);
+    color: var(--text-dark); margin-bottom: 4px; letter-spacing: -0.5px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+  .learning-card {
+    width: 100%; max-width: 680px;
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+    border-top: 5px solid var(--accent);
+  }
+  .learning-card h2 {
+    font-size: 1.1rem; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  .progress-area { width: 100%; max-width: 680px; margin-bottom: 20px; }
+  .progress-label { font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-align: center; }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  .question-card {
+    width: 100%; max-width: 680px;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px;
+    margin-bottom: 20px; border: 2px solid var(--border); display: none;
+  }
+  .question-card.active { display: block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .q-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px; }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+  .q-stem .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .mc-options { display: flex; flex-direction: column; gap: 10px; }
+  .mc-option {
+    display: flex; align-items: center; gap: 14px;
+    background: #fafbfc; border: 2px solid var(--border);
+    border-radius: 14px; padding: 14px 18px; cursor: pointer;
+    transition: all 0.2s; font-size: 16px; font-weight: 500;
+  }
+  .mc-option:hover { border-color: var(--teal); background: #f0fdfb; }
+  .mc-option.selected { border-color: var(--teal); background: #e0f8f5; }
+  .mc-option.correct { border-color: var(--green); background: var(--green-light); }
+  .mc-option.incorrect { border-color: var(--red); background: var(--red-light); }
+  .mc-option.dimmed { opacity: 0.5; }
+  .mc-option .letter {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--border); color: var(--text-dark);
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .mc-option.selected .letter { background: var(--teal); color: white; }
+  .mc-option.correct .letter { background: var(--green); color: white; }
+  .mc-option.incorrect .letter { background: var(--red); color: white; }
+  .mc-option .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .fill-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 12px 20px; width: 180px; max-width: 100%;
+    outline: none; transition: border-color 0.3s ease;
+    color: var(--text-dark); background: #fafbfc;
+  }
+  .fill-input:focus { border-color: var(--teal); }
+  .fill-input.correct { border-color: var(--green); background: var(--green-light); }
+  .fill-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .fill-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-check { background: var(--accent); color: white; margin-top: 20px; }
+  .btn-check:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-next { background: var(--text-dark); color: white; margin-top: 12px; display: none; }
+  .btn-next:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .feedback {
+    border-radius: 14px; padding: 18px 22px; margin-top: 16px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+  .feedback .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .results-card {
+    width: 100%; max-width: 680px;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 32px;
+    text-align: center; display: none;
+  }
+  .results-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .results-score { font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700; margin: 12px 0; }
+  .results-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .results-breakdown { text-align: left; margin-top: 24px; }
+  .results-breakdown h3 { font-size: 16px; margin-bottom: 12px; }
+  .result-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+  .result-topic {
+    font-size: 11px; font-weight: 600; color: var(--text-light);
+    background: #f1f5f9; border-radius: 6px; padding: 2px 8px;
+    margin-left: auto; white-space: nowrap;
+  }
+  .btn-retry { background: var(--accent); color: white; margin-top: 20px; }
+  .btn-retry:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .question-card, .learning-card { padding: 20px 18px; }
+    .mc-option { padding: 12px 14px; font-size: 15px; }
+    .fill-input { font-size: 18px; width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Formative <span>Checkpoint 4</span></h1>
+  <p>Lesson 12: Estimation, strategy selection, error analysis, and equivalent division</p>
+</div>
+
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are checking how well we can select efficient strategies, estimate to check reasonableness, identify errors, and apply equivalent division.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can choose the most efficient strategy for a given calculation.</li>
+      <li>I can use a Radar estimate to check any multiplication or division answer.</li>
+      <li>I can identify an error in a completed algorithm and explain the misconception.</li>
+      <li>I can find the missing number in an equivalent division.</li>
+      <li>I can solve rate problems using multiplication and division together.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="progress-area">
+  <div class="progress-label" id="progress-label">Question 1 of 10</div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div id="questions-container"></div>
+
+<div class="results-card" id="results-card">
+  <div class="results-label">Your Score</div>
+  <div class="results-score" id="results-score"></div>
+  <div class="results-label" id="results-message"></div>
+  <div class="results-breakdown" id="results-breakdown"></div>
+  <button class="btn btn-retry" onclick="restart()">Try Again</button>
+</div>
+
+<script>
+var questions = [
+  {
+    type: 'mc',
+    topic: 'Strategy selection',
+    stem: 'Which mental strategy is best for <span class="mono">19 × 6</span>?',
+    options: [
+      'Near multiples: <span class="mono">20 × 6 − 6</span>',
+      'Doubling and halving: <span class="mono">38 × 3</span>',
+      'Factorising: <span class="mono">19 × 2 × 3</span>',
+      'Formal algorithm'
+    ],
+    correct: 0,
+    feedbackCorrect: '<span class="mono">19</span> is one less than <span class="mono">20</span>. So <span class="mono">20 × 6 = 120</span>, then subtract one group of <span class="mono">6</span>: <span class="mono">120 − 6 = 114</span>. Near multiples is the most efficient strategy here.',
+    feedbackWrong: '<span class="mono">19</span> is one less than <span class="mono">20</span>, which is a friendly multiple of <span class="mono">10</span>. Near multiples: <span class="mono">20 × 6 = 120</span>, then subtract <span class="mono">6</span>: <span class="mono">120 − 6 = 114</span>. This is faster than the other methods because it takes advantage of the closeness to <span class="mono">20</span>.'
+  },
+  {
+    type: 'mc',
+    topic: 'Error analysis',
+    stem: 'A student calculates <span class="mono">43 × 27 = 387</span>. The Radar says <span class="mono">40 × 27 = 1,080</span>. What error did the student make?',
+    options: [
+      'Multiplied <span class="mono">43 × 7</span> correctly but wrote <span class="mono">43 × 2</span> instead of <span class="mono">43 × 20</span>',
+      'Forgot to carry in the ones column',
+      'Added the partial products incorrectly',
+      'Rounded instead of calculating exactly'
+    ],
+    correct: 0,
+    feedbackCorrect: 'The student did <span class="mono">43 × 7 = 301</span> correctly, but then wrote <span class="mono">43 × 2 = 86</span> instead of <span class="mono">43 × 20 = 860</span>. They forgot to shift one place left for the tens row. <span class="mono">301 + 86 = 387</span> instead of <span class="mono">301 + 860 = 1,161</span>.',
+    feedbackWrong: 'The student calculated <span class="mono">43 × 7 = 301</span> (correct), but then wrote <span class="mono">43 × 2 = 86</span> instead of <span class="mono">43 × 20 = 860</span>. The second row was not shifted one place to the left. <span class="mono">301 + 86 = 387</span>, but <span class="mono">301 + 860 = 1,161</span>. The Radar (<span class="mono">1,080</span>) immediately flags <span class="mono">387</span> as far too small.'
+  },
+  {
+    type: 'mc',
+    topic: 'Equivalent division',
+    stem: 'Which of these divisions gives the <strong>same quotient</strong> as <span class="mono">12 ÷ 4 = 3</span>?',
+    options: [
+      '<span class="mono">48 ÷ 16 = 3</span>',
+      '<span class="mono">12 ÷ 3 = 4</span>',
+      '<span class="mono">48 ÷ 4 = 12</span>',
+      '<span class="mono">16 ÷ 12 = 1</span> remainder <span class="mono">4</span>'
+    ],
+    correct: 0,
+    feedbackCorrect: '<span class="mono">48 ÷ 16 = 3</span>. Both the dividend and divisor were multiplied by <span class="mono">4</span> (from <span class="mono">12 ÷ 4</span> to <span class="mono">48 ÷ 16</span>). When you scale both numbers by the same factor, the quotient stays the same.',
+    feedbackWrong: 'In equivalent division, multiplying both the dividend and the divisor by the same number preserves the quotient. <span class="mono">12 × 4 = 48</span> and <span class="mono">4 × 4 = 16</span>, so <span class="mono">48 ÷ 16 = 3</span>. The other options change the quotient because they do not scale both numbers equally.'
+  },
+  {
+    type: 'fill',
+    topic: 'Estimation for division',
+    stem: 'Estimate <span class="mono">273 ÷ 4</span> using your Radar.<br><span style="font-size:14px;color:var(--text-light);">Round the dividend to a nearby multiple of <span class="mono">4</span>, then divide.</span>',
+    answer: 70,
+    accept: [70],
+    feedbackCorrect: '<span class="mono">280</span> is a nearby multiple of <span class="mono">4</span>. <span class="mono">280 ÷ 4 = 70</span>. The actual answer is <span class="mono">68</span> remainder <span class="mono">1</span>, which is close to <span class="mono">70</span>.',
+    feedbackWrong: 'Round <span class="mono">273</span> to <span class="mono">280</span>, a nearby multiple of <span class="mono">4</span>. Then <span class="mono">280 ÷ 4 = 70</span>. The actual answer (<span class="mono">68</span> remainder <span class="mono">1</span>) is close to <span class="mono">70</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'fill',
+    topic: 'Mental strategy',
+    stem: 'Solve <span class="mono">36 × 5</span> using doubling and halving.',
+    answer: 180,
+    accept: [180],
+    feedbackCorrect: 'Halve <span class="mono">36</span> to get <span class="mono">18</span>. Double <span class="mono">5</span> to get <span class="mono">10</span>. New problem: <span class="mono">18 × 10 = 180</span>. Multiplying by <span class="mono">5</span> is always halving then multiplying by <span class="mono">10</span>.',
+    feedbackWrong: 'Doubling and halving: halve one number, double the other. Halve <span class="mono">36 = 18</span>. Double <span class="mono">5 = 10</span>. New problem: <span class="mono">18 × 10 = 180</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'fill',
+    topic: 'Rate problem',
+    stem: 'A printer prints <span class="mono">48</span> pages per minute. It runs for <span class="mono">15</span> minutes. How many pages does it print?',
+    answer: 720,
+    accept: [720],
+    feedbackCorrect: '<span class="mono">48 × 15 = 720</span> pages. You could use the area model: <span class="mono">48 × 10 = 480</span>, <span class="mono">48 × 5 = 240</span>, total <span class="mono">720</span>. Or doubling and halving: <span class="mono">24 × 30 = 720</span>.',
+    feedbackWrong: 'This is a rate problem: pages per minute × minutes = total pages. <span class="mono">48 × 15</span>. One strategy: <span class="mono">48 × 10 = 480</span>, <span class="mono">48 × 5 = 240</span>, total <span class="mono">480 + 240 = 720</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'fill',
+    topic: 'Division with remainder',
+    stem: 'Solve <span class="mono">375 ÷ 6</span>. Write the <strong>remainder only</strong>.<br><span style="font-size:14px;color:var(--text-light);">Radar: <span class="mono">360 ÷ 6 = 60</span>. The quotient should be near <span class="mono">60</span>.</span>',
+    answer: 3,
+    accept: [3],
+    feedbackCorrect: '<span class="mono">6 × 62 = 372</span>. Remaining: <span class="mono">375 − 372 = 3</span>. So <span class="mono">375 ÷ 6 = 62</span> remainder <span class="mono">3</span>. Check: <span class="mono">6 × 62 + 3 = 375</span>.',
+    feedbackWrong: 'Partition: <span class="mono">6 × 60 = 360</span>, leaving <span class="mono">375 − 360 = 15</span>. Then <span class="mono">6 × 2 = 12</span>, leaving <span class="mono">15 − 12 = 3</span>. Quotient: <span class="mono">62</span>, remainder <span class="mono">3</span>. Check: <span class="mono">6 × 62 + 3 = 375</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'mc',
+    topic: 'Strategy selection',
+    stem: 'Which mental strategy is best for <span class="mono">99 × 7</span>?',
+    options: [
+      'Near multiples: <span class="mono">100 × 7 − 7</span>',
+      'Doubling and halving',
+      'Lattice method',
+      'Area model with four sections'
+    ],
+    correct: 0,
+    feedbackCorrect: '<span class="mono">99</span> is one less than <span class="mono">100</span>. So <span class="mono">100 × 7 = 700</span>, then subtract one group of <span class="mono">7</span>: <span class="mono">700 − 7 = 693</span>. This is much faster than any written method.',
+    feedbackWrong: '<span class="mono">99</span> is one less than <span class="mono">100</span>. Near multiples: <span class="mono">100 × 7 = 700</span>, then subtract <span class="mono">7</span>: <span class="mono">700 − 7 = 693</span>. When a number is very close to a multiple of <span class="mono">10</span> or <span class="mono">100</span>, near multiples is almost always the fastest strategy.'
+  },
+  {
+    type: 'fill',
+    topic: 'Inverse relationship',
+    stem: 'Find the missing quotient: <span class="mono">59 ÷ 7 = ?</span> remainder <span class="mono">3</span>.<br><span style="font-size:14px;color:var(--text-light);">Use the inverse: <span class="mono">7 × ? + 3 = 59</span></span>',
+    answer: 8,
+    accept: [8],
+    feedbackCorrect: '<span class="mono">7 × 8 = 56</span>, and <span class="mono">56 + 3 = 59</span>. So the quotient is <span class="mono">8</span>. The inverse check confirms: <span class="mono">7 × 8 + 3 = 59</span>.',
+    feedbackWrong: 'Use the inverse: <span class="mono">7 × ? + 3 = 59</span>. First, <span class="mono">59 − 3 = 56</span>. Then <span class="mono">56 ÷ 7 = 8</span>. The quotient is <span class="mono">8</span>. Check: <span class="mono">7 × 8 + 3 = 59</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'fill',
+    topic: 'Equivalent division',
+    stem: 'If <span class="mono">72 ÷ 8 = 9</span>, find the missing dividend:<br><br><span class="mono">? ÷ 4 = 9</span>',
+    answer: 36,
+    accept: [36],
+    feedbackCorrect: 'If the quotient is <span class="mono">9</span> and the divisor is <span class="mono">4</span>, then the dividend is <span class="mono">4 × 9 = 36</span>. This is equivalent division: <span class="mono">72 ÷ 8 = 36 ÷ 4 = 9</span>. Both the dividend and divisor were halved.',
+    feedbackWrong: 'If <span class="mono">? ÷ 4 = 9</span>, then <span class="mono">? = 4 × 9 = 36</span>. This is equivalent to <span class="mono">72 ÷ 8 = 9</span> because both the dividend (<span class="mono">72</span>) and divisor (<span class="mono">8</span>) were halved to give <span class="mono">36 ÷ 4</span>. You wrote <span class="mono">{answer}</span>.'
+  }
+];
+
+var currentQ = 0;
+var answers = [];
+
+function buildQuestions() {
+  var container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  questions.forEach(function(q, i) {
+    var card = document.createElement('div');
+    card.className = 'question-card' + (i === 0 ? ' active' : '');
+    card.id = 'q-' + i;
+    var html = '<div class="q-number">Question ' + (i + 1) + ' of ' + questions.length + '</div>';
+    html += '<div class="q-stem">' + q.stem + '</div>';
+    if (q.type === 'mc') {
+      html += '<div class="mc-options">';
+      var letters = ['A', 'B', 'C', 'D'];
+      q.options.forEach(function(opt, j) {
+        html += '<div class="mc-option" data-q="' + i + '" data-opt="' + j + '" onclick="selectOption(' + i + ',' + j + ')">';
+        html += '<span class="letter">' + letters[j] + '</span>';
+        html += '<span>' + opt + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="fill-row">';
+      html += '<input type="text" class="fill-input" id="fill-' + i + '" inputmode="numeric" placeholder="?" autocomplete="off">';
+      html += '</div>';
+    }
+    html += '<button class="btn btn-check" id="check-' + i + '" onclick="checkAnswer(' + i + ')">Check Answer</button>';
+    html += '<button class="btn btn-next" id="next-' + i + '" onclick="nextQuestion()">Next Question</button>';
+    html += '<div class="feedback" id="fb-' + i + '"></div>';
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qi, oi) {
+  if (answers[qi] !== undefined) return;
+  var opts = document.querySelectorAll('.mc-option[data-q="' + qi + '"]');
+  opts.forEach(function(o) { o.classList.remove('selected'); });
+  opts[oi].classList.add('selected');
+  document.querySelector('#q-' + qi).dataset.selected = oi;
+}
+
+function checkAnswer(qi) {
+  if (answers[qi] !== undefined) return;
+  var q = questions[qi];
+  var studentAnswer, isCorrect;
+  if (q.type === 'mc') {
+    var card = document.querySelector('#q-' + qi);
+    var sel = card.dataset.selected;
+    if (sel === undefined) return;
+    studentAnswer = parseInt(sel, 10);
+    isCorrect = (studentAnswer === q.correct);
+    var opts = document.querySelectorAll('.mc-option[data-q="' + qi + '"]');
+    opts.forEach(function(o, j) {
+      o.style.pointerEvents = 'none';
+      if (j === q.correct) o.classList.add('correct');
+      else if (j === studentAnswer && !isCorrect) o.classList.add('incorrect');
+      else o.classList.add('dimmed');
+    });
+  } else {
+    var input = document.getElementById('fill-' + qi);
+    var raw = input.value.replace(/,/g, '').replace(/\s/g, '');
+    if (raw === '' || isNaN(Number(raw))) { input.style.borderColor = 'var(--red)'; return; }
+    studentAnswer = parseInt(raw, 10);
+    isCorrect = q.accept.indexOf(studentAnswer) !== -1;
+    input.disabled = true;
+    input.classList.add(isCorrect ? 'correct' : 'incorrect');
+  }
+  answers[qi] = { correct: isCorrect, answer: studentAnswer };
+  var fb = document.getElementById('fb-' + qi);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> ' + q.feedbackCorrect;
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongText = q.feedbackWrong;
+    if (q.type === 'mc') {
+      wrongText = wrongText.replace('{answer}', q.options[studentAnswer]);
+    } else {
+      wrongText = wrongText.replace('{answer}', studentAnswer.toLocaleString('en-GB'));
+    }
+    fb.innerHTML = '<strong>Not quite.</strong> ' + wrongText;
+  }
+  document.getElementById('check-' + qi).style.display = 'none';
+  document.getElementById('next-' + qi).style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) { showResults(); return; }
+  document.querySelectorAll('.question-card').forEach(function(c) { c.classList.remove('active'); });
+  document.getElementById('q-' + currentQ).classList.add('active');
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+  if (questions[currentQ].type === 'fill') {
+    var input = document.getElementById('fill-' + currentQ);
+    if (input) input.focus();
+  }
+}
+
+function showResults() {
+  document.querySelectorAll('.question-card').forEach(function(c) { c.classList.remove('active'); });
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+  var scoreEl = document.getElementById('results-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 8 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+  var msg = '';
+  if (correct >= 9) msg = 'Excellent work across the whole unit.';
+  else if (correct >= 7) msg = 'Good progress. A few areas to consolidate before the assessment.';
+  else if (correct >= 5) msg = 'Developing. Review your feedback and revisit the interactives.';
+  else msg = 'More practice needed. Focus on the topics where you lost marks.';
+  document.getElementById('results-message').textContent = msg;
+  var breakdown = '<h3>Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    breakdown += '<div class="result-row">';
+    breakdown += '<div class="result-icon ' + icon + '">' + symbol + '</div>';
+    breakdown += '<span>Q' + (i + 1) + ': ' + q.stem.replace(/<[^>]*>/g, '').substring(0, 60) + '...</span>';
+    breakdown += '<span class="result-topic">' + q.topic + '</span>';
+    breakdown += '</div>';
+  });
+  document.getElementById('results-breakdown').innerHTML = breakdown;
+  document.getElementById('results-card').classList.add('show');
+}
+
+function restart() {
+  currentQ = 0; answers = [];
+  document.getElementById('results-card').classList.remove('show');
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('progress-label').textContent = 'Question 1 of ' + questions.length;
+  buildQuestions();
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    if (answers[currentQ] !== undefined) nextQuestion();
+    else checkAnswer(currentQ);
+  }
+});
+
+buildQuestions();
+</script>
+</body>
+</html>

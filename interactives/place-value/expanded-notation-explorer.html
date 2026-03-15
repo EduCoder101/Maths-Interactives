@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expanded Notation Explorer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --col-w: 120px;
+  --col-gap: 6px;
+  --house-h: 130px;
+  --radius: 16px;
+  --toggle-w: 36px;
+  --bg-cream: #FFF8F0;
+  --text-dark: #2D3436;
+  --text-light: #636E72;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  --accent: #4ECDC4;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Fredoka', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 52px;
+  overflow-x: hidden;
+  background: var(--bg-cream);
+  color: var(--text-dark);
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  width: 250px; height: 250px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.1;
+  top: -80px; right: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: #27AE60;
+  opacity: 0.1;
+  bottom: 10%; left: -50px;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob3 {
+  position: fixed;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: #E74C3C;
+  opacity: 0.1;
+  top: 50%; right: 5%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > *:not(.blob3) { position: relative; z-index: 1; }
+
+.header { text-align: center; margin-bottom: 22px; }
+.header h1 {
+  font-weight: 700;
+  font-size: clamp(22px, 3.5vw, 34px);
+  color: var(--text-dark);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+.header h1 span { color: var(--accent); }
+.header p {
+  font-size: 15px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Stage */
+.stage-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.stage {
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  padding: 12px 20px 0;
+  min-height: calc(var(--house-h) + 55px);
+}
+
+.house {
+  width: var(--col-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.house-label {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--house-color);
+  min-height: 34px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.house-cell {
+  width: var(--col-w);
+  height: var(--house-h);
+  border-radius: var(--radius);
+  border: 2.5px solid var(--house-color);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  transition: background 0.35s, box-shadow 0.35s, border-color 0.35s, transform 0.25s;
+}
+
+.house-cell.lit {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--house-color) 18%, transparent), 0 4px 12px rgba(0,0,0,0.07);
+}
+
+.house-cell.grouped {
+  border-width: 3px;
+}
+
+.digit-token {
+  width: calc(var(--col-w) - 16px);
+  height: calc(var(--house-h) - 16px);
+  border-radius: calc(var(--radius) - 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(42px, 5vw, 56px);
+  font-weight: 900;
+  color: white;
+  background: var(--token-color);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.12);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.digit-token.is-zero {
+  opacity: 0.55;
+  font-size: clamp(34px, 4vw, 46px);
+  background: color-mix(in srgb, var(--token-color) 65%, #888);
+}
+
+/* Decimal point */
+.decimal-post {
+  width: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+.decimal-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3d1a5a;
+  box-shadow: 0 0 0 3px rgba(61,26,90,0.15);
+}
+
+/* Split toggle between fractional columns */
+.split-toggle {
+  width: var(--toggle-w);
+  height: var(--house-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: transform 0.15s;
+  position: relative;
+}
+.split-toggle:hover { transform: scale(1.12); }
+.split-toggle:active { transform: scale(0.92); }
+
+.split-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.split-toggle.active .split-pill {
+  background: linear-gradient(135deg, #e8650a, #f59e0b);
+  color: white;
+  box-shadow: 0 2px 10px rgba(232,101,10,0.4);
+}
+
+.split-toggle.joined .split-pill {
+  background: white;
+  color: #ccc;
+  border: 2.5px dashed #d0d0d0;
+  font-size: 15px;
+}
+.split-toggle.joined:hover .split-pill {
+  border-color: #e8650a;
+  color: #e8650a;
+}
+
+/* Group indicator bar below each house */
+.group-indicator {
+  height: 5px;
+  width: 100%;
+  border-radius: 3px;
+  margin-top: 5px;
+  transition: background 0.3s;
+}
+
+/* Connector bar on joined split toggles */
+.split-connector {
+  position: absolute;
+  bottom: -10px;
+  left: -3px;
+  right: -3px;
+  height: 5px;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+/* Merged house for grouped fractional digits */
+.merged-house {
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.merged-house:hover {
+  transform: scale(1.04);
+}
+.merged-house:active {
+  transform: scale(0.97);
+}
+.merged-house .house-cell {
+  width: 100%;
+}
+.merged-house .digit-token {
+  width: calc(100% - 16px);
+}
+
+/* Instruction hint */
+.hint {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-top: 8px;
+  transition: opacity 0.3s;
+}
+.hint strong { color: #e8650a; font-weight: 700; }
+
+/* Equation card */
+.equation-wrap {
+  margin-top: 22px;
+  width: 100%;
+  max-width: 900px;
+  padding: 0 16px;
+}
+
+.equation-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px 36px 24px;
+  box-shadow: var(--card-shadow);
+  border-top: 4px solid var(--accent);
+  text-align: center;
+  transition: border-color 0.4s;
+}
+
+.equation-card.non-standard {
+  border-top-color: #e8650a;
+}
+
+.equation-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+  transition: color 0.3s;
+}
+
+.equation-label.non-standard {
+  color: #e8650a;
+}
+
+.eq-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  line-height: 1.7;
+}
+
+.eq-decimal-line {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(20px, 3.5vw, 30px);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.eq-words-line {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(16px, 2.8vw, 22px);
+  font-weight: 600;
+}
+
+.eq-original { color: var(--text-dark); }
+
+.eq-equals {
+  color: var(--text-light);
+  margin: 0 2px;
+}
+
+.eq-plus {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.eq-term {
+  padding: 2px 8px;
+  border-radius: 8px;
+  transition: background 0.25s;
+  cursor: default;
+}
+
+.eq-term:hover {
+  background: color-mix(in srgb, var(--term-col) 12%, transparent);
+}
+
+.eq-word {
+  cursor: default;
+  padding: 1px 4px;
+  border-radius: 6px;
+  transition: background 0.25s;
+}
+
+.eq-word:hover {
+  background: color-mix(in srgb, var(--term-col) 10%, transparent);
+}
+
+/* Controls */
+.controls {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.action-btn {
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  color: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+  letter-spacing: 0.02em;
+}
+.action-btn.standard { background: linear-gradient(135deg, #059669, #4ECDC4); }
+.action-btn.combine  { background: linear-gradient(135deg, #e8650a, #f59e0b); }
+.action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+.action-btn:active { transform: translateY(0); }
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.input-row label {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+.num-input {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 2px solid #e0d5c5;
+  background: white;
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  width: 170px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.num-input:focus { border-color: var(--accent); }
+
+.set-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(78,205,196,0.35);
+}
+.set-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+@keyframes termPop {
+  0%   { transform: scale(0.7) translateY(6px); opacity: 0; }
+  60%  { transform: scale(1.06); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.eq-term.pop-in, .eq-word.pop-in {
+  animation: termPop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes barGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.group-indicator.grow-in {
+  animation: barGrow 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --col-w: 80px;
+    --house-h: 100px;
+    --toggle-w: 26px;
+  }
+  .house-label { font-size: 10px; min-height: 28px; }
+  .split-toggle { margin-bottom: 10px; }
+  .split-pill { width: 24px; height: 24px; font-size: 16px; }
+  .decimal-post { width: 18px; margin-bottom: 10px; }
+  .equation-card { padding: 20px 20px 16px; }
+}
+@media (max-width: 480px) {
+  :root {
+    --col-w: 62px;
+    --house-h: 80px;
+    --toggle-w: 22px;
+  }
+  .house-label { font-size: 9px; min-height: 26px; }
+  .split-toggle { margin-bottom: 10px; }
+  .split-pill { width: 20px; height: 20px; font-size: 14px; }
+  .decimal-post { width: 14px; margin-bottom: 10px; }
+  .equation-card { padding: 14px 14px 12px; }
+}
+
+/* Learning Intention & Success Criteria Card */
+.learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin: 0 16px 2rem;
+    border-top: 5px solid var(--accent);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.learning-card h2 {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.learning-content {
+    display: none;
+    margin-top: 1rem;
+}
+
+.learning-content.open {
+    display: block;
+}
+
+.learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-light);
+}
+
+.success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+}
+
+.success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+    color: var(--text-light);
+}
+
+.success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+}
+
+</style>
+</head>
+<body>
+
+<div class="blob3"></div>
+
+<p style="margin-bottom:1rem; text-align:center;">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--accent);font-weight:600;text-decoration:none;">← Back to Maths Interactives</a>
+</p>
+
+<div class="header">
+  <h1>Expanded Notation <span>Explorer</span></h1>
+  <p>Break decimals into standard and non-standard expanded forms</p>
+</div>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to explore how numbers can be broken apart using expanded notation and how each digit contributes to the total value.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can write a number in expanded notation showing the value of each digit</li>
+            <li>I can identify the value of each digit in a multi-digit number</li>
+            <li>I can switch between standard form and expanded form</li>
+        </ul>
+    </div>
+</div>
+
+<div class="stage-wrap">
+  <div class="stage" id="stage"></div>
+</div>
+
+<div class="hint" id="hint"></div>
+
+<div class="equation-wrap">
+  <div class="equation-card" id="equationCard">
+    <div class="equation-label" id="eqLabel">Standard Expanded Form</div>
+    <div class="eq-line eq-decimal-line" id="eqDecimal"></div>
+    <div class="eq-line eq-words-line" id="eqWords"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="action-row">
+    <button class="action-btn combine" onclick="setAllCombined()">Combine All</button>
+    <button class="action-btn standard" onclick="setAllStandard()">Expand All</button>
+  </div>
+
+  <div class="input-row">
+    <label>Enter your own:</label>
+    <input class="num-input" id="numInput" type="text" placeholder="e.g. 0.456">
+    <button class="set-btn" onclick="setFromInput()">Set</button>
+  </div>
+</div>
+
+<script>
+function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const ALL_PLACES = [
+  { pow: 2, label: 'Hundreds',     color: '#0891b2' },
+  { pow: 1, label: 'Tens',         color: '#059669' },
+  { pow: 0, label: 'Ones',         color: '#65a30d' },
+  { pow:-1, label: 'Tenths',       color: '#ca8a04' },
+  { pow:-2, label: 'Hundredths',   color: '#dc2626' },
+  { pow:-3, label: 'Thousandths',  color: '#7c3aed' },
+];
+
+const GROUP_COLORS = [
+  '#e8650a', '#7c3aed', '#0891b2', '#d44d8a', '#059669', '#ca8a04',
+];
+
+const PLACE_WORD = {
+   2: ['hundred','hundreds'],
+   1: ['ten','tens'],
+   0: ['one','ones'],
+  '-1': ['tenth','tenths'],
+  '-2': ['hundredth','hundredths'],
+  '-3': ['thousandth','thousandths'],
+};
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let numberStr  = '0.123';
+let intStr     = '0';
+let fracStr    = '123';
+let intValue   = 0;
+let intDigits  = [];
+let fracDigits = [];
+let gapStates  = [];
+
+/* ═══════════════════════════════════════════
+   PARSING
+═══════════════════════════════════════════ */
+function parseNumber(str) {
+  str = str.trim().replace(/,/g, '');
+  if (str.startsWith('.')) str = '0' + str;
+
+  let [iPart, fPart] = str.split('.');
+  iPart = iPart || '0';
+  fPart = (fPart || '').replace(/0+$/, '');
+
+  intStr   = iPart;
+  fracStr  = fPart;
+  intValue = parseInt(iPart) || 0;
+  numberStr = fPart.length > 0 ? iPart + '.' + fPart : iPart;
+
+  intDigits = [];
+  for (let i = 0; i < iPart.length; i++) {
+    intDigits.push({ pow: iPart.length - 1 - i, digit: parseInt(iPart[i]) || 0 });
+  }
+
+  fracDigits = [];
+  for (let i = 0; i < fPart.length; i++) {
+    fracDigits.push({ pow: -(i + 1), digit: parseInt(fPart[i]) || 0 });
+  }
+
+  gapStates = new Array(Math.max(fracDigits.length - 1, 0)).fill(false);
+}
+
+/* ═══════════════════════════════════════════
+   GROUPING
+═══════════════════════════════════════════ */
+function computeGroups(includeZeros) {
+  const groups = [];
+
+  if (intValue !== 0) {
+    groups.push({ digits: [...intDigits], type: 'integer' });
+  }
+
+  if (fracDigits.length === 0) return groups;
+
+  let cur = [fracDigits[0]];
+  for (let i = 1; i < fracDigits.length; i++) {
+    if (gapStates[i - 1]) {
+      groups.push({ digits: [...cur], type: 'fractional' });
+      cur = [fracDigits[i]];
+    } else {
+      cur.push(fracDigits[i]);
+    }
+  }
+  groups.push({ digits: [...cur], type: 'fractional' });
+
+  if (includeZeros) return groups;
+
+  return groups.filter(g => {
+    if (g.type === 'integer') return true;
+    return g.digits.some(d => d.digit !== 0);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   DISPLAY HELPERS
+═══════════════════════════════════════════ */
+function groupToDecStr(group) {
+  if (group.type === 'integer') return intValue.toString();
+
+  const minPow = group.digits[group.digits.length - 1].pow;
+  let s = '0.';
+  for (let p = -1; p >= minPow; p--) {
+    const e = group.digits.find(d => d.pow === p);
+    s += e ? e.digit : '0';
+  }
+  return s;
+}
+
+function groupToWords(group) {
+  if (group.type === 'integer') {
+    const minPow = intDigits[intDigits.length - 1].pow;
+    const names = PLACE_WORD[minPow];
+    if (!names) return intValue.toString();
+    return intValue + ' ' + (intValue === 1 ? names[0] : names[1]);
+  }
+
+  const count = parseInt(group.digits.map(d => d.digit).join('')) || 0;
+  if (count === 0) return null;
+
+  const minPow = group.digits[group.digits.length - 1].pow;
+  const names = PLACE_WORD[minPow];
+  if (!names) return count.toString();
+  return count + ' ' + (count === 1 ? names[0] : names[1]);
+}
+
+function groupColorMap() {
+  const groups = computeGroups();
+  const map = new Map();
+  groups.forEach((g, idx) => {
+    const c = GROUP_COLORS[idx % GROUP_COLORS.length];
+    g.digits.forEach(d => map.set(d.pow, { idx, color: c }));
+  });
+  return map;
+}
+
+/* ═══════════════════════════════════════════
+   VISIBLE PLACES
+═══════════════════════════════════════════ */
+function getVisiblePlaces() {
+  const maxPow = intDigits.length > 0 ? Math.max(intDigits[0].pow, 0) : 0;
+  const minPow = fracDigits.length > 0 ? fracDigits[fracDigits.length - 1].pow : 0;
+  return ALL_PLACES.filter(p => p.pow >= minPow && p.pow <= maxPow);
+}
+
+/* ═══════════════════════════════════════════
+   BUILD STAGE (houses + splits)
+═══════════════════════════════════════════ */
+function buildStage() {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = '';
+
+  const places  = getVisiblePlaces();
+  const gMap    = groupColorMap();
+  const allDigs = new Map();
+  intDigits.forEach(d  => allDigs.set(d.pow, d.digit));
+  fracDigits.forEach(d => allDigs.set(d.pow, d.digit));
+  places.forEach(p => { if (!allDigs.has(p.pow)) allDigs.set(p.pow, 0); });
+
+  const intPlaces = places.filter(p => p.pow >= 0);
+  intPlaces.forEach(p => {
+    const digit = allDigs.get(p.pow) ?? 0;
+    stage.appendChild(makeHouse(p, digit, gMap.get(p.pow)));
+  });
+
+  if (fracDigits.length === 0) return;
+
+  stage.appendChild(makeDecimalPost());
+
+  const rawFracGroups = computeGroups(true).filter(g => g.type === 'fractional');
+
+  rawFracGroups.forEach((group, fgIdx) => {
+    if (fgIdx > 0) {
+      const prev = rawFracGroups[fgIdx - 1];
+      const lastDig = prev.digits[prev.digits.length - 1];
+      const fracIdx = fracDigits.findIndex(fd => fd.pow === lastDig.pow);
+      if (fracIdx >= 0 && fracIdx < gapStates.length) {
+        stage.appendChild(makeSplitToggle(fracIdx));
+      }
+    }
+
+    const hasNonZero = group.digits.some(d => d.digit !== 0);
+
+    if (group.digits.length > 1 && hasNonZero) {
+      stage.appendChild(makeMergedHouse(group, gMap));
+    } else {
+      group.digits.forEach(d => {
+        const place = ALL_PLACES.find(p => p.pow === d.pow);
+        if (place) {
+          stage.appendChild(makeHouse(place, d.digit, gMap.get(d.pow)));
+        }
+      });
+    }
+  });
+}
+
+function makeDecimalPost() {
+  const dp = document.createElement('div');
+  dp.className = 'decimal-post';
+  dp.innerHTML = '<div class="decimal-dot"></div>';
+  return dp;
+}
+
+function makeSplitToggle(gapIdx) {
+  const wrap = document.createElement('div');
+  wrap.className = 'split-toggle ' + (gapStates[gapIdx] ? 'active' : 'joined');
+  wrap.style.position = 'relative';
+  const pill = document.createElement('div');
+  pill.className = 'split-pill';
+  pill.textContent = gapStates[gapIdx] ? '+' : '–';
+  wrap.appendChild(pill);
+
+  if (!gapStates[gapIdx]) {
+    const gMap = groupColorMap();
+    const nextDigit = fracDigits[gapIdx + 1];
+    const gInfo = nextDigit ? gMap.get(nextDigit.pow) : null;
+    if (gInfo) {
+      const conn = document.createElement('div');
+      conn.className = 'split-connector';
+      conn.style.background = gInfo.color;
+      wrap.appendChild(conn);
+    }
+  }
+
+  wrap.addEventListener('click', () => {
+    gapStates[gapIdx] = !gapStates[gapIdx];
+    render();
+  });
+  return wrap;
+}
+
+function makeHouse(place, digit, groupInfo) {
+  const house = document.createElement('div');
+  house.className = 'house';
+  house.id = 'house-' + place.pow;
+  house.style.setProperty('--house-color', place.color);
+
+  const lbl = document.createElement('div');
+  lbl.className = 'house-label';
+  lbl.textContent = place.label;
+
+  const cell = document.createElement('div');
+  cell.className = 'house-cell' + (digit !== 0 ? ' lit' : '');
+  cell.id = 'cell-' + place.pow;
+
+  if (groupInfo) {
+    cell.style.background = 'color-mix(in srgb, ' + groupInfo.color + ' 10%, white)';
+    cell.style.borderColor = groupInfo.color;
+    cell.classList.add('grouped');
+  }
+
+  const tok = document.createElement('div');
+  tok.className = 'digit-token' + (digit === 0 ? ' is-zero' : '');
+  tok.style.setProperty('--token-color', place.color);
+  tok.textContent = digit;
+
+  cell.appendChild(tok);
+  house.appendChild(lbl);
+  house.appendChild(cell);
+
+  const bar = document.createElement('div');
+  bar.className = 'group-indicator grow-in';
+  bar.style.background = groupInfo ? groupInfo.color : 'transparent';
+  if (groupInfo) bar.style.animationDelay = (groupInfo.idx * 0.06) + 's';
+  house.appendChild(bar);
+
+  return house;
+}
+
+function makeMergedHouse(group, gMap) {
+  const n = group.digits.length;
+  const lowestPow = group.digits[n - 1].pow;
+  const place = ALL_PLACES.find(p => p.pow === lowestPow);
+  const count = parseInt(group.digits.map(d => d.digit).join('')) || 0;
+
+  const house = document.createElement('div');
+  house.className = 'house merged-house';
+  house.style.width = 'calc(' + n + ' * var(--col-w) + ' + (n - 1) + ' * var(--toggle-w))';
+  house.style.setProperty('--house-color', place.color);
+  house.dataset.pows = group.digits.map(d => d.pow).join(',');
+
+  const lbl = document.createElement('div');
+  lbl.className = 'house-label';
+  lbl.textContent = place.label;
+
+  const cell = document.createElement('div');
+  cell.className = 'house-cell lit grouped';
+
+  const gInfo = gMap.get(lowestPow);
+  if (gInfo) {
+    cell.style.background = 'color-mix(in srgb, ' + gInfo.color + ' 10%, white)';
+    cell.style.borderColor = gInfo.color;
+  }
+
+  const tok = document.createElement('div');
+  tok.className = 'digit-token';
+  tok.style.setProperty('--token-color', place.color);
+  tok.textContent = count;
+
+  cell.appendChild(tok);
+  house.appendChild(lbl);
+  house.appendChild(cell);
+
+  const bar = document.createElement('div');
+  bar.className = 'group-indicator grow-in';
+  bar.style.background = gInfo ? gInfo.color : 'transparent';
+  if (gInfo) bar.style.animationDelay = (gInfo.idx * 0.06) + 's';
+  house.appendChild(bar);
+
+  house.addEventListener('click', () => {
+    group.digits.forEach((d, dIdx) => {
+      if (dIdx === 0) return;
+      const fracIdx = fracDigits.findIndex(fd => fd.pow === d.pow);
+      if (fracIdx > 0) gapStates[fracIdx - 1] = true;
+    });
+    render();
+  });
+
+  return house;
+}
+
+/* ═══════════════════════════════════════════
+   EQUATION
+═══════════════════════════════════════════ */
+function buildEquation() {
+  const groups    = computeGroups();
+  const isStd     = gapStates.length > 0 && gapStates.every(g => g);
+  const card      = document.getElementById('equationCard');
+  const label     = document.getElementById('eqLabel');
+  const decLine   = document.getElementById('eqDecimal');
+  const wordLine  = document.getElementById('eqWords');
+
+  if (isStd || gapStates.length === 0) {
+    label.textContent = 'Standard Expanded Form';
+    label.classList.remove('non-standard');
+    card.classList.remove('non-standard');
+  } else {
+    label.textContent = 'Non-Standard Expanded Form';
+    label.classList.add('non-standard');
+    card.classList.add('non-standard');
+  }
+
+  /* Decimal line */
+  decLine.innerHTML = '';
+
+  const orig = document.createElement('span');
+  orig.className = 'eq-original';
+  orig.textContent = numberStr;
+  decLine.appendChild(orig);
+
+  const eq = document.createElement('span');
+  eq.className = 'eq-equals';
+  eq.textContent = '=';
+  decLine.appendChild(eq);
+
+  groups.forEach((g, idx) => {
+    if (idx > 0) {
+      const plus = document.createElement('span');
+      plus.className = 'eq-plus';
+      plus.textContent = '+';
+      decLine.appendChild(plus);
+    }
+    const col  = GROUP_COLORS[idx % GROUP_COLORS.length];
+    const term = document.createElement('span');
+    term.className = 'eq-term pop-in';
+    term.style.color = col;
+    term.style.setProperty('--term-col', col);
+    term.style.animationDelay = (idx * 0.1) + 's';
+    term.textContent = groupToDecStr(g);
+    term.addEventListener('mouseenter', () => pulseGroup(idx, true));
+    term.addEventListener('mouseleave', () => pulseGroup(idx, false));
+    decLine.appendChild(term);
+  });
+
+  /* Word line */
+  wordLine.innerHTML = '';
+
+  const eqW = document.createElement('span');
+  eqW.className = 'eq-equals';
+  eqW.textContent = '=';
+  wordLine.appendChild(eqW);
+
+  let first = true;
+  groups.forEach((g, idx) => {
+    const wf = groupToWords(g);
+    if (!wf) return;
+    if (!first) {
+      const plus = document.createElement('span');
+      plus.className = 'eq-plus';
+      plus.textContent = '+';
+      wordLine.appendChild(plus);
+    }
+    first = false;
+    const col  = GROUP_COLORS[idx % GROUP_COLORS.length];
+    const word = document.createElement('span');
+    word.className = 'eq-word pop-in';
+    word.style.color = col;
+    word.style.setProperty('--term-col', col);
+    word.style.animationDelay = (idx * 0.1 + 0.05) + 's';
+    word.textContent = wf;
+    word.addEventListener('mouseenter', () => pulseGroup(idx, true));
+    word.addEventListener('mouseleave', () => pulseGroup(idx, false));
+    wordLine.appendChild(word);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   HOVER HIGHLIGHT
+═══════════════════════════════════════════ */
+function pulseGroup(gIdx, on) {
+  const groups = computeGroups();
+  if (gIdx >= groups.length) return;
+  const pulsed = new Set();
+  groups[gIdx].digits.forEach(d => {
+    let cell = document.getElementById('cell-' + d.pow);
+    if (!cell) {
+      document.querySelectorAll('.merged-house').forEach(mh => {
+        const pows = mh.dataset.pows.split(',').map(Number);
+        if (pows.includes(d.pow)) cell = mh.querySelector('.house-cell');
+      });
+    }
+    if (!cell || pulsed.has(cell)) return;
+    pulsed.add(cell);
+    cell.style.transform = on ? 'scale(1.08)' : '';
+    cell.style.zIndex    = on ? '5' : '';
+  });
+}
+
+/* ═══════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════ */
+function setAllStandard() {
+  gapStates.fill(true);
+  render();
+}
+
+function setAllCombined() {
+  gapStates.fill(false);
+  render();
+}
+
+function render() {
+  buildStage();
+  buildEquation();
+  updateHint();
+}
+
+function updateHint() {
+  const hint = document.getElementById('hint');
+  if (fracDigits.length === 0 && intValue !== 0) {
+    hint.textContent = 'Enter a decimal number to explore expanded notation.';
+  } else if (fracDigits.length <= 1) {
+    hint.textContent =
+      'This number has only ' + (fracDigits.length === 0 ? 'no' : 'one') +
+      ' decimal place, try a number with more.';
+  } else if (gapStates.every(g => !g)) {
+    hint.innerHTML = 'Click the <strong>tile</strong> to expand into standard form';
+  } else if (gapStates.every(g => g)) {
+    hint.innerHTML = 'Click <strong>+</strong> between places to combine them';
+  } else {
+    hint.innerHTML = 'Click <strong>+</strong> to combine, or click a merged tile to split it';
+  }
+}
+
+function setNumber(str) {
+  parseNumber(str);
+  updateHint();
+  render();
+}
+
+function setFromInput() {
+  const raw = document.getElementById('numInput').value.trim();
+  if (!raw) return;
+  const cleaned = raw.replace(/[^0-9.]/g, '');
+  if (!cleaned || isNaN(parseFloat(cleaned))) return;
+  setNumber(cleaned);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+parseNumber('0.123');
+render();
+
+document.getElementById('numInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') setFromInput();
+});
+</script>
+
+</body>
+</html>

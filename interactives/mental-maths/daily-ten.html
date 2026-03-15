@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Ten – Mental Maths</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   ROOT & RESET
+══════════════════════════════════════════ */
+:root {
+  --bg:       #f7f3ee;
+  --bg2:      #ece7df;
+  --card:     #ffffff;
+  --border:   #e0d8ce;
+  --dark:     #1e1b16;
+  --mid:      #4a4540;
+  --muted:    #9a9088;
+  --green:    #3bb87c;
+  --blue:     #3a86d4;
+  --amber:    #e8a020;
+  --red:      #e05c5c;
+  --less-col: #3bb87c;
+  --more-col: #3a86d4;
+  --most-col: #9b6dd4;
+  --teacher:  #e8a020;
+  --shadow:   0 2px 16px rgba(30,27,22,0.10);
+  --shadow-lg:0 8px 40px rgba(30,27,22,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Fredoka',sans-serif;background:var(--bg);color:var(--dark);}
+
+/* ══════════════════════════════════════════
+   SCREENS
+══════════════════════════════════════════ */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* ══════════════════════════════════════════
+   SHARED HEADER
+══════════════════════════════════════════ */
+.app-header{
+  background:var(--dark);
+  padding:1rem 1.75rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  flex-wrap:wrap;
+  position:sticky;top:0;z-index:100;
+}
+.logo{
+  font-family:'Fredoka',sans-serif;
+  font-size:1.7rem;
+  color:#fff;
+  letter-spacing:0.5px;
+}
+.logo em{color:var(--green);font-style:normal;}
+.header-right{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn{
+  font-family:'Fredoka',sans-serif;
+  font-weight:700;
+  font-size:0.85rem;
+  padding:0.5rem 1.15rem;
+  border:none;border-radius:999px;
+  cursor:pointer;
+  transition:all 0.16s ease;
+  letter-spacing:0.2px;
+  display:inline-flex;align-items:center;gap:0.4rem;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.btn:active{transform:translateY(0);}
+.btn-green {background:var(--green);color:#fff;}
+.btn-blue  {background:var(--blue);color:#fff;}
+.btn-amber {background:var(--amber);color:#fff;}
+.btn-red   {background:var(--red);color:#fff;}
+.btn-ghost {background:#ffffff18;color:#fff;border:1px solid #ffffff28;}
+.btn-outline{background:transparent;color:var(--dark);border:2px solid var(--border);}
+.btn-outline:hover{border-color:var(--dark);background:var(--dark);color:#fff;}
+.btn-lg{padding:0.75rem 2rem;font-size:1rem;}
+.btn-sm{padding:0.35rem 0.85rem;font-size:0.78rem;}
+.btn:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
+
+/* ══════════════════════════════════════════
+   ① HOME / LEVEL PICKER SCREEN
+══════════════════════════════════════════ */
+#home-screen .inner{
+  max-width:860px;margin:0 auto;
+  padding:3rem 1.5rem 4rem;
+  display:flex;flex-direction:column;align-items:center;gap:2.5rem;
+  text-align:center;
+}
+.home-title{
+  font-family:'Fredoka',sans-serif;
+  font-size:2.6rem;
+  color:var(--dark);
+  line-height:1.1;
+}
+.home-sub{color:var(--muted);font-size:1.05rem;max-width:480px;}
+.quiz-status-banner{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:1rem;
+  padding:0.9rem 1.5rem;
+  font-size:0.9rem;
+  display:flex;align-items:center;gap:0.6rem;
+  color:var(--mid);
+  box-shadow:var(--shadow);
+}
+.quiz-status-banner.teacher-set{border-color:var(--amber);color:var(--amber);}
+.level-cards{display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center;}
+.level-card{
+  background:var(--card);
+  border:3px solid var(--border);
+  border-radius:1.5rem;
+  padding:2rem 1.75rem;
+  width:210px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  display:flex;flex-direction:column;align-items:center;gap:0.85rem;
+  box-shadow:var(--shadow);
+  text-align:center;
+}
+.level-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}
+.level-card[data-level="less"]{border-color:var(--less-col);}
+.level-card[data-level="less"]:hover{background:#f0fef7;}
+.level-card[data-level="more"]{border-color:var(--more-col);}
+.level-card[data-level="more"]:hover{background:#eff6ff;}
+.level-card[data-level="most"]{border-color:var(--most-col);}
+.level-card[data-level="most"]:hover{background:#f5f0ff;}
+.level-icon{font-size:2.8rem;line-height:1;}
+.level-title{
+  font-family:'Fredoka',sans-serif;
+  font-size:1.1rem;
+  line-height:1.2;
+}
+.level-card[data-level="less"] .level-title{color:var(--less-col);}
+.level-card[data-level="more"] .level-title{color:var(--more-col);}
+.level-card[data-level="most"] .level-title{color:var(--most-col);}
+.level-desc{font-size:0.78rem;color:var(--muted);}
+.teacher-link{
+  font-size:0.82rem;color:var(--muted);
+  display:flex;align-items:center;gap:0.4rem;
+  cursor:pointer;text-decoration:underline;
+  transition:color 0.15s;
+}
+.teacher-link:hover{color:var(--amber);}
+
+/* Landing-page display toggle (choose level vs all levels on one page) */
+.home-display-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.5rem;
+  flex-wrap:wrap;
+  margin-bottom:1.5rem;
+}
+.home-display-toggle span{
+  font-size:0.85rem;
+  font-weight:700;
+  color:var(--mid);
+  margin-right:0.25rem;
+}
+.home-display-toggle .display-mode-btns{display:flex;gap:0.35rem;}
+.home-display-toggle .display-mode-btn{
+  font-family:'Fredoka',sans-serif;
+  font-weight:700;
+  font-size:0.8rem;
+  padding:0.5rem 1rem;
+  border-radius:999px;
+  border:2px solid var(--border);
+  background:var(--card);
+  color:var(--muted);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.home-display-toggle .display-mode-btn.active{
+  background:var(--dark);
+  color:#fff;
+  border-color:var(--dark);
+}
+.home-display-toggle .display-mode-btn:hover:not(.active){
+  border-color:var(--blue);
+  color:var(--dark);
+}
+
+/* Year group selector when "All levels on one page" is selected */
+.home-all-levels-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1.25rem;
+  width:100%;
+}
+.home-year-group-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.6rem;
+  flex-wrap:wrap;
+}
+.home-year-group-row label{
+  font-size:0.9rem;
+  font-weight:700;
+  color:var(--mid);
+}
+.home-year-group-select{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:0.95rem;
+  padding:0.45rem 0.85rem;
+  border:2px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  color:var(--dark);
+  cursor:pointer;
+  min-width:6rem;
+}
+.home-year-group-select:focus{
+  outline:none;
+  border-color:var(--blue);
+}
+
+/* ══════════════════════════════════════════
+   ② QUIZ SCREEN
+══════════════════════════════════════════ */
+#quiz-screen .inner{
+  max-width:780px;margin:0 auto;
+  padding:2rem 1.5rem 4rem;
+}
+.quiz-top{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;
+}
+.quiz-info{}
+.quiz-date{font-size:0.8rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;}
+.quiz-heading{
+  font-family:'Fredoka',sans-serif;
+  font-size:1.6rem;color:var(--dark);
+}
+.level-pill{
+  font-family:'Fredoka',sans-serif;
+  font-weight:700;font-size:0.78rem;
+  padding:0.3rem 1rem;border-radius:999px;
+  text-transform:uppercase;letter-spacing:0.5px;
+}
+.pill-less{background:var(--less-col);color:#fff;}
+.pill-more{background:var(--more-col);color:#fff;}
+.pill-most{background:var(--most-col);color:#fff;}
+
+.question-list{display:flex;flex-direction:column;gap:0.85rem;margin-bottom:2rem;}
+.q-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:1rem;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.q-body{
+  display:flex;align-items:flex-start;
+  gap:1rem;padding:1.1rem 1.25rem;
+}
+.q-num{
+  font-family:'Fredoka',sans-serif;
+  font-size:1.5rem;color:var(--border);
+  min-width:1.75rem;line-height:1;
+  padding-top:1px;flex-shrink:0;
+}
+.q-text{font-size:1.5rem;line-height:1.5;color:var(--dark);flex:1;}
+.q-text strong{color:var(--blue);}
+
+.q-answer{
+  display:none;
+  border-top:2px dashed var(--border);
+  padding:1rem 1.25rem 1rem calc(1.25rem + 1.75rem + 1rem);
+  background:var(--bg);
+}
+.q-answer.visible{display:block;animation:fadeIn 0.25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.ans-line{display:flex;align-items:baseline;flex-wrap:wrap;gap:0.35rem;line-height:1.4;}
+.ans-line .ans-label{display:inline;margin-bottom:0;}
+.ans-line .ans-value{display:inline;margin-bottom:0;}
+.ans-label{
+  font-family:'Fredoka',sans-serif;font-weight:700;
+  font-size:0.8rem;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--green);
+}
+.ans-value{
+  font-family:'Fredoka',sans-serif;
+  font-size:1.5rem;color:var(--dark);
+}
+.ans-working{font-size:1.1rem;color:var(--mid);line-height:1.55;}
+
+.quiz-actions{
+  display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+}
+
+/* ══════════════════════════════════════════
+   ALL-THREE-LEVELS QUIZ (board view), fit on one screen, no scroll
+══════════════════════════════════════════ */
+#quiz-all-levels-screen.active{
+  display:flex;flex-direction:column;
+  height:100vh;overflow:hidden;
+}
+#quiz-all-levels-screen .app-header{padding:0.4rem 0.75rem;}
+#quiz-all-levels-screen .logo{font-size:1.35rem;}
+#quiz-all-levels-screen .inner{
+  flex:1;min-height:0;display:flex;flex-direction:column;
+  max-width:100%;width:100%;margin:0;
+  padding:0.4rem 0.75rem 0.5rem;
+}
+.all-levels-header{
+  flex-shrink:0;
+  text-align:center;
+  padding:0.2rem 0;
+  margin-bottom:0.35rem;
+}
+.all-levels-header .quiz-date{font-size:0.85rem;}
+.all-levels-header .quiz-heading{font-size:1.35rem;}
+.all-levels-cols{
+  flex:1;min-height:0;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0.5rem;align-items:stretch;
+}
+@media(max-width:900px){.all-levels-cols{grid-template-columns:1fr;}}
+.all-levels-col{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:0.65rem;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;min-height:0;
+}
+.all-levels-col[data-level="less"]{border-color:var(--less-col);background:#e8f5ee;}
+.all-levels-col[data-level="more"]{border-color:var(--more-col);background:#e3eef9;}
+.all-levels-col[data-level="most"]{border-color:var(--most-col);background:#ede5f5;}
+.all-levels-col-head{
+  font-family:'Fredoka',sans-serif;
+  font-size:1rem;
+  padding:0.35rem 0.5rem;
+  text-align:center;
+  border-bottom:2px solid var(--border);
+  flex-shrink:0;
+}
+.all-levels-col[data-level="less"] .all-levels-col-head{background:#f0fef7;color:var(--less-col);border-bottom-color:var(--less-col);}
+.all-levels-col[data-level="more"] .all-levels-col-head{background:#eff6ff;color:var(--more-col);border-bottom-color:var(--more-col);}
+.all-levels-col[data-level="most"] .all-levels-col-head{background:#f5f0ff;color:var(--most-col);border-bottom-color:var(--most-col);}
+.all-levels-q-list{
+  flex:1;min-height:0;overflow:hidden;
+  padding:0.2rem 0.35rem;
+  display:grid;grid-template-rows:repeat(10,1fr);
+  gap:1px;
+}
+.all-levels-q-card{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:0.35rem;
+  overflow:hidden;
+  display:flex;flex-direction:column;min-height:0;
+  font-size:clamp(0.8rem, 2.2vh, 1.15rem);
+}
+.all-levels-col[data-level="less"] .all-levels-q-card{background:#e8f5ee;border-color:rgba(59,184,124,0.2);}
+.all-levels-col[data-level="more"] .all-levels-q-card{background:#e3eef9;border-color:rgba(58,134,212,0.2);}
+.all-levels-col[data-level="most"] .all-levels-q-card{background:#ede5f5;border-color:rgba(155,109,212,0.2);}
+.all-levels-col[data-level="less"] .all-levels-q-answer{background:#dceee6;border-top-color:rgba(59,184,124,0.35);}
+.all-levels-col[data-level="more"] .all-levels-q-answer{background:#d4e4f4;border-top-color:rgba(58,134,212,0.35);}
+.all-levels-col[data-level="most"] .all-levels-q-answer{background:#e4daf0;border-top-color:rgba(155,109,212,0.35);}
+.all-levels-q-body{
+  padding:0.2rem 0.4rem;
+  display:flex;gap:0.3rem;align-items:flex-start;
+  flex:1;min-height:0;overflow:hidden;
+}
+.all-levels-q-num{
+  font-family:'Fredoka',sans-serif;
+  font-size:0.8em;color:var(--muted);
+  min-width:1.1em;flex-shrink:0;line-height:1.2;
+}
+.all-levels-q-text{
+  flex:1;min-width:0;line-height:1.3;color:var(--dark);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient:vertical;
+  word-wrap:break-word;
+}
+.all-levels-q-text strong{color:var(--blue);}
+.all-levels-q-answer{
+  display:none;
+  border-top:1px dashed var(--border);
+  padding:0.25rem 0.5rem 0.25rem 2em;
+  background:var(--bg2);
+  font-size:1em;line-height:1.3;
+}
+.all-levels-q-answer .ans-label{font-size:0.9em;margin-bottom:0;}
+.all-levels-q-answer .ans-value{font-size:1.15em;margin-bottom:0;}
+.all-levels-q-answer .ans-working{display:none;}
+.all-levels-q-answer.visible{display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0;animation:fadeIn 0.25s ease;}
+/* When answers are shown, hide the question text so the answer has the card space and questions don't get squashed; keep the number */
+.all-levels-q-card:has(.all-levels-q-answer.visible) .all-levels-q-text{display:none;}
+.all-levels-q-card:has(.all-levels-q-answer.visible) .all-levels-q-body{flex:0 0 auto;}
+.all-levels-q-card:has(.all-levels-q-answer.visible) .all-levels-q-answer.visible{padding:0.4rem 0.5rem 0.4rem 2em;}
+.all-levels-q-card:has(.all-levels-q-answer.visible) .all-levels-q-answer .ans-value{font-size:1.35em;}
+.all-levels-actions{
+  flex-shrink:0;
+  display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;
+  padding:0.35rem 0 0.25rem;
+}
+.all-levels-actions .btn{padding:0.5rem 1.15rem;font-size:0.9rem;}
+.view-all-levels-card{
+  display:block;
+  width:100%;
+  max-width:420px;
+  margin:0 auto;
+  background:var(--card);
+  border:3px solid var(--border);
+  border-radius:1.5rem;
+  padding:2rem;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  text-align:center;
+  box-shadow:var(--shadow);
+  font-family:inherit;
+  font-size:inherit;
+  color:inherit;
+}
+.view-all-levels-card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-lg);
+  border-color:var(--blue);
+}
+.view-all-levels-card .level-icon{font-size:2rem;margin-bottom:0.5rem;display:block;}
+.view-all-levels-card .level-title{
+  font-family:'Fredoka',sans-serif;
+  font-size:1.2rem;
+  color:var(--dark);
+  display:block;
+}
+.view-all-levels-card .level-desc{
+  font-size:0.85rem;
+  color:var(--muted);
+  margin-top:0.5rem;
+  display:block;
+}
+
+/* ══════════════════════════════════════════
+   ③ TEACHER LOGIN SCREEN
+══════════════════════════════════════════ */
+#teacher-login-screen .inner{
+  max-width:420px;margin:0 auto;
+  padding:5rem 1.5rem;
+  display:flex;flex-direction:column;align-items:center;gap:1.5rem;
+  text-align:center;
+}
+.login-card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:1.5rem;
+  padding:2.5rem 2rem;
+  width:100%;
+  box-shadow:var(--shadow-lg);
+  display:flex;flex-direction:column;gap:1.25rem;
+}
+.login-title{
+  font-family:'Fredoka',sans-serif;
+  font-size:1.6rem;color:var(--dark);
+}
+.login-sub{font-size:0.88rem;color:var(--muted);}
+.field{display:flex;flex-direction:column;gap:0.4rem;text-align:left;}
+.field label{font-size:0.8rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.5px;}
+.field input{
+  font-family:'Fredoka',sans-serif;
+  font-size:1rem;padding:0.65rem 1rem;
+  border:2px solid var(--border);border-radius:0.75rem;
+  background:var(--bg);color:var(--dark);
+  transition:border-color 0.15s;
+  width:100%;
+}
+.field input:focus{outline:none;border-color:var(--amber);}
+.login-error{color:var(--red);font-size:0.85rem;display:none;}
+.login-error.show{display:block;}
+
+/* ══════════════════════════════════════════
+   ④ TEACHER DASHBOARD SCREEN
+══════════════════════════════════════════ */
+#teacher-screen .inner{
+  max-width:98%;width:100%;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem;
+  padding:2rem 1.5rem 4rem;
+}
+.teacher-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:2rem;flex-wrap:wrap;gap:1rem;
+}
+.teacher-title{font-family:'Fredoka',sans-serif;font-size:1.8rem;color:var(--dark);}
+.teacher-sub{font-size:0.88rem;color:var(--muted);margin-top:0.2rem;}
+.teacher-grade-wrap{display:flex;flex-direction:column;gap:0.35rem;}
+.teacher-grade-label{font-size:0.75rem;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:0.5px;}
+.teacher-grade-select{
+  font-family:'Fredoka',sans-serif;font-size:0.95rem;padding:0.5rem 0.75rem;
+  border:2px solid var(--border);border-radius:0.65rem;background:var(--card);color:var(--dark);
+  min-width:6rem;
+}
+
+/* Mode tabs */
+.mode-tabs{
+  display:flex;gap:0;
+  background:var(--bg2);
+  border:2px solid var(--border);
+  border-radius:0.9rem;
+  padding:0.25rem;
+  margin-bottom:2rem;
+  width:fit-content;
+}
+.mode-tab{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:0.85rem;
+  padding:0.6rem 1.4rem;border-radius:0.65rem;
+  cursor:pointer;transition:all 0.15s;
+  color:var(--muted);border:none;background:transparent;
+}
+.mode-tab.active{background:var(--dark);color:#fff;}
+
+/* Today's quiz panel */
+.today-panel{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:1.25rem;
+  padding:1.5rem;
+  margin-bottom:2rem;
+  box-shadow:var(--shadow);
+}
+.today-panel h3{
+  font-family:'Fredoka',sans-serif;font-size:1.15rem;
+  color:var(--dark);margin-bottom:1rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
+@media(max-width:900px){.today-grid{grid-template-columns:1fr;}}
+.today-col{
+  border:2px solid var(--border);border-radius:0.9rem;padding:1rem;
+  display:flex;flex-direction:column;gap:0.6rem;min-width:0;
+}
+.today-col-head{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:0.95rem;
+  text-transform:uppercase;letter-spacing:0.8px;
+}
+.today-col[data-level="less"] .today-col-head{color:var(--less-col);}
+.today-col[data-level="more"] .today-col-head{color:var(--more-col);}
+.today-col[data-level="most"] .today-col-head{color:var(--most-col);}
+.today-q-item{
+  font-size:1.2rem;color:var(--dark);
+  padding:0.65rem 0.85rem;
+  background:var(--bg);border-radius:0.5rem;
+  display:flex;flex-direction:column;gap:0.35rem;
+  border:1px solid var(--border);
+}
+.today-q-item .today-q-num{font-weight:800;color:var(--muted);font-size:1rem;}
+.today-q-item .today-q-text{line-height:1.45;word-wrap:break-word;}
+.today-q-item .today-q-answer{font-size:1.05rem;color:var(--green);font-weight:700;}
+.today-q-item .today-q-actions{display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;flex-wrap:wrap;}
+.today-q-remove{
+  cursor:pointer;color:var(--muted);font-size:0.9rem;border:none;background:none;padding:0.2rem 0;
+  transition:color 0.12s;flex-shrink:0;
+}
+.today-q-remove:hover{color:var(--red);}
+.today-q-add-bank{font-size:0.85rem;padding:0.35rem 0.65rem;}
+.today-empty{font-size:1rem;color:var(--muted);font-style:italic;}
+.today-difficulty-feedback{
+  margin-top:0.75rem;
+  padding-top:0.6rem;
+  border-top:1px solid var(--border);
+  display:flex;
+  gap:0.5rem;
+  flex-wrap:wrap;
+}
+.today-feedback-btn{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:0.72rem;
+  padding:0.35rem 0.65rem;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:var(--bg2);
+  color:var(--muted);
+  cursor:pointer;
+  transition:all 0.12s;
+}
+.today-feedback-btn:hover{
+  border-color:var(--mid);
+  color:var(--dark);
+  background:var(--card);
+}
+.today-actions{
+  display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;
+  padding-top:1rem;border-top:1px solid var(--border);
+}
+
+/* Bank builder */
+.bank-filters{
+  display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;
+  margin-bottom:1.25rem;
+}
+.filter-chip{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:0.78rem;
+  padding:0.35rem 0.9rem;border-radius:999px;
+  border:2px solid var(--border);background:var(--card);
+  cursor:pointer;transition:all 0.15s;color:var(--mid);
+}
+.filter-chip.active{background:var(--dark);color:#fff;border-color:var(--dark);}
+.filter-chip.level-chip[data-level="less"].active{background:var(--less-col);border-color:var(--less-col);}
+.filter-chip.level-chip[data-level="more"].active{background:var(--more-col);border-color:var(--more-col);}
+.filter-chip.level-chip[data-level="most"].active{background:var(--most-col);border-color:var(--most-col);}
+
+.bank-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:0.75rem;
+}
+.bank-q-card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:0.9rem;
+  padding:0.9rem 1rem;
+  display:flex;flex-direction:column;gap:0.6rem;
+  box-shadow:var(--shadow);
+  transition:all 0.15s;
+}
+.bank-q-card:hover{border-color:var(--amber);transform:translateY(-1px);}
+.bank-q-card.selected{border-color:var(--green);background:#f0fef7;}
+.bank-q-meta{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;}
+.topic-tag{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:0.68rem;
+  padding:0.2rem 0.6rem;border-radius:999px;
+  text-transform:uppercase;letter-spacing:0.5px;
+  background:var(--bg2);color:var(--mid);
+}
+.bank-q-text{font-size:0.85rem;color:var(--dark);line-height:1.45;}
+.bank-q-answer{font-size:0.78rem;color:var(--muted);font-style:italic;}
+.bank-q-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+.add-to-btn{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:0.72rem;
+  padding:0.25rem 0.65rem;border-radius:999px;
+  border:2px solid;background:transparent;cursor:pointer;
+  transition:all 0.12s;
+}
+.add-to-btn[data-level="less"]{border-color:var(--less-col);color:var(--less-col);}
+.add-to-btn[data-level="less"]:hover{background:var(--less-col);color:#fff;}
+.add-to-btn[data-level="more"]{border-color:var(--more-col);color:var(--more-col);}
+.add-to-btn[data-level="more"]:hover{background:var(--more-col);color:#fff;}
+.add-to-btn[data-level="most"]{border-color:var(--most-col);color:var(--most-col);}
+.add-to-btn[data-level="most"]:hover{background:var(--most-col);color:#fff;}
+.add-to-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+
+/* Add custom question */
+.add-q-form{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:1.25rem;
+  padding:1.5rem;
+  box-shadow:var(--shadow);
+}
+.add-q-form h3{
+  font-family:'Fredoka',sans-serif;font-size:1.1rem;
+  color:var(--dark);margin-bottom:1.25rem;
+}
+.form-row{display:flex;gap:1rem;flex-wrap:wrap;}
+.field-group{display:flex;flex-direction:column;gap:0.4rem;flex:1;min-width:200px;}
+.field-group label{font-size:0.78rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.5px;}
+.field-group input,.field-group select,.field-group textarea{
+  font-family:'Fredoka',sans-serif;font-size:0.9rem;
+  padding:0.6rem 0.9rem;
+  border:2px solid var(--border);border-radius:0.65rem;
+  background:var(--bg);color:var(--dark);
+  transition:border-color 0.15s;width:100%;
+}
+.field-group input:focus,.field-group select:focus,.field-group textarea:focus{
+  outline:none;border-color:var(--amber);
+}
+.field-group textarea{resize:vertical;min-height:70px;}
+
+/* Variants approval panel (suggest other levels) */
+.variants-panel{
+  margin-top:1.5rem;
+  padding:1.25rem;
+  background:var(--bg2);
+  border:2px solid var(--border);
+  border-radius:1rem;
+}
+.variants-panel-title{font-size:0.95rem;color:var(--dark);margin-bottom:0.35rem;}
+.variants-panel-desc{font-size:0.8rem;color:var(--muted);margin-bottom:1rem;}
+.variant-card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:0.85rem;
+  padding:1rem;
+  margin-bottom:0.75rem;
+  display:flex;flex-direction:column;gap:0.5rem;
+  box-shadow:var(--shadow);
+}
+.variant-card.approved{border-color:var(--green);opacity:0.85;}
+.variant-card.rejected{display:none;}
+.variant-card .variant-level{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
+.variant-card .variant-q{font-size:0.88rem;color:var(--dark);line-height:1.4;}
+.variant-card .variant-answer{font-size:0.8rem;color:var(--muted);}
+.variant-card .variant-actions{display:flex;gap:0.5rem;margin-top:0.25rem;}
+.variant-card .variant-actions button{font-size:0.8rem;}
+
+/* Google Sheet sync */
+.sheet-sync-panel{
+  background:linear-gradient(135deg, #f0f7ff 0%, var(--bg2) 100%);
+  border:2px solid var(--border);
+  border-radius:1rem;
+  padding:1rem 1.25rem;
+  margin-bottom:1.25rem;
+}
+.sheet-sync-title{font-size:0.95rem;color:var(--dark);margin-bottom:0.35rem;}
+.sheet-sync-desc{font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;}
+.sheet-sync-row{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;}
+.sheet-url-input{
+  flex:1;
+  min-width:200px;
+  font-size:0.85rem;
+  padding:0.5rem 0.75rem;
+  border:2px solid var(--border);
+  border-radius:0.65rem;
+  background:var(--card);
+}
+.sheet-sync-status{font-size:0.8rem;margin-top:0.5rem;}
+.sheet-sync-status.success{color:var(--green);}
+.sheet-sync-status.error{color:var(--red);}
+#sheet-setup-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;padding:1rem;pointer-events:none;}
+#sheet-setup-modal.show{display:flex;pointer-events:auto;}
+#sheet-setup-modal .sheet-setup-content{pointer-events:auto;}
+.sheet-setup-content{background:var(--card);border-radius:1rem;padding:1.5rem;max-width:520px;max-height:85vh;overflow:auto;box-shadow:var(--shadow-lg);}
+.sheet-setup-content h3{margin-bottom:0.75rem;}
+.sheet-setup-content ol{font-size:0.88rem;line-height:1.6;color:var(--mid);margin:0.5rem 0 1rem 1.25rem;}
+.sheet-setup-content code{background:var(--bg2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.8rem;}
+.sheet-setup-content .btn{margin-top:0.5rem;}
+
+/* Auto-gen settings */
+.autogen-panel{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:1.25rem;
+  padding:1.5rem;
+  box-shadow:var(--shadow);
+}
+.autogen-panel h3{
+  font-family:'Fredoka',sans-serif;font-size:1.1rem;
+  color:var(--dark);margin-bottom:1rem;
+}
+.topic-toggles{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;}
+/* Focus areas: checkboxes for which topics can be generated */
+.focus-area-label{
+  font-size:0.8rem;font-weight:700;color:var(--mid);
+  margin-bottom:0.6rem;display:block;
+}
+.focus-area-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:0.5rem 1rem;
+  margin-bottom:1.25rem;
+}
+.focus-area-item{
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+  cursor:pointer;
+  font-size:0.88rem;
+  color:var(--dark);
+  padding:0.4rem 0;
+  border-radius:0.5rem;
+  transition:background 0.12s;
+}
+.focus-area-item:hover{background:var(--bg2);}
+.focus-area-item input[type="checkbox"]{
+  width:1.1rem;height:1.1rem;
+  accent-color:var(--amber);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.focus-area-item input[type="checkbox"]:disabled{cursor:not-allowed;opacity:0.7;}
+.focus-area-summary{
+  font-size:0.8rem;color:var(--muted);
+  margin-top:0.35rem;margin-bottom:0.5rem;
+}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;
+  background:var(--dark);color:#fff;
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:0.88rem;
+  padding:0.75rem 1.5rem;border-radius:999px;
+  box-shadow:var(--shadow-lg);
+  opacity:0;transform:translateY(8px);
+  transition:all 0.2s ease;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success::before{content:'✓  ';}
+.toast.error::before{content:'✕  ';}
+
+/* Progress dots */
+.progress-bar{
+  display:flex;gap:0.4rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap;
+}
+.progress-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--border);transition:background 0.2s;
+}
+.progress-dot.done{background:var(--green);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* Responsive */
+@media(max-width:520px){
+  .app-header{padding:0.85rem 1rem;}
+  .logo{font-size:1.4rem;}
+  #home-screen .inner{padding:2rem 1rem 3rem;}
+  .home-title{font-size:2rem;}
+  .level-card{width:150px;padding:1.5rem 1rem;}
+  #quiz-screen .inner,#teacher-screen .inner{padding:1.25rem 1rem 3rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ TOAST ════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- Sheet setup instructions modal -->
+<div id="sheet-setup-modal" aria-hidden="true">
+  <div class="sheet-setup-content">
+    <p style="text-align:right;margin:-0.5rem 0 0.5rem 0;"><button type="button" class="btn btn-outline btn-sm" onclick="closeSheetModal()" aria-label="Close">✕ Close</button></p>
+    <h3>📊 Link your question bank to a Google Sheet</h3>
+    <ol>
+      <li>Create a new Google Sheet (or use an existing one). When you save, questions are stored in separate tabs by year group: <strong>Year 1</strong>, <strong>Year 2</strong>, <strong>Year 3</strong>, <strong>Year 4</strong>, <strong>Year 5</strong>, <strong>Year 6</strong>. The script creates these tabs automatically.</li>
+      <li>In the sheet menu: <strong>Extensions → Apps Script</strong>. Delete any sample code and paste in the script from the file <code>DailyTen-SheetSync.gs</code> in this project (see the HTML - INTERACTIVES folder). Save the project.</li>
+      <li>In Apps Script: <strong>Deploy → New deployment</strong>. Choose type <strong>Web app</strong>. Set &quot;Execute as&quot; to <strong>Me</strong>, &quot;Who has access&quot; to <strong>Anyone</strong>. Deploy and copy the <strong>Web app URL</strong>.</li>
+      <li>Paste that URL into the &quot;Backup to Google Sheet&quot; box above (it should end with <code>/exec</code>). Use <strong>Save to Sheet</strong> to upload your bank, and <strong>Load from Sheet</strong> to restore it.</li>
+      <li><strong>Important:</strong> Open this Daily Ten page from a web server (e.g. your school intranet or HTTPS), not by double‑clicking the HTML file. Browsers block requests to Google when the page is opened as a local file.</li>
+    </ol>
+    <button type="button" class="btn btn-green" onclick="closeSheetModal()">Got it</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  ① HOME SCREEN
+════════════════════════════════════════ -->
+<div class="screen active" id="home-screen">
+  <header class="app-header">
+    <div class="logo">Daily <em>Ten</em> 🔢</div>
+    <div class="header-right">
+      <a href="index.html" class="btn btn-ghost btn-sm" style="color:#fff;text-decoration:none;">← Maths Interactives</a>
+      <span class="teacher-link" onclick="goTo('teacher-login-screen')">🔐 Teacher</span>
+    </div>
+  </header>
+  <div class="inner">
+    <div>
+      <div class="home-title">What's your level today?</div>
+      <p class="home-sub">Pick your challenge, work out your answers in your book, then check them at the end.</p>
+    </div>
+
+    <div id="quiz-status-banner" class="quiz-status-banner" style="display:none"></div>
+
+    <!-- Display toggle: choose my level vs all levels on one page (for board) -->
+    <div class="home-display-toggle">
+      <span>Show:</span>
+      <div class="display-mode-btns">
+        <button type="button" class="display-mode-btn active" id="home-display-pick" onclick="setDisplayMode('pick')">Choose my level</button>
+        <button type="button" class="display-mode-btn" id="home-display-allLevels" onclick="setDisplayMode('allLevels')">All levels on one page</button>
+      </div>
+    </div>
+
+    <!-- When displayMode === 'pick': show level cards -->
+    <div class="level-cards" id="home-level-cards">
+      <div class="level-card" data-level="less" onclick="startQuiz('less')">
+        <div class="level-icon">🌱</div>
+        <div class="level-title">Less<br>Challenging</div>
+        <div class="level-desc">A great place to get warmed up</div>
+      </div>
+      <div class="level-card" data-level="more" onclick="startQuiz('more')">
+        <div class="level-icon">🔥</div>
+        <div class="level-title">More<br>Challenging</div>
+        <div class="level-desc">Push your thinking further</div>
+      </div>
+      <div class="level-card" data-level="most" onclick="startQuiz('most')">
+        <div class="level-icon">⚡</div>
+        <div class="level-title">Most<br>Challenging</div>
+        <div class="level-desc">Ready for a real challenge?</div>
+      </div>
+    </div>
+
+    <!-- When displayMode === 'allLevels': year group selector + single card to view all levels on one page -->
+    <div id="home-all-levels-wrap" class="home-all-levels-wrap" style="display:none">
+      <div class="home-year-group-row">
+        <label for="home-all-levels-year">Year group:</label>
+        <select id="home-all-levels-year" class="home-year-group-select" aria-label="Year group for questions" onchange="setGrade(this.value)">
+          <option value="1">Year 1</option>
+          <option value="2">Year 2</option>
+          <option value="3">Year 3</option>
+          <option value="4">Year 4</option>
+          <option value="5">Year 5</option>
+          <option value="6">Year 6</option>
+        </select>
+      </div>
+      <button type="button" id="home-all-levels-card" class="view-all-levels-card">
+        <span class="level-icon">📋</span>
+        <span class="level-title">View today's questions (all levels)</span>
+        <span class="level-desc">Less, More and Most Challenging, all on one page for the board. Tap to open, then use &quot;Show all answers&quot; for self-marking.</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  ② QUIZ SCREEN
+════════════════════════════════════════ -->
+<div class="screen" id="quiz-screen">
+  <header class="app-header">
+    <div class="logo">Daily <em>Ten</em> 🔢</div>
+    <div class="header-right">
+      <a href="index.html" class="btn btn-ghost btn-sm" style="color:#fff;text-decoration:none;">← Maths Interactives</a>
+      <button class="btn btn-ghost btn-sm" onclick="goTo('home-screen')">↩ Change Level</button>
+      <button class="btn btn-ghost btn-sm" id="quiz-easier-btn" onclick="regenerateQuizEasier()" title="Regenerate with easier questions">↓ Easier</button>
+      <button class="btn btn-ghost btn-sm" id="quiz-harder-btn" onclick="regenerateQuizHarder()" title="Regenerate with harder questions">↑ Harder</button>
+      <button class="btn btn-ghost btn-sm" id="new-q-btn" onclick="regenerateQuiz()">🔄 New Questions</button>
+    </div>
+  </header>
+  <div class="inner">
+    <div class="quiz-top">
+      <div class="quiz-info">
+        <div class="quiz-date" id="quiz-date"></div>
+        <div class="quiz-heading">Mental Maths Practice</div>
+      </div>
+      <span class="level-pill" id="level-pill"></span>
+    </div>
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="question-list" id="question-list"></div>
+    <div class="quiz-actions">
+      <button class="btn btn-green btn-lg" onclick="toggleQuizAnswers()" id="reveal-btn">✓ Show answers</button>
+      <button class="btn btn-outline" onclick="goTo('home-screen')">↩ Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  ②b ALL-THREE-LEVELS QUIZ (board view)
+════════════════════════════════════════ -->
+<div class="screen" id="quiz-all-levels-screen">
+  <header class="app-header">
+    <div class="logo">Daily <em>Ten</em> 🔢</div>
+    <div class="header-right">
+      <a href="index.html" class="btn btn-ghost btn-sm" style="color:#fff;text-decoration:none;">← Maths Interactives</a>
+      <button class="btn btn-ghost btn-sm" onclick="goTo('home-screen')">↩ Back</button>
+    </div>
+  </header>
+  <div class="inner">
+    <div class="all-levels-header">
+      <div class="quiz-date" id="all-levels-date"></div>
+      <div class="quiz-heading">Mental Maths Practice, All levels</div>
+    </div>
+    <div class="all-levels-cols" id="all-levels-cols"></div>
+    <div class="all-levels-actions">
+      <button class="btn btn-green btn-lg" onclick="toggleAllLevelsAnswers()" id="reveal-all-levels-btn">✓ Show answers</button>
+      <button class="btn btn-outline" onclick="goTo('home-screen')">↩ Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  ③ TEACHER LOGIN SCREEN
+════════════════════════════════════════ -->
+<div class="screen" id="teacher-login-screen">
+  <header class="app-header">
+    <div class="logo">Daily <em>Ten</em> 🔢</div>
+    <div class="header-right">
+      <a href="index.html" class="btn btn-ghost btn-sm" style="color:#fff;text-decoration:none;">← Maths Interactives</a>
+      <button class="btn btn-ghost btn-sm" onclick="goTo('home-screen')">↩ Back</button>
+    </div>
+  </header>
+  <div class="inner">
+    <div class="login-card">
+      <div>
+        <div class="login-title">🔐 Teacher Login</div>
+        <div class="login-sub">Enter your password to access the teacher's section.</div>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="pw-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()">
+      </div>
+      <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+      <button class="btn btn-amber btn-lg" onclick="checkPassword()">Login</button>
+      <div style="font-size:0.75rem;color:var(--muted);">Use the password shared with staff.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  ④ TEACHER DASHBOARD SCREEN
+════════════════════════════════════════ -->
+<div class="screen" id="teacher-screen">
+  <header class="app-header">
+    <div class="logo">Daily <em>Ten</em> 🔢</div>
+    <div class="header-right">
+      <button class="btn btn-ghost btn-sm" onclick="goTo('home-screen')">↩ Student View</button>
+      <button class="btn btn-ghost btn-sm" onclick="teacherLogout()">Logout</button>
+    </div>
+  </header>
+  <div class="inner">
+    <div class="teacher-header">
+      <div>
+        <div class="teacher-title">📋 Question Builder</div>
+        <div class="teacher-sub">Build today's quiz or let the app auto-generate one. Changes are saved for the current session.</div>
+      </div>
+      <div class="teacher-grade-wrap">
+        <label for="grade-select" class="teacher-grade-label">Year group</label>
+        <select id="grade-select" class="teacher-grade-select" aria-label="Year group" onchange="setGrade(this.value)">
+          <option value="1">Year 1</option>
+          <option value="2">Year 2</option>
+          <option value="3">Year 3</option>
+          <option value="4">Year 4</option>
+          <option value="5">Year 5</option>
+          <option value="6">Year 6</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- TODAY'S QUIZ PANEL -->
+    <div class="today-panel">
+      <h3>📅 Today's Quiz <span id="today-date-label" style="font-family:'Fredoka';font-size:0.82rem;color:var(--muted);font-weight:400;"></span></h3>
+      <div class="today-grid" id="today-grid">
+        <!-- filled by JS -->
+      </div>
+      <div class="today-actions">
+        <button class="btn btn-green" onclick="saveToday()">💾 Save & Publish Quiz</button>
+        <button class="btn btn-outline" onclick="clearToday()">🗑 Clear Today's Quiz</button>
+        <button class="btn btn-outline" onclick="autofillToday()">✨ Auto-fill Empty Slots</button>
+        <button class="btn btn-amber" onclick="addAllTodayToBank()">📚 Add all to question bank</button>
+      </div>
+    </div>
+
+    <!-- MODE TABS -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" onclick="switchMode('bank')" id="tab-bank">📚 Question Bank</button>
+      <button class="mode-tab" onclick="switchMode('add')" id="tab-add">➕ Add Question</button>
+      <button class="mode-tab" onclick="switchMode('autogen')" id="tab-autogen">✓ Focus areas</button>
+    </div>
+
+    <!-- BANK VIEW -->
+    <div id="mode-bank">
+      <div class="sheet-sync-panel">
+        <h4 class="sheet-sync-title">📊 Backup to Google Sheet</h4>
+        <p class="sheet-sync-desc">Save your question bank to a Google Sheet so it survives clearing browser data. <a href="#" id="sheet-setup-link" style="color:var(--blue);font-size:0.85rem;">Setup instructions</a></p>
+        <div class="sheet-sync-row">
+          <input type="url" id="sheet-url-input" placeholder="Paste your Web App URL here" class="sheet-url-input" onblur="if(this.value.trim()) setSheetUrl(this.value.trim())" />
+          <button type="button" class="btn btn-outline btn-sm" onclick="saveBankToSheet()">Save to Sheet</button>
+          <button type="button" class="btn btn-green btn-sm" onclick="loadBankFromSheet()">Load from Sheet</button>
+        </div>
+        <p id="sheet-sync-status" class="sheet-sync-status" style="display:none;"></p>
+      </div>
+      <div class="bank-filters">
+        <span style="font-size:0.8rem;font-weight:700;color:var(--mid);">Level:</span>
+        <button class="filter-chip level-chip active" data-level="all" onclick="setLevelFilter('all',this)">All</button>
+        <button class="filter-chip level-chip" data-level="less" onclick="setLevelFilter('less',this)">Less</button>
+        <button class="filter-chip level-chip" data-level="more" onclick="setLevelFilter('more',this)">More</button>
+        <button class="filter-chip level-chip" data-level="most" onclick="setLevelFilter('most',this)">Most</button>
+        <span style="font-size:0.8rem;font-weight:700;color:var(--mid);margin-left:0.5rem;">Topic:</span>
+        <!-- topic chips (including All) added by JS -->
+      </div>
+      <p class="bank-storage-note" style="font-size:0.75rem;color:var(--muted);margin:0.5rem 0 0.75rem 0;">Question bank is saved in this browser (session). Back it up to a Google Sheet above so it survives clearing browser data.</p>
+      <div class="bank-grid" id="bank-grid"></div>
+    </div>
+
+    <!-- ADD QUESTION VIEW -->
+    <div id="mode-add" style="display:none">
+      <div class="add-q-form">
+        <h3>➕ Add a Custom Question</h3>
+        <div class="form-row">
+          <div class="field-group">
+            <label>Topic</label>
+            <select id="new-topic">
+              <option value="Addition">Addition</option>
+              <option value="Subtraction">Subtraction</option>
+              <option value="Multiplication">Multiplication</option>
+              <option value="Division">Division</option>
+              <option value="Place Value">Place Value</option>
+              <option value="Fractions">Fractions</option>
+              <option value="Measurement">Measurement</option>
+              <option value="Time">Time</option>
+              <option value="Rounding">Rounding</option>
+              <option value="Number Patterns">Number Patterns</option>
+              <option value="Geometry">Geometry</option>
+              <option value="Word Problem">Word Problem</option>
+              <option value="Data">Data</option>
+              <option value="Money">Money</option>
+              <option value="Mass">Mass</option>
+              <option value="Length">Length</option>
+              <option value="Angles">Angles</option>
+              <option value="Chance">Chance</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Level</label>
+            <select id="new-level">
+              <option value="less">Less Challenging</option>
+              <option value="more">More Challenging</option>
+              <option value="most">Most Challenging</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:0.75rem">
+          <div class="field-group" style="flex:2">
+            <label>Question</label>
+            <textarea id="new-question" placeholder="Type the question here…"></textarea>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:0.75rem">
+          <div class="field-group">
+            <label>Answer</label>
+            <input type="text" id="new-answer" placeholder="e.g. 47">
+          </div>
+          <div class="field-group" style="flex:2">
+            <label>Working / Explanation</label>
+            <input type="text" id="new-working" placeholder="e.g. 85 − 38 = 47">
+          </div>
+        </div>
+        <p class="add-form-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.75rem;">Your question bank is saved in this browser (session storage). It persists while the tab is open; closing all tabs or clearing site data will clear it.</p>
+        <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-amber" onclick="addCustomQuestion()">Add to Bank</button>
+          <button class="btn btn-outline" onclick="addCustomQuestionAndSuggestLevels()">Add to Bank &amp; suggest other levels</button>
+          <button class="btn btn-outline btn-sm" onclick="clearAddForm()">Clear</button>
+        </div>
+        <!-- Shown after "Add & suggest other levels": generated variants for teacher to approve -->
+        <div id="add-variants-panel" class="variants-panel" style="display:none;">
+          <h4 class="variants-panel-title">Suggested questions for other levels (same topic)</h4>
+          <p class="variants-panel-desc">Review each suggestion and approve to add it to the bank, or reject to skip.</p>
+          <div id="add-variants-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTO-GEN SETTINGS / FOCUS AREAS -->
+    <div id="mode-autogen" style="display:none">
+      <div class="autogen-panel">
+        <h3>⚙️ Focus areas</h3>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;">Choose which topics can be included when the app generates questions (e.g. turn off Multiplication this week, or only allow Addition, Subtraction and Fractions). Auto-generated quizzes and &quot;Auto-fill empty slots&quot; will only use the topics you tick.</p>
+        <span class="focus-area-label">Topics to include in generation</span>
+        <div class="focus-area-summary" id="focus-area-summary"></div>
+        <div class="focus-area-grid" id="focus-area-grid"></div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem;">
+          <button class="btn btn-amber" onclick="saveAutoGenSettings()">Save Settings</button>
+          <button class="btn btn-outline btn-sm" onclick="resetAutoGenSettings()">Select all topics</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script src="questionGenerator.js"></script>
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const TEACHER_PASSWORD = 'RC123'; // Shared with colleagues for teacher access
+const STORAGE_KEY_QUIZ  = 'dailyten_quiz';
+const STORAGE_KEY_BANK  = 'dailyten_bank';
+const STORAGE_KEY_AUTO  = 'dailyten_auto';
+const STORAGE_KEY_DISPLAY_MODE = 'dailyten_displayMode'; // 'pick' | 'allLevels'
+const STORAGE_KEY_SHEET_URL = 'dailyten_sheetUrl'; // Google Apps Script Web App URL (localStorage)
+const STORAGE_KEY_GRADE = 'dailyten_grade'; // Year group (localStorage), multi-grade support
+const STORAGE_KEY_DIFFICULTY_OFFSET = 'dailyten_difficultyOffset'; // { grade: { level: number } }, numeric offset (±1 per click, applied to 1–20 scale)
+const DEFAULT_GRADE = '3'; // Current app behaviour = Year 3
+const GRADES = ['1', '2', '3', '4', '5', '6', '7']; // Year 1–7
+const LEVELS_ORDER = ['less', 'more', 'most'];
+
+// Map (yearGroup, level) → base numeric difficulty (1–20). Offsets applied on top.
+// d 1-3: Y1,  d 4-5: Y2,  d 6-8: Y3,  d 9-11: Y4,  d 12-14: Y5,  d 15-17: Y6,  d 18-20: Y7
+const YEAR_DIFFICULTY_MAP = {
+  '1': { less: 1, more: 2, most: 4 },
+  '2': { less: 3, more: 5, most: 6 },
+  '3': { less: 5, more: 7, most: 9 },
+  '4': { less: 8, more: 10, most: 12 },
+  '5': { less: 10, more: 13, most: 15 },
+  '6': { less: 13, more: 16, most: 18 },
+  '7': { less: 16, more: 18, most: 20 }
+};
+
+function clampNumericDifficulty(n) {
+  const min = (typeof QuestionGenerator !== 'undefined' && QuestionGenerator.DIFFICULTY_MIN != null) ? QuestionGenerator.DIFFICULTY_MIN : 1;
+  const max = (typeof QuestionGenerator !== 'undefined' && QuestionGenerator.DIFFICULTY_MAX != null) ? QuestionGenerator.DIFFICULTY_MAX : 10;
+  const num = Math.round(Number(n));
+  return Math.max(min, Math.min(max, isNaN(num) ? 5 : num));
+}
+
+// Resolve effective numeric difficulty (1–10) for current year group and level, including teacher offset.
+function getNumericDifficulty(level) {
+  const baseMap = YEAR_DIFFICULTY_MAP[currentGrade];
+  const base = (baseMap && baseMap[level] != null) ? baseMap[level] : (level === 'less' ? 2 : level === 'more' ? 5 : 8);
+  const offset = (difficultyOffset[currentGrade] && difficultyOffset[currentGrade][level] != null) ? difficultyOffset[currentGrade][level] : 0;
+  return clampNumericDifficulty(base + offset);
+}
+
+// ══════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════
+const rand   = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+const pick   = arr => arr[Math.floor(Math.random()*arr.length)];
+const todayKey = () => new Date().toISOString().slice(0,10);
+const clone  = obj => JSON.parse(JSON.stringify(obj));
+
+// Escape for safe HTML and attributes (prevents broken DOM / unclickable buttons when sheet data has quotes or tags)
+function escHtml(str){
+  const s = String(str == null ? '' : str);
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+function escAttr(str){
+  const s = String(str == null ? '' : str);
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Normalise question text so "How many mm in 6 m?" and "How many mm in 3 m?" match (no doubled-up types)
+function questionSignature(questionText){
+  if(!questionText) return '';
+  const stripped = (''+questionText).replace(/<[^>]+>/g,'').trim();
+  const noNumbers = stripped.replace(/\d+(\.\d+)?/g,'#').replace(/\s+/g,' ').trim();
+  return noNumbers.toLowerCase();
+}
+function hasSameSignatureAsExisting(questionText, existingList){
+  const sig = questionSignature(questionText);
+  if(!sig) return false;
+  return existingList.some(q=> questionSignature(q.question) === sig);
+}
+
+function showToast(msg, type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function closeSheetModal(){
+  const m=document.getElementById('sheet-setup-modal');
+  if(m){ m.classList.remove('show'); m.setAttribute('aria-hidden','true'); }
+}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function fmtDate(){
+  return new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+// ══════════════════════════════════════════
+// QUESTION GENERATORS
+// ══════════════════════════════════════════
+const placeNames={1:'ones',10:'tens',100:'hundreds',1000:'thousands',10000:'ten thousands',100000:'hundred thousands'};
+const fmtTime=(h,m)=>{const ampm=h<12?'am':'pm';const h12=h>12?h-12:h===0?12:h;return `${h12}:${String(m).padStart(2,'0')}${ampm}`;};
+
+const GENERATORS = {
+  'Addition':{
+    less: ()=>{ const a=rand(10,49),b=rand(5,30); return {q:`Jack had ${a} stickers and collected ${b} more. How many does he have now?`,a:`${a+b} stickers`,w:`${a} + ${b} = ${a+b}`}; },
+    more: ()=>{ const a=rand(100,499),b=rand(50,299); return {q:`A cricket team scored ${a} runs in the first innings and ${b} in the second. How many runs altogether?`,a:`${a+b} runs`,w:`${a} + ${b} = ${a+b}`}; },
+    most: ()=>{ const a=rand(10000,49999),b=rand(5000,30000); return {q:`Two events drew ${a.toLocaleString()} and ${b.toLocaleString()} visitors. How many altogether?`,a:`${(a+b).toLocaleString()}`,w:`${a.toLocaleString()} + ${b.toLocaleString()} = ${(a+b).toLocaleString()}`}; },
+  },
+  'Subtraction':{
+    less: ()=>{ const b=rand(5,25),a=rand(b+10,70); return {q:`There were ${a} books on the shelf. ${b} were borrowed. How many are left?`,a:`${a-b} books`,w:`${a} − ${b} = ${a-b}`}; },
+    more: ()=>{ const b=rand(50,300),a=rand(b+100,900); return {q:`The library had ${a} books. ${b} were loaned out. How many remain?`,a:`${a-b} books`,w:`${a} − ${b} = ${a-b}`}; },
+    most: ()=>{ const b=rand(5000,30000),a=rand(b+10000,90000); return {q:`A warehouse stored ${a.toLocaleString()} containers. ${b.toLocaleString()} were shipped. How many remained?`,a:`${(a-b).toLocaleString()} containers`,w:`${a.toLocaleString()} − ${b.toLocaleString()} = ${(a-b).toLocaleString()}`}; },
+  },
+  'Multiplication':{
+    less: ()=>{ const a=rand(2,6),b=rand(2,10); return {q:`There are ${a} bags with ${b} apples in each. How many apples altogether?`,a:`${a*b} apples`,w:`${a} × ${b} = ${a*b}`}; },
+    more: ()=>{ const r=rand(3,8),c=rand(5,12); return {q:`There are ${r} rows of seats with ${c} in each row. How many seats altogether?`,a:`${r*c} seats`,w:`${r} × ${c} = ${r*c}`}; },
+    most: ()=>{ const a=rand(6,15),b=rand(20,90); return {q:`A factory produces ${b} items per day. How many items in ${a} days?`,a:`${(a*b).toLocaleString()} items`,w:`${a} × ${b} = ${(a*b).toLocaleString()}`}; },
+  },
+  'Division':{
+    less: ()=>{ const d=rand(2,5),q=rand(2,8); const t=d*q; return {q:`${t} pencils are shared equally among ${d} students. How many each?`,a:`${q} pencils each`,w:`${t} ÷ ${d} = ${q}`}; },
+    more: ()=>{ const d=rand(3,9),q=rand(6,20); const t=d*q; return {q:`${t} students travel in ${d} equal groups. How many per group?`,a:`${q} students`,w:`${t} ÷ ${d} = ${q}`}; },
+    most: ()=>{ const d=rand(4,9),q=rand(50,200); const t=d*q; return {q:`A hall has ${t.toLocaleString()} seats in ${d} equal sections. How many seats per section?`,a:`${q.toLocaleString()} seats`,w:`${t.toLocaleString()} ÷ ${d} = ${q.toLocaleString()}`}; },
+  },
+  'Place Value':{
+    less: ()=>{ const num=rand(100,999);const digits=[Math.floor(num/100),Math.floor((num%100)/10),num%10];const pos=pick([0,1,2]);const d=digits[pos];const place=[100,10,1][pos];return {q:`What is the value of the <strong>${d}</strong> in the number ${num}?`,a:`${d*place}`,w:`The ${d} is in the ${placeNames[place]} place → value = ${d} × ${place} = ${d*place}.`}; },
+    more: ()=>{ const num=rand(1000,9999);const s=String(num);const pos=rand(0,s.length-1);const d=parseInt(s[pos]);const place=Math.pow(10,s.length-1-pos);return {q:`What is the place value of the <strong>${d}</strong> in ${num.toLocaleString()}?`,a:`${(d*place).toLocaleString()} (${placeNames[place]})`,w:`The digit ${d} is in the ${placeNames[place]} column → value = ${(d*place).toLocaleString()}.`}; },
+    most: ()=>{ const num=rand(100000,999999);const s=String(num);const pos=rand(0,s.length-1);const d=parseInt(s[pos]);const place=Math.pow(10,s.length-1-pos);return {q:`What is the value of the <strong>${d}</strong> in ${num.toLocaleString()}?`,a:`${(d*place).toLocaleString()}`,w:`The digit ${d} is in the ${placeNames[place]} place → value = ${(d*place).toLocaleString()}.`}; },
+  },
+  'Fractions':{
+    less: ()=>{ const t=pick([10,12,16,20,24]); return {q:`What is one-half of ${t}?`,a:`${t/2}`,w:`${t} ÷ 2 = ${t/2}`}; },
+    more: ()=>{ const d=pick([3,4,5]);const q=rand(3,10);const t=d*q;const n={3:'one-third',4:'one-quarter',5:'one-fifth'}[d]; return {q:`What is ${n} of ${t}?`,a:`${q}`,w:`${t} ÷ ${d} = ${q}`}; },
+    most: ()=>{ const d=pick([3,4,5,8]);const n=rand(2,d-1);const q=rand(3,10);const t=d*q;const r=n*q;const nN={2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven'};const dN={3:'thirds',4:'quarters',5:'fifths',8:'eighths'}; return {q:`What is ${nN[n]}-${dN[d]} of ${t}?`,a:`${r}`,w:`One ${dN[d]} = ${t} ÷ ${d} = ${q}. Then ${q} × ${n} = ${r}.`}; },
+  },
+  'Measurement':{
+    less: ()=>{ const a=rand(200,900),b=rand(50,400); return {q:`A bag weighs ${a}g and another weighs ${b}g. What is the total mass?`,a:`${a+b}g`,w:`${a} + ${b} = ${a+b}g`}; },
+    more: ()=>{ const a=rand(100,900); return {q:`A plank is ${a}cm long. Write this in metres.`,a:`${(a/100).toFixed(2).replace(/\.?0+$/,'')}m`,w:`${a} ÷ 100 = ${(a/100).toFixed(2).replace(/\.?0+$/,'')}m`}; },
+    most: ()=>{ const km=rand(5,50); return {q:`A cycling race is ${km}km long. How many metres is this?`,a:`${(km*1000).toLocaleString()}m`,w:`${km} × 1000 = ${(km*1000).toLocaleString()}m`}; },
+  },
+  'Time':{
+    less: ()=>{ const sH=rand(8,11),sM=pick([0,15,30,45]),dur=pick([15,20,30,45]),eMin=sH*60+sM+dur,eH=Math.floor(eMin/60),eM=eMin%60; return {q:`A movie started at ${fmtTime(sH,sM)} and lasted ${dur} minutes. What time did it finish?`,a:`${fmtTime(eH,eM)}`,w:`${fmtTime(sH,sM)} + ${dur} min = ${fmtTime(eH,eM)}`}; },
+    more: ()=>{ const sH=rand(8,13),sM=pick([5,10,15,20,25,30,35,40]);let eH=sH+rand(0,2),eM=pick([10,15,20,25,30,35,40,45,50,55]);if(eM<=sM&&eH===sH)eH++;const dur=(eH-sH)*60+(eM-sM);if(dur<=0)return GENERATORS['Time'].more(); return {q:`A bus left at ${fmtTime(sH,sM)} and arrived at ${fmtTime(eH,eM)}. How long was the journey?`,a:`${dur} minutes`,w:`From ${fmtTime(sH,sM)} to ${fmtTime(eH,eM)} = ${dur} minutes.`}; },
+    most: ()=>{ const sH=rand(7,11),sM=pick([0,15,30,45]),dur=rand(90,300),eMin=sH*60+sM+dur,eH=Math.floor(eMin/60),eM=eMin%60,dH=Math.floor(dur/60),dMr=dur%60,dStr=dH>0?`${dH} hour${dH>1?'s':''}${dMr>0?` and ${dMr} min`:''}` :`${dur} min`; return {q:`A train left at ${fmtTime(sH,sM)} and the journey took ${dStr}. What time did it arrive?`,a:`${fmtTime(eH,eM)}`,w:`${fmtTime(sH,sM)} + ${dStr} = ${fmtTime(eH,eM)}`}; },
+  },
+  'Rounding':{
+    less: ()=>{ const n=rand(11,98),r=Math.round(n/10)*10; return {q:`Round ${n} to the nearest ten.`,a:`${r}`,w:`Ones digit is ${n%10}. ${n%10>=5?'5 or more → round up.':'Less than 5 → round down.'} Answer: ${r}.`}; },
+    more: ()=>{ const n=rand(1010,9990),r=Math.round(n/100)*100,tens=Math.floor((n%100)/10); return {q:`Round ${n.toLocaleString()} to the nearest hundred.`,a:`${r.toLocaleString()}`,w:`Tens digit is ${tens}. ${tens>=5?'5 or more → round up.':'Less than 5 → round down.'} Answer: ${r.toLocaleString()}.`}; },
+    most: ()=>{ const n=rand(10500,99500),r=Math.round(n/1000)*1000,h=Math.floor((n%1000)/100); return {q:`Round ${n.toLocaleString()} to the nearest thousand.`,a:`${r.toLocaleString()}`,w:`Hundreds digit is ${h}. ${h>=5?'5 or more → round up.':'Less than 5 → round down.'} Answer: ${r.toLocaleString()}.`}; },
+  },
+  'Number Patterns':{
+    less: ()=>{ const s=rand(2,20),st=pick([2,5,10]);const seq=[s,s+st,s+2*st,s+3*st]; return {q:`What comes next? ${seq.join(', ')}, ___`,a:`${s+4*st}`,w:`Goes up by ${st} each time. ${s+3*st} + ${st} = ${s+4*st}.`}; },
+    more: ()=>{ const s=rand(100,500),st=pick([10,20,25,50,100]);const seq=[s,s+st,s+2*st,s+3*st]; return {q:`What comes next? ${seq.join(', ')}, ___`,a:`${s+4*st}`,w:`Goes up by ${st} each time. ${s+3*st} + ${st} = ${s+4*st}.`}; },
+    most: ()=>{ const s=rand(200000,500000),st=pick([1000,2000,5000,10000]);const seq=[s,s-st,s-2*st,s-3*st]; return {q:`What comes next? ${seq.map(n=>n.toLocaleString()).join(', ')}, ___`,a:`${(s-4*st).toLocaleString()}`,w:`Goes down by ${st.toLocaleString()} each time. ${(s-3*st).toLocaleString()} − ${st.toLocaleString()} = ${(s-4*st).toLocaleString()}.`}; },
+  },
+  'Geometry':{
+    less: ()=>{ const shapes=[{name:'triangle',sides:3},{name:'square',sides:4,equal:true},{name:'pentagon',sides:5},{name:'hexagon',sides:6},{name:'octagon',sides:8}];const s=pick(shapes); return {q:`I am a 2D shape with ${s.sides} sides${s.equal?', and all sides are equal':' and '+s.sides+' angles'}. What shape am I?`,a:`${s.name.charAt(0).toUpperCase()+s.name.slice(1)}`,w:`A shape with ${s.sides} sides is a ${s.name}.`}; },
+    more: ()=>{ const shapes=[{name:'cube',faces:6,v:8,e:12},{name:'rectangular prism',faces:6,v:8,e:12},{name:'triangular prism',faces:5,v:6,e:9},{name:'square pyramid',faces:5,v:5,e:8}];const s=pick(shapes); return {q:`I am a 3D shape with ${s.faces} faces, ${s.v} vertices, and ${s.e} edges. What shape am I?`,a:`${s.name.charAt(0).toUpperCase()+s.name.slice(1)}`,w:`A ${s.name} has ${s.faces} faces, ${s.v} vertices, and ${s.e} edges.`}; },
+    most: ()=>{ const angs=[{name:'right angle',desc:'exactly 90°'},{name:'acute angle',desc:'less than 90°'},{name:'obtuse angle',desc:'between 90° and 180°'},{name:'reflex angle',desc:'greater than 180°'}];const a=pick(angs); return {q:`What type of angle measures ${a.desc}?`,a:`${a.name.charAt(0).toUpperCase()+a.name.slice(1)}`,w:`A ${a.name} is ${a.desc}.`}; },
+  },
+  'Word Problem':{
+    less: ()=>{ const p=rand(2,8),q=rand(2,6); return {q:`Mia bought ${q} books at $${p} each. How much did she spend?`,a:`$${p*q}`,w:`${q} × $${p} = $${p*q}`}; },
+    more: ()=>{ const t=rand(50,200),s=rand(10,t-20); return {q:`Lucy wants to raise $${t} for charity. She has raised $${s}. How much more does she need?`,a:`$${t-s}`,w:`$${t} − $${s} = $${t-s}`}; },
+    most: ()=>{ const pl=rand(4,9),g=rand(2,6);const tot=pl*g; return {q:`${pl} players each scored ${g} goals. How many goals in total? If each goal earns 3 points, how many points altogether?`,a:`${tot} goals, ${tot*3} points`,w:`${pl} × ${g} = ${tot} goals. ${tot} × 3 = ${tot*3} points.`}; },
+  },
+  'Money':{
+    less: ()=>{ const p=rand(50,200),s=rand(10,p-10);return {q:`Sam had $${p} and spent $${s}. How much does he have left?`,a:`$${p-s}`,w:`$${p} − $${s} = $${p-s}`}; },
+    more: ()=>{ const n=rand(3,8),c=rand(15,80);return {q:`${n} students each need $${c} for the excursion. How much is collected altogether?`,a:`$${n*c}`,w:`${n} × $${c} = $${n*c}`}; },
+    most: ()=>{ const t=rand(500,2000),d=rand(3,8),rem=t%d,qt=Math.floor(t/d);const total=qt*d;return {q:`$${total} is shared equally between ${d} people. How much does each person receive?`,a:`$${qt}`,w:`$${total} ÷ ${d} = $${qt}`}; },
+  },
+  'Data':{
+    less: ()=>{ const cats=['dogs','cats','fish','birds'],vals=[rand(3,8),rand(3,8),rand(3,8),rand(3,8)];const max=Math.max(...vals),mi=vals.indexOf(max); return {q:`A class survey found: Dogs – ${vals[0]}, Cats – ${vals[1]}, Fish – ${vals[2]}, Birds – ${vals[3]}. Which pet was most popular?`,a:`${cats[mi].charAt(0).toUpperCase()+cats[mi].slice(1)} (${max} votes)`,w:`Looking at all values, ${cats[mi]} had the most with ${max} votes.`}; },
+    more: ()=>{ const a=rand(12,25),b=rand(5,15); return {q:`A column graph shows ${a} students like soccer and ${b} like tennis. How many more students prefer soccer?`,a:`${a-b} more students`,w:`${a} − ${b} = ${a-b}`}; },
+    most: ()=>{ const vals=[rand(4,10),rand(4,10),rand(4,10),rand(4,10),rand(4,10)];const sum=vals.reduce((x,y)=>x+y,0); return {q:`A dot plot shows scores: ${vals.join(', ')}. What is the total number of data points?`,a:`${sum}`,w:`${vals.join(' + ')} = ${sum}`}; },
+  },
+};
+
+// Add new topics from questionGenerator.js that aren't in the old GENERATORS (only if script loaded)
+const NEW_MODULE_TOPICS = ['Mass','Length','Angles','Chance'];
+if (typeof QuestionGenerator !== 'undefined') {
+  NEW_MODULE_TOPICS.forEach(topic => {
+    if (!GENERATORS[topic]) {
+      const moduleKey = { Mass:'mass', Length:'length', Angles:'angles', Chance:'chance' }[topic];
+      GENERATORS[topic] = {
+        less: () => { try { const q = QuestionGenerator.generateQuestion(moduleKey,'less'); return q ? {q:q.question,a:q.answer,w:q.explanation} : null; } catch(e){ return null; } },
+        more: () => { try { const q = QuestionGenerator.generateQuestion(moduleKey,'more'); return q ? {q:q.question,a:q.answer,w:q.explanation} : null; } catch(e){ return null; } },
+        most: (harder) => { try { const opts = harder ? { harder: true } : undefined; const q = QuestionGenerator.generateQuestion(moduleKey,'most', opts); return q ? {q:q.question,a:q.answer,w:q.explanation} : null; } catch(e){ return null; } },
+      };
+    }
+  });
+}
+
+const ALL_TOPICS = Object.keys(GENERATORS);
+const FOCUS_AREA_TOPICS = ALL_TOPICS.filter(t => t !== 'Word Problem');
+
+function resetGeneratorSession() {
+  try { if (typeof QuestionGenerator !== 'undefined' && QuestionGenerator.resetSession) QuestionGenerator.resetSession(); } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+// ADAPTER: Use new QuestionGenerator module with fallback to old GENERATORS
+// numericDifficulty: optional 1–10; if omitted, uses getNumericDifficulty(level) for current year group.
+// ══════════════════════════════════════════
+function generateFromModule(topic, level, numericDifficulty) {
+  if (typeof QuestionGenerator === 'undefined') return null;
+  try {
+    const num = (numericDifficulty != null && !isNaN(numericDifficulty))
+      ? clampNumericDifficulty(numericDifficulty)
+      : getNumericDifficulty(level);
+    const options = { numericDifficulty: num };
+    if (topic === 'Measurement') {
+      const sub = pick(['mass','length']);
+      const result = QuestionGenerator.generateQuestion(sub, level, options);
+      if (!result) return null;
+      return { q: result.question, a: result.answer, w: result.explanation };
+    }
+    const newTopic = QuestionGenerator.TOPIC_MAP && QuestionGenerator.TOPIC_MAP[topic];
+    if (!newTopic) return null;
+    const result = QuestionGenerator.generateQuestion(newTopic, level, options);
+    if (!result) return null;
+    return { q: result.question, a: result.answer, w: result.explanation };
+  } catch (e) {
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════
+// PRE-LOADED QUESTION BANK
+// ══════════════════════════════════════════
+function buildPreloadedBank(){
+  const bank=[];
+  let id=1;
+  // Generate 6 questions per topic per level
+  ALL_TOPICS.forEach(topic=>{
+    ['less','more','most'].forEach(level=>{
+      resetGeneratorSession();
+      for(let i=0;i<6;i++){
+        try{
+          // Try new module first, fall back to old generator
+          const modQ = generateFromModule(topic, level);
+          if(modQ){
+            bank.push({id:`pre_${id++}`,topic,level,question:modQ.q,answer:modQ.a,working:modQ.w,custom:false,grade:DEFAULT_GRADE});
+            continue;
+          }
+          const gen=GENERATORS[topic][level]();
+          if(gen) bank.push({id:`pre_${id++}`,topic,level,question:gen.q,answer:gen.a,working:gen.w,custom:false,grade:DEFAULT_GRADE});
+        }catch(e){}
+      }
+    });
+  });
+  return bank;
+}
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let questionBank = [];
+let todayQuiz    = {less:[],more:[],most:[]};  // each array has up to 10 {question,answer,working,topic}
+let autoGenTopics = [...FOCUS_AREA_TOPICS];
+let levelFilter  = 'all';
+let topicFilter  = 'all';
+let currentLevel = null;
+let currentQuestions = [];
+let currentQuizDifficulty = null; // numeric 1–10 when on quiz screen; used by Easier/Harder to regenerate at ±1
+let displayMode = 'pick'; // 'pick' = student chooses level; 'allLevels' = all three levels on one page (board)
+let allLevelsQuestions = { less: [], more: [], most: [] };
+let currentGrade = DEFAULT_GRADE; // Year group for question bank and generation (default = existing behaviour)
+let difficultyOffset = {}; // { grade: { less: number, more: number, most: number } }, numeric offset (±1 per click) on 1–10 scale
+
+// ══════════════════════════════════════════
+// PERSISTENCE (localStorage so quiz survives refresh / new tabs)
+// ══════════════════════════════════════════
+function saveState(){
+  localStorage.setItem(STORAGE_KEY_BANK, JSON.stringify(questionBank));
+  localStorage.setItem(STORAGE_KEY_AUTO, JSON.stringify(autoGenTopics));
+  localStorage.setItem(STORAGE_KEY_DISPLAY_MODE, displayMode);
+  try {
+    localStorage.setItem(STORAGE_KEY_GRADE, currentGrade);
+    localStorage.setItem(STORAGE_KEY_DIFFICULTY_OFFSET, JSON.stringify(difficultyOffset));
+  } catch(e) {}
+  const stored = JSON.parse(localStorage.getItem(STORAGE_KEY_QUIZ)||'{}');
+  stored[todayKey()] = todayQuiz;
+  localStorage.setItem(STORAGE_KEY_QUIZ, JSON.stringify(stored));
+}
+
+function loadState(){
+  const bankRaw = localStorage.getItem(STORAGE_KEY_BANK);
+  try {
+    questionBank = bankRaw ? JSON.parse(bankRaw) : [];
+    questionBank.forEach(q => { if (q && !q.grade) q.grade = DEFAULT_GRADE; });
+    if (questionBank.length === 0 && typeof QuestionGenerator !== 'undefined' && typeof buildPreloadedBank === 'function') {
+      try {
+        questionBank = buildPreloadedBank();
+        if (questionBank.length > 0) saveState();
+      } catch (e) {
+        console.warn('buildPreloadedBank failed:', e);
+      }
+    }
+  } catch(e) {
+    questionBank = [];
+    if (typeof QuestionGenerator !== 'undefined' && typeof buildPreloadedBank === 'function') {
+      try {
+        questionBank = buildPreloadedBank();
+        if (questionBank.length > 0) saveState();
+      } catch (e2) {
+        console.warn('buildPreloadedBank failed:', e2);
+      }
+    }
+  }
+
+  const autoRaw = localStorage.getItem(STORAGE_KEY_AUTO);
+  const loaded = autoRaw ? JSON.parse(autoRaw).filter(t => t !== 'Word Problem') : [...FOCUS_AREA_TOPICS];
+  autoGenTopics = loaded.length >= 3 ? loaded : [...FOCUS_AREA_TOPICS];
+
+  const quizRaw = localStorage.getItem(STORAGE_KEY_QUIZ);
+  if(quizRaw){
+    try {
+      const stored = JSON.parse(quizRaw);
+      todayQuiz = stored[todayKey()] || {less:[],more:[],most:[]};
+    } catch(e) {
+      todayQuiz = {less:[],more:[],most:[]};
+    }
+  }
+
+  const modeRaw = localStorage.getItem(STORAGE_KEY_DISPLAY_MODE);
+  displayMode = (modeRaw === 'allLevels' || modeRaw === 'pick') ? modeRaw : 'pick';
+
+  const gradeRaw = localStorage.getItem(STORAGE_KEY_GRADE);
+  currentGrade = (GRADES.indexOf(gradeRaw) >= 0) ? gradeRaw : DEFAULT_GRADE;
+
+  try {
+    const offsetRaw = localStorage.getItem(STORAGE_KEY_DIFFICULTY_OFFSET);
+    difficultyOffset = (offsetRaw && typeof JSON.parse(offsetRaw) === 'object') ? JSON.parse(offsetRaw) : {};
+  } catch(e) {
+    difficultyOffset = {};
+  }
+
+  const savedUrl = localStorage.getItem(STORAGE_KEY_SHEET_URL);
+  const urlInput = document.getElementById('sheet-url-input');
+  if (urlInput && savedUrl) urlInput.value = savedUrl;
+}
+
+function hasTodayQuiz(){
+  return todayQuiz.less.length>0 || todayQuiz.more.length>0 || todayQuiz.most.length>0;
+}
+
+// ══════════════════════════════════════════
+// GOOGLE SHEET SYNC (backup / restore question bank)
+// ══════════════════════════════════════════
+function getSheetUrl(){
+  const input = document.getElementById('sheet-url-input');
+  const url = (input && input.value) ? input.value.trim() : (localStorage.getItem(STORAGE_KEY_SHEET_URL) || '');
+  if (input && url) input.value = url;
+  return url;
+}
+
+function setSheetUrl(url){
+  try { localStorage.setItem(STORAGE_KEY_SHEET_URL, url); } catch(e){}
+  const input = document.getElementById('sheet-url-input');
+  if (input) input.value = url;
+}
+
+function showSheetStatus(msg, isError){
+  const el = document.getElementById('sheet-sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'sheet-sync-status ' + (isError ? 'error' : 'success');
+  el.style.display = 'block';
+}
+
+// Normalise Web App URL: must end with /exec for the deployment to receive requests
+function normaliseSheetUrl(url){
+  if (!url || !url.trim()) return '';
+  const u = url.trim().replace(/\/$/, '');
+  if (u.endsWith('/exec')) return u;
+  if (u.includes('/macros/s/') && !u.includes('/exec')) return u + '/exec';
+  return u;
+}
+
+async function loadBankFromSheet(){
+  const rawUrl = getSheetUrl();
+  if (!rawUrl){ showSheetStatus('Enter your Web App URL first (see Setup instructions).', true); return; }
+  const url = normaliseSheetUrl(rawUrl);
+  showSheetStatus('Loading…', false);
+  try {
+    const getUrl = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'action=getBank';
+    const res = await fetch(getUrl, { method: 'GET', mode: 'cors', redirect: 'follow' });
+    if (!res.ok) throw new Error('Network error: ' + res.status);
+    const data = await res.json();
+    if (data && Array.isArray(data.bank)){
+      questionBank = data.bank.map(q=>{
+        if (!q || typeof q !== 'object') return null;
+        const level = (q.level==='less'||q.level==='more'||q.level==='most') ? q.level : 'less';
+        const grade = (q.grade && GRADES.indexOf(String(q.grade)) >= 0) ? String(q.grade) : DEFAULT_GRADE;
+        return {
+          id: String(q.id || ('sheet_'+Date.now()+'_'+Math.random().toString(36).slice(2))),
+          topic: String(q.topic||''),
+          level: level,
+          question: String(q.question||''),
+          answer: String(q.answer||''),
+          working: String(q.working!=null?q.working:''),
+          custom: q.custom===true || q.custom==='true',
+          grade: grade
+        };
+      }).filter(Boolean);
+      saveState();
+      renderBankFilters();
+      renderBank();
+      setSheetUrl(url);
+      showSheetStatus(questionBank.length === 0
+        ? 'Loaded 0 questions, sheet was empty or had no data rows. Add questions and use Save to Sheet to back up.'
+        : 'Loaded ' + questionBank.length + ' questions from the sheet.');
+      showToast(questionBank.length ? 'Bank loaded from Google Sheet!' : 'Sheet had no questions. Add some and Save to Sheet to back up.');
+    } else if (data && data.error){
+      throw new Error(data.error);
+    } else {
+      throw new Error('Invalid response from sheet.');
+    }
+  } catch (e) {
+    const hint = (window.location && window.location.protocol === 'file:')
+      ? ' Open the app from a web server (e.g. over HTTPS) instead of as a local file.'
+      : ' Check the URL ends with /exec and the Apps Script is deployed (Anyone).';
+    const msg = (e.message || 'Failed to fetch') + hint;
+    showSheetStatus(msg, true);
+    showToast(msg, 'error');
+  }
+}
+
+async function saveBankToSheet(){
+  const rawUrl = getSheetUrl();
+  if (!rawUrl){ showSheetStatus('Enter your Web App URL first (see Setup instructions).', true); return; }
+  const url = normaliseSheetUrl(rawUrl);
+  showSheetStatus('Saving…', false);
+  try {
+    // Use text/plain to avoid CORS preflight (Apps Script doesn't handle OPTIONS)
+    const res = await fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'saveBank', bank: questionBank })
+    });
+    if (!res.ok) throw new Error('Network error: ' + res.status);
+    const data = await res.json();
+    if (data && (data.status === 'success' || data.ok)){
+      setSheetUrl(url);
+      showSheetStatus('Saved ' + questionBank.length + ' questions to the sheet.');
+      showToast('Bank saved to Google Sheet!');
+    } else if (data && data.error){
+      throw new Error(data.error);
+    } else {
+      throw new Error('Invalid response from sheet.');
+    }
+  } catch (e) {
+    const hint = (window.location && window.location.protocol === 'file:')
+      ? ' Open the app from a web server (e.g. over HTTPS) instead of as a local file.'
+      : ' Check the URL ends with /exec and the Apps Script is deployed (Anyone).';
+    const msg = (e.message || 'Failed to fetch') + hint;
+    showSheetStatus(msg, true);
+    showToast(msg, 'error');
+  }
+}
+
+/** Append only new questions to the sheet (faster than re-uploading the full bank). */
+async function appendQuestionsToSheet(questions){
+  if (!questions || questions.length === 0) return;
+  const rawUrl = getSheetUrl();
+  if (!rawUrl){ showToast('Set up Google Sheet URL to save new questions.','error'); return; }
+  const url = normaliseSheetUrl(rawUrl);
+  showSheetStatus('Saving ' + questions.length + ' new questions…', false);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'appendBank', bank: questions })
+    });
+    if (!res.ok) throw new Error('Network error: ' + res.status);
+    const data = await res.json();
+    if (data && (data.status === 'success' || data.ok)){
+      showSheetStatus('Appended ' + (data.count || questions.length) + ' questions to the sheet.');
+      showToast('Added to bank and appended to spreadsheet.');
+    } else if (data && data.error){
+      throw new Error(data.error);
+    } else {
+      throw new Error('Invalid response from sheet.');
+    }
+  } catch (e) {
+    const msg = e.message || 'Failed to append to sheet.';
+    showSheetStatus(msg, true);
+    showToast(msg, 'error');
+  }
+}
+
+// ══════════════════════════════════════════
+// QUIZ SCREEN
+// ══════════════════════════════════════════
+function startQuiz(level){
+  currentLevel = level;
+  currentQuizDifficulty = getNumericDifficulty(level);
+
+  if(todayQuiz[level] && todayQuiz[level].length>0){
+    currentQuestions = todayQuiz[level].map(q=>({question:q.question,answer:q.answer,working:q.working}));
+    let padAttempts = 0;
+    const num = currentQuizDifficulty;
+    while(currentQuestions.length<10 && padAttempts < 80){
+      padAttempts++;
+      const topic = pick(autoGenTopics);
+      try{
+        const modQ = generateFromModule(topic, level, num);
+        if(modQ && !hasSameSignatureAsExisting(modQ.q, currentQuestions)){ currentQuestions.push({question:modQ.q,answer:modQ.a,working:modQ.w}); continue; }
+        const fallbackLevel = num <= 3 ? 'less' : num <= 6 ? 'more' : 'most';
+        const useHarder = num >= 9;
+        const gen = GENERATORS[topic][fallbackLevel](useHarder);
+        if(gen && !hasSameSignatureAsExisting(gen.q, currentQuestions)) currentQuestions.push({question:gen.q,answer:gen.a,working:gen.w});
+      }catch(e){}
+    }
+    document.getElementById('new-q-btn').style.display='none';
+  } else {
+    currentQuestions = autoGenerate(level, currentQuizDifficulty);
+    document.getElementById('new-q-btn').style.display='';
+  }
+
+  document.getElementById('quiz-date').textContent = fmtDate();
+  const pill = document.getElementById('level-pill');
+  pill.textContent = {less:'Less Challenging',more:'More Challenging',most:'Most Challenging'}[level];
+  pill.className = 'level-pill pill-'+level;
+
+  renderQuizDifficultyButtons();
+  renderProgressDots();
+  renderQuestions();
+  var rbtn = document.getElementById('reveal-btn');
+  if(rbtn){ rbtn.textContent = '✓ Show answers'; rbtn.disabled = false; }
+  goTo('quiz-screen');
+}
+
+function autoGenerate(level, overrideNumericDifficulty){
+  resetGeneratorSession();
+  const num = (overrideNumericDifficulty != null && !isNaN(overrideNumericDifficulty))
+    ? clampNumericDifficulty(overrideNumericDifficulty)
+    : getNumericDifficulty(level);
+  const topics = [...autoGenTopics].sort(()=>Math.random()-0.5).slice(0,10);
+  const result=[];
+  const fallbackLevel = num <= 3 ? 'less' : num <= 6 ? 'more' : 'most';
+  const useHarder = num >= 9;
+  function addIfUnique(q){
+    if(!q || hasSameSignatureAsExisting(q.q, result)) return false;
+    result.push({question:q.q,answer:q.a,working:q.w});
+    return true;
+  }
+  topics.forEach(t=>{
+    try{
+      const modQ = generateFromModule(t, level, num);
+      if(modQ){ addIfUnique(modQ); return; }
+      const g=GENERATORS[t][fallbackLevel](useHarder);
+      if(g) addIfUnique(g);
+    }catch(e){}
+  });
+  let attempts = 0;
+  while(result.length<10 && attempts < 80){
+    attempts++;
+    const t=pick(autoGenTopics);
+    try{
+      const modQ = generateFromModule(t, level, num);
+      if(modQ && addIfUnique(modQ)) continue;
+      const g=GENERATORS[t][fallbackLevel](useHarder);
+      if(g) addIfUnique(g);
+    }catch(e){}
+  }
+  return result.slice(0,10);
+}
+
+function regenerateQuiz(){
+  currentQuizDifficulty = getNumericDifficulty(currentLevel);
+  currentQuestions = autoGenerate(currentLevel, currentQuizDifficulty);
+  renderQuizDifficultyButtons();
+  renderProgressDots();
+  renderQuestions();
+}
+
+function regenerateQuizEasier(){
+  if (currentQuizDifficulty <= 1) return;
+  currentQuizDifficulty = clampNumericDifficulty(currentQuizDifficulty - 1);
+  currentQuestions = autoGenerate(currentLevel, currentQuizDifficulty);
+  renderQuizDifficultyButtons();
+  renderProgressDots();
+  renderQuestions();
+  showToast('Regenerated with easier questions.');
+}
+
+function regenerateQuizHarder(){
+  if (currentQuizDifficulty >= 10) return;
+  currentQuizDifficulty = clampNumericDifficulty(currentQuizDifficulty + 1);
+  currentQuestions = autoGenerate(currentLevel, currentQuizDifficulty);
+  renderQuizDifficultyButtons();
+  renderProgressDots();
+  renderQuestions();
+  showToast('Regenerated with harder questions.');
+}
+
+function renderQuizDifficultyButtons(){
+  const easierBtn = document.getElementById('quiz-easier-btn');
+  const harderBtn = document.getElementById('quiz-harder-btn');
+  const num = currentQuizDifficulty != null ? currentQuizDifficulty : getNumericDifficulty(currentLevel || 'less');
+  if (easierBtn) { easierBtn.disabled = (num <= 1); easierBtn.title = num <= 1 ? 'Already at easiest' : 'Regenerate with easier questions'; }
+  if (harderBtn) { harderBtn.disabled = (num >= 10); harderBtn.title = num >= 10 ? 'Already at hardest' : 'Regenerate with harder questions'; }
+}
+
+function renderProgressDots(){
+  const bar = document.getElementById('progress-bar');
+  bar.innerHTML = Array.from({length:10},(_,i)=>`<div class="progress-dot" id="dot-${i}"></div>`).join('');
+}
+
+function renderQuestions(){
+  const list = document.getElementById('question-list');
+  list.innerHTML = currentQuestions.map((q,i)=>`
+    <div class="q-card" id="qcard-${i}">
+      <div class="q-body">
+        <div class="q-num">${i+1}</div>
+        <div class="q-text">${q.question}</div>
+      </div>
+      <div class="q-answer" id="qans-${i}">
+        <div class="ans-line"><span class="ans-label">✓ Answer</span> <span class="ans-value">${q.answer}</span></div>
+        <div class="ans-working">${q.working}</div>
+      </div>
+    </div>
+  `).join('');
+  // Reset dots
+  document.querySelectorAll('.progress-dot').forEach(d=>d.classList.remove('done'));
+}
+
+function revealAll(){
+  currentQuestions.forEach((_,i)=>{
+    document.getElementById('qans-'+i).classList.add('visible');
+    document.getElementById('dot-'+i).classList.add('done');
+  });
+  var btn = document.getElementById('reveal-btn');
+  if(btn){ btn.textContent='🙈 Hide answers'; btn.disabled=false; }
+}
+
+function hideQuizAnswers(){
+  currentQuestions.forEach((_,i)=>{
+    var el = document.getElementById('qans-'+i);
+    if(el) el.classList.remove('visible');
+    var dot = document.getElementById('dot-'+i);
+    if(dot) dot.classList.remove('done');
+  });
+  var btn = document.getElementById('reveal-btn');
+  if(btn){ btn.textContent='✓ Show answers'; }
+}
+
+function toggleQuizAnswers(){
+  var first = document.getElementById('qans-0');
+  if(first && first.classList.contains('visible')){
+    hideQuizAnswers();
+  } else {
+    revealAll();
+  }
+}
+
+// ══════════════════════════════════════════
+// ALL-THREE-LEVELS QUIZ (board view)
+// ══════════════════════════════════════════
+function getQuestionsForLevel(level){
+  if(todayQuiz[level] && todayQuiz[level].length > 0){
+    return todayQuiz[level].map(q=>({question:q.question,answer:q.answer,working:q.working}));
+  }
+  return autoGenerate(level);
+}
+
+function startQuizAllLevels(){
+  allLevelsQuestions.less = getQuestionsForLevel('less');
+  allLevelsQuestions.more = getQuestionsForLevel('more');
+  allLevelsQuestions.most = getQuestionsForLevel('most');
+  document.getElementById('all-levels-date').textContent = fmtDate();
+  renderAllLevelsQuestions();
+  var rbtn = document.getElementById('reveal-all-levels-btn');
+  if(rbtn){ rbtn.textContent = '✓ Show answers'; rbtn.disabled = false; }
+  goTo('quiz-all-levels-screen');
+}
+
+function renderAllLevelsQuestions(){
+  const cols = document.getElementById('all-levels-cols');
+  const levels = [
+    { key: 'less', label: 'Less Challenging' },
+    { key: 'more', label: 'More Challenging' },
+    { key: 'most', label: 'Most Challenging' }
+  ];
+  cols.innerHTML = levels.map(({key, label}) => {
+    const qs = allLevelsQuestions[key] || [];
+    const items = qs.map((q, i) => `
+      <div class="all-levels-q-card" id="all-q-${key}-${i}">
+        <div class="all-levels-q-body">
+          <div class="all-levels-q-num">${i+1}</div>
+          <div class="all-levels-q-text">${q.question}</div>
+        </div>
+        <div class="all-levels-q-answer" id="all-ans-${key}-${i}">
+          <div class="ans-line"><span class="ans-label">✓ Answer</span> <span class="ans-value">${q.answer}</span></div>
+          <div class="ans-working">${q.working}</div>
+        </div>
+      </div>
+    `).join('');
+    return `
+      <div class="all-levels-col" data-level="${key}">
+        <div class="all-levels-col-head">${label}</div>
+        <div class="all-levels-q-list">${items}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function revealAllLevelsAnswers(){
+  ['less','more','most'].forEach(level => {
+    const qs = allLevelsQuestions[level] || [];
+    qs.forEach((_, i) => {
+      const el = document.getElementById('all-ans-'+level+'-'+i);
+      if(el) el.classList.add('visible');
+    });
+  });
+  var btn = document.getElementById('reveal-all-levels-btn');
+  if(btn){ btn.textContent = '🙈 Hide answers'; btn.disabled = false; }
+}
+
+function hideAllLevelsAnswers(){
+  ['less','more','most'].forEach(level => {
+    const qs = allLevelsQuestions[level] || [];
+    qs.forEach((_, i) => {
+      const el = document.getElementById('all-ans-'+level+'-'+i);
+      if(el) el.classList.remove('visible');
+    });
+  });
+  var btn = document.getElementById('reveal-all-levels-btn');
+  if(btn){ btn.textContent = '✓ Show answers'; }
+}
+
+function toggleAllLevelsAnswers(){
+  var first = document.getElementById('all-ans-less-0');
+  if(first && first.classList.contains('visible')){
+    hideAllLevelsAnswers();
+  } else {
+    revealAllLevelsAnswers();
+  }
+}
+
+// ══════════════════════════════════════════
+// TEACHER AUTH
+// ══════════════════════════════════════════
+function checkPassword(){
+  const val = document.getElementById('pw-input').value;
+  if(val === TEACHER_PASSWORD){
+    document.getElementById('pw-input').value='';
+    document.getElementById('login-error').classList.remove('show');
+    goTo('teacher-screen');
+    renderTeacher();
+  } else {
+    document.getElementById('login-error').classList.add('show');
+  }
+}
+
+function teacherLogout(){
+  goTo('home-screen');
+}
+
+// ══════════════════════════════════════════
+// TEACHER DASHBOARD
+// ══════════════════════════════════════════
+function setDisplayMode(mode){
+  displayMode = mode;
+  saveState();
+  const pickBtn = document.getElementById('home-display-pick');
+  const allBtn = document.getElementById('home-display-allLevels');
+  if(pickBtn) pickBtn.classList.toggle('active', mode==='pick');
+  if(allBtn) allBtn.classList.toggle('active', mode==='allLevels');
+  updateHomeForDisplayMode();
+}
+
+function updateHomeForDisplayMode(){
+  const cards = document.getElementById('home-level-cards');
+  const allWrap = document.getElementById('home-all-levels-wrap');
+  const pickBtn = document.getElementById('home-display-pick');
+  const allBtn = document.getElementById('home-display-allLevels');
+  if(pickBtn) pickBtn.classList.toggle('active', displayMode==='pick');
+  if(allBtn) allBtn.classList.toggle('active', displayMode==='allLevels');
+  if(!cards || !allWrap) return;
+  if(displayMode === 'allLevels'){
+    cards.style.display = 'none';
+    allWrap.style.display = 'flex';
+    var yearSel = document.getElementById('home-all-levels-year');
+    if(yearSel) yearSel.value = currentGrade;
+  } else {
+    cards.style.display = 'flex';
+    allWrap.style.display = 'none';
+  }
+}
+
+function setGrade(grade){
+  if (GRADES.indexOf(grade) < 0) return;
+  currentGrade = grade;
+  saveState();
+  const sel = document.getElementById('grade-select');
+  if (sel) sel.value = currentGrade;
+  renderTodayPanel();
+  renderBank();
+}
+
+// Difficulty feedback: "Too easy" / "Too hard", adjust numeric offset by ±1 (no ceiling/floor; can keep going to very easy or very hard)
+function setDifficultyTooEasy(level) {
+  if (!difficultyOffset[currentGrade]) difficultyOffset[currentGrade] = {};
+  const current = difficultyOffset[currentGrade][level] || 0;
+  difficultyOffset[currentGrade][level] = current + 1;
+  saveState();
+  // Regenerate this level immediately at the new (harder) difficulty
+  regenerateTodayLevel(level);
+  renderTodayPanel();
+  showToast('Regenerated with harder questions for this level.');
+}
+
+function setDifficultyTooHard(level) {
+  if (!difficultyOffset[currentGrade]) difficultyOffset[currentGrade] = {};
+  const current = difficultyOffset[currentGrade][level] || 0;
+  difficultyOffset[currentGrade][level] = current - 1;
+  saveState();
+  // Regenerate this level immediately at the new (easier) difficulty
+  regenerateTodayLevel(level);
+  renderTodayPanel();
+  showToast('Regenerated with easier questions for this level.');
+}
+
+// Regenerate all 10 questions for one level at current numeric difficulty (used after Too easy / Too hard).
+function regenerateTodayLevel(level) {
+  resetGeneratorSession();
+  const num = getNumericDifficulty(level);
+  const fallbackLevel = num <= 3 ? 'less' : num <= 6 ? 'more' : 'most';
+  const useHarder = num >= 9;
+  const list = [];
+  let attempts = 0;
+  while (list.length < 10 && attempts < 80) {
+    attempts++;
+    const topic = pick(autoGenTopics);
+    try {
+      const modQ = generateFromModule(topic, level, num);
+      if (modQ && !hasSameSignatureAsExisting(modQ.q, list)) {
+        list.push({ question: modQ.q, answer: modQ.a, working: modQ.w, topic });
+        continue;
+      }
+      const g = GENERATORS[topic][fallbackLevel](useHarder);
+      if (g && !hasSameSignatureAsExisting(g.q, list)) {
+        list.push({ question: g.q, answer: g.a, working: g.w, topic });
+      }
+    } catch (e) {}
+  }
+  todayQuiz[level] = list.slice(0, 10);
+  saveState();
+}
+
+function renderTeacher(){
+  document.getElementById('today-date-label').textContent = `,  ${fmtDate()}`;
+  const gradeSel = document.getElementById('grade-select');
+  if (gradeSel) gradeSel.value = currentGrade;
+  renderTodayPanel();
+  renderBankFilters();
+  renderBank();
+  renderAutoGenToggles();
+}
+
+/* ── TODAY PANEL ─────────────────────────── */
+function renderTodayPanel(){
+  const grid = document.getElementById('today-grid');
+  if (!grid) return;
+  grid.innerHTML = ['less','more','most'].map(level=>{
+    const qs = todayQuiz[level]||[];
+    const label = {less:'Less Challenging',more:'More Challenging',most:'Most Challenging'}[level];
+    const items = qs.map((q,i)=>{
+      const qText = escHtml((q.question||'').replace(/<[^>]+>/g,''));
+      const ansText = escHtml(q.answer||'');
+      return '<div class="today-q-item">' +
+        '<span class="today-q-num">'+(i+1)+'.</span>' +
+        '<div class="today-q-text">'+qText+'</div>' +
+        '<div class="today-q-answer">Answer: '+ansText+'</div>' +
+        '<div class="today-q-actions">' +
+        '<button type="button" class="today-q-remove" title="Remove" onclick="removeFromToday(\''+level+'\','+i+')">✕ Remove</button>' +
+        '</div></div>';
+    }).join('');
+    const feedbackEsc = escAttr(level);
+    return '<div class="today-col" data-level="'+level+'">' +
+      '<div class="today-col-head">'+label+' ('+qs.length+'/10)</div>' +
+      (qs.length>0 ? items : '<div class="today-empty">No questions set, will auto-generate</div>') +
+      '<div class="today-difficulty-feedback">' +
+      '<button type="button" class="today-feedback-btn" onclick="setDifficultyTooEasy(\''+feedbackEsc+'\')" title="These are too easy">Too easy</button>' +
+      '<button type="button" class="today-feedback-btn" onclick="setDifficultyTooHard(\''+feedbackEsc+'\')" title="These are too hard">Too hard</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function addAllTodayToBank(){
+  const addedItems = [];
+  const baseId = 'today_'+Date.now();
+  ['less','more','most'].forEach(level=>{
+    const qs = todayQuiz[level]||[];
+    qs.forEach((q,i)=>{
+      const item = {
+        id: baseId+'_'+level+'_'+i,
+        topic: q.topic||'Word Problem',
+        level,
+        question: q.question||'',
+        answer: q.answer||'',
+        working: q.working!=null ? q.working : (q.answer||''),
+        custom: false,
+        grade: currentGrade
+      };
+      questionBank.push(item);
+      addedItems.push(item);
+    });
+  });
+  if (addedItems.length === 0) {
+    showToast('No questions to add. Generate or add some first.','error');
+    return;
+  }
+  saveState();
+  renderBankFilters();
+  renderBank();
+  const url = getSheetUrl();
+  if (url && url.trim()) {
+    appendQuestionsToSheet(addedItems);
+  } else {
+    showToast('Added all '+addedItems.length+' questions to the bank. Set up Google Sheet backup to save to the spreadsheet.');
+  }
+}
+
+function removeFromToday(level,idx){
+  todayQuiz[level].splice(idx,1);
+  saveState();
+  renderTodayPanel();
+}
+
+function saveToday(){
+  saveState();
+  showToast("Today's quiz saved! Students will see it now.");
+  updateHomeBanner();
+}
+
+function clearToday(){
+  todayQuiz={less:[],more:[],most:[]};
+  saveState();
+  renderTodayPanel();
+  updateHomeBanner();
+  showToast('Quiz cleared. Students will get auto-generated questions.','error');
+}
+
+function autofillToday(){
+  ['less','more','most'].forEach(level=>{
+    resetGeneratorSession();
+    const num = getNumericDifficulty(level);
+    const fallbackLevel = num <= 3 ? 'less' : num <= 6 ? 'more' : 'most';
+    const useHarder = num >= 9;
+    const list = todayQuiz[level]||[];
+    const needed = 10 - list.length;
+    let added = 0, attempts = 0;
+    while(added < needed && attempts < 80){
+      attempts++;
+      const topic = pick(autoGenTopics);
+      try{
+        const modQ = generateFromModule(topic, level, num);
+        if(modQ && !hasSameSignatureAsExisting(modQ.q, list)){ list.push({question:modQ.q,answer:modQ.a,working:modQ.w,topic}); added++; continue; }
+        const g = GENERATORS[topic][fallbackLevel](useHarder);
+        if(g && !hasSameSignatureAsExisting(g.q, list)){ list.push({question:g.q,answer:g.a,working:g.w,topic}); added++; }
+      }catch(e){}
+    }
+    todayQuiz[level] = list;
+  });
+  saveState();
+  renderTodayPanel();
+  showToast('Empty slots filled with auto-generated questions!');
+}
+
+/* ── BANK ─────────────────────────────── */
+function renderBankFilters(){
+  const container = document.querySelector('.bank-filters');
+  // Remove old topic chips (keep level chips)
+  container.querySelectorAll('[data-topic]').forEach(c=>c.remove());
+  // Add "All" topic chip first
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-chip'+(topicFilter==='all'?' active':'');
+  allBtn.dataset.topic = 'all';
+  allBtn.textContent = 'All';
+  allBtn.onclick = ()=>setTopicFilter('all',allBtn);
+  container.appendChild(allBtn);
+  // Add topic chips
+  ALL_TOPICS.forEach(t=>{
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip'+(topicFilter===t?' active':'');
+    btn.dataset.topic = t;
+    btn.textContent = t;
+    btn.onclick = ()=>setTopicFilter(t,btn);
+    container.appendChild(btn);
+  });
+}
+
+function setLevelFilter(level, el){
+  levelFilter=level;
+  document.querySelectorAll('.level-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderBank();
+}
+
+function setTopicFilter(topic, el){
+  topicFilter=topic;
+  document.querySelectorAll('[data-topic]').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderBank();
+}
+
+function renderBank(){
+  const filtered = questionBank.filter(q=>{
+    if (!q || !String(q.id)) return false; // skip malformed items from sheet
+    const grade = q.grade || DEFAULT_GRADE;
+    if (grade !== currentGrade) return false; // only show bank for selected year group
+    if (levelFilter!=='all' && q.level!==levelFilter) return false;
+    if (topicFilter!=='all' && q.topic!==topicFilter) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('bank-grid');
+  if (!grid) return;
+  if(filtered.length===0){
+    grid.innerHTML='<div style="color:var(--muted);font-size:0.9rem;padding:1rem;">No questions match the current filters.</div>';
+    return;
+  }
+
+  const levelColors={less:'var(--less-col)',more:'var(--more-col)',most:'var(--most-col)'};
+  const levelLabels={less:'Less',more:'More',most:'Most'};
+  grid.innerHTML = filtered.map(q=>{
+    const level = (q.level==='less'||q.level==='more'||q.level==='most') ? q.level : 'less';
+    const levelLabel = levelLabels[level];
+    const safeId = escAttr(q.id);
+    const alreadyIn={
+      less: (todayQuiz.less||[]).some(x=>x.question===q.question),
+      more: (todayQuiz.more||[]).some(x=>x.question===q.question),
+      most: (todayQuiz.most||[]).some(x=>x.question===q.question),
+    };
+    const disLess = alreadyIn.less||(todayQuiz.less||[]).length>=10 ? ' disabled' : '';
+    const disMore = alreadyIn.more||(todayQuiz.more||[]).length>=10 ? ' disabled' : '';
+    const disMost = alreadyIn.most||(todayQuiz.most||[]).length>=10 ? ' disabled' : '';
+    return '<div class="bank-q-card">' +
+      '<div class="bank-q-meta">' +
+      '<span class="topic-tag">'+escHtml(q.topic)+'</span>' +
+      '<span class="topic-tag" style="background:'+levelColors[level]+'18;color:'+levelColors[level]+'">'+escHtml(levelLabel)+'</span>' +
+      (q.custom?'<span class="topic-tag" style="background:#fdf3e0;color:var(--amber)">Custom</span>':'') +
+      '</div>' +
+      '<div class="bank-q-text">'+escHtml((q.question||'').replace(/<[^>]+>/g,''))+'</div>' +
+      '<div class="bank-q-answer">Answer: '+escHtml(q.answer||'')+'</div>' +
+      '<div class="bank-q-actions">' +
+      '<button class="add-to-btn" data-level="less" onclick="addToToday(\'less\',\''+safeId+'\')"'+disLess+'>+ Less</button>' +
+      '<button class="add-to-btn" data-level="more" onclick="addToToday(\'more\',\''+safeId+'\')"'+disMore+'>+ More</button>' +
+      '<button class="add-to-btn" data-level="most" onclick="addToToday(\'most\',\''+safeId+'\')"'+disMost+'>+ Most</button>' +
+      (q.custom ? '<button class="add-to-btn" style="border-color:var(--red);color:var(--red)" onclick="deleteFromBank(\''+safeId+'\')">Delete</button>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+function addToToday(level, qId){
+  const q = questionBank.find(x=>x.id===qId);
+  if(!q) return;
+  if(!todayQuiz[level]) todayQuiz[level]=[];
+  if(todayQuiz[level].length>=10){ showToast(`${level} level already has 10 questions`,'error'); return; }
+  todayQuiz[level].push({question:q.question,answer:q.answer,working:q.working,topic:q.topic});
+  saveState();
+  renderTodayPanel();
+  renderBank();
+  showToast(`Added to ${level} challenging!`);
+}
+
+function deleteFromBank(qId){
+  questionBank = questionBank.filter(q=>q.id!==qId);
+  saveState();
+  renderBank();
+  showToast('Question removed from bank','error');
+}
+
+/* ── ADD CUSTOM ─────────────────────────── */
+function addCustomQuestion(){
+  const topic   = document.getElementById('new-topic').value;
+  const level   = document.getElementById('new-level').value;
+  const question= document.getElementById('new-question').value.trim();
+  const answer  = document.getElementById('new-answer').value.trim();
+  const working = document.getElementById('new-working').value.trim();
+
+  if(!question||!answer){ showToast('Question and answer are required','error'); return; }
+
+  const id = 'custom_'+Date.now();
+  questionBank.push({id,topic,level,question,answer,working:working||answer,custom:true,grade:currentGrade});
+  saveState();
+  renderBankFilters();
+  renderBank();
+  clearAddForm();
+  hideVariantsPanel();
+  showToast('Question added to bank!');
+}
+
+let pendingVariants = []; // {topic, level, question, answer, working}[]
+
+function addCustomQuestionAndSuggestLevels(){
+  const topic   = document.getElementById('new-topic').value;
+  const level   = document.getElementById('new-level').value;
+  const question= document.getElementById('new-question').value.trim();
+  const answer  = document.getElementById('new-answer').value.trim();
+  const working = document.getElementById('new-working').value.trim();
+
+  if(!question||!answer){ showToast('Question and answer are required','error'); return; }
+
+  // Add the teacher's question to the bank first
+  const id = 'custom_'+Date.now();
+  questionBank.push({id,topic,level,question,answer,working:working||answer,custom:true,grade:currentGrade});
+  saveState();
+  renderBankFilters();
+  renderBank();
+  // Clear form fields but do not hide the variants panel we're about to show
+  ['new-topic','new-level','new-question','new-answer','new-working'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=el.tagName==='SELECT'?el.options[0].value:'';
+  });
+
+  // Generate suggested questions for the other two levels (same topic)
+  const levels = ['less','more','most'];
+  const otherLevels = levels.filter(l=>l!==level);
+  const levelLabels = {less:'Less Challenging',more:'More Challenging',most:'Most Challenging'};
+  pendingVariants = [];
+  const seenSignatures = [questionSignature(question)];
+
+  resetGeneratorSession();
+  otherLevels.forEach(otherLevel=>{
+    let added = false;
+    for(let attempt=0;attempt<20&&!added;attempt++){
+      try{
+        let gen = null;
+        const modQ = generateFromModule(topic, otherLevel);
+        if(modQ&&!seenSignatures.includes(questionSignature(modQ.q))){ gen=modQ; }
+        if(!gen&&GENERATORS[topic]&&GENERATORS[topic][otherLevel]){
+          const g = GENERATORS[topic][otherLevel]();
+          if(g&&!seenSignatures.includes(questionSignature(g.q))) gen={q:g.q,a:g.a,w:g.w};
+        }
+        if(gen){
+          seenSignatures.push(questionSignature(gen.q));
+          pendingVariants.push({
+            topic,
+            level:otherLevel,
+            question:gen.q,
+            answer:gen.a,
+            working:gen.w||gen.a
+          });
+          added = true;
+        }
+      }catch(e){}
+    }
+  });
+
+  if(pendingVariants.length===0){
+    showToast('Your question was added. No suggested questions could be generated for the other levels.');
+    return;
+  }
+  showVariantsPanel();
+  renderPendingVariants();
+  showToast('Your question was added. Review and approve the suggested questions below.');
+}
+
+function showVariantsPanel(){
+  const panel = document.getElementById('add-variants-panel');
+  if(panel) panel.style.display = 'block';
+}
+
+function hideVariantsPanel(){
+  const panel = document.getElementById('add-variants-panel');
+  if(panel){ panel.style.display = 'none'; document.getElementById('add-variants-list').innerHTML = ''; }
+  pendingVariants = [];
+}
+
+function renderPendingVariants(){
+  const list = document.getElementById('add-variants-list');
+  if(!list) return;
+  const levelColors = {less:'var(--less-col)',more:'var(--more-col)',most:'var(--most-col)'};
+  const levelLabels = {less:'Less Challenging',more:'More Challenging',most:'Most Challenging'};
+  list.innerHTML = pendingVariants.map((v,idx)=>{
+    const safeQ = (v.question||'').replace(/<[^>]+>/g,'').replace(/'/g,'&#39;');
+    return `
+      <div class="variant-card" data-idx="${idx}" id="variant-card-${idx}">
+        <span class="variant-level" style="color:${levelColors[v.level]}">${levelLabels[v.level]}</span>
+        <div class="variant-q">${safeQ}</div>
+        <div class="variant-answer">Answer: ${(v.answer||'').replace(/</g,'&lt;')}</div>
+        <div class="variant-actions">
+          <button type="button" class="btn btn-green btn-sm" onclick="approveVariant(${idx})">Approve &amp; add to bank</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="rejectVariant(${idx})">Reject</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function approveVariant(idx){
+  const v = pendingVariants[idx];
+  if(!v) return;
+  const id = 'gen_'+Date.now()+'_'+idx;
+  questionBank.push({id,topic:v.topic,level:v.level,question:v.question,answer:v.answer,working:v.working,custom:false,grade:currentGrade});
+  pendingVariants[idx] = null; // mark as handled
+  saveState();
+  renderBank();
+  const card = document.getElementById('variant-card-'+idx);
+  if(card){ card.classList.add('approved'); card.querySelector('.variant-actions').innerHTML = '<span style="color:var(--green);font-size:0.85rem;font-weight:700;">✓ Added to bank</span>'; }
+  showToast('Question added to bank!');
+  if(pendingVariants.every(x=>x===null)) setTimeout(hideVariantsPanel, 1200);
+}
+
+function rejectVariant(idx){
+  pendingVariants[idx] = null;
+  const card = document.getElementById('variant-card-'+idx);
+  if(card) card.classList.add('rejected');
+  if(pendingVariants.every(x=>x===null)) setTimeout(hideVariantsPanel, 300);
+}
+
+function clearAddForm(){
+  ['new-topic','new-level','new-question','new-answer','new-working'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=el.tagName==='SELECT'?el.options[0].value:'';
+  });
+  hideVariantsPanel();
+}
+
+/* ── AUTO-GEN SETTINGS (FOCUS AREAS) ─────── */
+function renderAutoGenToggles(){
+  const grid = document.getElementById('focus-area-grid');
+  const summary = document.getElementById('focus-area-summary');
+  if(!grid) return;
+  grid.innerHTML = FOCUS_AREA_TOPICS.map(t=>{
+    const checked = autoGenTopics.includes(t);
+    const safeTopic = t.replace(/"/g,'&quot;');
+    return `
+      <label class="focus-area-item">
+        <input type="checkbox" data-topic="${safeTopic}" ${checked?'checked':''} onchange="focusAreaCheckboxChange(this)">
+        <span>${t}</span>
+      </label>
+    `;
+  }).join('');
+  updateFocusAreaSummary();
+}
+
+function updateFocusAreaSummary(){
+  const summary = document.getElementById('focus-area-summary');
+  if(!summary) return;
+  const n = autoGenTopics.length;
+  summary.textContent = n === FOCUS_AREA_TOPICS.length
+    ? 'All topics selected. Questions can be generated from any topic.'
+    : `${n} of ${FOCUS_AREA_TOPICS.length} topics selected. Only these will be used when generating questions.`;
+}
+
+function focusAreaCheckboxChange(checkbox){
+  const topic = checkbox.dataset.topic;
+  const isChecked = checkbox.checked;
+  if(isChecked){
+    if(!autoGenTopics.includes(topic)) autoGenTopics.push(topic);
+  } else {
+    if(autoGenTopics.length <= 3){
+      showToast('Keep at least 3 topics enabled so the generator has enough variety.','error');
+      checkbox.checked = true;
+      return;
+    }
+    autoGenTopics = autoGenTopics.filter(t=>t!==topic);
+  }
+  updateFocusAreaSummary();
+  saveState();
+}
+
+function saveAutoGenSettings(){
+  syncAutoGenFromCheckboxes();
+  saveState();
+  showToast('Focus areas saved!');
+}
+
+function syncAutoGenFromCheckboxes(){
+  const grid = document.getElementById('focus-area-grid');
+  if(!grid) return;
+  const checked = [];
+  grid.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    if(cb.checked) checked.push(cb.dataset.topic);
+  });
+  if(checked.length >= 3) autoGenTopics = checked;
+  updateFocusAreaSummary();
+}
+
+function resetAutoGenSettings(){
+  autoGenTopics = [...FOCUS_AREA_TOPICS];
+  renderAutoGenToggles();
+  saveState();
+  showToast('All topics selected.');
+}
+
+/* ── MODE TABS ─────────────────────────── */
+function switchMode(mode){
+  ['bank','add','autogen'].forEach(m=>{
+    document.getElementById('mode-'+m).style.display = m===mode?'block':'none';
+    document.getElementById('tab-'+m).classList.toggle('active',m===mode);
+  });
+  if(mode==='bank') renderBank();
+}
+
+/* ── HOME BANNER ─────────────────────────── */
+function updateHomeBanner(){
+  const banner = document.getElementById('quiz-status-banner');
+  if(hasTodayQuiz()){
+    banner.style.display='flex';
+    banner.className='quiz-status-banner teacher-set';
+    banner.innerHTML=`⭐ Today's quiz has been set by your teacher`;
+  } else {
+    banner.style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════
+// BIND CLICKS (so handlers work even if global lookup fails)
+// ══════════════════════════════════════════
+function bindClicks(){
+  const card = document.getElementById('home-all-levels-card');
+  if(card){ card.onclick = function(){ startQuizAllLevels(); }; }
+  document.querySelectorAll('.level-card[data-level]').forEach(el=>{
+    const level = el.getAttribute('data-level');
+    if(level){ el.onclick = function(){ startQuiz(level); }; }
+  });
+  document.getElementById('home-display-pick') && (document.getElementById('home-display-pick').onclick = function(){ setDisplayMode('pick'); });
+  document.getElementById('home-display-allLevels') && (document.getElementById('home-display-allLevels').onclick = function(){ setDisplayMode('allLevels'); });
+  const teacherLink = document.querySelector('.teacher-link[onclick*="teacher-login"]');
+  if(teacherLink){ teacherLink.onclick = function(){ goTo('teacher-login-screen'); }; }
+  const sheetSetupLink = document.getElementById('sheet-setup-link');
+  if(sheetSetupLink){
+    sheetSetupLink.onclick = function(e){ e.preventDefault(); var m=document.getElementById('sheet-setup-modal'); if(m){ m.classList.add('show'); m.setAttribute('aria-hidden','false'); } };
+  }
+  const sheetModal = document.getElementById('sheet-setup-modal');
+  if(sheetModal){
+    sheetModal.onclick = function(e){ if(e.target === sheetModal) closeSheetModal(); };
+    sheetModal.classList.remove('show');
+    sheetModal.style.display = 'none';
+  }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeSheetModal(); });
+}
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+(function init(){
+  try {
+    loadState();
+    updateHomeBanner();
+    updateHomeForDisplayMode();
+    bindClicks();
+    var m = document.getElementById('sheet-setup-modal');
+    if(m){ m.classList.remove('show'); m.style.display = 'none'; }
+  } catch(err) {
+    console.error('Daily Ten init error:', err);
+    var t = document.getElementById('toast');
+    if(t){ t.textContent = 'Page error: check console (F12).'; t.className = 'toast error show'; }
+  }
+})();
+</script>
+</body>
+</html>

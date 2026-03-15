@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 6: Factorising Challenge - Maths Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa;
+    --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #27AE60; --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  header { background: #2D3436; color: #fff; padding: 36px 48px 28px; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%); pointer-events: none; }
+  header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; }
+  header h1 { font-size: clamp(26px, 5vw, 42px); font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+  header h1 span { color: var(--amber); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 560px; font-weight: 500; }
+
+  .phase-nav { display: flex; gap: 10px; padding: 18px 48px; background: #3d4347; flex-wrap: wrap; }
+  .phase-nav button { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: none; border-radius: 30px; padding: 8px 20px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--teal); color: #2D3436; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .lisc-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 28px; margin-bottom: 24px; border-top: 5px solid var(--teal); }
+  .lisc-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  .lisc-header h2 { font-size: 17px; font-weight: 700; }
+  .lisc-toggle { font-size: 15px; transition: transform 0.3s; }
+  .lisc-body { display: none; margin-top: 16px; }
+  .lisc-body.open { display: block; }
+  .lisc-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--teal-dark); }
+  .lisc-body p { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+  .lisc-body ul { list-style: none; margin: 0 0 12px 0; }
+  .lisc-body li { padding: 4px 0 4px 22px; position: relative; font-size: 14px; line-height: 1.5; }
+  .lisc-body li::before { content: "\2014"; position: absolute; left: 0; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; margin-bottom: 6px; }
+  .section-heading { font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border: 2px solid var(--border); }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  .step-row { display: flex; align-items: baseline; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 16px; }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { font-weight: 700; color: var(--teal-dark); min-width: 28px; }
+  .step-hidden { visibility: hidden; }
+  .step-reveal-btn { background: var(--teal); color: #fff; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; transition: all 0.2s; }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  /* ── 4-SECTION AREA MODEL ── */
+  .area-grid {
+    display: grid; grid-template-columns: auto 1fr 1fr; grid-template-rows: auto 1fr 1fr;
+    gap: 0; margin: 20px auto; max-width: 360px; border: 3px solid var(--text); border-radius: 6px; overflow: hidden;
+  }
+  .area-grid .corner { background: #f5f5f5; }
+  .area-grid .top-label { background: #f5f5f5; display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; border-bottom: 2px solid var(--text); }
+  .area-grid .side-label { background: #f5f5f5; display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; border-right: 2px solid var(--text); }
+  .area-grid .cell {
+    display: flex; align-items: center; justify-content: center; padding: 16px 8px;
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px;
+    border-right: 1px dashed var(--muted); border-bottom: 1px dashed var(--muted);
+    transition: background 0.3s; color: var(--blue);
+  }
+  .area-grid .cell:nth-child(3), .area-grid .cell:nth-child(6) { border-right: none; }
+  .area-grid .cell:nth-child(n+4) { border-bottom: none; }
+  .area-grid .cell.filled { background: rgba(78,205,196,0.08); }
+
+  .area-grid-container { position: relative; margin: 20px 0; }
+
+  /* ── CHAIN INPUT ── */
+  .chain-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 14px 0; font-size: 18px; }
+  .chain-row .chain-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 70px; text-align: center; padding: 8px; border: 2px solid var(--border);
+    border-radius: 10px; outline: none; transition: border-color 0.2s;
+  }
+  .chain-row .chain-input:focus { border-color: var(--teal); }
+  .chain-row .chain-input.correct { border-color: var(--green); background: var(--green-light); }
+  .chain-row .chain-input.wrong { border-color: var(--red); background: var(--red-light); }
+  .chain-row .chain-static { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .chain-row .chain-op { color: var(--muted); font-weight: 600; }
+
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover { background: var(--teal-dark); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .answer-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 120px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .answer-input:focus { border-color: var(--teal); }
+  .answer-input.correct { border-color: var(--green); background: var(--green-light); }
+  .answer-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  /* ── FOUR-SECTION INTERACTIVE ── */
+  .ia-grid {
+    display: grid; grid-template-columns: 50px 1fr 1fr; grid-template-rows: 40px 1fr 1fr;
+    gap: 0; margin: 16px auto; max-width: 340px; border: 3px solid var(--text); border-radius: 6px; overflow: hidden;
+  }
+  .ia-grid .corner { background: #f5f5f5; border-bottom: 2px solid var(--text); border-right: 2px solid var(--text); font-size: 12px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .ia-grid .top-lbl { background: #f5f5f5; border-bottom: 2px solid var(--text); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; }
+  .ia-grid .side-lbl { background: #f5f5f5; border-right: 2px solid var(--text); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; }
+  .ia-grid .ia-cell { display: flex; align-items: center; justify-content: center; padding: 12px 6px; border-right: 1px dashed var(--muted); border-bottom: 1px dashed var(--muted); }
+  .ia-grid .ia-cell:nth-child(3n) { border-right: none; }
+  .ia-grid .ia-cell:nth-child(n+7) { border-bottom: none; }
+  .ia-cell input {
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+    width: 65px; text-align: center; padding: 6px; border: 2px solid var(--border);
+    border-radius: 8px; outline: none; transition: border-color 0.2s;
+  }
+  .ia-cell input:focus { border-color: var(--teal); }
+  .ia-cell input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-cell input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+
+  /* ── GO DEEPER EXTENSION ── */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); max-width: 700px; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  @media (max-width: 600px) {
+    header { padding: 28px 20px 22px; }
+    .phase-nav { padding: 14px 20px; }
+    main { padding: 20px 14px 40px; }
+    .card { padding: 20px 18px; }
+    .ia-grid { max-width: 280px; }
+    .ia-cell input { width: 50px; font-size: 14px; }
+    .chain-row .chain-input { width: 56px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Lesson 6 &middot; Year 5 Mathematics &middot; Multiplicative Relations</div>
+  <h1>Area Model &amp; <span>Factorising</span></h1>
+  <p>Two-digit by two-digit multiplication, and breaking numbers into useful factors</p>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showPhase('hook', this)">Hook</button>
+  <button onclick="showPhase('ido', this)">I Do</button>
+  <button onclick="showPhase('wedo', this)">We Do</button>
+  <button onclick="showPhase('youarea', this)">You Do: Area Model</button>
+  <button onclick="showPhase('youfactor', this)">You Do: Factorising</button>
+</nav>
+
+<main>
+
+<div class="lisc-card">
+  <div class="lisc-header" onclick="toggleLISC()">
+    <h2>Learning Intention &amp; Success Criteria</h2>
+    <span class="lisc-toggle" id="liscToggle">&#x25BC;</span>
+  </div>
+  <div class="lisc-body" id="liscBody">
+    <h3>Learning Intention</h3>
+    <p>We are learning to use a four-section area model to multiply two 2-digit numbers, and to factorise a number to turn a hard multiplication into an easier chain of smaller ones.</p>
+    <h3>Success Criteria</h3>
+    <ul>
+      <li>I can draw and label a four-section area model for a 2-digit by 2-digit multiplication.</li>
+      <li>I can calculate all four partial products and add them correctly.</li>
+      <li>I can factorise a 2-digit number and use the factors to simplify a multiplication.</li>
+      <li>I can check my answer with a Radar estimate.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════ HOOK ══════ -->
+<div id="hook" class="section active">
+  <div class="section-title">The Hook</div>
+  <div class="section-heading">The bigger hall</div>
+
+  <div class="card">
+    <h3>A new challenge</h3>
+    <p>The new school hall is <strong>34</strong> metres long and <strong>27</strong> metres wide. How many square metres of tiles are needed?</p>
+    <div style="text-align:center; margin:20px 0;">
+      <span class="mono" style="font-size:28px;">34 &times; 27</span>
+    </div>
+    <p>Radar first: <span class="mono">30 &times; 30 = 900</span>. Our answer should be somewhere near <strong>900</strong>.</p>
+    <p style="margin-top:12px;">But wait: this time <strong>both</strong> numbers have two digits. Our old area model had two or three sections. This one needs <strong>four</strong>.</p>
+
+    <div id="hook-reveal">
+      <button class="step-reveal-btn" onclick="revealHookModel()">Show the four-section model</button>
+    </div>
+    <div id="hook-model" style="display:none;">
+      <div class="ia-grid" style="pointer-events:none;">
+        <div class="corner">&times;</div>
+        <div class="top-lbl">30</div>
+        <div class="top-lbl">4</div>
+        <div class="side-lbl">20</div>
+        <div class="ia-cell" style="background:rgba(78,205,196,0.08);"><span class="mono hook-cell-val" style="color:var(--blue);opacity:0;transition:opacity 0.4s;">600</span></div>
+        <div class="ia-cell" style="background:rgba(78,205,196,0.08);"><span class="mono hook-cell-val" style="color:var(--blue);opacity:0;transition:opacity 0.4s;">80</span></div>
+        <div class="side-lbl">7</div>
+        <div class="ia-cell" style="background:rgba(78,205,196,0.08);"><span class="mono hook-cell-val" style="color:var(--blue);opacity:0;transition:opacity 0.4s;">210</span></div>
+        <div class="ia-cell" style="background:rgba(78,205,196,0.08);"><span class="mono hook-cell-val" style="color:var(--blue);opacity:0;transition:opacity 0.4s;">28</span></div>
+      </div>
+      <div id="hook-sum" style="text-align:center; margin-top:12px; opacity:0; transition:opacity 0.4s;">
+        <span class="mono" style="font-size:18px;">600 + 80 + 210 + 28 = <span style="color:var(--green);">918</span></span>
+      </div>
+      <p id="hook-radar-check" style="text-align:center; margin-top:8px; font-size:15px; color:var(--muted); opacity:0; transition:opacity 0.4s;">Radar said ~900. We got 918. Reasonable.</p>
+      <div style="text-align:center; margin-top:12px;">
+        <button class="am-reveal-btn" id="hook-cell-btn" onclick="nextHookCellReveal()">Calculate 30 &times; 20 &rarr;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ I DO ══════ -->
+<div id="ido" class="section">
+  <div class="section-title">Explicit Instruction</div>
+  <div class="section-heading">Two strategies for harder multiplications</div>
+
+  <div class="card">
+    <h3>Part A: The four-section area model</h3>
+    <p><span class="mono">34 &times; 27</span></p>
+    <p>Split both numbers by place value: <span class="mono">34 = 30 + 4</span> and <span class="mono">27 = 20 + 7</span>.</p>
+    <p style="margin-top:8px;">This gives us four sections:</p>
+
+    <div id="ido-area-steps">
+      <div class="step-row"><span class="step-num">1.</span><span class="step-text">Top-left: <span class="mono">30 &times; 20 = 600</span></span></div>
+      <div class="step-row step-hidden" data-group="area"><span class="step-num">2.</span><span class="step-text">Top-right: <span class="mono">4 &times; 20 = 80</span></span></div>
+      <div class="step-row step-hidden" data-group="area"><span class="step-num">3.</span><span class="step-text">Bottom-left: <span class="mono">30 &times; 7 = 210</span></span></div>
+      <div class="step-row step-hidden" data-group="area"><span class="step-num">4.</span><span class="step-text">Bottom-right: <span class="mono">4 &times; 7 = 28</span></span></div>
+      <div class="step-row step-hidden" data-group="area"><span class="step-num">5.</span><span class="step-text">Total: <span class="mono">600 + 80 + 210 + 28 = 918</span></span></div>
+    </div>
+    <button class="step-reveal-btn" onclick="revealGroup('area')">Reveal next step</button>
+  </div>
+
+  <div class="card">
+    <h3>Part B: Factorising to simplify</h3>
+    <p>Sometimes we can avoid the full area model by breaking a number into its <strong>factors</strong>. This is called <strong>factorising</strong>.</p>
+
+    <div style="margin-top:16px;">
+      <p style="font-weight:700;">Example 1: <span class="mono">12 &times; 250</span></p>
+      <div id="ido-fac1-steps">
+        <div class="step-row"><span class="step-num">1.</span><span class="step-text">Think: <span class="mono">12 = 4 &times; 3</span></span></div>
+        <div class="step-row step-hidden" data-group="fac1"><span class="step-num">2.</span><span class="step-text">Rewrite: <span class="mono">4 &times; 3 &times; 250</span></span></div>
+        <div class="step-row step-hidden" data-group="fac1"><span class="step-num">3.</span><span class="step-text">Rearrange: <span class="mono">4 &times; 250 &times; 3 = 1,000 &times; 3 = 3,000</span></span></div>
+      </div>
+      <button class="step-reveal-btn" onclick="revealGroup('fac1')">Reveal next step</button>
+    </div>
+
+    <div style="margin-top:20px;">
+      <p style="font-weight:700;">Example 2: <span class="mono">15 &times; 24</span></p>
+      <div id="ido-fac2-steps">
+        <div class="step-row"><span class="step-num">1.</span><span class="step-text">Think: <span class="mono">15 = 3 &times; 5</span></span></div>
+        <div class="step-row step-hidden" data-group="fac2"><span class="step-num">2.</span><span class="step-text">Rewrite: <span class="mono">3 &times; 5 &times; 24</span></span></div>
+        <div class="step-row step-hidden" data-group="fac2"><span class="step-num">3.</span><span class="step-text">Calculate: <span class="mono">5 &times; 24 = 120</span>, then <span class="mono">3 &times; 120 = 360</span></span></div>
+      </div>
+      <button class="step-reveal-btn" onclick="revealGroup('fac2')">Reveal next step</button>
+    </div>
+
+    <div class="callout callout-teal" style="margin-top:20px;">
+      <div class="label">Connection</div>
+      <p>Factorising is just another way of partitioning. The area model partitions by <strong>place value</strong>. Factorising partitions by <strong>factors</strong>. Both break a hard multiplication into easier steps.</p>
+    </div>
+
+    <div class="callout callout-amber">
+      <div class="label">When does factorising work?</div>
+      <p>Factorising works when a number has <strong>convenient factors</strong>. Prime numbers like 23 cannot be usefully factorised, because their only factors are 1 and 23. Use the area model or algorithm instead.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ WE DO ══════ -->
+<div id="wedo" class="section">
+  <div class="section-title">Guided Practice</div>
+  <div class="section-heading">Your turn, with support</div>
+
+  <div id="wedo-container"></div>
+</div>
+
+<!-- ══════ YOU DO: AREA MODEL ══════ -->
+<div id="youarea" class="section">
+  <div class="section-title">Independent Practice</div>
+  <div class="section-heading">Four-section area model</div>
+  <p style="font-size:16px; color:var(--muted); margin-bottom:16px;">Fill in all four partial products, then add them for the total.</p>
+
+  <div class="dot-counter" id="area-dots"></div>
+  <div id="area-card" class="card" style="text-align:center;"></div>
+  <div class="summary-card" id="area-summary">
+    <h3>Round Complete</h3>
+    <div class="summary-score" id="area-score"></div>
+    <p id="area-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+    <button class="btn btn-primary" onclick="startAreaPractice()">Try Again (New Problems)</button>
+  </div>
+</div>
+
+<!-- ══════ YOU DO: FACTORISING ══════ -->
+<div id="youfactor" class="section">
+  <div class="section-title">Independent Practice</div>
+  <div class="section-heading">Factorising challenge</div>
+  <p style="font-size:16px; color:var(--muted); margin-bottom:16px;">Break the number into factors to make the multiplication easier.</p>
+
+  <div class="dot-counter" id="factor-dots"></div>
+  <div id="factor-card" class="card" style="text-align:center;"></div>
+  <div class="summary-card" id="factor-summary">
+    <h3>Round Complete</h3>
+    <div class="summary-score" id="factor-score"></div>
+    <p id="factor-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+    <button class="btn btn-primary" onclick="startFactorPractice()">Try Again (New Problems)</button>
+  </div>
+
+  <!-- ══════ GO DEEPER ══════ -->
+  <div id="go-deeper-locked" class="go-deeper-level-btn locked" style="text-align: center; cursor: default;">
+    <div style="margin-bottom: 8px;">&#x1F512;</div>
+    <h3>Go Deeper: Extension Tasks</h3>
+    <p>Complete the Factorising challenge to unlock this section</p>
+  </div>
+
+  <div id="go-deeper-container" style="display: none;">
+    <div class="go-deeper-card">
+      <h2>Go Deeper: Extension Tasks</h2>
+      <p>You have mastered factorising to simplify multiplication. These tasks will help you explore deeper mathematical thinking: specialising, conjecturing, and generalising.</p>
+
+      <!-- Task 1: Specialising -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 1: Specialising</div>
+        <div class="ext-task-prompt">Try factorising these three multiplications in at least two different ways each: <span class="ext-numbers">36 × 15</span>, <span class="ext-numbers">48 × 25</span>, <span class="ext-numbers">72 × 14</span>. For each one, which way of factorising made the calculation easiest?</div>
+        <div class="ext-task-sub">Think about which factors created the simplest intermediate steps.</div>
+        <textarea class="ext-thinking-area" id="task1-thinking" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="revealTask1()">Show model response</button>
+        <div class="ext-model-response" id="task1-response">
+          <div class="model-label">Sample response</div>
+          <p><strong><span class="ext-numbers">36 × 15 = 540</span></strong></p>
+          <p style="margin-bottom: 2px;">(a) <span class="ext-numbers">36 × 5 × 3 = 180 × 3 = 540</span></p>
+          <p style="margin-bottom: 2px;">(b) <span class="ext-numbers">36 × 3 × 5 = 108 × 5 = 540</span></p>
+          <p style="margin-bottom: 12px;">(c) <span class="ext-numbers">4 × 9 × 15 = 60 × 9 = 540</span></p>
+          <p style="margin-bottom: 12px;">All three work, but (c) might be easiest if you know that <span class="ext-numbers">9 × 15 = 135</span> and then <span class="ext-numbers">4 × 135 = 540</span>.</p>
+
+          <p><strong><span class="ext-numbers">48 × 25 = 1200</span></strong></p>
+          <p style="margin-bottom: 2px;">(a) <span class="ext-numbers">48 × 5 × 5 = 240 × 5 = 1200</span></p>
+          <p style="margin-bottom: 12px;">(b) <span class="ext-numbers">12 × 4 × 25 = 12 × 100 = 1200</span> (easiest!)</p>
+          <p style="margin-bottom: 12px;">Method (b) is best because <span class="ext-numbers">4 × 25 = 100</span>, which is a landmark number.</p>
+
+          <p><strong><span class="ext-numbers">72 × 14 = 1008</span></strong></p>
+          <p style="margin-bottom: 2px;">(a) <span class="ext-numbers">72 × 7 × 2 = 504 × 2 = 1008</span></p>
+          <p style="margin-bottom: 12px;">(b) <span class="ext-numbers">72 × 2 × 7 = 144 × 7 = 1008</span></p>
+          <p>Both work reasonably well. (a) is perhaps easier because <span class="ext-numbers">2</span> is the simplest multiplier.</p>
+          <div class="mathematician-box">
+            <strong>Mathematician's insight:</strong> The best factorisation often depends on which intermediate products you find easiest to calculate. There is no single "right" answer if you've factorised correctly and arrived at the correct final answer.
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 2: Conjecturing -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 2: Conjecturing</div>
+        <div class="ext-task-prompt">"Factorising always makes multiplication easier than doing it the normal way." Is this always true, sometimes true, or never true?</div>
+        <div class="ext-task-sub">Give an example to support your answer.</div>
+        <textarea class="ext-thinking-area" id="task2-thinking" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="revealTask2()">Show model response</button>
+        <div class="ext-model-response" id="task2-response">
+          <div class="model-label">Sample response</div>
+          <p><strong>This is sometimes true.</strong></p>
+          <p style="margin-bottom: 12px;">Factorising is only helpful when a number has convenient factors. If a number is prime, or if its factors don't create simpler intermediate calculations, then factorising might not help at all.</p>
+
+          <p><strong>Example where factorising helps:</strong></p>
+          <p style="margin-bottom: 12px;"><span class="ext-numbers">48 × 25 = 12 × 4 × 25 = 12 × 100 = 1200</span>. The landmark number <span class="ext-numbers">100</span> makes this much easier than calculating <span class="ext-numbers">48 × 25</span> directly using the area model.</p>
+
+          <p><strong>Example where factorising doesn't help:</strong></p>
+          <p style="margin-bottom: 12px;"><span class="ext-numbers">47 × 13</span>. Both <span class="ext-numbers">47</span> and <span class="ext-numbers">13</span> are prime numbers. They cannot be factorised into smaller factors (except <span class="ext-numbers">1</span> and themselves). So factorising is useless here. You would have to use the area model or column multiplication: <span class="ext-numbers">47 × 13 = 611</span>.</p>
+          <div class="mathematician-box">
+            <strong>Mathematician's insight:</strong> Factorising is a strategic tool. You choose to use it only when it genuinely simplifies the problem. The best mathematicians know when to apply which strategy, rather than applying the same method to every problem.
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 3: Generalising -->
+      <div class="ext-task">
+        <div class="ext-task-label">Task 3: Generalising</div>
+        <div class="ext-task-prompt">When you multiply by <span class="ext-numbers">25</span>, there is a shortcut using factorising. Try: <span class="ext-numbers">16 × 25</span>, <span class="ext-numbers">32 × 25</span>, <span class="ext-numbers">48 × 25</span>, <span class="ext-numbers">84 × 25</span>. Can you write a rule that always works for multiplying any number by <span class="ext-numbers">25</span>?</div>
+        <div class="ext-task-sub">Hint: What is <span class="ext-numbers">25</span> related to? What does <span class="ext-numbers">4</span> have to do with it?</div>
+        <textarea class="ext-thinking-area" id="task3-thinking" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="revealTask3()">Show model response</button>
+        <div class="ext-model-response" id="task3-response">
+          <div class="model-label">Sample response</div>
+          <p><strong>The pattern:</strong></p>
+          <p style="margin-bottom: 2px;"><span class="ext-numbers">16 × 25 = 4 × 100 = 400</span></p>
+          <p style="margin-bottom: 2px;"><span class="ext-numbers">32 × 25 = 8 × 100 = 800</span></p>
+          <p style="margin-bottom: 2px;"><span class="ext-numbers">48 × 25 = 12 × 100 = 1200</span></p>
+          <p style="margin-bottom: 12px;"><span class="ext-numbers">84 × 25 = 21 × 100 = 2100</span></p>
+
+          <p><strong>The rule:</strong></p>
+          <p style="margin-bottom: 12px;"><span class="ext-numbers">n × 25 = (n ÷ 4) × 100</span></p>
+
+          <p><strong>Why it works:</strong></p>
+          <p style="margin-bottom: 12px;"><span class="ext-numbers">25 = 100 ÷ 4</span>. So <span class="ext-numbers">n × 25 = n × 100 ÷ 4 = (n ÷ 4) × 100</span>. Divide by 4, then multiply by 100.</p>
+
+          <p><strong>What about numbers that aren't divisible by 4?</strong></p>
+          <p style="margin-bottom: 2px;">Example: <span class="ext-numbers">15 × 25</span>.</p>
+          <p style="margin-bottom: 2px;">Using the rule: <span class="ext-numbers">15 ÷ 4 = 3.75</span>, then <span class="ext-numbers">3.75 × 100 = 375</span>. This works mathematically.</p>
+          <p style="margin-bottom: 12px;">But in Year 5, you might prefer to split it: <span class="ext-numbers">15 × 25 = (12 × 25) + (3 × 25) = 300 + 75 = 375</span>.</p>
+          <div class="mathematician-box">
+            <strong>Mathematician's insight:</strong> This rule works for all positive numbers, not just ones divisible by 4. When you spot a pattern, you can test it by writing a general rule (using n for "any number"). The best generalisation works for every case, not just the examples you tried.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function showPhase(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.phase-nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'wedo' && !weDoBuilt) buildWeDo();
+  if (id === 'youarea' && areaProblems.length === 0) startAreaPractice();
+  if (id === 'youfactor' && factorProblems.length === 0) startFactorPractice();
+}
+
+function toggleLISC() {
+  var b = document.getElementById('liscBody');
+  var t = document.getElementById('liscToggle');
+  b.classList.toggle('open');
+  t.innerHTML = b.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+function revealHookModel() {
+  document.getElementById('hook-reveal').style.display = 'none';
+  document.getElementById('hook-model').style.display = 'block';
+}
+
+// Hook: reveal area model cells one at a time
+var hookCellStage = 0;
+var hookCellLabels = [
+  'Calculate 30 \u00d7 7 \u2192',
+  'Calculate 4 \u00d7 20 \u2192',
+  'Calculate 4 \u00d7 7 \u2192',
+  'Add the four parts \u2192'
+];
+function nextHookCellReveal() {
+  var cells = document.querySelectorAll('.hook-cell-val');
+  var btn = document.getElementById('hook-cell-btn');
+  if (hookCellStage < cells.length) {
+    cells[hookCellStage].style.opacity = '1';
+    if (hookCellStage < hookCellLabels.length) {
+      btn.textContent = hookCellLabels[hookCellStage];
+    }
+    hookCellStage++;
+  } else if (hookCellStage === cells.length) {
+    document.getElementById('hook-sum').style.opacity = '1';
+    btn.textContent = 'Check against Radar \u2192';
+    hookCellStage++;
+  } else {
+    document.getElementById('hook-radar-check').style.opacity = '1';
+    btn.style.display = 'none';
+  }
+}
+
+var revealState = {};
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.remove('step-hidden');
+    revealState[group]++;
+  }
+}
+
+// ── WE DO ──
+var weDoBuilt = false;
+function buildWeDo() {
+  weDoBuilt = true;
+  var container = document.getElementById('wedo-container');
+  container.innerHTML = '';
+
+  // Problem 1: Area model 23 x 15
+  var card1 = document.createElement('div');
+  card1.className = 'card';
+  card1.id = 'wedo-card-0';
+  card1.innerHTML = '<h3>Problem 1: Area Model</h3>' +
+    '<p><span class="mono" style="font-size:22px;">23 &times; 15</span></p>' +
+    '<p>Fill in the four partial products and the total.</p>' +
+    '<div class="ia-grid">' +
+      '<div class="corner">&times;</div><div class="top-lbl">20</div><div class="top-lbl">3</div>' +
+      '<div class="side-lbl">10</div>' +
+      '<div class="ia-cell"><input type="number" id="w0-c0" data-correct="200" placeholder="?"></div>' +
+      '<div class="ia-cell"><input type="number" id="w0-c1" data-correct="30" placeholder="?"></div>' +
+      '<div class="side-lbl">5</div>' +
+      '<div class="ia-cell"><input type="number" id="w0-c2" data-correct="100" placeholder="?"></div>' +
+      '<div class="ia-cell"><input type="number" id="w0-c3" data-correct="15" placeholder="?"></div>' +
+    '</div>' +
+    '<div class="answer-row"><span style="font-weight:700;">Total:</span><input type="number" class="answer-input" id="w0-total" data-correct="345" placeholder="?" style="width:100px;font-size:18px;"></div>' +
+    '<div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDoArea(0)">Check</button></div>' +
+    '<div class="feedback" id="wedo-fb-0"></div>';
+  container.appendChild(card1);
+
+  // Problem 2: Factorising 14 x 50
+  var card2 = document.createElement('div');
+  card2.className = 'card';
+  card2.id = 'wedo-card-1';
+  card2.innerHTML = '<h3>Problem 2: Factorising</h3>' +
+    '<p><span class="mono" style="font-size:22px;">14 &times; 50</span></p>' +
+    '<p>Factorise 14 into two factors, then solve the chain.</p>' +
+    '<div class="chain-row">' +
+      '<span class="chain-static">14</span><span class="chain-op">=</span>' +
+      '<input type="number" class="chain-input" id="w1-f1" data-correct="2" placeholder="?">' +
+      '<span class="chain-op">&times;</span>' +
+      '<input type="number" class="chain-input" id="w1-f2" data-correct="7" placeholder="?">' +
+    '</div>' +
+    '<div class="chain-row">' +
+      '<span class="chain-op">So 14 &times; 50 =</span>' +
+      '<input type="number" class="chain-input" id="w1-step1" data-correct="100" placeholder="?">' +
+      '<span class="chain-op">&times;</span>' +
+      '<input type="number" class="chain-input" id="w1-step2" data-correct="7" placeholder="?">' +
+    '</div>' +
+    '<div class="answer-row"><span style="font-weight:700;">Answer:</span><input type="number" class="answer-input" id="w1-total" data-correct="700" placeholder="?" style="width:100px;font-size:18px;"></div>' +
+    '<div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDoFactor(1)">Check</button></div>' +
+    '<div class="feedback" id="wedo-fb-1"></div>';
+  container.appendChild(card2);
+}
+
+function checkWeDoArea(idx) {
+  var allCorrect = true;
+  var cells = ['w0-c0','w0-c1','w0-c2','w0-c3','w0-total'];
+  cells.forEach(function(id) {
+    var inp = document.getElementById(id);
+    var val = parseInt(inp.value, 10);
+    var correct = parseInt(inp.getAttribute('data-correct'), 10);
+    if (val === correct) { inp.classList.add('correct'); inp.classList.remove('wrong'); }
+    else { inp.classList.add('wrong'); inp.classList.remove('correct'); allCorrect = false; }
+    inp.disabled = true;
+  });
+  var fb = document.getElementById('wedo-fb-0');
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">200 + 30 + 100 + 15 = 345</span>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> <span class="mono">20&times;10=200, 3&times;10=30, 20&times;5=100, 3&times;5=15</span>. Total: <span class="mono">345</span>.';
+  }
+}
+
+function checkWeDoFactor(idx) {
+  var allCorrect = true;
+  var totalInp = document.getElementById('w1-total');
+  var totalVal = parseInt(totalInp.value, 10);
+  if (totalVal === 700) { totalInp.classList.add('correct'); } else { totalInp.classList.add('wrong'); allCorrect = false; }
+  totalInp.disabled = true;
+
+  // Check factor chain: accept 2x7 or 7x2
+  var f1 = parseInt(document.getElementById('w1-f1').value, 10);
+  var f2 = parseInt(document.getElementById('w1-f2').value, 10);
+  if (f1 * f2 === 14 && f1 > 1 && f2 > 1) {
+    document.getElementById('w1-f1').classList.add('correct');
+    document.getElementById('w1-f2').classList.add('correct');
+  } else {
+    document.getElementById('w1-f1').classList.add('wrong');
+    document.getElementById('w1-f2').classList.add('wrong');
+    allCorrect = false;
+  }
+  document.getElementById('w1-f1').disabled = true;
+  document.getElementById('w1-f2').disabled = true;
+  document.getElementById('w1-step1').disabled = true;
+  document.getElementById('w1-step2').disabled = true;
+
+  var fb = document.getElementById('wedo-fb-1');
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">14 = 2 &times; 7</span>. So <span class="mono">2 &times; 50 = 100</span>, then <span class="mono">100 &times; 7 = 700</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> <span class="mono">14 = 2 &times; 7</span>. Rearrange: <span class="mono">2 &times; 50 = 100</span>, then <span class="mono">100 &times; 7 = 700</span>.';
+  }
+}
+
+// ── YOU DO: AREA MODEL ──
+var areaProblems = [];
+var areaIdx = 0;
+var areaResults = [];
+var areaTotal = 6;
+
+function generateAreaProblems() {
+  var pairs = shuffle([[21,14],[32,23],[43,21],[24,13],[31,22],[42,15],[23,32],[34,22],[25,14],[33,21],[41,23],[52,13]]);
+  var problems = [];
+  for (var i = 0; i < areaTotal; i++) {
+    var a = pairs[i][0], b = pairs[i][1];
+    var aTens = Math.floor(a/10)*10, aOnes = a%10;
+    var bTens = Math.floor(b/10)*10, bOnes = b%10;
+    problems.push({
+      a: a, b: b, answer: a*b,
+      topParts: [aTens, aOnes],
+      sideParts: [bTens, bOnes],
+      partials: [aTens*bTens, aOnes*bTens, aTens*bOnes, aOnes*bOnes]
+    });
+  }
+  return problems;
+}
+
+function startAreaPractice() {
+  areaProblems = generateAreaProblems();
+  areaIdx = 0;
+  areaResults = [];
+  document.getElementById('area-summary').classList.remove('show');
+  document.getElementById('area-card').style.display = 'block';
+  buildDots('area-dots', areaTotal);
+  showAreaProblem();
+}
+
+function buildDots(containerId, count) {
+  var c = document.getElementById(containerId);
+  c.innerHTML = '';
+  for (var i = 0; i < count; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = containerId + '-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
+  }
+}
+
+function showAreaProblem() {
+  if (areaIdx >= areaTotal) { showAreaSummary(); return; }
+  var p = areaProblems[areaIdx];
+  var card = document.getElementById('area-card');
+  var prefix = 'ap' + areaIdx;
+
+  card.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (areaIdx+1) + ' of ' + areaTotal + '</div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:28px;font-weight:700;margin-bottom:12px;">' + p.a + ' &times; ' + p.b + '</div>' +
+    '<div class="ia-grid">' +
+      '<div class="corner">&times;</div><div class="top-lbl">' + p.topParts[0] + '</div><div class="top-lbl">' + p.topParts[1] + '</div>' +
+      '<div class="side-lbl">' + p.sideParts[0] + '</div>' +
+      '<div class="ia-cell"><input type="number" id="' + prefix + '-0" data-correct="' + p.partials[0] + '" placeholder="?"></div>' +
+      '<div class="ia-cell"><input type="number" id="' + prefix + '-1" data-correct="' + p.partials[1] + '" placeholder="?"></div>' +
+      '<div class="side-lbl">' + p.sideParts[1] + '</div>' +
+      '<div class="ia-cell"><input type="number" id="' + prefix + '-2" data-correct="' + p.partials[2] + '" placeholder="?"></div>' +
+      '<div class="ia-cell"><input type="number" id="' + prefix + '-3" data-correct="' + p.partials[3] + '" placeholder="?"></div>' +
+    '</div>' +
+    '<div class="answer-row"><span style="font-weight:700;">Total:</span><input type="number" class="answer-input" id="' + prefix + '-total" data-correct="' + p.answer + '" placeholder="?" style="width:100px;font-size:18px;"></div>' +
+    '<div style="margin-top:12px;"><button class="check-btn" id="area-check" onclick="checkAreaPractice()">Check</button></div>' +
+    '<div class="feedback" id="area-fb-' + areaIdx + '"></div>' +
+    '<button class="btn btn-primary" id="area-next" style="display:none;margin-top:12px;" onclick="nextAreaProblem()">Next &rarr;</button>';
+
+  updateDots('area-dots', areaTotal, areaIdx);
+}
+
+function updateDots(containerId, total, current) {
+  for (var i = 0; i < total; i++) {
+    var d = document.getElementById(containerId + '-' + i);
+    if (d) { d.classList.remove('current'); if (i === current) d.classList.add('current'); }
+  }
+}
+
+function checkAreaPractice() {
+  var p = areaProblems[areaIdx];
+  var prefix = 'ap' + areaIdx;
+  var allCorrect = true;
+
+  for (var i = 0; i < 4; i++) {
+    var inp = document.getElementById(prefix + '-' + i);
+    var val = parseInt(inp.value, 10);
+    if (val === p.partials[i]) { inp.classList.add('correct'); inp.classList.remove('wrong'); }
+    else { inp.classList.add('wrong'); inp.classList.remove('correct'); allCorrect = false; }
+    inp.disabled = true;
+  }
+  var totalInp = document.getElementById(prefix + '-total');
+  var totalVal = parseInt(totalInp.value, 10);
+  if (totalVal === p.answer) { totalInp.classList.add('correct'); } else { totalInp.classList.add('wrong'); allCorrect = false; }
+  totalInp.disabled = true;
+
+  var fb = document.getElementById('area-fb-' + areaIdx);
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">' + p.partials.join(' + ') + ' = ' + p.answer + '</span>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> Partial products: <span class="mono">' + p.partials.join(', ') + '</span>. Total: <span class="mono">' + p.answer + '</span>.';
+  }
+
+  areaResults[areaIdx] = allCorrect;
+  var dot = document.getElementById('area-dots-' + areaIdx);
+  dot.classList.remove('current');
+  dot.classList.add(allCorrect ? 'green' : 'red');
+
+  document.getElementById('area-check').disabled = true;
+  document.getElementById('area-next').style.display = 'inline-block';
+}
+
+function nextAreaProblem() { areaIdx++; showAreaProblem(); }
+
+function showAreaSummary() {
+  document.getElementById('area-card').style.display = 'none';
+  var correct = areaResults.filter(function(r) { return r; }).length;
+  var el = document.getElementById('area-score');
+  el.textContent = correct + ' / ' + areaTotal;
+  el.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('area-message').textContent = correct >= 5 ? 'Excellent. You have the four-section model down.' : correct >= 3 ? 'Good progress. Check your partial products.' : 'Review the I Do section, then try again.';
+  document.getElementById('area-summary').classList.add('show');
+}
+
+// ── YOU DO: FACTORISING ──
+var factorProblems = [];
+var factorIdx = 0;
+var factorResults = [];
+var factorTotal = 6;
+
+function generateFactorProblems() {
+  // Problems where factorising is genuinely useful
+  var templates = shuffle([
+    { a: 14, b: 50, factors: [2,7], chain: [100,7], answer: 700 },
+    { a: 18, b: 50, factors: [2,9], chain: [100,9], answer: 900 },
+    { a: 12, b: 25, factors: [4,3], chain: [100,3], answer: 300 },
+    { a: 15, b: 20, factors: [5,3], chain: [100,3], answer: 300 },
+    { a: 25, b: 16, factors: [4,4], chain: [100,4], answer: 400, factorsOf: 16 },
+    { a: 12, b: 250, factors: [4,3], chain: [1000,3], answer: 3000 },
+    { a: 15, b: 24, factors: [5,3], chain: [120,3], answer: 360 },
+    { a: 14, b: 25, factors: [2,7], chain: [50,7], answer: 350 },
+    { a: 16, b: 25, factors: [4,4], chain: [100,4], answer: 400, factorsOf: 16 },
+    { a: 18, b: 25, factors: [2,9], chain: [50,9], answer: 450 },
+    { a: 24, b: 50, factors: [2,12], chain: [100,12], answer: 1200 },
+    { a: 15, b: 40, factors: [5,3], chain: [200,3], answer: 600 }
+  ]);
+  return templates.slice(0, factorTotal);
+}
+
+function startFactorPractice() {
+  factorProblems = generateFactorProblems();
+  factorIdx = 0;
+  factorResults = [];
+  document.getElementById('factor-summary').classList.remove('show');
+  document.getElementById('factor-card').style.display = 'block';
+  buildDots('factor-dots', factorTotal);
+  showFactorProblem();
+}
+
+function showFactorProblem() {
+  if (factorIdx >= factorTotal) { showFactorSummary(); return; }
+  var p = factorProblems[factorIdx];
+  var card = document.getElementById('factor-card');
+  var prefix = 'fp' + factorIdx;
+  var numToFactor = p.factorsOf || p.a;
+
+  card.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (factorIdx+1) + ' of ' + factorTotal + '</div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:28px;font-weight:700;margin-bottom:8px;">' + p.a + ' &times; ' + p.b + '</div>' +
+    '<p style="font-size:15px;color:var(--muted);margin-bottom:16px;">Factorise <span class="mono">' + numToFactor + '</span> to make this easier, then solve.</p>' +
+    '<div class="answer-row"><span style="font-weight:700;">Final answer:</span><input type="number" class="answer-input" id="' + prefix + '-ans" placeholder="?" style="width:120px;" onkeydown="if(event.key===\'Enter\')checkFactorPractice()"></div>' +
+    '<div style="margin-top:12px;"><button class="check-btn" id="factor-check" onclick="checkFactorPractice()">Check</button></div>' +
+    '<div class="feedback" id="factor-fb-' + factorIdx + '"></div>' +
+    '<button class="btn btn-primary" id="factor-next" style="display:none;margin-top:12px;" onclick="nextFactorProblem()">Next &rarr;</button>';
+
+  updateDots('factor-dots', factorTotal, factorIdx);
+  document.getElementById(prefix + '-ans').focus();
+}
+
+function checkFactorPractice() {
+  var p = factorProblems[factorIdx];
+  var prefix = 'fp' + factorIdx;
+  var inp = document.getElementById(prefix + '-ans');
+  var val = parseInt(inp.value, 10);
+  if (isNaN(val)) { inp.focus(); return; }
+
+  var isCorrect = (val === p.answer);
+  inp.disabled = true;
+
+  var numToFactor = p.factorsOf || p.a;
+  var otherNum = p.factorsOf ? p.a : p.b;
+
+  var fb = document.getElementById('factor-fb-' + factorIdx);
+  if (isCorrect) {
+    inp.classList.add('correct');
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">' + numToFactor + ' = ' + p.factors[0] + ' &times; ' + p.factors[1] + '</span>. So <span class="mono">' + p.factors[0] + ' &times; ' + otherNum + ' = ' + p.chain[0] + '</span>, then <span class="mono">' + p.chain[0] + ' &times; ' + p.chain[1] + ' = ' + p.answer + '</span>.';
+  } else {
+    inp.classList.add('wrong');
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You answered <span class="mono">' + val + '</span>. Factorise: <span class="mono">' + numToFactor + ' = ' + p.factors[0] + ' &times; ' + p.factors[1] + '</span>. Then <span class="mono">' + p.factors[0] + ' &times; ' + otherNum + ' = ' + p.chain[0] + '</span>, and <span class="mono">' + p.chain[0] + ' &times; ' + p.chain[1] + ' = ' + p.answer + '</span>.';
+  }
+
+  factorResults[factorIdx] = isCorrect;
+  var dot = document.getElementById('factor-dots-' + factorIdx);
+  dot.classList.remove('current');
+  dot.classList.add(isCorrect ? 'green' : 'red');
+
+  document.getElementById('factor-check').disabled = true;
+  document.getElementById('factor-next').style.display = 'inline-block';
+}
+
+function nextFactorProblem() { factorIdx++; showFactorProblem(); }
+
+function showFactorSummary() {
+  document.getElementById('factor-card').style.display = 'none';
+  var correct = factorResults.filter(function(r) { return r; }).length;
+  var el = document.getElementById('factor-score');
+  el.textContent = correct + ' / ' + factorTotal;
+  el.style.color = correct >= 5 ? 'var(--green)' : correct >= 3 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('factor-message').textContent = correct >= 5 ? 'Excellent. You can factorise to simplify.' : correct >= 3 ? 'Good start. Practise spotting useful factor pairs.' : 'Review Part B of the I Do section.';
+  document.getElementById('factor-summary').classList.add('show');
+  checkGoDeeper();
+}
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── GO DEEPER UNLOCK & REVEAL ──
+function checkGoDeeper() {
+  var correct = factorResults.filter(function(r) { return r; }).length;
+  if (correct >= 5) {
+    document.getElementById('go-deeper-locked').style.display = 'none';
+    document.getElementById('go-deeper-container').style.display = 'block';
+  }
+}
+
+function revealTask1() {
+  var resp = document.getElementById('task1-response');
+  resp.classList.toggle('visible');
+}
+
+function revealTask2() {
+  var resp = document.getElementById('task2-response');
+  resp.classList.toggle('visible');
+}
+
+function revealTask3() {
+  var resp = document.getElementById('task3-response');
+  resp.classList.toggle('visible');
+}
+</script>
+</body>
+</html>

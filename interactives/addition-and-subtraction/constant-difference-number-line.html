@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constant Difference Number Line</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --purple: #AD1DEB;
+    --text: #2D3436;
+    --muted: #636E72;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: #FFF8F0;
+    color: var(--text);
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    margin-bottom: 24px;
+    font-size: 16px;
+  }
+
+  .input-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  input[type="number"] {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    padding: 10px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    width: 120px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(78,205,196,0.1);
+  }
+
+  button {
+    background: var(--teal);
+    color: var(--text);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  button:hover {
+    background: var(--teal-dark);
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  .number-line-container {
+    background: white;
+    padding: 40px 20px;
+    border-radius: 12px;
+    border: 2px solid #f0f0f0;
+    margin-bottom: 20px;
+    min-height: 280px;
+  }
+
+  svg {
+    width: 100%;
+    height: 220px;
+    overflow: visible;
+  }
+
+  .draggable-point {
+    cursor: grab;
+    transition: transform 0.1s;
+  }
+
+  .draggable-point:active {
+    cursor: grabbing;
+  }
+
+  .draggable-point:hover circle {
+    r: 12;
+  }
+
+  .info-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .info-card {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--teal);
+  }
+
+  .info-card.difference {
+    border-left-color: var(--purple);
+  }
+
+  .info-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .info-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .shift-controls {
+    background: #fffbf0;
+    border: 2px solid var(--amber);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .shift-controls h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: var(--amber-dark);
+  }
+
+  .shift-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .shift-btn {
+    background: var(--amber);
+    color: var(--text);
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .shift-btn:hover {
+    background: var(--amber-dark);
+  }
+
+  .reset-btn {
+    background: var(--red);
+    color: white;
+  }
+
+  .reset-btn:hover {
+    background: #e74c3c;
+  }
+
+  .instruction {
+    background: #f0fafa;
+    border-left: 4px solid var(--teal);
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .history-panel {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+  }
+
+  .history-panel h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .history-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .history-item:last-child {
+    border-bottom: none;
+  }
+
+  .difference-constant {
+    color: var(--teal);
+    font-weight: 700;
+  }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--teal);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* ── STAGED REVEAL ── */
+  .reveal-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .reveal-step-btn {
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 24px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reveal-step-btn:hover:not(:disabled) {
+    background: var(--teal-dark);
+    transform: translateY(-2px);
+  }
+  .reveal-step-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .reveal-step-btn.completed {
+    background: #b0b8c0;
+    opacity: 0.6;
+  }
+  .reveal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: background 0.3s;
+  }
+  .reveal-dot.active {
+    background: var(--teal);
+    transform: scale(1.3);
+  }
+  .reveal-dot.done {
+    background: #b0b8c0;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🔄 Constant Difference Explorer</h1>
+  <p class="subtitle">Drag the numbers to see that the difference always stays the same!</p>
+
+  <!-- ────────────── LEARNING INTENTION & SUCCESS CRITERIA ────────────── -->
+  <div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to visualise the constant difference strategy on a number line, showing that shifting both numbers keeps the gap the same.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can place two numbers on a number line and see the distance between them</li>
+            <li>I can shift both numbers by the same amount and confirm the distance stays the same</li>
+            <li>I can use this to simplify subtraction problems</li>
+        </ul>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <div class="input-row">
+      <div class="input-group">
+        <label for="num1">Larger number:</label>
+        <input type="number" id="num1" value="483" step="1">
+      </div>
+      <div class="input-group">
+        <label for="num2">Smaller number:</label>
+        <input type="number" id="num2" value="255" step="1">
+      </div>
+      <button onclick="updateNumbers()">Update Number Line</button>
+    </div>
+  </div>
+
+  <div class="instruction">
+    💡 <strong>Try it:</strong> Click and drag either number left or right along the number line. Watch how the difference stays constant!
+  </div>
+
+  <div class="info-panel">
+    <div class="info-card">
+      <div class="info-label">Larger Number</div>
+      <div class="info-value" id="display-num1">483</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Smaller Number</div>
+      <div class="info-value" id="display-num2">255</div>
+    </div>
+    <div class="info-card difference">
+      <div class="info-label">Difference (Always Constant!)</div>
+      <div class="info-value difference-constant" id="display-diff">228</div>
+    </div>
+  </div>
+
+  <div class="number-line-container">
+    <svg id="numberLine" viewBox="0 0 1000 220"></svg>
+  </div>
+
+  <div class="reveal-controls" id="revealControls">
+    <div class="reveal-dot active" id="rd1"></div>
+    <button class="reveal-step-btn" id="revealStep1" onclick="revealStep(1)">Place the numbers</button>
+    <div class="reveal-dot" id="rd2"></div>
+    <button class="reveal-step-btn" id="revealStep2" onclick="revealStep(2)" disabled>Show the difference</button>
+  </div>
+
+  <div class="shift-controls">
+    <h3>⚡ Quick Shift Both Numbers</h3>
+    <div class="shift-buttons">
+      <button class="shift-btn" onclick="shiftBoth(-10)">← Shift −10</button>
+      <button class="shift-btn" onclick="shiftBoth(-5)">← Shift −5</button>
+      <button class="shift-btn" onclick="shiftBoth(-1)">← Shift −1</button>
+      <button class="shift-btn" onclick="shiftBoth(1)">Shift +1 →</button>
+      <button class="shift-btn" onclick="shiftBoth(5)">Shift +5 →</button>
+      <button class="shift-btn" onclick="shiftBoth(10)">Shift +10 →</button>
+      <button class="reset-btn" onclick="resetToOriginal()">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="history-panel" id="historyPanel" style="display:none;">
+    <h3>📊 Shift History</h3>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+let originalNum1, originalNum2;
+let currentNum1, currentNum2;
+let isDragging = false;
+let dragTarget = null;
+let history = [];
+let revealStage = 0;   // 0 = line only, 1 = points placed, 2 = arc shown
+let fullyRevealed = false;
+
+const svg = document.getElementById('numberLine');
+const PADDING = 80;
+const LINE_Y = 110;
+
+function init() {
+  currentNum1 = parseInt(document.getElementById('num1').value);
+  currentNum2 = parseInt(document.getElementById('num2').value);
+
+  // Ensure num1 > num2
+  if (currentNum1 < currentNum2) {
+    [currentNum1, currentNum2] = [currentNum2, currentNum1];
+    document.getElementById('num1').value = currentNum1;
+    document.getElementById('num2').value = currentNum2;
+  }
+
+  originalNum1 = currentNum1;
+  originalNum2 = currentNum2;
+  history = [];
+
+  // Reset staged reveal
+  revealStage = 0;
+  fullyRevealed = false;
+  document.getElementById('revealControls').style.display = 'flex';
+  document.getElementById('revealStep1').disabled = false;
+  document.getElementById('revealStep1').classList.remove('completed');
+  document.getElementById('revealStep2').disabled = true;
+  document.getElementById('revealStep2').classList.remove('completed');
+  document.getElementById('rd1').className = 'reveal-dot active';
+  document.getElementById('rd2').className = 'reveal-dot';
+
+  // Hide interactive controls until fully revealed
+  document.querySelector('.shift-controls').style.display = 'none';
+  document.querySelector('.instruction').style.display = 'none';
+
+  drawNumberLine();
+  updateDisplays();
+}
+
+function updateNumbers() {
+  init();
+}
+
+function revealStep(step) {
+  if (step === 1 && revealStage === 0) {
+    revealStage = 1;
+    document.getElementById('revealStep1').disabled = true;
+    document.getElementById('revealStep1').classList.add('completed');
+    document.getElementById('rd1').className = 'reveal-dot done';
+    document.getElementById('rd2').className = 'reveal-dot active';
+    document.getElementById('revealStep2').disabled = false;
+    drawNumberLine();
+    updateDisplays();
+  } else if (step === 2 && revealStage === 1) {
+    revealStage = 2;
+    fullyRevealed = true;
+    document.getElementById('revealStep2').disabled = true;
+    document.getElementById('revealStep2').classList.add('completed');
+    document.getElementById('rd2').className = 'reveal-dot done';
+
+    // Show interactive controls now the model is fully built
+    document.querySelector('.shift-controls').style.display = '';
+    document.querySelector('.instruction').style.display = '';
+
+    // Hide reveal controls after a short pause
+    setTimeout(function() {
+      document.getElementById('revealControls').style.display = 'none';
+    }, 600);
+
+    drawNumberLine();
+    updateDisplays();
+    addToHistory();
+  }
+}
+
+function getScale() {
+  const range = currentNum1 - currentNum2;
+  const padding = range * 0.3; // 30% padding on each side
+  const min = currentNum2 - padding;
+  const max = currentNum1 + padding;
+  const totalRange = max - min;
+  
+  return {
+    min: min,
+    max: max,
+    scale: (1000 - 2 * PADDING) / totalRange
+  };
+}
+
+function valueToX(value) {
+  const { min, scale } = getScale();
+  return PADDING + (value - min) * scale;
+}
+
+function xToValue(x) {
+  const { min, scale } = getScale();
+  return min + (x - PADDING) / scale;
+}
+
+function drawNumberLine() {
+  svg.innerHTML = '';
+
+  const { min, max } = getScale();
+
+  // Stage 0+: Always draw the base line and tick marks
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', PADDING);
+  line.setAttribute('y1', LINE_Y);
+  line.setAttribute('x2', 1000 - PADDING);
+  line.setAttribute('y2', LINE_Y);
+  line.setAttribute('stroke', '#2D3436');
+  line.setAttribute('stroke-width', '3');
+  svg.appendChild(line);
+
+  const numTicks = 8;
+  const tickSpacing = (max - min) / (numTicks - 1);
+
+  for (let i = 0; i < numTicks; i++) {
+    const value = min + (i * tickSpacing);
+    const x = valueToX(value);
+
+    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    tick.setAttribute('x1', x);
+    tick.setAttribute('y1', LINE_Y - 6);
+    tick.setAttribute('x2', x);
+    tick.setAttribute('y2', LINE_Y + 6);
+    tick.setAttribute('stroke', '#636E72');
+    tick.setAttribute('stroke-width', '2');
+    svg.appendChild(tick);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', LINE_Y + 28);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-family', 'Space Mono, monospace');
+    text.setAttribute('font-size', '12');
+    text.setAttribute('fill', '#636E72');
+    text.textContent = Math.round(value);
+    svg.appendChild(text);
+  }
+
+  // Stage 1+: Draw the draggable points
+  if (revealStage >= 1 || fullyRevealed) {
+    drawPoint(currentNum2, 'num2', '#4ECDC4', 'Smaller');
+    drawPoint(currentNum1, 'num1', '#FF6B6B', 'Larger');
+  }
+
+  // Stage 2+: Draw the difference arc
+  if (revealStage >= 2 || fullyRevealed) {
+    drawDifferenceArc();
+  }
+}
+
+function drawDifferenceArc() {
+  const x1 = valueToX(currentNum2);
+  const x2 = valueToX(currentNum1);
+  const midX = (x1 + x2) / 2;
+  const arcY = LINE_Y - 50;
+  
+  // Arc path
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const d = `M ${x1 + 15} ${LINE_Y - 15} Q ${midX} ${arcY} ${x2 - 15} ${LINE_Y - 15}`;
+  path.setAttribute('d', d);
+  path.setAttribute('stroke', '#AD1DEB');
+  path.setAttribute('stroke-width', '3');
+  path.setAttribute('fill', 'none');
+  path.setAttribute('marker-end', 'url(#arrowhead)');
+  svg.appendChild(path);
+  
+  // Arrow marker
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '10');
+  marker.setAttribute('refX', '9');
+  marker.setAttribute('refY', '3');
+  marker.setAttribute('orient', 'auto');
+  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  polygon.setAttribute('points', '0 0, 10 3, 0 6');
+  polygon.setAttribute('fill', '#AD1DEB');
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.insertBefore(defs, svg.firstChild);
+  
+  // Difference label
+  const diffText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  diffText.setAttribute('x', midX);
+  diffText.setAttribute('y', arcY - 8);
+  diffText.setAttribute('text-anchor', 'middle');
+  diffText.setAttribute('font-family', 'Fredoka, sans-serif');
+  diffText.setAttribute('font-size', '18');
+  diffText.setAttribute('font-weight', '700');
+  diffText.setAttribute('fill', '#AD1DEB');
+  diffText.textContent = `Difference: ${currentNum1 - currentNum2}`;
+  svg.appendChild(diffText);
+}
+
+function drawPoint(value, id, color, label) {
+  const x = valueToX(value);
+  
+  // Group for dragging
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('class', 'draggable-point');
+  g.setAttribute('data-id', id);
+  g.setAttribute('data-value', value);
+  
+  // Vertical line from point to number line
+  const vertLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  vertLine.setAttribute('x1', x);
+  vertLine.setAttribute('y1', LINE_Y);
+  vertLine.setAttribute('x2', x);
+  vertLine.setAttribute('y2', LINE_Y - 15);
+  vertLine.setAttribute('stroke', color);
+  vertLine.setAttribute('stroke-width', '2');
+  vertLine.setAttribute('stroke-dasharray', '4,2');
+  g.appendChild(vertLine);
+  
+  // Circle point
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circle.setAttribute('cx', x);
+  circle.setAttribute('cy', LINE_Y);
+  circle.setAttribute('r', '10');
+  circle.setAttribute('fill', color);
+  circle.setAttribute('stroke', 'white');
+  circle.setAttribute('stroke-width', '3');
+  g.appendChild(circle);
+  
+  // Label above
+  const labelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  labelText.setAttribute('x', x);
+  labelText.setAttribute('y', LINE_Y + 50);
+  labelText.setAttribute('text-anchor', 'middle');
+  labelText.setAttribute('font-family', 'Fredoka, sans-serif');
+  labelText.setAttribute('font-size', '12');
+  labelText.setAttribute('font-weight', '600');
+  labelText.setAttribute('fill', '#636E72');
+  labelText.textContent = label;
+  g.appendChild(labelText);
+  
+  // Value text
+  const valueText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  valueText.setAttribute('x', x);
+  valueText.setAttribute('y', LINE_Y + 66);
+  valueText.setAttribute('text-anchor', 'middle');
+  valueText.setAttribute('font-family', 'Space Mono, monospace');
+  valueText.setAttribute('font-size', '16');
+  valueText.setAttribute('font-weight', '700');
+  valueText.setAttribute('fill', color);
+  valueText.textContent = Math.round(value);
+  g.appendChild(valueText);
+  
+  svg.appendChild(g);
+  
+  // Add drag handlers
+  g.addEventListener('mousedown', startDrag);
+  g.addEventListener('touchstart', startDrag);
+}
+
+function startDrag(e) {
+  if (!fullyRevealed) return;
+  isDragging = true;
+  dragTarget = e.currentTarget;
+  e.preventDefault();
+}
+
+document.addEventListener('mousemove', drag);
+document.addEventListener('touchmove', drag);
+
+function drag(e) {
+  if (!isDragging || !dragTarget) return;
+  
+  e.preventDefault();
+  
+  const svgRect = svg.getBoundingClientRect();
+  const clientX = e.clientX || e.touches[0].clientX;
+  const svgX = ((clientX - svgRect.left) / svgRect.width) * 1000;
+  
+  // Constrain to line bounds
+  const constrainedX = Math.max(PADDING, Math.min(1000 - PADDING, svgX));
+  const newValue = Math.round(xToValue(constrainedX));
+  
+  const id = dragTarget.getAttribute('data-id');
+  const diff = currentNum1 - currentNum2;
+  
+  if (id === 'num1') {
+    currentNum1 = newValue;
+    currentNum2 = currentNum1 - diff;
+  } else {
+    currentNum2 = newValue;
+    currentNum1 = currentNum2 + diff;
+  }
+  
+  drawNumberLine();
+  updateDisplays();
+}
+
+document.addEventListener('mouseup', stopDrag);
+document.addEventListener('touchend', stopDrag);
+
+function stopDrag() {
+  if (isDragging) {
+    addToHistory();
+  }
+  isDragging = false;
+  dragTarget = null;
+}
+
+function updateDisplays() {
+  const showNums = revealStage >= 1 || fullyRevealed;
+  const showDiff = revealStage >= 2 || fullyRevealed;
+  document.getElementById('display-num1').textContent = showNums ? Math.round(currentNum1) : '?';
+  document.getElementById('display-num2').textContent = showNums ? Math.round(currentNum2) : '?';
+  document.getElementById('display-diff').textContent = showDiff ? Math.round(currentNum1 - currentNum2) : '?';
+}
+
+function shiftBoth(amount) {
+  currentNum1 += amount;
+  currentNum2 += amount;
+  
+  drawNumberLine();
+  updateDisplays();
+  addToHistory();
+}
+
+function resetToOriginal() {
+  currentNum1 = originalNum1;
+  currentNum2 = originalNum2;
+  
+  drawNumberLine();
+  updateDisplays();
+  
+  history = [];
+  addToHistory();
+}
+
+function addToHistory() {
+  const diff = currentNum1 - currentNum2;
+  const shift = currentNum1 - originalNum1;
+  
+  if (history.length === 0 || 
+      history[history.length - 1].num1 !== currentNum1 || 
+      history[history.length - 1].num2 !== currentNum2) {
+    
+    history.push({
+      num1: Math.round(currentNum1),
+      num2: Math.round(currentNum2),
+      diff: Math.round(diff),
+      shift: Math.round(shift)
+    });
+    
+    updateHistoryDisplay();
+  }
+}
+
+function updateHistoryDisplay() {
+  const panel = document.getElementById('historyPanel');
+  const list = document.getElementById('historyList');
+  
+  if (history.length > 1) {
+    panel.style.display = 'block';
+    list.innerHTML = '';
+    
+    history.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      
+      let shiftText = '';
+      if (item.shift !== 0) {
+        shiftText = ` (shifted ${item.shift > 0 ? '+' : ''}${item.shift})`;
+      }
+      
+      div.innerHTML = `${item.num1} − ${item.num2} = <span class="difference-constant">${item.diff}</span>${shiftText}`;
+      list.appendChild(div);
+    });
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+// Initialize on load
+init();
+
+// Allow Enter key to update
+document.getElementById('num1').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') updateNumbers();
+});
+document.getElementById('num2').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') updateNumbers();
+});
+
+function toggleLearningSection() {
+  const content = document.getElementById('learningContent');
+  const toggle = document.getElementById('learningToggle');
+  content.classList.toggle('open');
+  toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+</script>
+
+</body>
+</html>

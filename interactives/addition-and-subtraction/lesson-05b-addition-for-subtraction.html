@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="en-GB" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 5B: Addition for Subtraction</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --pink: #FF67E7;
+    --purple: #AD1DEB;
+    --blue: #3a7bd5;
+    --blue-dark: #2c5ea8;
+    --green: #2ecc71;
+    --green-dark: #1a8a4a;
+    --cream: #FFF8F0;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #2D3436;
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(46,204,113,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--green); text-transform: uppercase; margin-bottom: 8px;
+  }
+  header h1 {
+    font-size: clamp(22px, 4vw, 38px); font-weight: 700; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  header h1 span { color: var(--green); }
+  header p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 640px; font-weight: 500; }
+  .header-icon {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.10;
+  }
+
+  /* ── NAV ── */
+  .phase-nav {
+    display: flex; gap: 10px; padding: 18px 48px;
+    background: #3d4347; flex-wrap: wrap;
+  }
+  .phase-nav button {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: none; border-radius: 30px; padding: 8px 20px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .phase-nav button:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .phase-nav button.active { background: var(--green); color: #2D3436; }
+
+  /* ── MAIN ── */
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  .section { display: none; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--green-dark);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-heading {
+    font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin-bottom: 20px; color: var(--text);
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 16px; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul, .card ol { padding-left: 20px; }
+  .card ul li, .card ol li { margin-bottom: 6px; }
+
+  /* ── COLLAPSIBLE CARD ── */
+  .collapse-header {
+    background: linear-gradient(135deg, #b8f5b0, #4CAF50);
+    color: #2D3436;
+    padding: 16px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .collapse-header:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    transform: translateY(-2px);
+  }
+  .collapse-header.blue {
+    background: linear-gradient(135deg, #b3d9ff, #3a7bd5);
+    color: #fff;
+  }
+  .collapse-icon {
+    font-size: 24px;
+    transition: transform 0.3s;
+  }
+  .collapse-header.expanded .collapse-icon {
+    transform: rotate(180deg);
+  }
+  .collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .collapse-content.expanded {
+    max-height: 3000px;
+  }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; border-radius: 20px; padding: 4px 14px; margin-right: 6px; margin-bottom: 10px;
+    background: #eef2ff; color: var(--blue);
+  }
+  .tag.green { background: #e8fdf0; color: var(--green-dark); }
+  .tag.amber { background: #fffbf0; color: var(--amber-dark); }
+  .tag.red { background: #fff4f4; color: #c0392b; }
+  .tag.purple { background: #f5eeff; color: var(--purple); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-radius: 12px; padding: 18px 22px; margin: 16px 0;
+  }
+  .callout .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 6px; display: block;
+  }
+  .callout p { font-size: 16px; line-height: 1.6; font-weight: 400; }
+  .callout-green { background: #f0fdf4; border-left: 5px solid var(--green); }
+  .callout-green .label { color: var(--green-dark); }
+  .callout-green p { color: #0a3820; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+
+  /* ── REVEAL BUTTONS ── */
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: var(--green-dark); color: #fff; }
+  .reveal-btn.green { background: var(--green); color: #fff; }
+  .reveal-btn.green:hover { background: var(--green-dark); }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* ── NUMBER LINE ── */
+  .jump-demo {
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 12px;
+    margin: 16px 0;
+  }
+
+  /* ── PRACTICE CARDS ── */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  
+  .practice-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transition: all 0.2s;
+  }
+  
+  .practice-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+  }
+  
+  .practice-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  
+  .practice-equation {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 12px 0;
+    text-align: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .practice-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  .hint-btn, .answer-btn {
+    flex: 1;
+    background: var(--amber);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .hint-btn:hover, .answer-btn:hover {
+    background: var(--amber-dark);
+    transform: translateY(-1px);
+  }
+  
+  .answer-btn {
+    background: var(--green);
+    color: #fff;
+  }
+  
+  .answer-btn:hover {
+    background: var(--green-dark);
+  }
+  
+  .practice-hint, .practice-answer {
+    margin-top: 12px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+  }
+  
+  .practice-hint {
+    background: #fffbf0;
+    border-left: 4px solid var(--amber);
+    color: #665500;
+  }
+  
+  .practice-answer {
+    background: #f0fdf4;
+    border-left: 4px solid var(--green);
+  }
+  
+  .practice-hint.shown, .practice-answer.shown {
+    display: block;
+    animation: fadeIn 0.25s ease;
+  }
+  
+  .tier-header {
+    background: linear-gradient(135deg, var(--green), #1a8a4a);
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 18px;
+    margin: 24px 0 16px;
+  }
+  
+  .tier-header.tier-2 {
+    background: linear-gradient(135deg, var(--amber), var(--orange));
+    color: #2D3436;
+  }
+  
+  .tier-header.tier-3 {
+    background: linear-gradient(135deg, var(--purple), #6E3AFF);
+    color: #fff;
+  }
+
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--green);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+  .learning-content {
+    display: none;
+    margin-top: 1rem;
+  }
+  .learning-content.open {
+    display: block;
+  }
+  .learning-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .learning-content p {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-criteria {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  .success-criteria li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .success-criteria li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+  }
+
+  /* Go Deeper Extension */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+    width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+    border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+    font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+    background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+    width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+    transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+    display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+    border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+    display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+    padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+    background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+    border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+
+  /* ── STEP PROGRESSION ── */
+  .ido-progression { position: relative; }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.3s ease; }
+  .ido-dots { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .ido-dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; transition: all 0.3s ease; }
+  .ido-dot.active { background: var(--red, #FF6B6B); transform: scale(1.3); }
+  .ido-dot.visited { background: var(--red, #FF6B6B); opacity: 0.4; }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 1.5rem; }
+  .ido-step-nav button { padding: 0.6rem 1.5rem; border: none; border-radius: 12px; font-family: 'Fredoka', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+  .ido-step-nav button.next { background: var(--red, #FF6B6B); color: white; margin-left: auto; }
+  .ido-step-nav button.back { background: #e0e0e0; color: #2D3436; }
+  .ido-step-nav button:hover { transform: translateY(-2px); }
+  .step-badge { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+  .step-badge.red { background: var(--red, #FF6B6B); }
+  .step-badge.amber { background: var(--amber, #FFD93D); color: #2D3436; }
+  .step-badge.green { background: var(--green, #2ECC71); }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Mental Calculation Strategies</div>
+  <h1>Lesson 5B: <span>Addition for Subtraction</span></h1>
+  <p>Reframe subtraction as counting up, eliminate borrowing entirely</p>
+  <div class="header-icon">⬆️</div>
+</header>
+
+<nav class="phase-nav">
+  <button class="active" onclick="showSection('hook', this)">The Hook</button>
+  <button onclick="showSection('ido', this)">I Do</button>
+  <button onclick="showSection('wedo', this)">We Do</button>
+  <button onclick="showSection('youdo', this)">You Do</button>
+  <button onclick="showSection('plenary', this)">Plenary</button>
+</nav>
+
+<main>
+
+<div class="learning-card">
+    <h2 onclick="toggleLearningSection()">
+        Learning Intention &amp; Success Criteria
+        <span class="toggle-icon" id="learningToggle">▼</span>
+    </h2>
+    <div class="learning-content" id="learningContent">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use addition for subtraction by counting up from the smaller number to the larger number to find the difference.</p>
+        <h3>Success Criteria</h3>
+        <ul class="success-criteria">
+            <li>I can count up from the smaller number to the larger number using an open number line</li>
+            <li>I can break the counting-up jumps into efficient steps (e.g. jumping to the nearest whole number first)</li>
+            <li>I can add my jumps together to find the total difference</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ────────────── SECTION 1: THE HOOK ────────────── -->
+<div id="hook" class="section active">
+  <div class="section-title">Phase 1 · The Hook, 10 mins</div>
+  <div class="section-heading">Making Change: The Natural Way to Subtract</div>
+
+  <div class="card">
+    <h3>🎯 Real-World Scenario</h3>
+    
+    <div style="background:#f0fdf4; padding:20px; border-radius:12px; margin:16px 0; border-left:4px solid var(--green);">
+      <p style="font-size:17px; line-height:1.7; color:#0a3832;">
+        <strong>The Scenario:</strong> You buy something for <strong>$4.60</strong> and hand the cashier a <strong>$20 note</strong>. How much change should you get?
+      </p>
+    </div>
+    
+    <p style="margin-top:16px;">How would you work this out in your head?</p>
+  </div>
+
+  <!-- COLLAPSIBLE: What Happens -->
+  <div class="collapse-header" onclick="toggleCollapse('what-happens')">
+    <span>📋 What Happens (Teacher Notes)</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="what-happens" class="collapse-content">
+    <div class="card">
+      <p style="margin-bottom:16px;">Natural approach, counting up:</p>
+      <ul>
+        <li>"Count: $4.60 to $5.00 is 40 cents"</li>
+        <li>"Then $5.00 to $20.00 is $15"</li>
+        <li>"So it's $15.40 altogether"</li>
+      </ul>
+      
+      <div class="callout callout-green" style="margin-top:20px;">
+        <span class="label">💡 The Key Insight</span>
+        <p>This natural approach is a legitimate mathematical technique! This is <strong>Addition for Subtraction</strong>, and it's incredibly powerful for mental math.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLAPSIBLE: The Big Idea -->
+  <div class="collapse-header blue" onclick="toggleCollapse('big-idea')">
+    <span>💡 The Big Idea (Reveal After Discussion)</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  <div id="big-idea" class="collapse-content">
+    <div class="card">
+      <div class="callout callout-teal">
+        <span class="label">✨ The Core Concept</span>
+        <p><strong>Subtraction is just finding the difference.</strong> Instead of taking away, you can <em>count up from the smaller number to the larger number</em>. The total distance you traveled is the answer.</p>
+      </div>
+      
+      <div style="text-align:center; margin:24px 0;">
+        <svg width="600" height="120" viewBox="0 0 600 120">
+          <!-- Number line -->
+          <line x1="50" y1="60" x2="550" y2="60" stroke="#2D3436" stroke-width="3"/>
+          
+          <!-- Start point -->
+          <line x1="100" y1="55" x2="100" y2="65" stroke="#2D3436" stroke-width="3"/>
+          <circle cx="100" cy="60" r="6" fill="#2ecc71"/>
+          <text x="100" y="85" font-family="Fredoka" font-size="14" font-weight="600" text-anchor="middle" fill="#2D3436">4.60</text>
+          <text x="100" y="100" font-family="Fredoka" font-size="12" text-anchor="middle" fill="#1a8a4a">Start</text>
+          
+          <!-- End point -->
+          <line x1="500" y1="55" x2="500" y2="65" stroke="#2D3436" stroke-width="3"/>
+          <circle cx="500" cy="60" r="6" fill="#2ecc71"/>
+          <text x="500" y="85" font-family="Fredoka" font-size="14" font-weight="600" text-anchor="middle" fill="#2D3436">20.00</text>
+          <text x="500" y="100" font-family="Fredoka" font-size="12" text-anchor="middle" fill="#1a8a4a">End</text>
+          
+          <!-- Jump arc -->
+          <path d="M 110 50 Q 300 20 490 50" fill="none" stroke="#2ecc71" stroke-width="3" marker-end="url(#arrowgreen)"/>
+          <text x="300" y="25" font-family="Fredoka" font-size="16" font-weight="700" text-anchor="middle" fill="#2ecc71">Count Up!</text>
+          
+          <!-- Arrow marker -->
+          <defs>
+            <marker id="arrowgreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#2ecc71" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      
+      <p style="margin-top:16px; font-size:15px; text-align:center; color:var(--green-dark); font-weight:600;">
+        Instead of subtracting, we <strong>add up</strong> from 4.60 to 20.00
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 2: I DO ────────────── -->
+<div id="ido" class="section">
+  <div class="section-title">Phase 2 · Explicit Instruction (I Do), 15 mins</div>
+  <div class="section-heading">Addition for Subtraction: The Strategy</div>
+
+  <div class="ido-progression" id="afs-progression">
+    <div class="ido-dots" id="afs-dots">
+      <div class="ido-dot active"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+      <div class="ido-dot"></div>
+    </div>
+
+    <!-- STEP 1: The Problem -->
+    <div class="ido-step active card" id="afs-step-1">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge red">1</div>
+        <div style="font-size:1.15rem;font-weight:600;">The Problem</div>
+      </div>
+
+      <p style="font-size:16px; line-height:1.7; margin-bottom:16px;">Let's work through the Hook problem together:</p>
+
+      <div style="background:#f0fdf4; padding:20px; border-radius:12px; margin:16px 0; border-left:4px solid var(--green);">
+        <p style="font-size:18px; text-align:center; color:#0a3832; font-weight:700; font-family:'Space Mono',monospace;">
+          $20.00 − $4.60 = ?
+        </p>
+      </div>
+
+      <p style="font-size:16px; line-height:1.7; margin-top:16px;">Instead of counting backwards with subtraction, what if we thought about it differently? <strong>What if we counted UP from $4.60 to $20.00?</strong></p>
+
+      <div class="ido-step-nav">
+        <button class="next" onclick="goToIdoStep('afs', 2, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Identify the Numbers -->
+    <div class="ido-step card" id="afs-step-2">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge red">2</div>
+        <div style="font-size:1.15rem;font-weight:600;">Identify the Numbers</div>
+      </div>
+
+      <p style="font-size:16px; line-height:1.7; margin-bottom:16px;">The first step is always to recognise where we start and where we finish.</p>
+
+      <div class="callout callout-blue" style="margin-top:16px;">
+        <span class="label">Where We Start</span>
+        <p style="font-family:'Space Mono',monospace; font-size:18px; font-weight:700; margin-top:8px;">$4.60</p>
+        <p style="margin-top:8px;">This is the smaller number, the amount you spent</p>
+      </div>
+
+      <div class="callout callout-green" style="margin-top:16px;">
+        <span class="label">Where We End</span>
+        <p style="font-family:'Space Mono',monospace; font-size:18px; font-weight:700; margin-top:8px;">$20.00</p>
+        <p style="margin-top:8px;">This is the larger number, the note you gave</p>
+      </div>
+
+      <p style="margin-top:16px; font-size:15px; color:#636E72;"><strong>Our job:</strong> Count up from $4.60 to $20.00 and keep track of how much we add.</p>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('afs', 1, 5)">← Back</button>
+        <button class="next" onclick="goToIdoStep('afs', 3, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Make Smart Jumps -->
+    <div class="ido-step card" id="afs-step-3">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge amber">3</div>
+        <div style="font-size:1.15rem;font-weight:600;">Make Smart Jumps</div>
+      </div>
+
+      <p style="font-size:16px; line-height:1.7; margin-bottom:16px;">Instead of counting on one by one, we make "smart jumps" to friendly numbers. Friendly numbers are easy to work with:</p>
+
+      <ul style="font-size:16px; line-height:1.8; margin:16px 0 16px 20px;">
+        <li>Whole dollar amounts: $5, $10, $20, $50</li>
+        <li>Whole number decimals: 5.0, 10.0</li>
+        <li>Multiples of 5 or 10</li>
+      </ul>
+
+      <div style="background:#fff8f0; padding:16px 20px; border-radius:12px; margin-top:16px; border-left:4px solid var(--amber);">
+        <p style="font-size:15px; line-height:1.6; color:#2D3436;"><strong>Why?</strong> Jumping to round numbers makes the mental maths much easier. Instead of adding 0.40 and 15.00 separately, we use numbers our brains find simple.</p>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('afs', 2, 5)">← Back</button>
+        <button class="next" onclick="goToIdoStep('afs', 4, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Worked Example (Money) -->
+    <div class="ido-step card" id="afs-step-4">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge amber">4</div>
+        <div style="font-size:1.15rem;font-weight:600;">Worked Example: $20.00 − $4.60</div>
+      </div>
+
+      <p style="font-size:16px; line-height:1.7; margin-bottom:16px;">Now let's apply the strategy. Here are the jumps we make:</p>
+
+      <div class="jump-demo" style="margin:20px 0;">
+        <div style="font-family:'Space Mono',monospace; font-size:18px; line-height:2.2;">
+          <div style="display:flex; align-items:center; margin-bottom:8px;">
+            <div style="min-width:120px; font-weight:700; color:var(--green-dark);">Start:</div>
+            <div>$4.60</div>
+          </div>
+
+          <div style="display:flex; align-items:center; margin:12px 0; padding:12px; background:#fff; border-radius:8px; border-left:4px solid var(--green);">
+            <div style="min-width:120px; color:var(--green-dark);">Jump 1:</div>
+            <div><strong>+$0.40</strong> → get to $5.00</div>
+          </div>
+
+          <div style="display:flex; align-items:center; margin:12px 0; padding:12px; background:#fff; border-radius:8px; border-left:4px solid var(--green);">
+            <div style="min-width:120px; color:var(--green-dark);">Jump 2:</div>
+            <div><strong>+$15.00</strong> → get to $20.00</div>
+          </div>
+
+          <div style="border-top:3px solid var(--text); margin-top:20px; padding-top:16px; display:flex; align-items:center;">
+            <div style="min-width:120px; font-weight:700; color:var(--text);">Total:</div>
+            <div style="font-weight:700; color:var(--green-dark); font-size:22px;">$0.40 + $15.00 = $15.40</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-green" style="margin-top:16px;">
+        <span class="label">✅ The Answer</span>
+        <p style="font-family:'Space Mono',monospace; font-size:18px; font-weight:700; margin-top:8px;">$15.40</p>
+        <p style="margin-top:8px; font-size:15px;">No subtraction. No borrowing. Just pure addition!</p>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('afs', 3, 5)">← Back</button>
+        <button class="next" onclick="goToIdoStep('afs', 5, 5)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Second Example & Summary -->
+    <div class="ido-step card" id="afs-step-5">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="step-badge green">5</div>
+        <div style="font-size:1.15rem;font-weight:600;">Another Example & Key Points</div>
+      </div>
+
+      <p style="font-size:16px; line-height:1.7; margin-bottom:16px;">Let's see the strategy on a number line with a decimal problem:</p>
+
+      <div style="margin:20px 0;">
+        <p style="font-size:15px; font-weight:600; margin-bottom:12px; text-align:center;">13.2 − 4.6 = ?</p>
+        <svg width="600" height="160" viewBox="0 0 600 160">
+          <!-- Number line -->
+          <line x1="50" y1="80" x2="550" y2="80" stroke="#2D3436" stroke-width="3"/>
+
+          <!-- Points -->
+          <line x1="100" y1="75" x2="100" y2="85" stroke="#2D3436" stroke-width="3"/>
+          <text x="100" y="100" font-family="Space Mono" font-size="15" font-weight="600" text-anchor="middle">4.6</text>
+
+          <line x1="200" y1="75" x2="200" y2="85" stroke="#2D3436" stroke-width="3"/>
+          <text x="200" y="100" font-family="Space Mono" font-size="15" font-weight="600" text-anchor="middle">5.0</text>
+
+          <line x1="450" y1="75" x2="450" y2="85" stroke="#2D3436" stroke-width="3"/>
+          <text x="450" y="100" font-family="Space Mono" font-size="15" font-weight="600" text-anchor="middle">13.0</text>
+
+          <line x1="500" y1="75" x2="500" y2="85" stroke="#2D3436" stroke-width="3"/>
+          <text x="500" y="100" font-family="Space Mono" font-size="15" font-weight="600" text-anchor="middle">13.2</text>
+
+          <!-- Jump 1: 4.6 to 5.0 -->
+          <path d="M 105 65 Q 150 45 195 65" fill="none" stroke="#2ecc71" stroke-width="2.5" marker-end="url(#arrow1)"/>
+          <text x="150" y="40" font-family="Fredoka" font-size="14" font-weight="600" text-anchor="middle" fill="#2ecc71">+0.4</text>
+
+          <!-- Jump 2: 5.0 to 13.0 -->
+          <path d="M 205 65 Q 325 30 445 65" fill="none" stroke="#2ecc71" stroke-width="2.5" marker-end="url(#arrow1)"/>
+          <text x="325" y="25" font-family="Fredoka" font-size="14" font-weight="600" text-anchor="middle" fill="#2ecc71">+8.0</text>
+
+          <!-- Jump 3: 13.0 to 13.2 -->
+          <path d="M 455 65 Q 475 50 495 65" fill="none" stroke="#2ecc71" stroke-width="2.5" marker-end="url(#arrow1)"/>
+          <text x="475" y="45" font-family="Fredoka" font-size="14" font-weight="600" text-anchor="middle" fill="#2ecc71">+0.2</text>
+
+          <!-- Result -->
+          <text x="300" y="135" font-family="Fredoka" font-size="16" font-weight="700" text-anchor="middle" fill="#2D3436">0.4 + 8.0 + 0.2 = 8.6</text>
+
+          <defs>
+            <marker id="arrow1" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L7,3 z" fill="#2ecc71" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+
+      <div style="background:#f0fdf4; padding:16px 20px; border-radius:12px; margin-top:16px; border-left:4px solid var(--green);">
+        <div style="font-family:'Space Mono',monospace; font-size:18px; text-align:center; color:var(--green-dark); font-weight:700;">
+          13.2 − 4.6 = 8.6 ✓
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px; background:#f9f9f9;">
+        <h3 style="font-size:17px; margin-bottom:12px;">🔑 Key Teaching Points</h3>
+        <ul style="font-size:15px; line-height:1.8; padding-left:20px;">
+          <li><strong>Why it works:</strong> Addition and subtraction are inverse operations, the gap is the same whether you subtract down or count up</li>
+          <li><strong>When to use it:</strong> Decimals, money, or whenever mental calculation is needed</li>
+          <li><strong>Smart jumps:</strong> Always jump to friendly numbers (5, 10, 50, 100, whole numbers)</li>
+          <li><strong>No borrowing:</strong> This completely eliminates regrouping and trading, it's pure addition!</li>
+        </ul>
+      </div>
+
+      <div class="ido-step-nav">
+        <button class="back" onclick="goToIdoStep('afs', 4, 5)">← Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 3: WE DO ────────────── -->
+<div id="wedo" class="section">
+  <div class="section-title">Phase 3 · Guided Practice (We Do), 10 mins</div>
+  <div class="section-heading">Practice Together</div>
+
+  <div class="card">
+    <h3>✏️ Practice Problems</h3>
+    <p>Try these problems by:</p>
+    <ol style="padding-left:20px; margin-top:12px;">
+      <li>Drawing a simple number line (or just thinking about jumps)</li>
+      <li>Identifying smart jump points</li>
+      <li>Adding up all the jumps</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="tag green">Problem 1</div>
+    <div style="font-family:'Space Mono',monospace; font-size:32px; text-align:center; margin:16px 0; padding:16px; background:#f8f9fa; border-radius:12px;">
+      $10.00 − $3.75
+    </div>
+    
+    <button class="reveal-btn green" onclick="toggleReveal('wed1')">Show solution</button>
+    <div id="wed1" class="step-reveal">
+      <div class="callout callout-green" style="margin-top:16px;">
+        <span class="label">Solution</span>
+        <p style="font-family:'Space Mono',monospace; font-size:16px; line-height:2;">
+          Start at $3.75<br>
+          +$0.25 → $4.00<br>
+          +$6.00 → $10.00<br>
+          <strong>Total: $0.25 + $6.00 = $6.25</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag green">Problem 2</div>
+    <div style="font-family:'Space Mono',monospace; font-size:32px; text-align:center; margin:16px 0; padding:16px; background:#f8f9fa; border-radius:12px;">
+      15.0 − 8.3
+    </div>
+    
+    <button class="reveal-btn green" onclick="toggleReveal('wed2')">Show solution</button>
+    <div id="wed2" class="step-reveal">
+      <div class="callout callout-green" style="margin-top:16px;">
+        <span class="label">Solution</span>
+        <p style="font-family:'Space Mono',monospace; font-size:16px; line-height:2;">
+          Start at 8.3<br>
+          +0.7 → 9.0<br>
+          +6.0 → 15.0<br>
+          <strong>Total: 0.7 + 6.0 = 6.7</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag green">Problem 3</div>
+    <div style="font-family:'Space Mono',monospace; font-size:32px; text-align:center; margin:16px 0; padding:16px; background:#f8f9fa; border-radius:12px;">
+      $50.00 − $27.60
+    </div>
+    
+    <button class="reveal-btn green" onclick="toggleReveal('wed3')">Show solution</button>
+    <div id="wed3" class="step-reveal">
+      <div class="callout callout-green" style="margin-top:16px;">
+        <span class="label">Solution</span>
+        <p style="font-family:'Space Mono',monospace; font-size:16px; line-height:2;">
+          Start at $27.60<br>
+          +$0.40 → $28.00<br>
+          +$22.00 → $50.00<br>
+          <strong>Total: $0.40 + $22.00 = $22.40</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Discussion Questions</h3>
+    <ul>
+      <li>Why is this sometimes easier than standard subtraction? (No borrowing, friendly numbers)</li>
+      <li>How do you decide where to jump? (Round numbers, multiples of 5 or 10)</li>
+      <li>Could you use different jumps and still get the right answer? (Yes! Multiple paths work)</li>
+      <li>When might this be harder than subtraction? (If numbers are already close/simple)</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 4: YOU DO ────────────── -->
+<div id="youdo" class="section">
+  <div class="section-title">Phase 4 · Independent Practice (You Do), 20 mins</div>
+  <div class="section-heading">Student Practice: Three Tiers</div>
+
+  <!-- TIER 1 -->
+  <div class="tier-header">🟢 Tier 1, Simple Money Problems</div>
+  
+  <div class="practice-grid">
+    <div class="practice-card">
+      <div class="practice-num">Question 1</div>
+      <div class="practice-equation">$10.00 − $6.25</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q1')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q1')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q1-hint">
+        Jump: $6.25 → $7.00 (+$0.75), then $7.00 → $10.00 (+$3.00)
+      </div>
+      <div class="practice-answer" id="t1q1-answer">
+        <strong>$3.75</strong><br>
+        <span style="font-size:13px;">$0.75 + $3.00 = $3.75</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 2</div>
+      <div class="practice-equation">$20.00 − $14.50</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q2')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q2')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q2-hint">
+        Jump: $14.50 → $15.00 (+$0.50), then $15.00 → $20.00 (+$5.00)
+      </div>
+      <div class="practice-answer" id="t1q2-answer">
+        <strong>$5.50</strong><br>
+        <span style="font-size:13px;">$0.50 + $5.00 = $5.50</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 3</div>
+      <div class="practice-equation">$5.00 − $2.35</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q3')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q3')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q3-hint">
+        Jump: $2.35 → $3.00 (+$0.65), then $3.00 → $5.00 (+$2.00)
+      </div>
+      <div class="practice-answer" id="t1q3-answer">
+        <strong>$2.65</strong><br>
+        <span style="font-size:13px;">$0.65 + $2.00 = $2.65</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 4</div>
+      <div class="practice-equation">$15.00 − $8.75</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q4')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q4')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q4-hint">
+        Jump: $8.75 → $9.00 (+$0.25), then $9.00 → $15.00 (+$6.00)
+      </div>
+      <div class="practice-answer" id="t1q4-answer">
+        <strong>$6.25</strong><br>
+        <span style="font-size:13px;">$0.25 + $6.00 = $6.25</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 5</div>
+      <div class="practice-equation">$50.00 − $38.50</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q5')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q5')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q5-hint">
+        Jump: $38.50 → $40.00 (+$1.50), then $40.00 → $50.00 (+$10.00)
+      </div>
+      <div class="practice-answer" id="t1q5-answer">
+        <strong>$11.50</strong><br>
+        <span style="font-size:13px;">$1.50 + $10.00 = $11.50</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 6</div>
+      <div class="practice-equation">$25.00 − $17.80</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q6')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q6')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q6-hint">
+        Jump: $17.80 → $18.00 (+$0.20), then $18.00 → $25.00 (+$7.00)
+      </div>
+      <div class="practice-answer" id="t1q6-answer">
+        <strong>$7.20</strong><br>
+        <span style="font-size:13px;">$0.20 + $7.00 = $7.20</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 7</div>
+      <div class="practice-equation">$100.00 − $74.25</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q7')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q7')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q7-hint">
+        Jump: $74.25 → $75.00 (+$0.75), then $75.00 → $100.00 (+$25.00)
+      </div>
+      <div class="practice-answer" id="t1q7-answer">
+        <strong>$25.75</strong><br>
+        <span style="font-size:13px;">$0.75 + $25.00 = $25.75</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 8</div>
+      <div class="practice-equation">$30.00 − $19.40</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q8')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q8')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q8-hint">
+        Jump: $19.40 → $20.00 (+$0.60), then $20.00 → $30.00 (+$10.00)
+      </div>
+      <div class="practice-answer" id="t1q8-answer">
+        <strong>$10.60</strong><br>
+        <span style="font-size:13px;">$0.60 + $10.00 = $10.60</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 9</div>
+      <div class="practice-equation">$40.00 − $26.90</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q9')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q9')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q9-hint">
+        Jump: $26.90 → $27.00 (+$0.10), then $27.00 → $40.00 (+$13.00)
+      </div>
+      <div class="practice-answer" id="t1q9-answer">
+        <strong>$13.10</strong><br>
+        <span style="font-size:13px;">$0.10 + $13.00 = $13.10</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 10</div>
+      <div class="practice-equation">$75.00 − $58.65</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q10')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q10')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q10-hint">
+        Jump: $58.65 → $60.00 (+$1.35), then $60.00 → $75.00 (+$15.00)
+      </div>
+      <div class="practice-answer" id="t1q10-answer">
+        <strong>$16.35</strong><br>
+        <span style="font-size:13px;">$1.35 + $15.00 = $16.35</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 11</div>
+      <div class="practice-equation">$12.00 − $7.45</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q11')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q11')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q11-hint">
+        Jump: $7.45 → $8.00 (+$0.55), then $8.00 → $12.00 (+$4.00)
+      </div>
+      <div class="practice-answer" id="t1q11-answer">
+        <strong>$4.55</strong><br>
+        <span style="font-size:13px;">$0.55 + $4.00 = $4.55</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 12</div>
+      <div class="practice-equation">$8.00 − $3.90</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q12')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q12')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q12-hint">
+        Jump: $3.90 → $4.00 (+$0.10), then $4.00 → $8.00 (+$4.00)
+      </div>
+      <div class="practice-answer" id="t1q12-answer">
+        <strong>$4.10</strong><br>
+        <span style="font-size:13px;">$0.10 + $4.00 = $4.10</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 13, Strategy Choice</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>Which of these subtractions would benefit MOST from the "adding on" strategy?</strong><br>
+        A) $50.00 − $24.50<br>
+        B) $60.00 − $12.30<br>
+        C) $40.00 − $39.75<br>
+        Explain your choice.
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q13')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q13')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q13-hint">
+        Think about which pair of numbers is closest together. Which would make the quickest count-up?
+      </div>
+      <div class="practice-answer" id="t1q13-answer">
+        <strong>Answer: C) $40.00 − $39.75</strong><br>
+        <span style="font-size:13px;">The numbers are very close (only 25 cents apart), so you only need one jump: $39.75 + $0.25 = $40.00. Adding on is quickest when numbers are close together.</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 14, Explain Why</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>Why is "adding on" sometimes easier than the written subtraction algorithm?</strong> Give an example from real life where you would naturally count up instead of working backwards.
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q14')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q14')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q14-hint">
+        Think about: paying for something with a note and counting change, or finding the time left until something happens.
+      </div>
+      <div class="practice-answer" id="t1q14-answer">
+        <strong>Possible answers include:</strong><br>
+        <span style="font-size:13px;">When you pay $20.00 for a $15.50 item, the shop worker counts up: $15.50 to $16.00, then $16.00 to $20.00. That is adding on naturally. Or: there are 100 minutes in a lesson, and 37 minutes have passed. Rather than subtracting, you count up from 37 to 100 to find how many minutes are left.</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 15, Context: Litres</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Water Tank:</strong> A water tank holds 1000 litres. It currently contains 743 litres. How many more litres are needed to fill it completely?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q15')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q15')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t1q15-hint">
+        Jump: 743 → 750 (add 7), then 750 → 1000 (add 250)
+      </div>
+      <div class="practice-answer" id="t1q15-answer">
+        <strong>257 litres</strong><br>
+        <span style="font-size:13px;">743 + 7 = 750, then 750 + 250 = 1000. Total: 7 + 250 = 257 litres</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIER 2 -->
+  <div class="tier-header tier-2">🟡 Tier 2, Decimals & Measurements</div>
+  
+  <div class="practice-grid">
+    <div class="practice-card">
+      <div class="practice-num">Question 1</div>
+      <div class="practice-equation">20.0 − 13.7</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q1')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q1')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q1-hint">
+        Jump: 13.7 → 14.0 (+0.3), then 14.0 → 20.0 (+6.0)
+      </div>
+      <div class="practice-answer" id="t2q1-answer">
+        <strong>6.3</strong><br>
+        <span style="font-size:13px;">0.3 + 6.0 = 6.3</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 2</div>
+      <div class="practice-equation">50.0 − 28.4</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q2')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q2')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q2-hint">
+        Jump: 28.4 → 30.0 (+1.6), then 30.0 → 50.0 (+20.0)
+      </div>
+      <div class="practice-answer" id="t2q2-answer">
+        <strong>21.6</strong><br>
+        <span style="font-size:13px;">1.6 + 20.0 = 21.6</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 3</div>
+      <div class="practice-equation">15.5 − 8.8</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q3')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q3')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q3-hint">
+        <div style="display:flex;flex-direction:column;gap:0.5rem;margin:0.5rem 0;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">8.8</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">9.0</span>
+            <span style="background:#e8f8f5;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.9rem;font-weight:600;color:#38b2aa;">(+0.2)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">9.0</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">15.0</span>
+            <span style="background:#e8f8f5;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.9rem;font-weight:600;color:#38b2aa;">(+6.0)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">15.0</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">15.5</span>
+            <span style="background:#e8f8f5;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.9rem;font-weight:600;color:#38b2aa;">(+0.5)</span>
+          </div>
+        </div>
+      </div>
+      <div class="practice-answer" id="t2q3-answer">
+        <strong>6.7</strong><br>
+        <span style="font-size:13px;">0.2 + 6.0 + 0.5 = 6.7</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 4</div>
+      <div class="practice-equation">100.0 − 67.3</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q4')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q4')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q4-hint">
+        Jump: 67.3 → 70.0 (+2.7), then 70.0 → 100.0 (+30.0)
+      </div>
+      <div class="practice-answer" id="t2q4-answer">
+        <strong>32.7</strong><br>
+        <span style="font-size:13px;">2.7 + 30.0 = 32.7</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 5</div>
+      <div class="practice-equation">35.0 − 19.6</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q5')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q5')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q5-hint">
+        Jump: 19.6 → 20.0 (+0.4), then 20.0 → 35.0 (+15.0)
+      </div>
+      <div class="practice-answer" id="t2q5-answer">
+        <strong>15.4</strong><br>
+        <span style="font-size:13px;">0.4 + 15.0 = 15.4</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 6</div>
+      <div class="practice-equation">42.5 − 27.8</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q6')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q6')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q6-hint">
+        <div style="display:flex;flex-direction:column;gap:0.5rem;margin:0.5rem 0;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">27.8</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">28.0</span>
+            <span style="background:#e8f8f5;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.9rem;font-weight:600;color:#38b2aa;">(+0.2)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">28.0</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">42.0</span>
+            <span style="background:#e8f8f5;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.9rem;font-weight:600;color:#38b2aa;">(+14.0)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">42.0</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">42.5</span>
+            <span style="background:#e8f8f5;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.9rem;font-weight:600;color:#38b2aa;">(+0.5)</span>
+          </div>
+        </div>
+      </div>
+      <div class="practice-answer" id="t2q6-answer">
+        <strong>14.7</strong><br>
+        <span style="font-size:13px;">0.2 + 14.0 + 0.5 = 14.7</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 7</div>
+      <div class="practice-equation">80.0 − 54.9</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q7')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q7')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q7-hint">
+        Jump: 54.9 → 55.0 (+0.1), then 55.0 → 80.0 (+25.0)
+      </div>
+      <div class="practice-answer" id="t2q7-answer">
+        <strong>25.1</strong><br>
+        <span style="font-size:13px;">0.1 + 25.0 = 25.1</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 8</div>
+      <div class="practice-equation">60.0 − 38.7</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q8')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q8')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q8-hint">
+        Jump: 38.7 → 40.0 (+1.3), then 40.0 → 60.0 (+20.0)
+      </div>
+      <div class="practice-answer" id="t2q8-answer">
+        <strong>21.3</strong><br>
+        <span style="font-size:13px;">1.3 + 20.0 = 21.3</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 9</div>
+      <div class="practice-equation">25.0 − 16.5</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q9')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q9')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q9-hint">
+        Jump: 16.5 → 17.0 (+0.5), then 17.0 → 25.0 (+8.0)
+      </div>
+      <div class="practice-answer" id="t2q9-answer">
+        <strong>8.5</strong><br>
+        <span style="font-size:13px;">0.5 + 8.0 = 8.5</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 10</div>
+      <div class="practice-equation">90.0 − 73.2</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q10')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q10')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q10-hint">
+        Jump: 73.2 → 80.0 (+6.8), then 80.0 → 90.0 (+10.0)
+      </div>
+      <div class="practice-answer" id="t2q10-answer">
+        <strong>16.8</strong><br>
+        <span style="font-size:13px;">6.8 + 10.0 = 16.8</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 11</div>
+      <div class="practice-equation">18.0 − 9.4</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q11')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q11')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q11-hint">
+        Jump: 9.4 → 10.0 (+0.6), then 10.0 → 18.0 (+8.0)
+      </div>
+      <div class="practice-answer" id="t2q11-answer">
+        <strong>8.6</strong><br>
+        <span style="font-size:13px;">0.6 + 8.0 = 8.6</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 12</div>
+      <div class="practice-equation">45.0 − 29.3</div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q12')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q12')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q12-hint">
+        Jump: 29.3 → 30.0 (+0.7), then 30.0 → 45.0 (+15.0)
+      </div>
+      <div class="practice-answer" id="t2q12-answer">
+        <strong>15.7</strong><br>
+        <span style="font-size:13px;">0.7 + 15.0 = 15.7</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 13, Spot the Error</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>A student solved 100.0 − 87.3 using adding on:</strong><br>
+        87.3 + 0.7 = 88.0<br>
+        88.0 + 12.0 = 100.0<br>
+        They said: 0.7 + 12.0 = 12.7<br>
+        Is this correct? If not, explain the error.
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q13')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q13')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q13-hint">
+        Check their jumps. Is 0.7 + 12.0 actually equal to 12.7?
+      </div>
+      <div class="practice-answer" id="t2q13-answer">
+        <strong>No, there is no error!</strong><br>
+        <span style="font-size:13px;">The student's work is correct. 87.3 + 0.7 = 88.0 (correct), then 88.0 + 12.0 = 100.0 (correct). And 0.7 + 12.0 = 12.7 (correct). The final answer is correct.</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 14, Context: Metres</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Race Track:</strong> A running track is 500.0 metres long. A runner has completed 327.5 metres. How much further do they need to run to complete one lap?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q14')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q14')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q14-hint">
+        Jump: 327.5 → 330.0, then 330.0 → 500.0
+      </div>
+      <div class="practice-answer" id="t2q14-answer">
+        <strong>172.5 metres</strong><br>
+        <span style="font-size:13px;">327.5 + 2.5 = 330.0, then 330.0 + 170.0 = 500.0. Total: 2.5 + 170.0 = 172.5 metres</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 15, Strategy Choice</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>Which strategy would you choose for 50.0 − 49.8: adding on or written subtraction?</strong> Explain your thinking.
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q15')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q15')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t2q15-hint">
+        How far apart are 49.8 and 50.0? Which method is quicker?
+      </div>
+      <div class="practice-answer" id="t2q15-answer">
+        <strong>Adding on is quicker here!</strong><br>
+        <span style="font-size:13px;">The numbers are very close (only 0.2 apart), so adding on needs just one jump: 49.8 + 0.2 = 50.0. Written subtraction would require more steps and regrouping.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIER 3 -->
+  <div class="tier-header tier-3">🟣 Tier 3, Real-World Contexts</div>
+  
+  <div class="practice-grid">
+    <div class="practice-card">
+      <div class="practice-num">Question 1</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Race:</strong> A 100m sprint was won in 12.3 seconds. The second place runner finished in 13.1 seconds. What was the time difference?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q1')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q1')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q1-hint">
+        Count up from 12.3 to 13.1
+      </div>
+      <div class="practice-answer" id="t3q1-answer">
+        <strong>0.8 seconds</strong><br>
+        <span style="font-size:13px;">12.3 → 13.0 (+0.7), 13.0 → 13.1 (+0.1) = 0.8 seconds</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 2</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Shopping Trip:</strong> Maya has $85.00. She spends $47.65 on groceries. How much does she have left?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q2')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q2')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q2-hint">
+        Jump: $47.65 → $50.00, then $50.00 → $85.00
+      </div>
+      <div class="practice-answer" id="t3q2-answer">
+        <strong>$37.35</strong><br>
+        <span style="font-size:13px;">+$2.35 to $50, +$35 to $85 = $37.35</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 3</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Temperature:</strong> The temperature at 6am was 8.3°C. By noon it had risen to 21.0°C. How much did it increase?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q3')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q3')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q3-hint">
+        Jump: 8.3 → 10.0, then 10.0 → 21.0
+      </div>
+      <div class="practice-answer" id="t3q3-answer">
+        <strong>12.7°C</strong><br>
+        <span style="font-size:13px;">+1.7 to 10, +11 to 21 = 12.7°C</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 4</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Bottle:</strong> A water bottle holds 1.5L when full. After drinking some, 0.65L remains. How much was drunk?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q4')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q4')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q4-hint">
+        Count up from 0.65L to 1.5L
+      </div>
+      <div class="practice-answer" id="t3q4-answer">
+        <strong>0.85L</strong><br>
+        <span style="font-size:13px;">0.65 → 1.0 (+0.35), 1.0 → 1.5 (+0.5) = 0.85L</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 5</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Flight:</strong> A flight from Sydney to Brisbane takes 1.5 hours. After 0.85 hours, how much flying time is left?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q5')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q5')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q5-hint">
+        Jump: 0.85 → 1.0, then 1.0 → 1.5
+      </div>
+      <div class="practice-answer" id="t3q5-answer">
+        <strong>0.65 hours (39 minutes)</strong><br>
+        <span style="font-size:13px;">+0.15 to 1.0, +0.5 to 1.5 = 0.65 hours</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 6</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Savings Goal:</strong> Emma wants to save $200.00 for a bicycle. She has already saved $137.50. How much more does she need?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q6')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q6')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q6-hint">
+        Jump: $137.50 → $140.00, then $140.00 → $200.00
+      </div>
+      <div class="practice-answer" id="t3q6-answer">
+        <strong>$62.50</strong><br>
+        <span style="font-size:13px;">+$2.50 to $140, +$60 to $200 = $62.50</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 7</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Height Chart:</strong> Jack is 1.48m tall. His older sister is 1.75m. What is the height difference?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q7')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q7')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q7-hint">
+        Jump: 1.48 → 1.50, then 1.50 → 1.75
+      </div>
+      <div class="practice-answer" id="t3q7-answer">
+        <strong>0.27m (27cm)</strong><br>
+        <span style="font-size:13px;">+0.02 to 1.50, +0.25 to 1.75 = 0.27m</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 8</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Recipe:</strong> A cake recipe needs 3.25 cups of flour. You've already added 1.8 cups. How much more do you need?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q8')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q8')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q8-hint">
+        <div style="display:flex;flex-direction:column;gap:0.5rem;margin:0.5rem 0;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">1.8</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">2.0</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">2.0</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">3.0</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-weight:600;">3.0</span>
+            <span style="font-weight:700;color:var(--green);">→</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;">3.25</span>
+          </div>
+        </div>
+      </div>
+      <div class="practice-answer" id="t3q8-answer">
+        <strong>1.45 cups</strong><br>
+        <span style="font-size:13px;">+0.2 to 2.0, +1.0 to 3.0, +0.25 to 3.25 = 1.45</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 9</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Petrol Tank:</strong> A car's petrol tank holds 55.0L. After a trip, 28.3L remains. How much petrol was used?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q9')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q9')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q9-hint">
+        Jump: 28.3 → 30.0, then 30.0 → 55.0
+      </div>
+      <div class="practice-answer" id="t3q9-answer">
+        <strong>26.7L</strong><br>
+        <span style="font-size:13px;">+1.7 to 30, +25 to 55 = 26.7L</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 10</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Weight Loss:</strong> Before a diet, someone weighed 78.5kg. After 6 months, they weigh 64.8kg. How much weight was lost?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q10')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q10')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q10-hint">
+        Jump: 64.8 → 65.0, then 65.0 → 78.5
+      </div>
+      <div class="practice-answer" id="t3q10-answer">
+        <strong>13.7kg</strong><br>
+        <span style="font-size:13px;">+0.2 to 65, +13.5 to 78.5 = 13.7kg</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 11, Spot the Error</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Distance Problem:</strong> A journey is 1200 metres long. A runner has completed 856 metres. A student used adding on to find how far is left:<br><br>
+        856 + 4 = 860<br>
+        860 + 40 = 900<br>
+        900 + 300 = 1200<br>
+        Answer: 4 + 40 + 300 = 344 metres<br><br>
+        Check their work. Is this answer correct?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q11')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q11')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q11-hint">
+        Count up the jumps carefully. Do they reach 1200? Do the additions add up correctly?
+      </div>
+      <div class="practice-answer" id="t3q11-answer">
+        <strong>Yes, the answer is correct!</strong><br>
+        <span style="font-size:13px;">The jumps are: 856 + 4 = 860 (correct), 860 + 40 = 900 (correct), 900 + 300 = 1200 (correct). The final sum is 4 + 40 + 300 = 344 metres (correct).</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 12, Context: Population/Distance</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>The Road Trip:</strong> A road trip from City A to City B is 1500 kilometres. After driving for a while, the traveller has covered 876 kilometres. How much further must they drive to reach City B?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q12')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q12')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q12-hint">
+        Jump: 876 → 880, then 880 → 1500
+      </div>
+      <div class="practice-answer" id="t3q12-answer">
+        <strong>624 kilometres</strong><br>
+        <span style="font-size:13px;">876 + 4 = 880, then 880 + 620 = 1500. Total: 4 + 620 = 624 kilometres</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Question 13, Explain Your Strategy</div>
+      <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+        <strong>Comparing Strategies:</strong> To find 100.0 − 87.4, would you add on or use the written algorithm? Explain why your chosen method works well for these numbers.
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q13')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q13')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="t3q13-hint">
+        Look at the two numbers. How far apart are they? Which strategy has fewer steps?
+      </div>
+      <div class="practice-answer" id="t3q13-answer">
+        <strong>Adding on is the better choice here.</strong><br>
+        <span style="font-size:13px;">87.4 and 100.0 are quite close (only 12.6 apart), so adding on is quick: 87.4 + 0.6 = 88.0, then 88.0 + 12.0 = 100.0. That is just two jumps. The written algorithm would require regrouping, making it slower.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 4B: GO DEEPER EXTENSION ────────────── -->
+<div class="go-deeper-section">
+  <button class="go-deeper-toggle" onclick="this.classList.toggle('open')">
+    <span>Go Deeper: Exploring the Strategy</span>
+    <span class="arrow">▼</span>
+  </button>
+
+  <div class="go-deeper-content">
+    <p style="color: #636E72; margin-bottom: 1.5rem;">You have mastered the addition-for-subtraction strategy. Now it is time to investigate when and why it works best. These tasks ask you to explore, make conjectures, and reason like a mathematician.</p>
+    <!-- Task 1: Specialising -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 1 · Specialising</div>
+      <div class="ext-task-prompt">Solve each calculation TWO ways</div>
+      <div class="ext-task-sub">Try both: subtracting directly AND adding on from the smaller number. Notice which method was easier for each one.</div>
+
+      <p style="font-size:0.95rem; margin-bottom:1rem; color:#2D3436; font-weight:500;">Example calculations:</p>
+      <ul style="list-style:none; padding:0; margin:0 0 1rem 0;">
+        <li style="padding:0.4rem 0; font-family:'Space Mono',monospace; font-weight:600; color:#2D3436;"><span class="ext-numbers">1,000</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">637</span></li>
+        <li style="padding:0.4rem 0; font-family:'Space Mono',monospace; font-weight:600; color:#2D3436;"><span class="ext-numbers">845</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">399</span></li>
+        <li style="padding:0.4rem 0; font-family:'Space Mono',monospace; font-weight:600; color:#2D3436;"><span class="ext-numbers">752</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">348</span></li>
+      </ul>
+
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's thinking:</div>
+        <p>Let me try <span class="ext-numbers">1,000</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">637</span> both ways.</p>
+        <p><strong>Subtracting directly:</strong> <span class="ext-numbers">1,000</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">637</span> = <span class="ext-numbers">363</span>. This feels a bit annoying because I have to borrow from all those zeros!</p>
+        <p><strong>Adding on:</strong> I'll jump from <span class="ext-numbers">637</span> up to <span class="ext-numbers">1,000</span>.<br>
+        <span class="ext-numbers">637</span> + <span class="ext-numbers">3</span> = <span class="ext-numbers">640</span><br>
+        <span class="ext-numbers">640</span> + <span class="ext-numbers">60</span> = <span class="ext-numbers">700</span><br>
+        <span class="ext-numbers">700</span> + <span class="ext-numbers">300</span> = <span class="ext-numbers">1,000</span><br>
+        Total added: <span class="ext-numbers">3</span> + <span class="ext-numbers">60</span> + <span class="ext-numbers">300</span> = <span class="ext-numbers">363</span>. Much easier! No borrowing needed.</p>
+        <p>For <span class="ext-numbers">845</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">399</span>, adding on is great because <span class="ext-numbers">399</span> is close to <span class="ext-numbers">400</span>:<br>
+        <span class="ext-numbers">399</span> + <span class="ext-numbers">1</span> = <span class="ext-numbers">400</span>, then <span class="ext-numbers">400</span> + <span class="ext-numbers">445</span> = <span class="ext-numbers">845</span>. Answer: <span class="ext-numbers">1</span> + <span class="ext-numbers">445</span> = <span class="ext-numbers">446</span>.</p>
+        <p>For <span class="ext-numbers">752</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">348</span>, again the subtrahend is close to <span class="ext-numbers">350</span>:<br>
+        <span class="ext-numbers">348</span> + <span class="ext-numbers">2</span> = <span class="ext-numbers">350</span>, then <span class="ext-numbers">350</span> + <span class="ext-numbers">402</span> = <span class="ext-numbers">752</span>. Answer: <span class="ext-numbers">2</span> + <span class="ext-numbers">402</span> = <span class="ext-numbers">404</span>.</p>
+        <div class="mathematician-box">
+          <strong>Pattern I noticed:</strong> Adding on tends to need fewer steps when the smaller number is close to a round number. The method you choose really does depend on the numbers!
+        </div>
+      </div>
+    </div>
+
+    <!-- Task 2: Conjecturing -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 2 · Conjecturing</div>
+      <div class="ext-task-prompt">Is this always, sometimes, or never true?</div>
+      <div class="ext-task-sub">When you use addition for subtraction, you always need fewer steps than when you subtract directly.</div>
+
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's thinking:</div>
+        <p>Hmm, let me test this claim. Is it true that adding on always needs fewer steps?</p>
+        <p>I already saw that <span class="ext-numbers">1,000</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">637</span> takes <span class="ext-numbers">3</span> steps of adding, but the direct subtraction is messier with all the borrowing. So far, adding on seems better for that one.</p>
+        <p>But wait... let me try <span class="ext-numbers">750</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">250</span>:</p>
+        <p><strong>Subtracting directly:</strong> <span class="ext-numbers">750</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">250</span> = <span class="ext-numbers">500</span>. Done instantly!</p>
+        <p><strong>Adding on:</strong> <span class="ext-numbers">250</span> + <span class="ext-numbers">500</span> = <span class="ext-numbers">750</span>. Also just one step.</p>
+        <p>So for this one, both methods need the same number of steps. That means the answer is <strong>SOMETIMES</strong>, not always. It really depends on which numbers you're working with. Adding on tends to need fewer steps when the smaller number is close to a round number, but not always.</p>
+        <div class="mathematician-box">
+          <strong>The real wisdom:</strong> Different strategies work better for different numbers. Being flexible is more powerful than always using the same method!
+        </div>
+      </div>
+    </div>
+
+    <!-- Task 3: Justifying -->
+    <div class="ext-task">
+      <div class="ext-task-label">Task 3 · Justifying</div>
+      <div class="ext-task-prompt">Explain why this works, not just that it works</div>
+      <div class="ext-task-sub">A student solved <span class="ext-numbers">1,000</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">637</span> by adding on: <span class="ext-numbers">637</span> + <span class="ext-numbers">3</span> = <span class="ext-numbers">640</span>, then <span class="ext-numbers">640</span> + <span class="ext-numbers">60</span> = <span class="ext-numbers">700</span>, then <span class="ext-numbers">700</span> + <span class="ext-numbers">300</span> = <span class="ext-numbers">1,000</span>. Total added: <span class="ext-numbers">3</span> + <span class="ext-numbers">60</span> + <span class="ext-numbers">300</span> = <span class="ext-numbers">363</span>. Why does adding these jumps give the same answer as subtracting?</div>
+
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's thinking:</div>
+        <p>Why does adding the jumps (<span class="ext-numbers">3</span> + <span class="ext-numbers">60</span> + <span class="ext-numbers">300</span> = <span class="ext-numbers">363</span>) give the same answer as <span class="ext-numbers">1,000</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">637</span>?</p>
+        <p>Think about what subtraction actually means. When I ask "what is <span class="ext-numbers">1,000</span> <span style="color:#4ECDC4;">−</span> <span class="ext-numbers">637</span>?", I'm really asking: "What is the gap between <span class="ext-numbers">637</span> and <span class="ext-numbers">1,000</span>?"</p>
+        <p>Now, when I add on from <span class="ext-numbers">637</span> to <span class="ext-numbers">1,000</span>, I'm measuring that exact same gap by building it up in pieces. My three jumps (<span class="ext-numbers">3</span>, <span class="ext-numbers">60</span>, and <span class="ext-numbers">300</span>) together make up the entire distance from <span class="ext-numbers">637</span> to <span class="ext-numbers">1,000</span>.</p>
+        <p>Whether I measure the gap by going <strong>down</strong> from the top (<span class="ext-numbers">1,000</span>) or building <strong>up</strong> from the bottom (<span class="ext-numbers">637</span>), I get the same distance. The gap is the gap, no matter which direction I measure it from!</p>
+        <div class="mathematician-box">
+          <strong>The big idea:</strong> Subtraction measures the distance (or gap) between two numbers. Adding on from the smaller number measures that exact same distance. They're different paths to the same answer.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ────────────── SECTION 5: PLENARY ────────────── -->
+<div id="plenary" class="section">
+  <div class="section-title">Phase 5 · Plenary (Wrap Up), 5 mins</div>
+  <div class="section-heading">When is Addition for Subtraction most powerful?</div>
+
+  <div class="card">
+    <h3>💬 Discussion</h3>
+    <p style="font-size:17px; line-height:1.7; margin-bottom:16px;">
+      We've learned that subtraction can be reframed as addition. Let's think about when this strategy shines:
+    </p>
+
+    <div class="callout callout-green">
+      <span class="label">✅ Best Use Cases</span>
+      <p>Addition for Subtraction is most powerful for:</p>
+      <ul style="padding-left:20px; margin-top:8px;">
+        <li><strong>Mental math</strong>, no paper needed, easy to track jumps in your head</li>
+        <li><strong>Money calculations</strong>, making change, budgeting, shopping</li>
+        <li><strong>Decimal subtraction</strong>, eliminates complex borrowing across decimal points</li>
+        <li><strong>Real-world contexts</strong>, finding differences in measurements, times, distances</li>
+      </ul>
+    </div>
+    
+    <div class="callout callout-teal" style="margin-top:12px;">
+      <span class="label">🎯 The Key Advantage</span>
+      <p>This strategy <strong>completely eliminates borrowing and regrouping</strong>. You never cross out numbers, never carry, never trade. It's pure, simple addition, which our brains find much easier than subtraction.</p>
+    </div>
+    
+    <div class="callout callout-amber" style="margin-top:12px;">
+      <span class="label">📐 Mathematical Thinking</span>
+      <p>Recognizing that subtraction and addition are inverse operations, and that <em>either</em> can be used to find a difference, is sophisticated mathematical understanding. The efficient mathematician chooses the path that's clearest and simplest for the numbers at hand.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 Today's Strategy, Quick Reference</h3>
+    <div style="background:#f0fdf4; border:2px solid var(--green); border-radius:14px; padding:18px 20px; margin-top:12px;">
+      <div class="tag green" style="margin-bottom:8px;">Addition for Subtraction</div>
+      <ol style="padding-left:20px; margin-top:12px;">
+        <li>Start at the <strong>smaller number</strong></li>
+        <li>Jump to <strong>friendly numbers</strong> (whole dollars, round numbers, multiples of 5 or 10)</li>
+        <li><strong>Add all the jumps</strong> together</li>
+      </ol>
+      <p style="margin-top:12px;"><strong>Best for:</strong> Mental math, money, decimals, finding differences</p>
+      <p style="margin-top:8px;"><strong>Advantage:</strong> No borrowing, no regrouping, just addition!</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.phase-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleCollapse(id) {
+    const content = document.getElementById(id);
+    const header = content.previousElementSibling;
+    
+    content.classList.toggle('expanded');
+    header.classList.toggle('expanded');
+  }
+
+  function toggleReveal(id) {
+    document.getElementById(id).classList.toggle('shown');
+  }
+
+  function togglePractice(btn, type, questionId) {
+    const element = document.getElementById(questionId + '-' + type);
+    element.classList.toggle('shown');
+    
+    if (element.classList.contains('shown')) {
+      btn.textContent = type === 'hint' ? 'Hide hint' : 'Hide answer';
+    } else {
+      btn.textContent = type === 'hint' ? 'Need a hint?' : 'Show answer';
+    }
+  }
+
+  function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+
+  function goToIdoStep(prefix, stepNum, totalSteps) {
+    document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+    const dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.remove('active', 'visited');
+      if (i === stepNum - 1) dot.classList.add('active');
+      else if (i < stepNum - 1) dot.classList.add('visited');
+    });
+  }
+</script>
+
+</body>
+</html>

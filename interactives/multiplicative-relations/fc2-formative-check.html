@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formative Checkpoint 2 (After Lesson 9)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #FF6B6B;
+    --accent-dark: #d94848;
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --blue: #3a7bd5;
+    --amber: #FFD93D;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red: #E74C3C;
+    --red-light: #fff4f4;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--teal); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 {
+    font-weight: 700; font-size: clamp(24px, 3.5vw, 36px);
+    color: var(--text-dark); margin-bottom: 4px; letter-spacing: -0.5px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    width: 100%; max-width: 680px;
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+    border-top: 5px solid var(--accent);
+  }
+  .learning-card h2 {
+    font-size: 1.1rem; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* ── PROGRESS ── */
+  .progress-area { width: 100%; max-width: 680px; margin-bottom: 20px; }
+  .progress-label {
+    font-size: 14px; font-weight: 600; color: var(--text-light);
+    margin-bottom: 6px; text-align: center;
+  }
+  .progress-bar { background: #e8ecee; border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; background: var(--accent); }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    width: 100%; max-width: 680px;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px;
+    margin-bottom: 20px; border: 2px solid var(--border);
+    display: none;
+  }
+  .question-card.active { display: block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .q-number {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .q-stem { font-size: 17px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+  .q-stem .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── MC OPTIONS ── */
+  .mc-options { display: flex; flex-direction: column; gap: 10px; }
+  .mc-option {
+    display: flex; align-items: center; gap: 14px;
+    background: #fafbfc; border: 2px solid var(--border);
+    border-radius: 14px; padding: 14px 18px; cursor: pointer;
+    transition: all 0.2s; font-size: 16px; font-weight: 500;
+  }
+  .mc-option:hover { border-color: var(--teal); background: #f0fdfb; }
+  .mc-option.selected { border-color: var(--teal); background: #e0f8f5; }
+  .mc-option.correct { border-color: var(--green); background: var(--green-light); }
+  .mc-option.incorrect { border-color: var(--red); background: var(--red-light); }
+  .mc-option.dimmed { opacity: 0.5; }
+  .mc-option .letter {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--border); color: var(--text-dark);
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .mc-option.selected .letter { background: var(--teal); color: white; }
+  .mc-option.correct .letter { background: var(--green); color: white; }
+  .mc-option.incorrect .letter { background: var(--red); color: white; }
+  .mc-option .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── FILL INPUT ── */
+  .fill-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 12px 20px; width: 180px; max-width: 100%;
+    outline: none; transition: border-color 0.3s ease;
+    color: var(--text-dark); background: #fafbfc;
+  }
+  .fill-input:focus { border-color: var(--teal); }
+  .fill-input.correct { border-color: var(--green); background: var(--green-light); }
+  .fill-input.incorrect { border-color: var(--red); background: var(--red-light); }
+  .fill-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-check { background: var(--accent); color: white; margin-top: 20px; }
+  .btn-check:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-next { background: var(--text-dark); color: white; margin-top: 12px; display: none; }
+  .btn-next:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    border-radius: 14px; padding: 18px 22px; margin-top: 16px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback strong { font-weight: 700; }
+  .feedback .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── RESULTS ── */
+  .results-card {
+    width: 100%; max-width: 680px;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 32px;
+    text-align: center; display: none;
+  }
+  .results-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .results-score {
+    font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700;
+    margin: 12px 0;
+  }
+  .results-label { font-size: 16px; color: var(--text-light); font-weight: 600; }
+  .results-breakdown { text-align: left; margin-top: 24px; }
+  .results-breakdown h3 { font-size: 16px; margin-bottom: 12px; }
+  .result-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .result-icon.correct { background: var(--green); }
+  .result-icon.incorrect { background: var(--red); }
+  .result-topic {
+    font-size: 11px; font-weight: 600; color: var(--text-light);
+    background: #f1f5f9; border-radius: 6px; padding: 2px 8px;
+    margin-left: auto; white-space: nowrap;
+  }
+  .btn-retry { background: var(--accent); color: white; margin-top: 20px; }
+  .btn-retry:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+  @media (max-width: 600px) {
+    body { padding: 20px 10px 40px; }
+    .question-card, .learning-card { padding: 20px 18px; }
+    .mc-option { padding: 12px 14px; font-size: 15px; }
+    .fill-input { font-size: 18px; width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Formative <span>Checkpoint 2</span></h1>
+  <p>After Lesson 9: Factorising, 2-digit by 2-digit strategies, lattice, and word problems</p>
+</div>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLISC()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="liscToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="liscContent">
+    <h3>Learning Intention</h3>
+    <p>We are checking how well we can use the area model, lattice method, and factorising for 2-digit by 2-digit multiplication, and solve multi-step word problems.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can factorise a number to make a multiplication easier.</li>
+      <li>I can use the four-section area model for 2-digit by 2-digit multiplication.</li>
+      <li>I can use the lattice method correctly.</li>
+      <li>I can identify hidden steps and extraneous information in word problems.</li>
+      <li>I can choose an efficient strategy and check my answer with a Radar estimate.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-area">
+  <div class="progress-label" id="progress-label">Question 1 of 10</div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- QUESTION CARDS (generated by JS) -->
+<div id="questions-container"></div>
+
+<!-- RESULTS -->
+<div class="results-card" id="results-card">
+  <div class="results-label">Your Score</div>
+  <div class="results-score" id="results-score"></div>
+  <div class="results-label" id="results-message"></div>
+  <div class="results-breakdown" id="results-breakdown"></div>
+  <button class="btn btn-retry" onclick="restart()">Try Again</button>
+</div>
+
+<script>
+// ── QUESTIONS ──
+var questions = [
+  {
+    type: 'mc',
+    topic: 'Factorising',
+    stem: 'A student wants to solve <span class="mono">12 × 250</span> by factorising. Which calculation gives the correct answer?',
+    options: [
+      '<span class="mono">4 × 3 × 250</span>',
+      '<span class="mono">12 × 200 + 50</span>',
+      '<span class="mono">6 × 2 × 200</span>',
+      '<span class="mono">10 × 2 × 25</span>'
+    ],
+    correct: 0,
+    feedbackCorrect: 'Factorising means breaking a number into its factors. <span class="mono">12 = 4 × 3</span>, so <span class="mono">12 × 250 = 4 × 3 × 250</span>. This lets us calculate <span class="mono">4 × 250 = 1,000</span>, then <span class="mono">1,000 × 3 = 3,000</span>.',
+    feedbackWrong: 'Factorising means rewriting a number as a product of its factors. <span class="mono">12 = 4 × 3</span>, so <span class="mono">12 × 250 = 4 × 3 × 250</span>. We can then calculate <span class="mono">4 × 250 = 1,000</span>, then <span class="mono">1,000 × 3 = 3,000</span>. Option B confuses factorising with partitioning. Options C and D change the value of the original multiplication.'
+  },
+  {
+    type: 'fill',
+    topic: 'Area model (2×2)',
+    stem: 'Use the four-section area model to calculate <span class="mono">23 × 14</span>.<br><span style="font-size:14px;color:var(--text-light);">Split both numbers by place value. Find all four partial products and add them.</span>',
+    answer: 322,
+    accept: [322],
+    feedbackCorrect: 'Split <span class="mono">23 = 20 + 3</span> and <span class="mono">14 = 10 + 4</span>. The four partial products: <span class="mono">20 × 10 = 200</span>, <span class="mono">20 × 4 = 80</span>, <span class="mono">3 × 10 = 30</span>, <span class="mono">3 × 4 = 12</span>. Total: <span class="mono">200 + 80 + 30 + 12 = 322</span>.',
+    feedbackWrong: 'Split both numbers by place value: <span class="mono">23 = 20 + 3</span> and <span class="mono">14 = 10 + 4</span>. Four sections: <span class="mono">20 × 10 = 200</span>, <span class="mono">20 × 4 = 80</span>, <span class="mono">3 × 10 = 30</span>, <span class="mono">3 × 4 = 12</span>. Total: <span class="mono">200 + 80 + 30 + 12 = 322</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'mc',
+    topic: 'Area model (2×2)',
+    stem: 'In the four-section area model for <span class="mono">36 × 24</span>, what are the four partial products?',
+    options: [
+      '<span class="mono">600</span>, <span class="mono">120</span>, <span class="mono">120</span>, <span class="mono">24</span>',
+      '<span class="mono">600</span>, <span class="mono">120</span>, <span class="mono">60</span>, <span class="mono">24</span>',
+      '<span class="mono">600</span>, <span class="mono">60</span>, <span class="mono">120</span>, <span class="mono">24</span>',
+      '<span class="mono">720</span>, <span class="mono">120</span>, <span class="mono">120</span>, <span class="mono">24</span>'
+    ],
+    correct: 0,
+    feedbackCorrect: 'Split <span class="mono">36 = 30 + 6</span> and <span class="mono">24 = 20 + 4</span>. The four sections: <span class="mono">30 × 20 = 600</span>, <span class="mono">6 × 20 = 120</span>, <span class="mono">30 × 4 = 120</span>, <span class="mono">6 × 4 = 24</span>. Total: <span class="mono">864</span>.',
+    feedbackWrong: 'Split <span class="mono">36</span> into <span class="mono">30</span> and <span class="mono">6</span>, and <span class="mono">24</span> into <span class="mono">20</span> and <span class="mono">4</span>. Multiply each pair: <span class="mono">30 × 20 = 600</span>, <span class="mono">6 × 20 = 120</span>, <span class="mono">30 × 4 = 120</span>, <span class="mono">6 × 4 = 24</span>. Total: <span class="mono">864</span>. Common errors: using <span class="mono">10</span> instead of <span class="mono">20</span>, or <span class="mono">2</span> instead of <span class="mono">4</span>, or multiplying <span class="mono">30 × 24</span> as a single product.'
+  },
+  {
+    type: 'fill',
+    topic: 'Lattice method',
+    stem: 'Use the lattice method to solve <span class="mono">47 × 36</span>.<br><span style="font-size:14px;color:var(--text-light);">Fill in the cells, add along the diagonals, then write the final answer.</span>',
+    answer: 1692,
+    accept: [1692],
+    feedbackCorrect: 'The cell products are <span class="mono">4×3=12</span>, <span class="mono">7×3=21</span>, <span class="mono">4×6=24</span>, <span class="mono">7×6=42</span>. Adding along diagonals: ones <span class="mono">2</span>, tens <span class="mono">4+1+4 = 9</span>, hundreds <span class="mono">2+2+2 = 6</span>, thousands <span class="mono">1</span>. Answer: <span class="mono">1,692</span>.',
+    feedbackWrong: 'In the lattice for <span class="mono">47 × 36</span>, fill each cell with the product of its column and row digits: <span class="mono">4×3=12</span>, <span class="mono">7×3=21</span>, <span class="mono">4×6=24</span>, <span class="mono">7×6=42</span>. Write tens above the diagonal, ones below. Then add along each diagonal from bottom-right: ones <span class="mono">2</span>, tens <span class="mono">4+1+4=9</span>, hundreds <span class="mono">2+2+2=6</span>, thousands <span class="mono">1</span>. Answer: <span class="mono">1,692</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'mc',
+    topic: 'Strategy selection',
+    stem: 'Which strategy would be most efficient for solving <span class="mono">25 × 16</span> mentally?',
+    options: [
+      'Factorising: <span class="mono">25 × 4 × 4 = 100 × 4</span>',
+      'Area model with four sections',
+      'Lattice method',
+      'Formal algorithm'
+    ],
+    correct: 0,
+    feedbackCorrect: 'Since <span class="mono">16 = 4 × 4</span>, we get <span class="mono">25 × 4 × 4 = 100 × 4 = 400</span>. Factorising turns this into a simple mental calculation with no written working needed.',
+    feedbackWrong: 'Look at the numbers: <span class="mono">25 × 4 = 100</span>, which is a very friendly product. Since <span class="mono">16 = 4 × 4</span>, we get <span class="mono">25 × 4 × 4 = 100 × 4 = 400</span>. The other methods all work, but factorising is the most efficient here because it avoids any written working entirely.'
+  },
+  {
+    type: 'mc',
+    topic: 'Estimation',
+    stem: 'A farmer plants <span class="mono">47</span> rows with <span class="mono">8</span> seedlings in each row. Which is the best Radar estimate?',
+    options: [
+      '<span class="mono">50 × 8 = 400</span>',
+      '<span class="mono">47 × 10 = 470</span>',
+      '<span class="mono">40 × 8 = 320</span>',
+      '<span class="mono">50 × 10 = 500</span>'
+    ],
+    correct: 0,
+    feedbackCorrect: 'Round <span class="mono">47</span> to <span class="mono">50</span> (the nearest multiple of <span class="mono">10</span>). Then <span class="mono">50 × 8 = 400</span>. The actual answer is <span class="mono">376</span>, which is close to <span class="mono">400</span>.',
+    feedbackWrong: 'To estimate, round the larger number to the nearest <span class="mono">10</span>: <span class="mono">47</span> rounds to <span class="mono">50</span>. Then <span class="mono">50 × 8 = 400</span>. The actual answer (<span class="mono">376</span>) is close. Option B rounds the wrong number. Option C rounds down, giving a less accurate estimate. Option D rounds both numbers, which moves further from the actual answer.'
+  },
+  {
+    type: 'mc',
+    topic: 'Extraneous information',
+    stem: 'Which piece of information is <strong>not needed</strong> to solve this problem?<br><br>"A school hall has <span class="mono">18</span> rows of <span class="mono">14</span> chairs. The chairs weigh <span class="mono">3</span> kg each. How many chairs are in the hall?"',
+    options: [
+      '<span class="mono">18</span> rows',
+      '<span class="mono">14</span> chairs per row',
+      'The chairs weigh <span class="mono">3</span> kg each',
+      'It is a school hall'
+    ],
+    correct: 2,
+    feedbackCorrect: 'The weight of the chairs is not needed to find the total number of chairs. You only need <span class="mono">18</span> rows and <span class="mono">14</span> chairs per row: <span class="mono">18 × 14 = 252</span> chairs.',
+    feedbackWrong: 'The question asks how many chairs, so you need the number of rows (<span class="mono">18</span>) and chairs per row (<span class="mono">14</span>): <span class="mono">18 × 14 = 252</span>. The weight of each chair (<span class="mono">3 kg</span>) is extraneous information. It is a real fact about the chairs, but it is not needed for this calculation.'
+  },
+  {
+    type: 'fill',
+    topic: 'Multi-step problem',
+    stem: 'A hall has <span class="mono">24</span> rows of chairs with <span class="mono">15</span> chairs in each row. There are also <span class="mono">6</span> extra chairs at the front for teachers. How many chairs are there in total?',
+    answer: 366,
+    accept: [366],
+    feedbackCorrect: 'Step 1: <span class="mono">24 × 15 = 360</span> chairs in the rows. Step 2: <span class="mono">360 + 6 = 366</span> chairs in total. This is a two-step problem with a hidden addition after the multiplication.',
+    feedbackWrong: 'This problem has a hidden step. First, find the chairs in the rows: <span class="mono">24 × 15 = 360</span>. Then add the extra teacher chairs: <span class="mono">360 + 6 = 366</span>. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'fill',
+    topic: 'Written strategy',
+    stem: 'Use any written strategy to solve <span class="mono">34 × 27</span>.<br><span style="font-size:14px;color:var(--text-light);">Radar first: what should the answer be close to?</span>',
+    answer: 918,
+    accept: [918],
+    feedbackCorrect: 'Radar: <span class="mono">34 × 30 = 1,020</span> or <span class="mono">30 × 27 = 810</span>. Answer should be between <span class="mono">810</span> and <span class="mono">1,020</span>. Using the area model: <span class="mono">30×20 = 600</span>, <span class="mono">4×20 = 80</span>, <span class="mono">30×7 = 210</span>, <span class="mono">4×7 = 28</span>. Total: <span class="mono">918</span>. Reasonable.',
+    feedbackWrong: 'Using the area model: <span class="mono">30×20 = 600</span>, <span class="mono">4×20 = 80</span>, <span class="mono">30×7 = 210</span>, <span class="mono">4×7 = 28</span>. Total: <span class="mono">600 + 80 + 210 + 28 = 918</span>. Radar check: <span class="mono">34 × 30 = 1,020</span>, so <span class="mono">918</span> is reasonable. You wrote <span class="mono">{answer}</span>.'
+  },
+  {
+    type: 'mc',
+    topic: 'Reasonableness',
+    stem: 'A student calculates <span class="mono">38 × 24 = 512</span>. Using your Radar, is this reasonable?',
+    options: [
+      'Yes, it is close to my estimate',
+      'No, it is much too large',
+      'No, it is much too small',
+      'Not enough information to tell'
+    ],
+    correct: 2,
+    feedbackCorrect: 'Radar: <span class="mono">40 × 24 = 960</span>. The answer should be near <span class="mono">960</span>, but <span class="mono">512</span> is far too small. The correct answer is <span class="mono">912</span>. The student likely made a place value error.',
+    feedbackWrong: 'Estimate first: <span class="mono">40 × 24 = 960</span>. The answer should be near <span class="mono">960</span>. The student wrote <span class="mono">512</span>, which is about <span class="mono">400</span> below the actual answer of <span class="mono">912</span>. This is far too small, so it is not reasonable. Always compare your answer to your Radar estimate.'
+  }
+];
+
+// ── STATE ──
+var currentQ = 0;
+var answers = [];
+
+// ── BUILD QUESTIONS ──
+function buildQuestions() {
+  var container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  questions.forEach(function(q, i) {
+    var card = document.createElement('div');
+    card.className = 'question-card' + (i === 0 ? ' active' : '');
+    card.id = 'q-' + i;
+
+    var html = '<div class="q-number">Question ' + (i + 1) + ' of ' + questions.length + '</div>';
+    html += '<div class="q-stem">' + q.stem + '</div>';
+
+    if (q.type === 'mc') {
+      html += '<div class="mc-options">';
+      var letters = ['A', 'B', 'C', 'D'];
+      q.options.forEach(function(opt, j) {
+        html += '<div class="mc-option" data-q="' + i + '" data-opt="' + j + '" onclick="selectOption(' + i + ',' + j + ')">';
+        html += '<span class="letter">' + letters[j] + '</span>';
+        html += '<span>' + opt + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="fill-row">';
+      html += '<input type="text" class="fill-input" id="fill-' + i + '" inputmode="numeric" placeholder="?" autocomplete="off">';
+      html += '</div>';
+    }
+
+    html += '<button class="btn btn-check" id="check-' + i + '" onclick="checkAnswer(' + i + ')">Check Answer</button>';
+    html += '<button class="btn btn-next" id="next-' + i + '" onclick="nextQuestion()">Next Question</button>';
+    html += '<div class="feedback" id="fb-' + i + '"></div>';
+
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qi, oi) {
+  if (answers[qi] !== undefined) return;
+  var opts = document.querySelectorAll('.mc-option[data-q="' + qi + '"]');
+  opts.forEach(function(o) { o.classList.remove('selected'); });
+  opts[oi].classList.add('selected');
+  document.querySelector('#q-' + qi).dataset.selected = oi;
+}
+
+function checkAnswer(qi) {
+  if (answers[qi] !== undefined) return;
+  var q = questions[qi];
+  var studentAnswer, isCorrect;
+
+  if (q.type === 'mc') {
+    var card = document.querySelector('#q-' + qi);
+    var sel = card.dataset.selected;
+    if (sel === undefined) return;
+    studentAnswer = parseInt(sel, 10);
+    isCorrect = (studentAnswer === q.correct);
+
+    var opts = document.querySelectorAll('.mc-option[data-q="' + qi + '"]');
+    opts.forEach(function(o, j) {
+      o.style.pointerEvents = 'none';
+      if (j === q.correct) o.classList.add('correct');
+      else if (j === studentAnswer && !isCorrect) o.classList.add('incorrect');
+      else o.classList.add('dimmed');
+    });
+  } else {
+    var input = document.getElementById('fill-' + qi);
+    var raw = input.value.replace(/,/g, '').replace(/\s/g, '');
+    if (raw === '' || isNaN(Number(raw))) {
+      input.style.borderColor = 'var(--red)';
+      return;
+    }
+    studentAnswer = parseInt(raw, 10);
+    isCorrect = q.accept.indexOf(studentAnswer) !== -1;
+    input.disabled = true;
+    input.classList.add(isCorrect ? 'correct' : 'incorrect');
+  }
+
+  answers[qi] = { correct: isCorrect, answer: studentAnswer };
+
+  var fb = document.getElementById('fb-' + qi);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> ' + q.feedbackCorrect;
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongText = q.feedbackWrong;
+    if (q.type === 'mc') {
+      wrongText = wrongText.replace('{answer}', q.options[studentAnswer]);
+    } else {
+      wrongText = wrongText.replace('{answer}', studentAnswer.toLocaleString('en-GB'));
+    }
+    fb.innerHTML = '<strong>Not quite.</strong> ' + wrongText;
+  }
+
+  document.getElementById('check-' + qi).style.display = 'none';
+  document.getElementById('next-' + qi).style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) {
+    showResults();
+    return;
+  }
+
+  document.querySelectorAll('.question-card').forEach(function(c) { c.classList.remove('active'); });
+  document.getElementById('q-' + currentQ).classList.add('active');
+
+  var pct = currentQ / questions.length * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Question ' + (currentQ + 1) + ' of ' + questions.length;
+
+  if (questions[currentQ].type === 'fill') {
+    var input = document.getElementById('fill-' + currentQ);
+    if (input) input.focus();
+  }
+}
+
+function showResults() {
+  document.querySelectorAll('.question-card').forEach(function(c) { c.classList.remove('active'); });
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete';
+
+  var correct = 0;
+  answers.forEach(function(a) { if (a && a.correct) correct++; });
+
+  var scoreEl = document.getElementById('results-score');
+  scoreEl.textContent = correct + ' / ' + questions.length;
+  scoreEl.style.color = correct >= 8 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 9) msg = 'Excellent. You have a strong grasp of these strategies.';
+  else if (correct >= 7) msg = 'Good progress. A few areas to revisit before moving on.';
+  else if (correct >= 5) msg = 'Developing. Review the feedback on each question carefully.';
+  else msg = 'More practice needed. Work through the Lessons 6-9 interactives again.';
+  document.getElementById('results-message').textContent = msg;
+
+  var breakdown = '<h3>Question Breakdown</h3>';
+  questions.forEach(function(q, i) {
+    var a = answers[i];
+    var icon = a && a.correct ? 'correct' : 'incorrect';
+    var symbol = a && a.correct ? '&#10003;' : '&#10007;';
+    breakdown += '<div class="result-row">';
+    breakdown += '<div class="result-icon ' + icon + '">' + symbol + '</div>';
+    breakdown += '<span>Q' + (i + 1) + ': ' + q.stem.replace(/<[^>]*>/g, '').substring(0, 60) + '...</span>';
+    breakdown += '<span class="result-topic">' + q.topic + '</span>';
+    breakdown += '</div>';
+  });
+  document.getElementById('results-breakdown').innerHTML = breakdown;
+  document.getElementById('results-card').classList.add('show');
+}
+
+function restart() {
+  currentQ = 0;
+  answers = [];
+  document.getElementById('results-card').classList.remove('show');
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('progress-label').textContent = 'Question 1 of ' + questions.length;
+  buildQuestions();
+}
+
+function toggleLISC() {
+  var content = document.getElementById('liscContent');
+  var toggle = document.getElementById('liscToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// Enter key support
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var qi = currentQ;
+    if (answers[qi] !== undefined) {
+      nextQuestion();
+    } else {
+      checkAnswer(qi);
+    }
+  }
+});
+
+// Init
+buildQuestions();
+</script>
+</body>
+</html>
