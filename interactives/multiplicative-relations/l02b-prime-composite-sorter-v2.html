@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 2B: Prime & Composite - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3a7bd5;
+    --blue-dark: #2176ae;
+    --green: #27AE60;
+    --green-dark: #1a9c51;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,217,61,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  header p { display: none; }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--amber); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 40px 60px 80px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    min-height: 400px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 24px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 16px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 24px; margin-bottom: 12px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Callouts */
+  .callout { border-radius: 12px; padding: 20px 24px; margin: 18px 0;
+    border-left: 5px solid var(--blue); background: #f0f7ff; }
+  .callout p { font-size: 1.3rem; line-height: 1.7; color: #0a2f6e; }
+  .callout.teal { border-left-color: var(--teal); background: #f0fafa; }
+  .callout.teal p { color: #0a3832; }
+  .callout.amber { border-left-color: var(--amber); background: #fffbf0; }
+  .callout.amber p { color: #665500; }
+  .callout.green { border-left-color: var(--green); background: #f0fdf4; }
+  .callout.green p { color: #0a3820; }
+  .callout-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+
+  /* Category Boxes */
+  .category-grid {
+    display: flex; flex-wrap: wrap; gap: 16px; margin: 20px 0;
+  }
+  .category-box {
+    flex: 1; min-width: 200px; border-radius: 14px; padding: 18px 24px;
+    text-align: left;
+  }
+  .category-box.prime {
+    background: #eef4ff; border-left: 5px solid var(--blue);
+  }
+  .category-box.prime .category-title {
+    color: var(--blue); font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
+  }
+  .category-box.prime .category-desc {
+    color: #0a2f6e; font-size: 1.1rem; margin-bottom: 8px;
+  }
+  .category-box.prime .category-nums {
+    font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: 700;
+    color: var(--blue);
+  }
+  .category-box.composite {
+    background: #fff5e6; border-left: 5px solid var(--orange);
+  }
+  .category-box.composite .category-title {
+    color: var(--orange); font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
+  }
+  .category-box.composite .category-desc {
+    color: #663300; font-size: 1.1rem; margin-bottom: 8px;
+  }
+  .category-box.composite .category-nums {
+    font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: 700;
+    color: var(--orange);
+  }
+  .category-box.neither {
+    background: #f5f5f5; border-left: 5px solid var(--muted);
+  }
+  .category-box.neither .category-title {
+    color: var(--muted); font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
+  }
+  .category-box.neither .category-desc {
+    color: #333; font-size: 1.1rem; margin-bottom: 8px;
+  }
+  .category-box.neither .category-nums {
+    font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* Chip Styles */
+  .chip-group {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;
+  }
+  .chip {
+    display: inline-block; background: #f0fdfb; border: 2px solid var(--teal);
+    border-radius: 12px; padding: 6px 12px; font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 0.95rem; color: var(--text);
+  }
+
+  /* Quick Checks Layout */
+  .checks-layout {
+    margin: 20px 0; display: flex; flex-direction: column; gap: 12px;
+  }
+  .check-item {
+    background: #f0fafa; border-left: 4px solid var(--teal);
+    border-radius: 8px; padding: 16px 20px;
+  }
+  .check-label { font-weight: 700; color: var(--teal-dark); font-size: 1.1rem; margin-bottom: 4px; }
+  .check-desc { color: #0a3832; font-size: 1.05rem; line-height: 1.6; }
+
+  /* Slide Navigation */
+  .slide-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; transform: translateY(-2px); }
+  .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .slide-counter { font-size: 14px; color: var(--muted); font-weight: 600; }
+
+  /* Practice Section Styles */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn {
+    border: none; border-radius: 30px; padding: 8px 22px;
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: white;
+  }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--orange); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #e0e5e8; border: 2px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease;
+  }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .sort-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px; margin-bottom: 20px;
+    border: 2px solid var(--border); text-align: center;
+  }
+  .sort-number {
+    font-family: 'Space Mono', monospace; font-size: clamp(48px, 12vw, 80px);
+    font-weight: 700; color: var(--text); margin: 12px 0;
+  }
+  .sort-prompt { font-size: 16px; color: var(--muted); font-weight: 600; margin-bottom: 20px; }
+
+  .sort-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .sort-btn {
+    border: 3px solid var(--border); border-radius: 16px; padding: 16px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 18px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; background: white;
+    min-width: 140px;
+  }
+  .sort-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .sort-btn.prime { border-color: var(--blue); color: var(--blue); }
+  .sort-btn.prime:hover { background: #eef4ff; }
+  .sort-btn.composite { border-color: var(--orange); color: var(--orange); }
+  .sort-btn.composite:hover { background: #fff5e6; }
+  .sort-btn.neither { border-color: var(--muted); color: var(--muted); }
+  .sort-btn.neither:hover { background: #f5f5f5; }
+
+  .sort-btn.correct-choice { background: var(--green-light); border-color: var(--green); color: var(--green); transform: scale(1.05); }
+  .sort-btn.wrong-choice { background: var(--red-light); border-color: var(--red); color: var(--red); }
+  .sort-btn.highlight { border-color: var(--green); background: var(--green-light); }
+  .sort-btn.disabled { opacity: 0.4; pointer-events: none; }
+
+  .feedback {
+    border-radius: 14px; padding: 16px 20px; margin-top: 16px;
+    display: none; font-size: 15px; line-height: 1.6; text-align: left;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  .tally-bar {
+    display: flex; gap: 20px; justify-content: center; margin: 16px 0;
+    font-size: 14px; font-weight: 600;
+  }
+  .tally-item { display: flex; align-items: center; gap: 6px; }
+  .tally-count { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; }
+
+  .summary-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px; text-align: center;
+    display: none;
+  }
+  .summary-card.show { display: block; animation: fadeIn 0.35s ease; }
+  .summary-score {
+    font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700;
+    margin: 8px 0;
+  }
+
+  .results-list { text-align: left; margin: 20px 0; }
+  .result-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-num { font-family: 'Space Mono', monospace; font-weight: 700; min-width: 40px; }
+  .result-icon { width: 22px; height: 22px; border-radius: 50%; color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .result-icon.g { background: var(--green); }
+  .result-icon.r { background: var(--red); }
+
+  .go-deeper-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: white; border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  .practice-section { overflow-y: auto; max-height: calc(100vh - var(--header-h) - 200px); padding-right: 12px; }
+
+  @media (max-width: 600px) {
+    main { padding: 20px 16px 40px; }
+    .card { padding: 20px 18px; }
+    .sort-btn { min-width: 100px; padding: 12px 18px; font-size: 16px; }
+    .sort-number { font-size: 48px; }
+    .category-grid { flex-direction: column; }
+    .category-box { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Multiplicative Relations</div>
+  <h1><span>Lesson 2B: Prime &amp; Composite</span> · Classifying Numbers</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">What Makes 7 Special?</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Three Categories</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">What Is Prime?</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">What Is Composite?</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Tricky Cases</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Quick Checks</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(7)">Classify 15</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Classify 23</button>
+      <button class="sidebar-item" onclick="goToSlide(9)">Classify 51</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(10)">Sorter</button>
+    </div>
+  </div>
+</aside>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to classify numbers as prime, composite, or neither by examining their factors.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can explain what makes a number prime (exactly two factors: 1 and itself).</li>
+          <li>I can explain what makes a number composite (more than two factors).</li>
+          <li>I can explain why 0 and 1 are neither prime nor composite.</li>
+          <li>I can correctly classify any number up to 100.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: Hook - What Makes 7 Special? -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h2>What makes 7 special?</h2>
+      <p style="margin-bottom: 20px;">Write down all the factors of 7. Now write down all the factors of 12.</p>
+      <p style="margin-bottom: 12px;">What do you notice about the difference?</p>
+      <div class="callout amber">
+        <span class="callout-label">Whiteboard Challenge</span>
+        <p>Take 60 seconds to list the factors of both numbers. Then we will compare.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Hook - Three Categories -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h2>Three categories</h2>
+      <p style="margin-bottom: 16px;">The number 7 has only 2 factors (1 and 7). The number 12 has 6 factors (1, 2, 3, 4, 6, 12).</p>
+      <p style="margin-bottom: 20px;">Every whole number falls into one of three categories.</p>
+      <div class="category-grid">
+        <div class="category-box prime">
+          <div class="category-title">Prime</div>
+          <div class="category-desc">Exactly 2 factors: 1 and itself</div>
+          <div class="category-nums">2, 3, 5, 7, 11, 13...</div>
+        </div>
+        <div class="category-box composite">
+          <div class="category-title">Composite</div>
+          <div class="category-desc">More than 2 factors</div>
+          <div class="category-nums">4, 6, 8, 9, 10, 12...</div>
+        </div>
+        <div class="category-box neither">
+          <div class="category-title">Neither</div>
+          <div class="category-desc">Does not fit either definition</div>
+          <div class="category-nums">0 and 1</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I Do - What Is Prime? -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h3>What is prime?</h3>
+      <p style="margin-bottom: 16px;">A prime number has exactly two factors: 1 and itself.</p>
+      <p style="font-weight: 700; margin-bottom: 16px;">Exactly two. Not one, not three. Exactly two.</p>
+      <p style="margin-bottom: 16px;">Examples:</p>
+      <div class="chip-group">
+        <div class="chip">2</div>
+        <div class="chip">3</div>
+        <div class="chip">5</div>
+        <div class="chip">7</div>
+        <div class="chip">11</div>
+        <div class="chip">13</div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I Do - What Is Composite? -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h3>What is composite?</h3>
+      <p style="margin-bottom: 16px;">A composite number has more than two factors.</p>
+      <p style="margin-bottom: 16px;">Examples:</p>
+      <div class="chip-group">
+        <div class="chip">4</div>
+        <div class="chip">6</div>
+        <div class="chip">8</div>
+        <div class="chip">9</div>
+        <div class="chip">10</div>
+        <div class="chip">12</div>
+      </div>
+      <p style="margin-top: 20px; margin-bottom: 8px;"><strong>Proof for 12:</strong></p>
+      <div style="font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.1rem; color: var(--text); margin: 12px 0; background: #f0f7ff; padding: 16px; border-radius: 8px;">
+        1 x 12 = 12<br>
+        2 x 6 = 12<br>
+        3 x 4 = 12
+      </div>
+      <p style="margin-top: 12px;">Six factors (1, 2, 3, 4, 6, 12), so 12 is composite.</p>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: I Do - Tricky Cases -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h3>The tricky cases</h3>
+      <div class="callout amber">
+        <span class="callout-label">Why is 1 not prime?</span>
+        <p>Prime means exactly two factors. The number 1 has only one factor (itself). One factor is not two, so 1 is neither prime nor composite.</p>
+      </div>
+      <div class="callout amber">
+        <span class="callout-label">Why is 0 neither?</span>
+        <p>Every number is a factor of 0 (because 0 divided by anything is 0). This makes 0 a special case that does not fit either definition.</p>
+      </div>
+      <div class="callout teal">
+        <span class="callout-label">The only even prime</span>
+        <p>2 is the only even prime number. Every other even number has 2 as an additional factor, making it composite.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: I Do - Quick Checks -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h3>Quick checks</h3>
+      <p style="margin-bottom: 16px;">Before testing every number, check these first:</p>
+      <div class="checks-layout">
+        <div class="check-item">
+          <div class="check-label">Even?</div>
+          <div class="check-desc">If a number is larger than 2 and even, it is composite (divisible by 2).</div>
+        </div>
+        <div class="check-item">
+          <div class="check-label">Ends in 0 or 5?</div>
+          <div class="check-desc">If a number is larger than 5 and ends in 0 or 5, it is composite (divisible by 5).</div>
+        </div>
+        <div class="check-item">
+          <div class="check-label">Digit sum divisible by 3?</div>
+          <div class="check-desc">Add the digits. If the sum divides by 3, then the number is divisible by 3.</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: We Do - Classify 15 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h2>Let us classify 15 together</h2>
+      <p style="margin-top: 16px; margin-bottom: 16px;">Think first. Is it even? Does it end in 0 or 5? What are its factors?</p>
+      <div class="callout teal">
+        <span class="callout-label">Answer</span>
+        <p>Ends in 5, so divisible by 5. We have 15 = 3 x 5. So the factors are 1, 3, 5, 15. That is four factors, so <strong>15 is composite</strong>.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: We Do - Classify 23 -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h2>Let us classify 23 together</h2>
+      <p style="margin-top: 16px; margin-bottom: 16px;">Is it even? Ends in 0 or 5? What about the digit sum?</p>
+      <div class="callout teal">
+        <span class="callout-label">Answer</span>
+        <p>Not even. Does not end in 0 or 5. Digit sum is 2 + 3 = 5 (not divisible by 3). Testing 2, 3, 4... none divide evenly into 23. So 23 has only two factors: 1 and 23. <strong>23 is prime</strong>.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: We Do - Classify 51 -->
+  <div class="slide" id="slide-9">
+    <div class="card">
+      <h2>Let us classify 51 together</h2>
+      <p style="margin-top: 16px; margin-bottom: 16px;">This one is tricky. It looks prime but is it?</p>
+      <div class="callout teal">
+        <span class="callout-label">Answer</span>
+        <p>Not even. Does not end in 0 or 5. But the digit sum is 5 + 1 = 6, which is divisible by 3. So 51 must be divisible by 3. We have 51 ÷ 3 = 17. So 51 = 3 x 17. The factors are 1, 3, 17, 51. <strong>51 is composite</strong>.</p>
+      </div>
+      <div class="callout amber">
+        <span class="callout-label">Why this matters</span>
+        <p>This is why we check divisibility rules. 51 tricks many people because it is odd and does not end in 0 or 5.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: Practice - Prime/Composite Sorter -->
+  <div class="slide" id="slide-10">
+    <div class="card" style="min-height: auto; overflow-y: auto; max-height: calc(100vh - var(--header-h) - 180px);">
+      <h3 style="margin-bottom: 24px;">Prime and Composite Sorter</h3>
+
+      <div class="level-bar">
+        <button class="level-btn l1 active" onclick="setLevel(1)">Level 1 (1-20)</button>
+        <button class="level-btn l2" onclick="setLevel(2)">Level 2 (1-50)</button>
+        <button class="level-btn l3" onclick="setLevel(3)">Level 3 (1-100)</button>
+      </div>
+
+      <div class="dot-counter" id="dot-counter"></div>
+
+      <div class="tally-bar">
+        <div class="tally-item" style="color:var(--green);">Correct: <span class="tally-count" id="tally-correct">0</span></div>
+        <div class="tally-item" style="color:var(--red);">Incorrect: <span class="tally-count" id="tally-incorrect">0</span></div>
+      </div>
+
+      <div class="sort-card" id="sort-card">
+        <div class="sort-prompt">Is this number prime, composite, or neither?</div>
+        <div class="sort-number" id="sort-number"></div>
+
+        <div class="sort-btns" id="sort-btns">
+          <button class="sort-btn prime" onclick="sortAnswer('prime', this)">Prime</button>
+          <button class="sort-btn composite" onclick="sortAnswer('composite', this)">Composite</button>
+          <button class="sort-btn neither" onclick="sortAnswer('neither', this)">Neither</button>
+        </div>
+
+        <div class="feedback" id="sort-feedback"></div>
+
+        <button class="btn btn-primary" id="next-btn" onclick="nextNumber()" style="display:none; margin-top: 16px;">Next Number &#8594;</button>
+      </div>
+
+      <div class="summary-card" id="summary-card">
+        <h3>Round Complete</h3>
+        <div class="summary-score" id="summary-score"></div>
+        <p id="summary-message" style="font-size:16px;color:var(--muted);margin-bottom:16px;"></p>
+        <div class="results-list" id="results-list"></div>
+        <button class="btn btn-primary" onclick="startPractice()" style="margin-top:16px;">Play Again (New Numbers)</button>
+      </div>
+
+      <div id="go-deeper-section" style="display: none;">
+        <div class="go-deeper-card">
+          <h2>Go Deeper</h2>
+          <p>Ready to explore prime and composite numbers more deeply? Choose a challenge below to become a real mathematician.</p>
+        </div>
+
+        <div class="go-deeper-level-btn" id="task1-btn" onclick="toggleTask(1)">
+          <h3>Task 1: Specialising</h3>
+          <p>Test a student's claim about primes</p>
+        </div>
+
+        <div id="task1-content" class="go-deeper-card" style="display: none;">
+          <div class="ext-task">
+            <div class="ext-task-label">Task 1: Specialising</div>
+            <div class="ext-task-prompt">A student claims that <span class="ext-numbers">51</span> is prime because it is odd and does not end in 0 or 5. Is the student correct?</div>
+            <div class="ext-task-sub">Check by testing whether 51 has any factors other than 1 and itself. Try dividing 51 by 2, 3, 4, 5, 6, and 7.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="revealTask(1)">Show Model Response</button>
+            <div class="ext-model-response" id="task1-response">
+              <div class="model-label">Model Response</div>
+              <p>Let me test each division:</p>
+              <p><span class="ext-numbers">51 ÷ 2 = 25.5</span> (not a whole number)</p>
+              <p><span class="ext-numbers">51 ÷ 3 = 17</span> (this works!)</p>
+              <p>I do not need to keep testing. I found that <span class="ext-numbers">51 = 3 × 17</span>. So 51 has factors: <span class="ext-numbers">1, 3, 17, 51</span>. That is four factors, so 51 is COMPOSITE, not prime.</p>
+              <p>The student's rule is wrong. Not all odd numbers that do not end in 0 or 5 are prime. Just because a number is odd does not mean it is prime.</p>
+              <div class="mathematician-box">
+                <strong>The Lesson:</strong> When you find even one factor other than 1 and the number itself, you know it is composite. You do not need to test all numbers.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="go-deeper-level-btn" id="task2-btn" onclick="toggleTask(2)">
+          <h3>Task 2: Conjecturing</h3>
+          <p>Test a rule about even numbers</p>
+        </div>
+
+        <div id="task2-content" class="go-deeper-card" style="display: none;">
+          <div class="ext-task">
+            <div class="ext-task-label">Task 2: Conjecturing</div>
+            <div class="ext-task-prompt">"Every even number greater than <span class="ext-numbers">2</span> is composite."</div>
+            <div class="ext-task-sub">Is this always true, sometimes true, or never true? Write down your thinking. Then test it with some examples.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="revealTask(2)">Show Model Response</button>
+            <div class="ext-model-response" id="task2-response">
+              <div class="model-label">Model Response</div>
+              <p>Let me think about this carefully.</p>
+              <p>If a number is even and greater than 2, it must be divisible by 2. That means <span class="ext-numbers">2</span> is a factor.</p>
+              <p>But also, the number itself is a different factor (it is not equal to 2).</p>
+              <p>And of course <span class="ext-numbers">1</span> is always a factor.</p>
+              <p>So every even number greater than 2 has at least three factors: <span class="ext-numbers">1</span>, <span class="ext-numbers">2</span>, and itself. That means it cannot be prime.</p>
+              <p>Let me test:</p>
+              <p><span class="ext-numbers">4 = 2 × 2</span> (composite)</p>
+              <p><span class="ext-numbers">6 = 2 × 3</span> (composite)</p>
+              <p><span class="ext-numbers">8 = 2 × 4</span> (composite)</p>
+              <p><span class="ext-numbers">100 = 2 × 50</span> (composite)</p>
+              <p>This rule is ALWAYS true. Every even number greater than 2 is composite.</p>
+              <div class="mathematician-box">
+                <strong>The Lesson:</strong> <span class="ext-numbers">2</span> is the only even prime number. All other even numbers have 2 as a factor, so they cannot be prime.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="go-deeper-level-btn" id="task3-btn" onclick="toggleTask(3)">
+          <h3>Task 3: Generalising</h3>
+          <p>Explore gaps between primes</p>
+        </div>
+
+        <div id="task3-content" class="go-deeper-card" style="display: none;">
+          <div class="ext-task">
+            <div class="ext-task-label">Task 3: Generalising</div>
+            <div class="ext-task-prompt">Can you find two consecutive numbers (numbers next to each other, like <span class="ext-numbers">14</span> and <span class="ext-numbers">15</span>) where both are composite? Can you find three pairs? Is it possible to find three consecutive composite numbers?</div>
+            <div class="ext-task-sub">Try to write a rule about when prime numbers appear as numbers get bigger.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="revealTask(3)">Show Model Response</button>
+            <div class="ext-model-response" id="task3-response">
+              <div class="model-label">Model Response</div>
+              <p>Let me search for consecutive composites:</p>
+              <p><strong>Pair 1:</strong> <span class="ext-numbers">8, 9</span> (because <span class="ext-numbers">8 = 2 × 4</span> and <span class="ext-numbers">9 = 3 × 3</span>)</p>
+              <p><strong>Pair 2:</strong> <span class="ext-numbers">14, 15</span> (because <span class="ext-numbers">14 = 2 × 7</span> and <span class="ext-numbers">15 = 3 × 5</span>)</p>
+              <p><strong>Pair 3:</strong> <span class="ext-numbers">24, 25</span> (because <span class="ext-numbers">24 = 2 × 12</span> and <span class="ext-numbers">25 = 5 × 5</span>)</p>
+              <p>Easy! Now can I find three consecutive composites?</p>
+              <p><strong>Triple 1:</strong> <span class="ext-numbers">24, 25, 26</span></p>
+              <p>Let me check: <span class="ext-numbers">24 = 2 × 12</span>, <span class="ext-numbers">25 = 5 × 5</span>, <span class="ext-numbers">26 = 2 × 13</span>. Yes, all composite!</p>
+              <p><strong>Triple 2:</strong> <span class="ext-numbers">32, 33, 34</span> also works.</p>
+              <p><strong>The Rule I Found:</strong> As numbers get bigger, the gaps between consecutive prime numbers get larger. This means longer runs of composite numbers appear. But primes never completely stop appearing. Even very large numbers have primes among them.</p>
+              <div class="mathematician-box">
+                <strong>The Lesson:</strong> Primes become rarer as numbers get bigger, but they never completely disappear. This is one of the great mysteries in mathematics.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 11 of 11</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── SLIDE SYSTEM ──
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'What Makes 7 Special?', section: 'Hook' },
+  { id: 'slide-2', title: 'Three Categories', section: 'Hook' },
+  { id: 'slide-3', title: 'What Is Prime?', section: 'I Do' },
+  { id: 'slide-4', title: 'What Is Composite?', section: 'I Do' },
+  { id: 'slide-5', title: 'Tricky Cases', section: 'I Do' },
+  { id: 'slide-6', title: 'Quick Checks', section: 'I Do' },
+  { id: 'slide-7', title: 'Classify 15', section: 'We Do' },
+  { id: 'slide-8', title: 'Classify 23', section: 'We Do' },
+  { id: 'slide-9', title: 'Classify 51', section: 'We Do' },
+  { id: 'slide-10', title: 'Sorter', section: 'Practice' }
+];
+
+const sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebar();
+  setHeaderHeight();
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) {
+    goToSlide(currentSlide + 1);
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 0) {
+    goToSlide(currentSlide - 1);
+  }
+}
+
+function updateNavButtons() {
+  const prevBtn = document.querySelector('.slide-nav .nav-btn:first-child');
+  const nextBtn = document.querySelector('.slide-nav .nav-btn:last-child');
+  const counter = document.querySelector('.slide-counter');
+
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+
+function updatePhaseNav() {
+  const currentPhase = slides[currentSlide].section;
+  const phaseButtons = document.querySelectorAll('.phase-btn');
+
+  phaseButtons.forEach(btn => {
+    const btnPhase = btn.getAttribute('data-phase');
+    const btnSectionName = currentPhase;
+    const mappedPhase = sectionToPhase[btnSectionName];
+
+    if (btnPhase === mappedPhase) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx !== -1) {
+    goToSlide(idx);
+  }
+}
+
+function updateSidebar() {
+  const items = document.querySelectorAll('.sidebar-item');
+  items.forEach((item, idx) => {
+    if (idx === currentSlide) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const header = document.querySelector('header');
+  const phaseNav = document.querySelector('.phase-nav');
+  if (header && phaseNav) {
+    const totalHeight = header.offsetHeight + phaseNav.offsetHeight;
+    document.documentElement.style.setProperty('--header-h', totalHeight + 'px');
+  }
+}
+
+// ── PRACTICE STATE ──
+var currentLevel = 1;
+var numbers = [];
+var currentIdx = 0;
+var results = [];
+var totalPerRound = 12;
+var goDeeperUnlocked = false;
+
+// ── CLASSIFICATION ──
+function classify(n) {
+  if (n <= 1) return 'neither';
+  for (var i = 2; i * i <= n; i++) {
+    if (n % i === 0) return 'composite';
+  }
+  return 'prime';
+}
+
+function getFactors(n) {
+  if (n === 0) return 'every number';
+  var f = [];
+  for (var i = 1; i <= n; i++) {
+    if (n % i === 0) f.push(i);
+  }
+  return f.join(', ');
+}
+
+// ── GENERATE NUMBERS ──
+function generateNumbers() {
+  var max;
+  if (currentLevel === 1) max = 20;
+  else if (currentLevel === 2) max = 50;
+  else max = 100;
+
+  var pool = [];
+  for (var i = 0; i <= max; i++) pool.push(i);
+
+  for (var j = pool.length - 1; j > 0; j--) {
+    var k = Math.floor(Math.random() * (j + 1));
+    var tmp = pool[j]; pool[j] = pool[k]; pool[k] = tmp;
+  }
+
+  var must = [0, 1, 2];
+  var selected = pool.slice(0, totalPerRound);
+  must.forEach(function(m) {
+    if (selected.indexOf(m) === -1) {
+      selected[Math.floor(Math.random() * totalPerRound)] = m;
+    }
+  });
+
+  if (currentLevel === 3) {
+    var tricky = [49, 51, 57, 87, 91];
+    var added = 0;
+    tricky.forEach(function(t) {
+      if (selected.indexOf(t) === -1 && added < 3) {
+        for (var r = totalPerRound - 1; r >= 0; r--) {
+          if (must.indexOf(selected[r]) === -1 && tricky.indexOf(selected[r]) === -1) {
+            selected[r] = t;
+            added++;
+            break;
+          }
+        }
+      }
+    });
+  }
+
+  for (var j2 = selected.length - 1; j2 > 0; j2--) {
+    var k2 = Math.floor(Math.random() * (j2 + 1));
+    var tmp2 = selected[j2]; selected[j2] = selected[k2]; selected[k2] = tmp2;
+  }
+
+  return selected;
+}
+
+// ── PRACTICE ──
+function setLevel(lvl) {
+  currentLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i + 1 === lvl);
+  });
+  startPractice();
+}
+
+function startPractice() {
+  numbers = generateNumbers();
+  currentIdx = 0;
+  results = [];
+  document.getElementById('tally-correct').textContent = '0';
+  document.getElementById('tally-incorrect').textContent = '0';
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('sort-card').style.display = 'block';
+  buildDots();
+  showNumber();
+}
+
+function buildDots() {
+  var container = document.getElementById('dot-counter');
+  container.innerHTML = '';
+  for (var i = 0; i < totalPerRound; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' current' : '');
+    dot.id = 'dot-' + i;
+    dot.textContent = i + 1;
+    container.appendChild(dot);
+  }
+}
+
+function showNumber() {
+  var n = numbers[currentIdx];
+  document.getElementById('sort-number').textContent = n;
+  document.getElementById('sort-feedback').className = 'feedback';
+
+  document.querySelectorAll('.sort-btn').forEach(function(b) {
+    b.classList.remove('correct-choice', 'wrong-choice', 'highlight', 'disabled');
+    b.style.pointerEvents = '';
+  });
+
+  for (var i = 0; i < totalPerRound; i++) {
+    var d = document.getElementById('dot-' + i);
+    if (d) {
+      d.classList.remove('current');
+      if (i === currentIdx && !results[i]) d.classList.add('current');
+    }
+  }
+}
+
+function sortAnswer(choice, btn) {
+  if (results[currentIdx]) return;
+
+  var n = numbers[currentIdx];
+  var correct = classify(n);
+  var isCorrect = (choice === correct);
+
+  document.querySelectorAll('.sort-btn').forEach(function(b) {
+    b.style.pointerEvents = 'none';
+    b.classList.add('disabled');
+  });
+
+  btn.classList.remove('disabled');
+  btn.classList.add(isCorrect ? 'correct-choice' : 'wrong-choice');
+
+  if (!isCorrect) {
+    document.querySelectorAll('.sort-btn').forEach(function(b) {
+      if (b.textContent.toLowerCase() === correct) {
+        b.classList.remove('disabled');
+        b.classList.add('highlight');
+      }
+    });
+  }
+
+  var fb = document.getElementById('sort-feedback');
+  var factors = getFactors(n);
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    if (correct === 'prime') {
+      fb.innerHTML = '<strong>Correct.</strong> <span class="mono">' + n + '</span> has exactly two factors (<span class="mono">' + factors + '</span>), so it is prime.';
+    } else if (correct === 'composite') {
+      fb.innerHTML = '<strong>Correct.</strong> <span class="mono">' + n + '</span> has factors: <span class="mono">' + factors + '</span>. More than two factors means composite.';
+    } else {
+      if (n === 0) fb.innerHTML = '<strong>Correct.</strong> <span class="mono">0</span> is neither prime nor composite.';
+      else fb.innerHTML = '<strong>Correct.</strong> <span class="mono">1</span> has only one factor (itself). Prime requires exactly two, so 1 is neither.';
+    }
+  } else {
+    fb.className = 'feedback show incorrect';
+    if (correct === 'neither') {
+      if (n === 0) fb.innerHTML = '<strong>Not quite.</strong> <span class="mono">0</span> is neither prime nor composite. Division by 0 is undefined, so it does not fit either category.';
+      else fb.innerHTML = '<strong>Not quite.</strong> <span class="mono">1</span> has only one factor: itself. Prime requires exactly two factors (1 and itself as two different numbers). So 1 is neither.';
+    } else if (correct === 'prime') {
+      fb.innerHTML = '<strong>Not quite.</strong> <span class="mono">' + n + '</span> has exactly two factors: <span class="mono">' + factors + '</span>. That makes it prime, not ' + choice + '.';
+    } else {
+      fb.innerHTML = '<strong>Not quite.</strong> <span class="mono">' + n + '</span> has factors: <span class="mono">' + factors + '</span>. More than two factors means it is composite.';
+    }
+  }
+
+  results[currentIdx] = { number: n, correct: correct, chosen: choice, isCorrect: isCorrect };
+
+  var dot = document.getElementById('dot-' + currentIdx);
+  dot.classList.remove('current');
+  dot.classList.add(isCorrect ? 'green' : 'red');
+
+  var c = 0, w = 0;
+  results.forEach(function(r) { if (r) { if (r.isCorrect) c++; else w++; } });
+  document.getElementById('tally-correct').textContent = c;
+  document.getElementById('tally-incorrect').textContent = w;
+
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function nextNumber() {
+  currentIdx++;
+  if (currentIdx >= totalPerRound) {
+    showSummary();
+  } else {
+    showNumber();
+  }
+}
+
+function showSummary() {
+  document.getElementById('sort-card').style.display = 'none';
+  var correct = 0;
+  results.forEach(function(r) { if (r && r.isCorrect) correct++; });
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = correct + ' / ' + totalPerRound;
+  scoreEl.style.color = correct >= 10 ? 'var(--green)' : correct >= 7 ? 'var(--amber)' : 'var(--red)';
+
+  var msg = '';
+  if (correct >= 11) msg = 'Excellent. You know your primes and composites.';
+  else if (correct >= 9) msg = 'Good work. A few tricky ones caught you out.';
+  else if (correct >= 7) msg = 'Getting there. Review the special cases.';
+  else msg = 'More practice needed. Re-read the Learn section.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var list = '';
+  results.forEach(function(r) {
+    var icon = r.isCorrect ? '<div class="result-icon g">&#10003;</div>' : '<div class="result-icon r">&#10007;</div>';
+    var detail = r.isCorrect ? r.correct : 'You said ' + r.chosen + ', correct is ' + r.correct;
+    list += '<div class="result-row">' + icon + '<span class="result-num">' + r.number + '</span><span>' + detail + '</span></div>';
+  });
+  document.getElementById('results-list').innerHTML = list;
+  document.getElementById('summary-card').classList.add('show');
+
+  if (currentLevel === 3 && correct >= 10 && !goDeeperUnlocked) {
+    goDeeperUnlocked = true;
+    document.getElementById('go-deeper-section').style.display = 'block';
+  }
+}
+
+// ── GO DEEPER ──
+function toggleTask(taskNum) {
+  var contentId = 'task' + taskNum + '-content';
+  var content = document.getElementById(contentId);
+  var allContents = document.querySelectorAll('[id^="task"][id$="-content"]');
+
+  allContents.forEach(function(c) {
+    if (c.id !== contentId) c.style.display = 'none';
+  });
+
+  content.style.display = content.style.display === 'none' ? 'block' : 'none';
+}
+
+function revealTask(taskNum) {
+  var responseId = 'task' + taskNum + '-response';
+  var response = document.getElementById(responseId);
+  response.classList.add('visible');
+}
+
+// ── KEYBOARD NAV ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+  goToSlide(0);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'Enter') {
+      var nextBtn = document.getElementById('next-btn');
+      if (nextBtn && nextBtn.style.display !== 'none') {
+        nextNumber();
+      }
+    }
+    if (!results[currentIdx] && currentSlide === 10) {
+      var btns = document.querySelectorAll('.sort-btn');
+      if (e.key === 'p' || e.key === 'P') { sortAnswer('prime', btns[0]); }
+      if (e.key === 'c' || e.key === 'C') { sortAnswer('composite', btns[1]); }
+      if (e.key === 'n' || e.key === 'N') { sortAnswer('neither', btns[2]); }
+    }
+  });
+});
+</script>
+
+</body>
+</html>

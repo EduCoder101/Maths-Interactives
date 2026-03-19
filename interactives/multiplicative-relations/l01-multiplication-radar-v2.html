@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 1: Multiplication Radar - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa;
+    --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #2ECC71; --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--amber); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="bookwork"].active::after { background: var(--blue); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--amber); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 40px 60px 80px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    min-height: 400px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 24px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 16px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 24px; margin-bottom: 12px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Callouts */
+  .callout { border-radius: 12px; padding: 20px 24px; margin: 18px 0;
+    border-left: 5px solid var(--blue); background: #f0f7ff; }
+  .callout p { font-size: 1.3rem; line-height: 1.7; color: #0a2f6e; }
+  .callout.teal { border-left-color: var(--teal); background: #f0fafa; }
+  .callout.teal p { color: #0a3832; }
+  .callout.amber { border-left-color: var(--amber); background: #fffbf0; }
+  .callout.amber p { color: #665500; }
+  .callout.green { border-left-color: var(--green); background: #f0fdf4; }
+  .callout.green p { color: #0a3820; }
+  .callout-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+
+  /* Error demo */
+  .error-demo { border: 3px dashed var(--red); border-radius: 12px; padding: 20px; background: #fff5f5; }
+  .error-badge { display: inline-block; background: var(--red); color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 6px; padding: 6px 12px; margin-bottom: 12px; }
+  .actual-badge { background: var(--teal); color: #fff; font-weight: 700; border-radius: 6px; padding: 4px 12px; display: inline-block; font-size: 0.95rem; }
+  .estimate-badge { background: var(--amber); color: var(--text); font-weight: 700; border-radius: 6px; padding: 4px 12px; display: inline-block; font-size: 0.95rem; }
+
+  /* Equations */
+  .equation-box {
+    background: #f0f7ff; border: 2px solid #d0e8ff; border-radius: 14px;
+    padding: 20px 28px; margin: 16px 0; font-family: 'Space Mono', monospace;
+    font-size: 48px; font-weight: 700; color: var(--text); display: inline-block;
+  }
+
+  /* Whiteboard prompt */
+  .whiteboard-prompt {
+    background: #fff; border: 3px solid var(--border); border-radius: 12px;
+    padding: 24px; margin: 20px 0; font-family: 'Space Mono', monospace;
+    font-size: 44px; font-weight: 700; color: var(--text); text-align: center;
+  }
+  .wlabel { display: block; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+
+  /* Reveal Buttons */
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-block;
+  }
+  .reveal-btn:hover { background: #444; }
+  .reveal-btn.teal { background: var(--teal); }
+  .reveal-btn.teal:hover { background: var(--teal-dark); }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Rounding display */
+  .rounding-grid { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; text-align: left; }
+  .rounding-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .rounding-original { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; min-width: 60px; text-align: right; }
+  .rounding-arrow { font-weight: 700; color: var(--teal-dark); font-size: 18px; }
+  .rounding-rounded { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; background: var(--amber); color: var(--text); border-radius: 8px; padding: 2px 12px; }
+
+  /* Band legend */
+  .band-legend {
+    display: flex; gap: 20px; margin: 20px 0; padding: 16px; background: #f8f9fa; border-radius: 12px;
+  }
+  .band-item { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 600; }
+  .band-swatch {
+    width: 16px; height: 16px; border-radius: 4px;
+  }
+
+  /* Dots */
+  .dot-counter {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; justify-content: center;
+  }
+  .dot {
+    width: 32px; height: 32px; border-radius: 50%; background: #e0e0e0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--text);
+  }
+  .dot.current { background: var(--amber); color: white; }
+  .dot.green { background: var(--green); color: white; }
+  .dot.amber { background: var(--amber); color: white; }
+  .dot.red { background: var(--red); color: white; }
+
+  /* Practice container */
+  .practice-container {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px; margin-bottom: 20px;
+    border: 2px solid var(--border); text-align: center;
+  }
+  .problem-display {
+    font-family: 'Space Mono', monospace; font-size: 42px;
+    font-weight: 700; color: var(--text); margin: 16px 0; letter-spacing: 0.02em;
+  }
+  .estimate-input {
+    font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 14px 20px; width: 200px; max-width: 100%;
+    transition: border-color 0.3s ease; outline: none;
+    color: var(--text); background: #fafbfc;
+  }
+  .estimate-input:focus { border-color: var(--teal); }
+
+  .btn-primary {
+    background: var(--teal); color: var(--text); border: none;
+    border-radius: 30px; padding: 12px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 17px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; margin-top: 16px; display: inline-block;
+  }
+  .btn-primary:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-dark {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 17px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; margin-top: 12px; display: none;
+  }
+  .btn-dark:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  /* Feedback card */
+  .feedback-card {
+    border-radius: 16px; padding: 24px; margin: 20px 0;
+    display: none; text-align: left;
+  }
+  .feedback-card.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback-card.green-fb { background: #e8f8e8; border: 2px solid var(--green); }
+  .feedback-card.amber-fb { background: #fffbf0; border: 2px solid var(--amber); }
+  .feedback-card.red-fb { background: #fff4f4; border: 2px solid var(--red); }
+  .feedback-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .feedback-card.green-fb .feedback-title { color: var(--green-dark); }
+  .feedback-card.amber-fb .feedback-title { color: var(--amber-dark); }
+  .feedback-card.red-fb .feedback-title { color: var(--red-dark); }
+  .feedback-detail { font-size: 15px; line-height: 1.7; }
+  .feedback-detail .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* Summary */
+  .summary-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px; text-align: center; margin-bottom: 20px;
+  }
+  .summary-score {
+    font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700;
+    margin: 8px 0;
+  }
+  .summary-label { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .summary-table {
+    width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; text-align: left;
+  }
+  .summary-table th {
+    background: #f1f5f9; padding: 10px 12px; font-weight: 700;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
+  }
+  .summary-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .summary-table .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* Book work */
+  .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 20px 0; }
+  .book-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px; border: 2px solid var(--border);
+  }
+  .book-card .book-problem {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    margin: 12px 0; color: var(--text);
+  }
+  .book-card .book-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+  }
+  .book-answer { display: none; margin-top: 12px; }
+  .book-answer.shown { display: block; animation: fadeIn 0.25s ease; }
+  .book-toggle {
+    background: none; border: 2px solid var(--border); border-radius: 30px;
+    padding: 7px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    font-weight: 600; color: var(--muted); cursor: pointer; margin-top: 10px;
+    transition: all 0.2s;
+  }
+  .book-toggle:hover { border-color: var(--text); color: var(--text); }
+  .book-toggle.shown { background: var(--text); color: #fff; border-color: var(--text); }
+
+  /* Go Deeper */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); max-width: 700px; margin-left: auto; margin-right: auto; }
+  .go-deeper-card h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.15rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.15rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  /* Navigation */
+  .slide-nav { display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 14px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  @media (max-width: 768px) {
+    header { padding: 8px 16px; }
+    .sidebar { width: 0; }
+    main { margin-left: 0; padding: 28px 24px 60px; }
+    .card { padding: 24px 28px; min-height: 300px; }
+    .equation-box { font-size: 36px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Multiplicative Relations</div>
+  <h1><span>Multiplication Radar</span> · Estimation as a Checking Tool</h1>
+  <a href="../../index.html" class="back-link">← Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="bookwork" onclick="goToPhase('Book Work')">Book Work</button>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Spot the Problem</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">The Radar</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Example 1: 38 x 7</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Example 2: 246 x 4</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Example 3: Error Detection</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q1: 53 x 4</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q2: 72 x 6</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Q3: 315 x 3</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Radar Challenge</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Book Work</div>
+      <button class="sidebar-item" onclick="goToSlide(10)">Written Practice</button>
+    </div>
+  </div>
+</aside>
+
+<main id="mainContent">
+
+<!-- SLIDE 0: LISC -->
+<div class="slide active" id="slide-0">
+  <div class="card lisc-card">
+    <h2>Learning Intention and Success Criteria</h2>
+    <div class="lisc-content">
+      <h3>Learning Intention</h3>
+      <p>We are learning to use estimation to judge whether a multiplication answer is reasonable before we calculate.</p>
+      <h3>Success Criteria</h3>
+      <ul>
+        <li>I can round a number to its nearest 10 or 100 to make a quick estimate.</li>
+        <li>I can say whether a multiplication answer is reasonable by comparing it to my estimate.</li>
+        <li>I can multiply a one-digit number by 10, 100, and 1000 mentally.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+    <span class="slide-counter">Card 1 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 1: Hook - Spot the Problem -->
+<div class="slide" id="slide-1">
+  <div class="card">
+    <h3>Spot the Problem</h3>
+    <p>A teacher marked a test from another class and saw this answer:</p>
+    <div class="error-demo" style="margin-top: 20px;">
+      <span class="error-badge">Student's Answer</span>
+      <div class="whiteboard-prompt" style="margin-top: 14px; border-color: var(--red); background: #fff5f5;">
+        <span class="wlabel">On the test paper</span>
+        47 x 6 = 1,282
+      </div>
+    </div>
+    <p style="margin-top: 16px;">Before even checking the working, the teacher knew this answer was wrong. How?</p>
+
+    <div class="callout amber" style="margin-top: 16px;">
+      <span class="callout-label">Think About It</span>
+      <p>47 is close to 50. What is 50 x 6? Could the answer possibly be in the thousands?</p>
+    </div>
+
+    <div class="step-reveal" id="hook-reveal">
+      <div class="callout teal">
+        <span class="callout-label">The Reasoning</span>
+        <p><strong>47</strong> is close to <strong>50</strong>. And <strong>50 x 6 = 300</strong>. So the answer must be somewhere near <strong>300</strong>. An answer of <strong>1,282</strong> is over four times too large. The student made a place value error, but you do not need to diagnose it to know it is wrong. A quick Radar check catches it instantly.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn teal" onclick="document.getElementById('hook-reveal').classList.add('shown'); this.style.display='none';">
+      Show the reasoning
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 2 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 2: Hook - The Radar -->
+<div class="slide" id="slide-2">
+  <div class="card">
+    <h3>The Radar for Products</h3>
+    <p>Mathematicians do not just calculate. They know <strong>roughly what the answer should be</strong> before they pick up a pen.</p>
+    <p style="margin-top: 10px;">In multiplication, this is even more important than in addition and subtraction, because errors can be much larger. Today we are turning on our <strong>Radar for Products</strong>.</p>
+    <div class="callout teal">
+      <span class="callout-label">The Process</span>
+      <p><strong>1.</strong> Estimate first (round to a friendly number).<br><strong>2.</strong> Calculate.<br><strong>3.</strong> Check: does my answer match my estimate?</p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 3 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 3: I Do - Example 1 -->
+<div class="slide" id="slide-3">
+  <div class="card">
+    <h3>Example 1: Estimate then Calculate</h3>
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Problem</span>
+      38 x 7
+    </div>
+
+    <div class="step-reveal" id="ex1-s1">
+      <p style="margin-top: 16px;"><strong>Step 1: Round to a friendly number.</strong></p>
+      <div class="rounding-grid">
+        <div class="rounding-row">
+          <span class="rounding-original">38</span>
+          <span class="rounding-arrow">→</span>
+          <span class="rounding-rounded">40</span>
+        </div>
+      </div>
+      <p><strong>Estimate:</strong> <span class="estimate-badge">40 x 7 = 280</span></p>
+    </div>
+
+    <div class="step-reveal" id="ex1-s2">
+      <p style="margin-top: 12px;"><strong>Step 2: Check direction.</strong></p>
+      <p>I rounded <strong>up</strong> from 38 to 40, so my estimate is slightly too big. The real answer should be a little <strong>less</strong> than 280.</p>
+    </div>
+
+    <div class="step-reveal" id="ex1-s3">
+      <p style="margin-top: 12px;"><strong>Step 3: Calculate and check.</strong></p>
+      <p>38 x 7 = <span class="actual-badge">266</span></p>
+      <p>266 is close to 280. Radar confirmed.</p>
+    </div>
+
+    <button class="reveal-btn teal" id="ex1-btn" onclick="revealSequence(['ex1-s1','ex1-s2','ex1-s3'], 'ex1-btn')">
+      Reveal step by step
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 4 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 4: I Do - Example 2 -->
+<div class="slide" id="slide-4">
+  <div class="card">
+    <h3>Example 2: Larger Number</h3>
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Problem</span>
+      246 x 4
+    </div>
+
+    <div class="step-reveal" id="ex2-s1">
+      <div class="rounding-grid" style="margin-top: 16px;">
+        <div class="rounding-row">
+          <span class="rounding-original">246</span>
+          <span class="rounding-arrow">→</span>
+          <span class="rounding-rounded">250</span>
+        </div>
+      </div>
+      <p><strong>Estimate:</strong> <span class="estimate-badge">250 x 4 = 1,000</span></p>
+      <p>Rounded up slightly, so the real answer should be a little less than 1,000.</p>
+    </div>
+
+    <div class="step-reveal" id="ex2-s2">
+      <p style="margin-top: 12px;">246 x 4 = <span class="actual-badge">984</span></p>
+      <p>984 is close to 1,000. Reasonable.</p>
+    </div>
+
+    <button class="reveal-btn teal" id="ex2-btn" onclick="revealSequence(['ex2-s1','ex2-s2'], 'ex2-btn')">
+      Reveal answer
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 5 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 5: I Do - Example 3 -->
+<div class="slide" id="slide-5">
+  <div class="card">
+    <h3>Example 3: Catching an Error</h3>
+    <div class="error-demo">
+      <span class="error-badge">Student's Answer</span>
+      <div style="margin-top: 14px;">
+        <div class="whiteboard-prompt" style="border-color: var(--red); background: #fff5f5;">
+          <span class="wlabel">On the test paper</span>
+          46 x 7 = 282
+        </div>
+      </div>
+    </div>
+
+    <div class="step-reveal" id="ex3-s1">
+      <p style="margin-top: 16px;"><strong>Radar check:</strong> 50 x 7 = <span class="estimate-badge">350</span></p>
+      <p>The answer should be near 350, maybe a little less. But 282 is almost 70 below the estimate. That is suspicious.</p>
+    </div>
+
+    <div class="step-reveal" id="ex3-s2">
+      <p style="margin-top: 12px;"><strong>Finding the error:</strong> The student calculated 7 x 6 = 42 correctly (writing 2, carrying 4). But then did 7 x 4 = 28 and <strong>forgot to add the carried 4</strong>. They wrote 28 instead of 32.</p>
+      <p style="margin-top: 8px;">Correct answer: <span class="actual-badge">322</span></p>
+      <p style="margin-top: 8px; padding: 12px; background: #f0f7ff; border-radius: 8px; border-left: 4px solid var(--blue);">The Radar caught the carry error. Without estimating first, this mistake could go unnoticed.</p>
+    </div>
+
+    <button class="reveal-btn teal" id="ex3-btn" onclick="revealSequence(['ex3-s1','ex3-s2'], 'ex3-btn')">
+      Reveal analysis
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 6 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 6: We Do - Q1 -->
+<div class="slide" id="slide-6">
+  <div class="card">
+    <h3>Q1: 53 x 4</h3>
+
+    <div class="callout amber" style="margin-bottom: 20px;">
+      <span class="callout-label">Rule</span>
+      <p>Write <strong>E: [estimate]</strong> before attempting any calculation. No estimate, no calculation.</p>
+    </div>
+
+    <div class="whiteboard-prompt">53 x 4</div>
+
+    <div class="step-reveal shown" id="gp1-s1" style="display: none;">
+      <p style="margin-top: 12px;"><strong>Estimate:</strong> 50 x 4 = <span class="estimate-badge">200</span></p>
+    </div>
+    <div class="step-reveal shown" id="gp1-s2" style="display: none;">
+      <p>(Rounded down, so the real answer is slightly more than 200.)</p>
+    </div>
+    <div class="step-reveal shown" id="gp1-s3" style="display: none;">
+      <p style="margin-top: 8px;"><strong>Actual:</strong> 53 x 4 = <span class="actual-badge">212</span></p>
+    </div>
+
+    <button class="reveal-btn teal" id="gp1-btn" onclick="revealGP('gp1')">Show estimate</button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 7 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 7: We Do - Q2 -->
+<div class="slide" id="slide-7">
+  <div class="card">
+    <h3>Q2: 72 x 6</h3>
+
+    <div class="whiteboard-prompt">72 x 6</div>
+
+    <div class="step-reveal shown" id="gp2-s1" style="display: none;">
+      <p style="margin-top: 12px;"><strong>Estimate:</strong> 70 x 6 = <span class="estimate-badge">420</span></p>
+    </div>
+    <div class="step-reveal shown" id="gp2-s2" style="display: none;">
+      <p>(Rounded down slightly, so the real answer is a bit more.)</p>
+    </div>
+    <div class="step-reveal shown" id="gp2-s3" style="display: none;">
+      <p style="margin-top: 8px;"><strong>Actual:</strong> 72 x 6 = <span class="actual-badge">432</span></p>
+    </div>
+
+    <button class="reveal-btn teal" id="gp2-btn" onclick="revealGP('gp2')">Show estimate</button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 8 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 8: We Do - Q3 -->
+<div class="slide" id="slide-8">
+  <div class="card">
+    <h3>Q3: 315 x 3</h3>
+
+    <div class="whiteboard-prompt">315 x 3</div>
+
+    <div class="step-reveal shown" id="gp3-s1" style="display: none;">
+      <p style="margin-top: 12px;"><strong>Estimate:</strong> 300 x 3 = <span class="estimate-badge">900</span></p>
+    </div>
+    <div class="step-reveal shown" id="gp3-s2" style="display: none;">
+      <p>(Rounded down from 315, so the real answer is a bit more than 900.)</p>
+    </div>
+    <div class="step-reveal shown" id="gp3-s3" style="display: none;">
+      <p style="margin-top: 8px;"><strong>Actual:</strong> 315 x 3 = <span class="actual-badge">945</span></p>
+    </div>
+
+    <button class="reveal-btn teal" id="gp3-btn" onclick="revealGP('gp3')">Show estimate</button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 9 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 9: Practice -->
+<div class="slide" id="slide-9">
+  <div class="card">
+    <h3>Radar Challenge</h3>
+    <p>Type your estimate for each multiplication. Your goal is to get as close to the actual answer as possible by rounding to friendly numbers.</p>
+
+    <div class="band-legend">
+      <div class="band-item"><div class="band-swatch" style="background: var(--green);"></div> Within 10%</div>
+      <div class="band-item"><div class="band-swatch" style="background: var(--amber);"></div> Within 20%</div>
+      <div class="band-item"><div class="band-swatch" style="background: var(--red);"></div> Beyond 20%</div>
+    </div>
+
+    <div class="dot-counter" id="dot-counter"></div>
+
+    <div class="practice-container" id="practice-area">
+      <div class="problem-display" id="problem-display"></div>
+      <div style="margin-top: 8px;">
+        <label style="font-size: 15px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 8px;">Type your estimate:</label>
+        <input type="text" class="estimate-input" id="estimate-input" inputmode="numeric" placeholder="?" autocomplete="off">
+      </div>
+      <div>
+        <button class="btn-primary" id="check-btn" onclick="checkEstimate()">Check Radar</button>
+        <button class="btn-dark" id="next-btn" onclick="nextProblem()">Next Problem →</button>
+      </div>
+
+      <div class="feedback-card" id="feedback-card">
+        <div class="feedback-title" id="feedback-title"></div>
+        <div class="feedback-detail" id="feedback-detail"></div>
+      </div>
+    </div>
+
+    <div class="summary-card" id="summary-card" style="display: none;">
+      <div class="summary-label">Average Distance from Actual Answer</div>
+      <div class="summary-score" id="summary-score"></div>
+      <div class="summary-label" id="summary-message"></div>
+
+      <table class="summary-table" id="summary-table">
+        <thead><tr><th>#</th><th>Problem</th><th>Your Estimate</th><th>Actual</th><th>Accuracy</th></tr></thead>
+        <tbody id="summary-tbody"></tbody>
+      </table>
+
+      <button class="btn-primary" onclick="startPractice()">Try Again (New Numbers)</button>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 10 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 10: Book Work -->
+<div class="slide" id="slide-10">
+  <div class="card">
+    <h3>Written Practice</h3>
+
+    <div class="callout amber" style="margin-bottom: 20px;">
+      <span class="callout-label">Instructions</span>
+      <p>For each problem: <strong>1.</strong> Write a Radar estimate. <strong>2.</strong> Solve using the formal algorithm. <strong>3.</strong> Check your answer against your estimate. Then click to check the correct answer.</p>
+    </div>
+
+    <div class="book-grid" id="book-grid"></div>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <button class="btn-primary" onclick="generateBookWork()">Generate New Problems</button>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 11 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'Spot the Problem', section: 'Hook' },
+  { id: 'slide-2', title: 'The Radar', section: 'Hook' },
+  { id: 'slide-3', title: 'Example 1: 38 x 7', section: 'I Do' },
+  { id: 'slide-4', title: 'Example 2: 246 x 4', section: 'I Do' },
+  { id: 'slide-5', title: 'Example 3: Error Detection', section: 'I Do' },
+  { id: 'slide-6', title: 'Q1: 53 x 4', section: 'We Do' },
+  { id: 'slide-7', title: 'Q2: 72 x 6', section: 'We Do' },
+  { id: 'slide-8', title: 'Q3: 315 x 3', section: 'We Do' },
+  { id: 'slide-9', title: 'Radar Challenge', section: 'Practice' },
+  { id: 'slide-10', title: 'Written Practice', section: 'Book Work' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Practice': 'practice',
+  'Book Work': 'bookwork'
+};
+
+let currentSlideIndex = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+
+  currentSlideIndex = index;
+
+  // Hide all slides
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+
+  // Show current slide
+  document.getElementById(slides[index].id).classList.add('active');
+
+  // Update sidebar items
+  document.querySelectorAll('.sidebar-item').forEach((item, i) => {
+    item.classList.toggle('active', i === index);
+  });
+
+  // Update phase nav
+  updatePhaseNav();
+  updateNavButtons();
+}
+
+function goToPhase(sectionName) {
+  const index = slides.findIndex(s => s.section === sectionName);
+  if (index !== -1) goToSlide(index);
+}
+
+function nextSlide() {
+  if (currentSlideIndex < slides.length - 1) {
+    goToSlide(currentSlideIndex + 1);
+  }
+}
+
+function prevSlide() {
+  if (currentSlideIndex > 0) {
+    goToSlide(currentSlideIndex - 1);
+  }
+}
+
+function updateNavButtons() {
+  const prevBtn = document.querySelector('.slide-nav .nav-btn:first-child');
+  const nextBtn = document.querySelector('.slide-nav .nav-btn:last-of-type');
+
+  if (prevBtn) prevBtn.disabled = currentSlideIndex === 0;
+  if (nextBtn) nextBtn.disabled = currentSlideIndex === slides.length - 1;
+
+  const counter = document.querySelector('.slide-counter');
+  if (counter) counter.textContent = `Card ${currentSlideIndex + 1} of ${slides.length}`;
+}
+
+function updatePhaseNav() {
+  const currentSection = slides[currentSlideIndex].section;
+  const phase = sectionToPhase[currentSection];
+
+  document.querySelectorAll('.phase-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.phase === phase);
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('mainContent');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+  setHeaderHeight();
+}
+
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── GUIDED PRACTICE STAGED REVEAL ──
+var gpStage = {};
+var gpLabels = ['Is that too high or too low?', 'Show the actual answer', ''];
+function revealGP(prefix) {
+  if (!gpStage[prefix]) gpStage[prefix] = 0;
+  gpStage[prefix]++;
+  var s = gpStage[prefix];
+  var btn = document.getElementById(prefix + '-btn');
+  document.getElementById(prefix + '-s' + s).style.display = 'block';
+  if (s < 3) {
+    btn.textContent = gpLabels[s - 1];
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+// ── REVEAL HELPERS ──
+var revealStates = {};
+function revealSequence(ids, btnId) {
+  if (!revealStates[btnId]) revealStates[btnId] = 0;
+  var idx = revealStates[btnId];
+  if (idx < ids.length) {
+    document.getElementById(ids[idx]).classList.add('shown');
+    revealStates[btnId]++;
+  }
+  if (revealStates[btnId] >= ids.length) {
+    document.getElementById(btnId).style.display = 'none';
+  }
+}
+
+// ── PRACTICE STATE ──
+var totalProblems = 10;
+var currentProblem = 0;
+var problems = [];
+var results = [];
+
+function formatNum(n) { return n.toLocaleString('en-GB'); }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function roundToNearest(n, base) { return Math.round(n / base) * base; }
+
+function generateProblems() {
+  problems = [];
+  var used = {};
+  for (var i = 0; i < totalProblems; i++) {
+    var p, key, tries = 0;
+    do {
+      tries++;
+      var a, b;
+      // Mix of 2-digit x 1-digit and 3-digit x 1-digit
+      if (i < 5) {
+        a = randInt(15, 95);
+        if (a % 10 === 0) a += randInt(1, 4);
+        b = randInt(3, 9);
+      } else {
+        a = randInt(100, 450);
+        b = randInt(3, 9);
+      }
+      var actual = a * b;
+      var roundA = a < 100 ? roundToNearest(a, 10) : roundToNearest(a, 100);
+      var est = roundA * b;
+      p = { a: a, b: b, actual: actual, roundA: roundA, roundB: b, est: est };
+      key = a + 'x' + b;
+    } while (used[key] && tries < 30);
+    used[key] = true;
+    problems.push(p);
+  }
+}
+
+function buildDots() {
+  var container = document.getElementById('dot-counter');
+  container.innerHTML = '';
+  for (var i = 0; i < totalProblems; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' current' : '');
+    dot.id = 'dot-' + i;
+    dot.textContent = i + 1;
+    container.appendChild(dot);
+  }
+}
+
+function startPractice() {
+  currentProblem = 0;
+  results = [];
+  generateProblems();
+  buildDots();
+  document.getElementById('summary-card').style.display = 'none';
+  document.getElementById('practice-area').style.display = 'block';
+  showProblem();
+}
+
+function showProblem() {
+  var p = problems[currentProblem];
+  document.getElementById('problem-display').innerHTML = formatNum(p.a) + ' x ' + formatNum(p.b);
+  document.getElementById('estimate-input').value = '';
+  document.getElementById('estimate-input').disabled = false;
+  document.getElementById('estimate-input').focus();
+  document.getElementById('check-btn').style.display = 'inline-block';
+  document.getElementById('next-btn').style.display = 'none';
+  var fc = document.getElementById('feedback-card');
+  fc.classList.remove('show', 'green-fb', 'amber-fb', 'red-fb');
+
+  // Update dot
+  for (var i = 0; i < totalProblems; i++) {
+    var d = document.getElementById('dot-' + i);
+    d.classList.remove('current');
+    if (i === currentProblem && !results[i]) d.classList.add('current');
+  }
+}
+
+function checkEstimate() {
+  var input = document.getElementById('estimate-input');
+  var raw = input.value.replace(/,/g, '').replace(/\s/g, '');
+  if (raw === '' || isNaN(Number(raw))) {
+    input.style.borderColor = 'var(--red)';
+    return;
+  }
+  var studentEst = parseInt(raw, 10);
+  var p = problems[currentProblem];
+  var actual = p.actual;
+  var pct = Math.abs(studentEst - actual) / actual * 100;
+
+  var band, bandClass, bandTitle, dotColor;
+  if (pct <= 10) {
+    band = 'green'; bandClass = 'green-fb'; dotColor = 'green';
+    bandTitle = 'Within 10%. Your Radar is sharp.';
+  } else if (pct <= 20) {
+    band = 'amber'; bandClass = 'amber-fb'; dotColor = 'amber';
+    bandTitle = 'Within 20%. Reasonable, but room to improve.';
+  } else {
+    band = 'red'; bandClass = 'red-fb'; dotColor = 'red';
+    bandTitle = 'Beyond 20%. Radar needs recalibrating.';
+  }
+
+  // Build feedback
+  var detail = '';
+  detail += '<div class="rounding-grid">';
+  detail += '<div class="rounding-row"><span class="rounding-original">' + formatNum(p.a) + '</span>';
+  detail += '<span class="rounding-arrow">→</span>';
+  detail += '<span class="rounding-rounded">' + formatNum(p.roundA) + '</span></div>';
+  detail += '</div>';
+  detail += '<p style="margin-top: 8px;"><strong>Smart estimate:</strong> <span class="mono">' + formatNum(p.roundA) + ' x ' + p.roundB + ' = ' + formatNum(p.est) + '</span></p>';
+  detail += '<p><strong>Your estimate:</strong> <span class="mono">' + formatNum(studentEst) + '</span></p>';
+  detail += '<p><strong>Actual answer:</strong> <span class="mono">' + formatNum(actual) + '</span></p>';
+  detail += '<p><strong>Your estimate was <span class="mono">' + pct.toFixed(1) + '%</span> away.</strong></p>';
+
+  results[currentProblem] = { a: p.a, b: p.b, actual: actual, studentEst: studentEst, pct: pct, band: band };
+
+  // Update dot
+  var dot = document.getElementById('dot-' + currentProblem);
+  dot.classList.remove('current');
+  dot.classList.add(dotColor);
+
+  // Show feedback
+  var fc = document.getElementById('feedback-card');
+  fc.className = 'feedback-card show ' + bandClass;
+  document.getElementById('feedback-title').textContent = bandTitle;
+  document.getElementById('feedback-detail').innerHTML = detail;
+
+  input.disabled = true;
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function nextProblem() {
+  currentProblem++;
+  if (currentProblem >= totalProblems) {
+    showSummary();
+  } else {
+    showProblem();
+  }
+}
+
+function showSummary() {
+  document.getElementById('practice-area').style.display = 'none';
+
+  var totalPct = 0;
+  results.forEach(function(r) { totalPct += r.pct; });
+  var avgPct = totalPct / results.length;
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = avgPct.toFixed(1) + '%';
+  if (avgPct <= 10) scoreEl.style.color = 'var(--green-dark)';
+  else if (avgPct <= 20) scoreEl.style.color = 'var(--amber-dark)';
+  else scoreEl.style.color = 'var(--red-dark)';
+
+  var msg = '';
+  if (avgPct <= 7) msg = 'Sharp Radar. Your estimates are consistently close. You have unlocked the Go Deeper extension.';
+  else if (avgPct <= 10) msg = 'Sharp Radar. Your estimates are consistently close.';
+  else if (avgPct <= 20) msg = 'Developing Radar. Keep practising your rounding.';
+  else msg = 'Radar needs work. Focus on rounding to the nearest 10 or 100.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var tbody = document.getElementById('summary-tbody');
+  tbody.innerHTML = '';
+  results.forEach(function(r, i) {
+    var color = r.band === 'green' ? 'var(--green-dark)' : r.band === 'amber' ? 'var(--amber-dark)' : 'var(--red-dark)';
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + (i + 1) + '</td>' +
+      '<td class="mono">' + formatNum(r.a) + ' x ' + r.b + '</td>' +
+      '<td class="mono">' + formatNum(r.studentEst) + '</td>' +
+      '<td class="mono">' + formatNum(r.actual) + '</td>' +
+      '<td class="mono" style="color: ' + color + ';">' + r.pct.toFixed(1) + '%</td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('summary-card').style.display = 'block';
+}
+
+// ── BOOK WORK ──
+function generateBookWork() {
+  var grid = document.getElementById('book-grid');
+  grid.innerHTML = '';
+  var bookProblems = [];
+  var used = {};
+
+  // 4 x 2-digit by 1-digit, 4 x 3-digit by 1-digit
+  for (var i = 0; i < 8; i++) {
+    var a, b, tries = 0, key;
+    do {
+      tries++;
+      if (i < 4) {
+        a = randInt(23, 89);
+        if (a % 10 === 0) a += randInt(1, 4);
+      } else {
+        a = randInt(112, 489);
+      }
+      b = randInt(3, 9);
+      key = a + 'x' + b;
+    } while (used[key] && tries < 30);
+    used[key] = true;
+    var actual = a * b;
+    var roundA = a < 100 ? roundToNearest(a, 10) : roundToNearest(a, 100);
+    var est = roundA * b;
+    bookProblems.push({ a: a, b: b, actual: actual, roundA: roundA, est: est });
+  }
+
+  bookProblems.forEach(function(p, i) {
+    var card = document.createElement('div');
+    card.className = 'book-card';
+    card.innerHTML =
+      '<div class="book-label">Problem ' + (i + 1) + '</div>' +
+      '<div class="book-problem">' + formatNum(p.a) + ' x ' + p.b + '</div>' +
+      '<div class="book-answer" id="book-ans-' + i + '">' +
+        '<div class="rounding-grid">' +
+          '<div class="rounding-row">' +
+            '<span class="rounding-original">' + formatNum(p.a) + '</span>' +
+            '<span class="rounding-arrow">→</span>' +
+            '<span class="rounding-rounded">' + formatNum(p.roundA) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<p><strong>Estimate:</strong> <span style="font-family: \'Space Mono\', monospace; font-weight: 700;">' + formatNum(p.roundA) + ' x ' + p.b + ' = ' + formatNum(p.est) + '</span></p>' +
+        '<p><strong>Answer:</strong> <span style="font-family: \'Space Mono\', monospace; font-weight: 700; color: var(--teal-dark);">' + formatNum(p.actual) + '</span></p>' +
+      '</div>' +
+      '<button class="book-toggle" onclick="toggleBookAnswer(' + i + ', this)">Check answer</button>';
+    grid.appendChild(card);
+  });
+}
+
+function toggleBookAnswer(i, btn) {
+  var el = document.getElementById('book-ans-' + i);
+  el.classList.toggle('shown');
+  btn.classList.toggle('shown');
+  btn.textContent = el.classList.contains('shown') ? 'Hide answer' : 'Check answer';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+  startPractice();
+  generateBookWork();
+  goToSlide(0);
+
+  // Arrow key navigation
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'Enter') {
+      var input = document.getElementById('estimate-input');
+      if (input && !input.disabled && document.activeElement === input) {
+        checkEstimate();
+      } else if (input && input.disabled && document.getElementById('next-btn').style.display !== 'none') {
+        nextProblem();
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>
