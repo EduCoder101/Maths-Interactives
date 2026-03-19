@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 5A: Constant Difference Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --pink: #FF67E7;
+    --purple: #AD1DEB;
+    --blue: #3a7bd5;
+    --blue-dark: #2c5ea8;
+    --green: #2ecc71;
+    --green-dark: #1a8a4a;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --header-h: 80px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,217,61,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="plenary"].active::after { background: var(--purple); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--amber); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 40px 60px 80px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Slide Navigation */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 14px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    min-height: 400px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 24px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 16px; }
+
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 24px; margin-bottom: 12px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Tags */
+  .tag { display: inline-block; background: var(--amber); color: var(--text);
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    border-radius: 20px; padding: 6px 16px; margin-right: 8px; margin-bottom: 12px; }
+
+  /* Callouts */
+  .callout { border-radius: 12px; padding: 20px 24px; margin: 18px 0;
+    border-left: 5px solid var(--blue); background: #f0f7ff; }
+  .callout p { font-size: 1.3rem; line-height: 1.7; color: #0a2f6e; }
+  .callout.teal { border-left-color: var(--teal); background: #f0fafa; }
+  .callout.teal p { color: #0a3832; }
+  .callout.amber { border-left-color: var(--amber); background: #fffbf0; }
+  .callout.amber p { color: #665500; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); border-radius: 12px; padding: 20px 24px; margin: 18px 0; }
+  .callout-amber p { color: #665500; font-size: 1.3rem; line-height: 1.7; }
+  .callout-amber .label { color: var(--amber-dark); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout-teal { background: #f0fafa; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; font-size: 1.3rem; line-height: 1.7; }
+  .callout-blue { background: #f0f7ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-blue p { color: #0a2f6e; font-size: 1.3rem; line-height: 1.7; }
+
+  /* Equations */
+  .equation-box {
+    background: #f0f7ff; border: 2px solid #d0e8ff; border-radius: 14px;
+    padding: 20px 28px; margin: 16px 0; font-family: 'Space Mono', monospace;
+    font-size: 48px; font-weight: 700; color: var(--text); display: inline-block;
+  }
+
+  /* Reveal Buttons */
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-block;
+  }
+  .reveal-btn:hover { background: #444; }
+  .reveal-btn.blue { background: var(--blue); }
+  .reveal-btn.blue:hover { background: var(--blue-dark); }
+  .reveal-btn.teal { background: var(--teal); color: var(--text); }
+  .reveal-btn.teal:hover { background: var(--teal-dark); color: #fff; }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Collapse styles */
+  .collapse-header {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: #2D3436; padding: 16px 24px; border-radius: 12px;
+    cursor: pointer; display: flex; justify-content: space-between;
+    align-items: center; font-weight: 700; font-size: 17px;
+    margin-bottom: 20px; transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .collapse-header:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    transform: translateY(-2px);
+  }
+  .collapse-header.blue {
+    background: linear-gradient(135deg, #b3d9ff, #3a7bd5);
+    color: #fff;
+  }
+  .collapse-icon {
+    font-size: 24px;
+    transition: transform 0.3s;
+  }
+  .collapse-header.expanded .collapse-icon {
+    transform: rotate(180deg);
+  }
+  .collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .collapse-content.expanded {
+    max-height: 3000px;
+  }
+
+  /* Algo table */
+  .algo-table {
+    font-family: 'Space Mono', monospace; font-size: 26px;
+    border-collapse: collapse; margin: 8px 0;
+  }
+  .algo-table td {
+    padding: 2px 4px; text-align: center;
+    min-width: 28px; line-height: 1.7; color: var(--text);
+  }
+  .algo-table td.op { text-align: left; min-width: 18px; color: var(--muted); font-size: 22px; }
+  .algo-table .algo-line td { border-top: 2.5px solid var(--text); }
+  .algo-table td.crossed { text-decoration: line-through; color: var(--red); position: relative; }
+  .algo-table td.small-carry { font-size: 13px; color: var(--orange); vertical-align: top; }
+
+  /* Messy algorithm visual */
+  .messy-algo {
+    background: #fff4f4;
+    border: 3px dashed var(--red);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0;
+    display: inline-block;
+  }
+  .messy-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  /* Practice cards */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .practice-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transition: all 0.2s;
+  }
+
+  .practice-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+  }
+
+  .practice-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .practice-equation {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 12px 0;
+    text-align: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .practice-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .hint-btn, .answer-btn {
+    flex: 1;
+    background: var(--amber);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .hint-btn:hover, .answer-btn:hover {
+    background: var(--amber-dark);
+    transform: translateY(-1px);
+  }
+
+  .answer-btn {
+    background: var(--teal);
+  }
+
+  .answer-btn:hover {
+    background: var(--teal-dark);
+  }
+
+  .practice-hint, .practice-answer {
+    margin-top: 12px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .practice-hint {
+    background: #fffbf0;
+    border-left: 4px solid var(--amber);
+    color: #665500;
+  }
+
+  .practice-answer {
+    background: #f0fafa;
+    border-left: 4px solid var(--teal);
+  }
+
+  .practice-hint.shown, .practice-answer.shown {
+    display: block;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .tier-header {
+    background: linear-gradient(135deg, var(--teal), var(--blue));
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 18px;
+    margin: 24px 0 16px;
+  }
+
+  .tier-header.tier-2 {
+    background: linear-gradient(135deg, var(--amber), var(--orange));
+    color: #2D3436;
+  }
+
+  .tier-header.tier-3 {
+    background: linear-gradient(135deg, var(--purple), #6E3AFF);
+    color: #fff;
+  }
+
+  /* Go Deeper Extension */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+    width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+    border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+    font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+    background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+    width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+    transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+    display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+    border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+    display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+    padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+    background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+    border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Addition & Subtraction</div>
+  <h1><span>Constant Difference</span> · Mental Calculation Strategy</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToSlide(0)">Learning</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToSlide(1)">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToSlide(4)">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToSlide(11)">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToSlide(16)">Practice</button>
+  <button class="phase-btn" data-phase="plenary" onclick="goToSlide(17)">Plenary</button>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">The Challenge</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">What Happens</button>
+      <button class="sidebar-item" onclick="goToSlide(3)">The Big Idea</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(4)">Step 1: The Problem</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Step 2: The Big Idea</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Step 3: Visual Proof</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Step 4: Try It Yourself</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Step 5: Worked Example</button>
+      <button class="sidebar-item" onclick="goToSlide(9)">Step 6: Key Points</button>
+      <button class="sidebar-item" onclick="goToSlide(10)">Example 2: Money</button>
+      <button class="sidebar-item" onclick="goToSlide(11)">Example 3: 5,000</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(12)">Interactive Number Line</button>
+      <button class="sidebar-item" onclick="goToSlide(13)">Q1: 5,000 - 2,314</button>
+      <button class="sidebar-item" onclick="goToSlide(14)">Q2: $20.00 - $8.45</button>
+      <button class="sidebar-item" onclick="goToSlide(15)">Q3: 7,000 - 4,821</button>
+      <button class="sidebar-item" onclick="goToSlide(16)">Discussion Questions</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(17)">All Practice Cards</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Plenary</div>
+      <button class="sidebar-item" onclick="goToSlide(18)">Wrap Up</button>
+    </div>
+  </div>
+</aside>
+
+<main id="mainContent">
+
+<!-- SLIDE 0: LISC -->
+<div class="slide active" data-slide="0">
+  <div class="card lisc-card">
+    <div class="lisc-content">
+      <h2>Learning Intention & Success Criteria</h2>
+      <h3>Learning Intention</h3>
+      <p>We are learning to use the constant difference strategy to make subtraction easier, especially when numbers contain zeros.</p>
+      <h3>Success Criteria</h3>
+      <ul style="padding-left: 28px;">
+        <li>I can shift both numbers in a subtraction by the same amount to remove zeros</li>
+        <li>I can explain that the difference between two numbers stays the same when both are shifted equally</li>
+        <li>I can use constant difference to avoid messy trading across zeros</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(0)" disabled>Previous</button>
+    <span class="slide-counter">Card 1 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(1)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 1: Hook - The Challenge -->
+<div class="slide" data-slide="1">
+  <div class="card">
+    <h2>The Challenge</h2>
+    <div style="text-align:center; margin:24px 0;">
+      <div style="font-family:'Space Mono',monospace; font-size:48px; font-weight:700; color:var(--text);">
+        10,000 − 4,876
+      </div>
+    </div>
+    <p style="margin-top:16px; font-size:1.35rem; text-align:center;">Solve this using the standard algorithm.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(0)">Previous</button>
+    <span class="slide-counter">Card 2 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(2)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 2: Hook - What Happens -->
+<div class="slide" data-slide="2">
+  <div class="card">
+    <h2>What Happens (Teacher Notes)</h2>
+    <p>Students will experience:</p>
+    <ul>
+      <li><strong>Confusion</strong>: "Where do I start? There's nothing to subtract from!"</li>
+      <li><strong>Trading cascade errors</strong>: Crossing out the wrong zeros, forgetting which became a 9</li>
+      <li><strong>Lost track</strong>: "Wait, did I already borrow from this column?"</li>
+      <li><strong>Messy work</strong>: Papers covered in crossed-out numbers and arrows</li>
+      <li><strong>Wrong answers</strong>: Even capable students will make mistakes in the complexity</li>
+    </ul>
+
+    <div class="collapse-header amber" onclick="toggleCollapse('what-happens-detail', this)">
+      <span>See the messy algorithm visual</span>
+      <span class="collapse-icon">▼</span>
+    </div>
+    <div id="what-happens-detail" class="collapse-content">
+      <div style="margin-top: 20px;">
+        <div class="messy-algo">
+          <div class="messy-title">What Student Work Looks Like:</div>
+          <table class="algo-table">
+            <tr>
+              <td class="small-carry" style="padding-left:8px;"></td>
+              <td class="small-carry">9</td>
+              <td class="small-carry">9</td>
+              <td class="small-carry">9</td>
+              <td class="small-carry">10</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="crossed">1</td>
+              <td class="crossed">0</td>
+              <td class="crossed">0</td>
+              <td class="crossed">0</td>
+              <td class="crossed">0</td>
+            </tr>
+            <tr>
+              <td class="op">−</td>
+              <td></td>
+              <td>4</td>
+              <td>8</td>
+              <td>7</td>
+              <td>6</td>
+            </tr>
+            <tr class="algo-line">
+              <td></td>
+              <td></td>
+              <td>5</td>
+              <td>1</td>
+              <td>2</td>
+              <td>4</td>
+            </tr>
+          </table>
+          <p style="font-size:14px; color:var(--red); margin-top:12px; font-weight:600;">
+            Notice: Five numbers crossed out, four carry nines written in tiny text above, multiple opportunities for error
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(1)">Previous</button>
+    <span class="slide-counter">Card 3 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(3)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 3: Hook - The Big Idea -->
+<div class="slide" data-slide="3">
+  <div class="card">
+    <h2>The Big Idea (Reveal After Struggle)</h2>
+    <div class="callout teal">
+      <span class="label">The Promise</span>
+      <p><strong>What if I told you we never have to trade across zeros again?</strong></p>
+    </div>
+
+    <div class="callout amber">
+      <span class="label">The Core Concept</span>
+      <p>Subtraction is just finding the <strong>distance</strong> between two numbers. If you move both numbers by the same amount, the distance stays exactly the same.</p>
+    </div>
+
+    <p style="margin-top:16px; font-size:1.35rem;">This is <strong>Constant Difference</strong>, and it eliminates every single zero in one strategic move.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(2)">Previous</button>
+    <span class="slide-counter">Card 4 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(4)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 4: I Do - Step 1 -->
+<div class="slide" data-slide="4">
+  <div class="card">
+    <h2>Step 1: The Problem</h2>
+    <p>Let us look at a tricky subtraction problem:</p>
+    <div style="background:#f8f9fa; padding:20px; border-radius:12px; margin:16px 0; text-align:center;">
+      <div style="font-family:'Space Mono',monospace; font-size:48px; font-weight:700; color:var(--text);">10,000 − 4,876</div>
+    </div>
+    <p><strong>What makes this hard?</strong> We have zeros in the top number. If we try the standard column method, we would need to trade across all those zeros, which is slow and confusing.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(3)">Previous</button>
+    <span class="slide-counter">Card 5 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(5)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 5: I Do - Step 2 -->
+<div class="slide" data-slide="5">
+  <div class="card">
+    <h2>Step 2: The Big Idea</h2>
+    <div class="callout teal">
+      <span class="label">Constant Difference</span>
+      <p>Subtraction is really just finding the <strong>distance</strong> between two numbers on a number line. If you move both numbers by the same amount, the distance between them stays exactly the same.</p>
+    </div>
+    <p style="margin-top:16px; font-size:1.35rem;">This is the secret to avoiding all that trading! We can shift both numbers by any amount we choose, as long as we shift them both by the same amount.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(4)">Previous</button>
+    <span class="slide-counter">Card 6 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(6)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 6: I Do - Step 3 -->
+<div class="slide" data-slide="6">
+  <div class="card">
+    <h2>Step 3: Visual Proof - A Number Line</h2>
+    <p>Watch what happens when we draw the two numbers on a number line:</p>
+    <div style="text-align:center; margin:20px 0;">
+      <svg width="600" height="100" viewBox="0 0 600 100">
+        <line x1="50" y1="50" x2="550" y2="50" stroke="#2D3436" stroke-width="3"/>
+        <line x1="50" y1="45" x2="50" y2="55" stroke="#2D3436" stroke-width="3"/>
+        <text x="50" y="75" font-family="Space Mono" font-size="14" text-anchor="middle" fill="#2D3436">4,876</text>
+        <line x1="550" y1="45" x2="550" y2="55" stroke="#2D3436" stroke-width="3"/>
+        <text x="550" y="75" font-family="Space Mono" font-size="14" text-anchor="middle" fill="#2D3436">10,000</text>
+        <path d="M 60 35 Q 300 15 540 35" fill="none" stroke="#4ECDC4" stroke-width="2"/>
+        <text x="300" y="25" font-family="Fredoka" font-size="15" font-weight="600" text-anchor="middle" fill="#4ECDC4">Distance = 5,124</text>
+      </svg>
+    </div>
+    <p>Now, if we shift <strong>both</strong> numbers left by 1 (subtract 1 from each), look what happens:</p>
+    <div style="text-align:center; margin:20px 0;">
+      <svg width="600" height="100" viewBox="0 0 600 100">
+        <line x1="50" y1="50" x2="550" y2="50" stroke="#2D3436" stroke-width="3"/>
+        <line x1="50" y1="45" x2="50" y2="55" stroke="#2D3436" stroke-width="3"/>
+        <text x="50" y="75" font-family="Space Mono" font-size="14" text-anchor="middle" fill="#2D3436">4,875</text>
+        <line x1="550" y1="45" x2="550" y2="55" stroke="#2D3436" stroke-width="3"/>
+        <text x="550" y="75" font-family="Space Mono" font-size="14" text-anchor="middle" fill="#2D3436">9,999</text>
+        <path d="M 60 35 Q 300 15 540 35" fill="none" stroke="#4ECDC4" stroke-width="2"/>
+        <text x="300" y="25" font-family="Fredoka" font-size="15" font-weight="600" text-anchor="middle" fill="#4ECDC4">Distance = 5,124</text>
+      </svg>
+    </div>
+    <p><strong>Same distance!</strong> The gap between the numbers is still 5,124, even though both numbers are different now.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(5)">Previous</button>
+    <span class="slide-counter">Card 7 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(7)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 7: I Do - Step 4 (Interactive) -->
+<div class="slide" data-slide="7">
+  <div class="card">
+    <h2>Step 4: Try It Yourself</h2>
+    <p>In the interactive below, shift the numbers and watch the distance stay constant:</p>
+
+    <div style="background:#f0fafa; border:2px solid var(--teal); border-radius:12px; padding:20px; margin:24px 0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h4 style="font-size:16px; color:var(--teal-dark); margin:0;">Drag or shift the numbers</h4>
+        <button onclick="resetDemo()" style="background:var(--red); color:white; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">↺ Reset</button>
+      </div>
+
+      <div style="background:white; padding:20px; border-radius:8px; margin-bottom:12px;">
+        <svg id="demoNumberLine" viewBox="0 0 1000 180" style="width:100%; height:180px;"></svg>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:4px;">Larger</div>
+          <div id="demo-display1" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:#FF6B6B;">10,000</div>
+        </div>
+        <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:4px;">Smaller</div>
+          <div id="demo-display2" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--teal);">4,876</div>
+        </div>
+        <div style="background:white; padding:12px; border-radius:8px; text-align:center; border:2px solid var(--purple);">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--purple); margin-bottom:4px;">Distance</div>
+          <div id="demo-diff" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--purple);">5,124</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+        <button onclick="shiftDemoBoth(-100)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">−100</button>
+        <button onclick="shiftDemoBoth(-10)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">−10</button>
+        <button onclick="shiftDemoBoth(-1)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">−1</button>
+        <button onclick="shiftDemoBoth(1)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">+1</button>
+        <button onclick="shiftDemoBoth(10)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">+10</button>
+        <button onclick="shiftDemoBoth(100)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">+100</button>
+      </div>
+
+      <div style="margin-top:12px; font-size:14px; color:#0a3832; text-align:center;">
+        Drag the circles or use the shift buttons, the distance stays constant!
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(6)">Previous</button>
+    <span class="slide-counter">Card 8 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(8)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 8: I Do - Step 5 (Worked Example) -->
+<div class="slide" data-slide="8">
+  <div class="card">
+    <h2>Step 5: Worked Example</h2>
+    <p style="font-size:1.35rem;">Let us solve the original problem step by step.</p>
+
+    <div class="equation-box" style="display:block; text-align:center; margin:16px 0;">10,000 − 4,876</div>
+
+    <div class="callout blue">
+      <span class="label">Step 1: Spot the problem</span>
+      <p>10,000 is full of zeros. If we use the standard algorithm, we will need to trade across every single column. That is where errors happen.</p>
+    </div>
+
+    <div class="callout teal">
+      <span class="label">Step 2: Shift both numbers down by 1</span>
+      <p style="font-size:1.3rem;">
+        <span style="color:var(--red);">10,000 − 1</span> = <strong style="color:var(--teal-dark);">9,999</strong><br>
+        <span style="color:var(--red);">4,876 − 1</span> = <strong style="color:var(--teal-dark);">4,875</strong>
+      </p>
+    </div>
+
+    <div class="callout" style="background:#fffbf0; border-left-color:var(--amber);">
+      <span class="label" style="color:var(--amber-dark);">Step 3: Solve the new equation (no trading needed!)</span>
+      <p style="font-size:1.2rem;">Now we solve <strong>9,999 − 4,875</strong>. Look how clean this is:</p>
+    </div>
+
+    <div style="text-align:center; margin:20px 0;">
+      <table class="algo-table">
+        <tr>
+          <td></td>
+          <td>9</td>
+          <td>,</td>
+          <td>9</td>
+          <td>9</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td class="op">−</td>
+          <td>4</td>
+          <td>,</td>
+          <td>8</td>
+          <td>7</td>
+          <td>5</td>
+        </tr>
+        <tr class="algo-line">
+          <td></td>
+          <td style="color:var(--teal-dark);">5</td>
+          <td style="color:var(--teal-dark);">,</td>
+          <td style="color:var(--teal-dark);">1</td>
+          <td style="color:var(--teal-dark);">2</td>
+          <td style="color:var(--teal-dark);">4</td>
+        </tr>
+      </table>
+    </div>
+
+    <p style="text-align:center; font-size:1.2rem; color:var(--muted); margin-bottom:16px;">No trading, no crossing out, no confusion!</p>
+
+    <div class="callout" style="background:#e8f8f0; border-left-color:#2ecc71;">
+      <span class="label" style="color:#1a8a4a;">The Answer</span>
+      <p><strong>10,000 − 4,876 = 5,124</strong>, and we got there cleanly and efficiently.</p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(7)">Previous</button>
+    <span class="slide-counter">Card 9 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(9)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 9: I Do - Step 6 (Key Points) -->
+<div class="slide" data-slide="9">
+  <div class="card">
+    <h2>Step 6: Key Points</h2>
+    <ul>
+      <li>Constant Difference works because subtraction is finding distance between numbers</li>
+      <li>When you shift both numbers by the same amount, the distance never changes</li>
+      <li>Use this strategy when the top number has zeros (1,000, 5,000, 10,000, etc.)</li>
+      <li>Choose a shift that removes the zeros, making the problem easier</li>
+    </ul>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(8)">Previous</button>
+    <span class="slide-counter">Card 10 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(10)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 10: I Do - Example 2 (Money) -->
+<div class="slide" data-slide="10">
+  <div class="card">
+    <span class="tag" style="background:var(--amber);color:var(--text);">Example 2</span>
+    <span class="tag" style="background:var(--green);color:#fff;">Money</span>
+    <h2>It works with money too</h2>
+
+    <div class="equation-box" style="display:block; text-align:center; margin:20px 0;">$100.00 − $67.45</div>
+
+    <p style="font-size:1.35rem; margin:16px 0;">$100.00 is full of zeros. Shift both amounts down by $0.01:</p>
+
+    <div class="callout teal">
+      <span class="label">Shift both down by $0.01</span>
+      <p style="font-size:1.3rem;">
+        <span style="color:var(--red);">$100.00 − $0.01</span> = <strong style="color:var(--teal-dark);">$99.99</strong><br>
+        <span style="color:var(--red);">$67.45 − $0.01</span> = <strong style="color:var(--teal-dark);">$67.44</strong>
+      </p>
+    </div>
+
+    <p style="font-size:1.35rem; margin:16px 0;">Now solve <strong>$99.99 − $67.44</strong>. No zeros, no trading:</p>
+
+    <div style="text-align:center; margin:20px 0;">
+      <table class="algo-table">
+        <tr><td></td><td>$</td><td>9</td><td>9</td><td>.</td><td>9</td><td>9</td></tr>
+        <tr><td class="op">−</td><td>$</td><td>6</td><td>7</td><td>.</td><td>4</td><td>4</td></tr>
+        <tr class="algo-line"><td></td><td style="color:var(--teal-dark);">$</td><td style="color:var(--teal-dark);">3</td><td style="color:var(--teal-dark);">2</td><td style="color:var(--teal-dark);">.</td><td style="color:var(--teal-dark);">5</td><td style="color:var(--teal-dark);">5</td></tr>
+      </table>
+    </div>
+
+    <div class="callout" style="background:#e8f8f0; border-left-color:#2ecc71;">
+      <span class="label" style="color:#1a8a4a;">The Answer</span>
+      <p><strong>$100.00 − $67.45 = $32.55</strong></p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(9)">Previous</button>
+    <span class="slide-counter">Card 11 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(11)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 11: I Do - Example 3 (Bigger Shift) -->
+<div class="slide" data-slide="11">
+  <div class="card">
+    <span class="tag" style="background:var(--blue);color:#fff;">Example 3</span>
+    <span class="tag" style="background:var(--amber);color:var(--text);">Bigger Number</span>
+    <h2>Another example</h2>
+
+    <div class="equation-box" style="display:block; text-align:center; margin:20px 0;">5,000 − 2,314</div>
+
+    <p style="font-size:1.35rem; margin:16px 0;">Three zeros in 5,000. Shift both numbers down by 1:</p>
+
+    <div class="callout teal">
+      <span class="label">Shift both down by 1</span>
+      <p style="font-size:1.3rem;">
+        <span style="color:var(--red);">5,000 − 1</span> = <strong style="color:var(--teal-dark);">4,999</strong><br>
+        <span style="color:var(--red);">2,314 − 1</span> = <strong style="color:var(--teal-dark);">2,313</strong>
+      </p>
+    </div>
+
+    <p style="font-size:1.35rem; margin:16px 0;">Now solve <strong>4,999 − 2,313</strong>:</p>
+
+    <div style="text-align:center; margin:20px 0;">
+      <table class="algo-table">
+        <tr><td></td><td>4</td><td>,</td><td>9</td><td>9</td><td>9</td></tr>
+        <tr><td class="op">−</td><td>2</td><td>,</td><td>3</td><td>1</td><td>3</td></tr>
+        <tr class="algo-line"><td></td><td style="color:var(--teal-dark);">2</td><td style="color:var(--teal-dark);">,</td><td style="color:var(--teal-dark);">6</td><td style="color:var(--teal-dark);">8</td><td style="color:var(--teal-dark);">6</td></tr>
+      </table>
+    </div>
+
+    <div class="callout" style="background:#e8f8f0; border-left-color:#2ecc71;">
+      <span class="label" style="color:#1a8a4a;">The Answer</span>
+      <p><strong>5,000 − 2,314 = 2,686</strong></p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(10)">Previous</button>
+    <span class="slide-counter">Card 12 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(12)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 12: We Do - Interactive Number Line -->
+<div class="slide" data-slide="12">
+  <div class="card">
+    <h2>We Do: Interactive Number Line</h2>
+    <p>Let us practise together. Change the numbers and explore constant difference:</p>
+
+    <div style="background:#f0fafa; border:2px solid var(--teal); border-radius:12px; padding:20px; margin:24px 0;">
+      <div style="display:flex; gap:12px; margin-bottom:16px; align-items:center;">
+        <label style="font-weight:600;">Larger number:</label>
+        <input type="number" id="practice-num1" value="5000" style="font-family:'Space Mono',monospace; font-size:16px; padding:6px 12px; border:2px solid #e0e0e0; border-radius:6px; width:100px; font-weight:600;" onchange="updatePracticeDisplay()">
+        <label style="font-weight:600; margin-left: 20px;">Smaller number:</label>
+        <input type="number" id="practice-num2" value="2314" style="font-family:'Space Mono',monospace; font-size:16px; padding:6px 12px; border:2px solid #e0e0e0; border-radius:6px; width:100px; font-weight:600;" onchange="updatePracticeDisplay()">
+      </div>
+
+      <div style="background:white; padding:20px; border-radius:8px; margin-bottom:12px;">
+        <svg id="practiceNumberLine" viewBox="0 0 1000 180" style="width:100%; height:180px;"></svg>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:4px;">Larger</div>
+          <div id="practice-display1" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:#FF6B6B;">5,000</div>
+        </div>
+        <div style="background:white; padding:12px; border-radius:8px; text-align:center;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:4px;">Smaller</div>
+          <div id="practice-display2" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--teal);">2,314</div>
+        </div>
+        <div style="background:white; padding:12px; border-radius:8px; text-align:center; border:2px solid var(--purple);">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--purple); margin-bottom:4px;">Distance</div>
+          <div id="practice-diff" style="font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--purple);">2,686</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+        <button onclick="shiftPracticeBoth(-100)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">−100</button>
+        <button onclick="shiftPracticeBoth(-10)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">−10</button>
+        <button onclick="shiftPracticeBoth(-1)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">−1</button>
+        <button onclick="shiftPracticeBoth(1)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">+1</button>
+        <button onclick="shiftPracticeBoth(10)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">+10</button>
+        <button onclick="shiftPracticeBoth(100)" style="background:var(--amber); color:#2D3436; border:none; padding:6px 14px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">+100</button>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(11)">Previous</button>
+    <span class="slide-counter">Card 13 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(13)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 13: We Do - Problem 1 -->
+<div class="slide" data-slide="13">
+  <div class="card">
+    <h2>We Do: Problem 1</h2>
+    <p style="font-size:1.35rem; margin-bottom:20px;">5,000 − 2,314 = ?</p>
+    <button class="reveal-btn blue" onclick="toggleReveal(this, 'wed1')">Show working</button>
+    <div id="wed1" class="step-reveal">
+      <p style="margin-top:16px;">Shift down by 1: 4,999 − 2,313</p>
+      <div style="text-align:center; margin:20px 0;">
+        <table class="algo-table">
+          <tr>
+            <td></td>
+            <td>4</td>
+            <td>9</td>
+            <td>9</td>
+            <td>9</td>
+          </tr>
+          <tr>
+            <td class="op">−</td>
+            <td>2</td>
+            <td>3</td>
+            <td>1</td>
+            <td>3</td>
+          </tr>
+          <tr class="algo-line">
+            <td></td>
+            <td>2</td>
+            <td>6</td>
+            <td>8</td>
+            <td>6</td>
+          </tr>
+        </table>
+      </div>
+      <p style="margin-top:16px; font-weight:600;">Answer: 2,686</p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(12)">Previous</button>
+    <span class="slide-counter">Card 14 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(14)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 14: We Do - Problem 2 -->
+<div class="slide" data-slide="14">
+  <div class="card">
+    <h2>We Do: Problem 2</h2>
+    <p style="font-size:1.35rem; margin-bottom:20px;">$20.00 − $8.45 = ?</p>
+    <button class="reveal-btn blue" onclick="toggleReveal(this, 'wed2')">Show working</button>
+    <div id="wed2" class="step-reveal">
+      <p style="margin-top:16px;">Shift down by $0.01: $19.99 − $8.44</p>
+      <p style="margin-top:12px; font-weight:600;">Answer: $11.55</p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(13)">Previous</button>
+    <span class="slide-counter">Card 15 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(15)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 15: We Do - Problem 3 -->
+<div class="slide" data-slide="15">
+  <div class="card">
+    <h2>We Do: Problem 3</h2>
+    <p style="font-size:1.35rem; margin-bottom:20px;">7,000 − 4,821 = ?</p>
+    <button class="reveal-btn blue" onclick="toggleReveal(this, 'wed3')">Show working</button>
+    <div id="wed3" class="step-reveal">
+      <p style="margin-top:16px;">Shift down by 1: 6,999 − 4,820</p>
+      <div style="text-align:center; margin:20px 0;">
+        <table class="algo-table">
+          <tr>
+            <td></td>
+            <td>6</td>
+            <td>9</td>
+            <td>9</td>
+            <td>9</td>
+          </tr>
+          <tr>
+            <td class="op">−</td>
+            <td>4</td>
+            <td>8</td>
+            <td>2</td>
+            <td>0</td>
+          </tr>
+          <tr class="algo-line">
+            <td></td>
+            <td>2</td>
+            <td>1</td>
+            <td>7</td>
+            <td>9</td>
+          </tr>
+        </table>
+      </div>
+      <p style="margin-top:16px; font-weight:600;">Answer: 2,179</p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(14)">Previous</button>
+    <span class="slide-counter">Card 16 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(16)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 16: We Do - Discussion Questions -->
+<div class="slide" data-slide="16">
+  <div class="card">
+    <h2>We Do: Discussion Questions</h2>
+
+    <div class="collapse-header amber" onclick="toggleCollapse('disc-questions', this)">
+      <span>Show discussion questions and answers</span>
+      <span class="collapse-icon">▼</span>
+    </div>
+    <div id="disc-questions" class="collapse-content">
+      <div style="padding: 20px 0;">
+        <p style="font-weight:600; margin-bottom:8px;">Question 1: Why does constant difference work?</p>
+        <p style="margin-bottom:16px;">Answer: Subtraction measures the distance between two numbers. If you move both numbers the same distance on a number line, the gap stays the same.</p>
+
+        <p style="font-weight:600; margin-bottom:8px;">Question 2: What if I shift by 10 instead of 1?</p>
+        <p style="margin-bottom:16px;">Answer: It still works! Constant Difference works with any shift amount. Choose a shift that makes the problem easier (removing zeros).</p>
+
+        <p style="font-weight:600; margin-bottom:8px;">Question 3: Is this method faster than the standard algorithm?</p>
+        <p style="margin-bottom:16px;">Answer: Yes! When the top number has zeros, constant difference eliminates the need for messy trading. The problem becomes much simpler.</p>
+
+        <p style="font-weight:600; margin-bottom:8px;">Question 4: When should I use this strategy instead of the standard algorithm?</p>
+        <p>Answer: Use constant difference when you see zeros in your numbers (10,000, 5,000, $100.00, etc.). For other numbers without zeros, the standard algorithm works fine.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(15)">Previous</button>
+    <span class="slide-counter">Card 17 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(17)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 17: Practice -->
+<div class="slide" data-slide="17">
+  <div class="card">
+    <h2>All Practice Cards</h2>
+    <p style="margin-bottom:20px;">Work through as many as you can. Use constant difference to solve each problem.</p>
+
+    <div class="tier-header">Tier 1: Getting Started</div>
+    <div class="practice-grid">
+      <div class="practice-card">
+        <div class="practice-num">Q1</div>
+        <div class="practice-equation">10,000 − 3,456</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q1')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q1')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q1-hint">Shift down by 1: 9,999 − 3,455</div>
+        <div class="practice-answer" id="t1q1-answer"><strong>6,544</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Q2</div>
+        <div class="practice-equation">$50.00 − $23.67</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q2')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q2')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q2-hint">Shift by $0.01: $49.99 − $23.66</div>
+        <div class="practice-answer" id="t1q2-answer"><strong>$26.33</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Q3</div>
+        <div class="practice-equation">6,000 − 1,234</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q3')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q3')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q3-hint">Shift down by 1: 5,999 − 1,233</div>
+        <div class="practice-answer" id="t1q3-answer"><strong>4,766</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Q4</div>
+        <div class="practice-equation">8,000 − 5,467</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q4')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q4')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q4-hint">Shift down by 1: 7,999 − 5,466</div>
+        <div class="practice-answer" id="t1q4-answer"><strong>2,533</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Q5</div>
+        <div class="practice-equation">$100.00 − $47.82</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q5')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q5')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q5-hint">Shift by $0.01: $99.99 − $47.81</div>
+        <div class="practice-answer" id="t1q5-answer"><strong>$52.18</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Q6</div>
+        <div class="practice-equation">3,000 − 678</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q6')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q6')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q6-hint">Shift down by 1: 2,999 − 677</div>
+        <div class="practice-answer" id="t1q6-answer"><strong>2,322</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Q7</div>
+        <div class="practice-equation">9,000 − 2,345</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q7')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q7')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q7-hint">Shift down by 1: 8,999 − 2,344</div>
+        <div class="practice-answer" id="t1q7-answer"><strong>6,655</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Q8</div>
+        <div class="practice-equation">$30.00 − $12.45</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1q8')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1q8')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1q8-hint">Shift by $0.01: $29.99 − $12.44</div>
+        <div class="practice-answer" id="t1q8-answer"><strong>$17.55</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">R1</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Reasoning:</strong> Explain why 10,000 − 5,678 and 9,999 − 5,677 have the same answer.
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1r1')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1r1')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1r1-hint">Think about shifting. Both numbers shifted down by 1, so the distance stays the same.</div>
+        <div class="practice-answer" id="t1r1-answer">Both equal 4,322. When you subtract 1 from both numbers in a subtraction problem, the answer doesn't change because you're still measuring the same distance.</div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">R2</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Reasoning:</strong> A student shifted 5,000 − 1,234 to get 4,999 − 1,233. What shift did they use?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1r2')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1r2')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1r2-hint">What happened to each number? 5,000 became 4,999 (minus 1) and 1,234 became 1,233 (minus 1).</div>
+        <div class="practice-answer" id="t1r2-answer">They shifted down by 1 (subtracted 1 from both numbers).</div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">R3</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Reasoning:</strong> Which shift is better: 7,000 − 2,456 shifted by 1 or shifted by 100? Why?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't1r3')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't1r3')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t1r3-hint">Shift by 1: 6,999 − 2,455. Shift by 100: 6,900 − 2,356. Which has easier numbers?</div>
+        <div class="practice-answer" id="t1r3-answer">Shifting by 1 is better. It gives 6,999 − 2,455, removing all zeros from 7,000. Shifting by 100 gives 6,900 − 2,356, which still has a zero and doesn't simplify as well.</div>
+      </div>
+    </div>
+
+    <div class="tier-header tier-2">Tier 2: Consolidating</div>
+    <div class="practice-grid">
+      <div class="practice-card">
+        <div class="practice-num">Question 1</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Book:</strong> A library orders 5,000 new books. After the first week, they have received 1,876 books. How many more books are still on order?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q1')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q1')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q1-hint">5,000 − 1,876. Shift: 4,999 − 1,875</div>
+        <div class="practice-answer" id="t2q1-answer"><strong>3,124 books</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 2</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Money:</strong> A savings goal is $200.00. You have saved $134.57. How much more do you need to save?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q2')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q2')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q2-hint">$200.00 − $134.57. Shift by $0.01: $199.99 − $134.56</div>
+        <div class="practice-answer" id="t2q2-answer"><strong>$65.43</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 3</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Running Challenge:</strong> You are training for a race that is 10,000 metres. You have run 6,234 metres. How much further do you need to run?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q3')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q3')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q3-hint">10,000 − 6,234. Shift down by 1: 9,999 − 6,233</div>
+        <div class="practice-answer" id="t2q3-answer"><strong>3,766 metres</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 4</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Distance:</strong> The distance from Sydney to Melbourne is 880km. After driving for 3 hours, a family has covered 267.5km. How far is left to drive?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q4')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q4')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q4-hint">880.0 − 267.5. Shift by 0.1: 879.9 − 267.4</div>
+        <div class="practice-answer" id="t2q4-answer"><strong>612.5 km</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 5</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Budget:</strong> A class has $500.00 to spend on an excursion. They have spent $287.45 on bus hire. How much is left for activities?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q5')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q5')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q5-hint">$500.00 − $287.45. Shift by $0.01: $499.99 − $287.44</div>
+        <div class="practice-answer" id="t2q5-answer"><strong>$212.55</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 6</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Marathon:</strong> A marathon is 42.2km long. A runner has completed 28.7km. How much further do they need to run?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q6')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q6')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q6-hint">42.2 − 28.7. Shift by 0.1: 42.1 − 28.6</div>
+        <div class="practice-answer" id="t2q6-answer"><strong>13.5 km</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 7</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Sale:</strong> A laptop originally costs $2,000. It is on sale for $1,349. How much money do you save?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q7')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q7')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q7-hint">2,000 − 1,349. Shift: 1,999 − 1,348</div>
+        <div class="practice-answer" id="t2q7-answer"><strong>$651</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 8</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Library:</strong> A library has shelf space for 8,000 books. Currently it holds 5,672 books. How many more books can fit?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q8')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q8')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q8-hint">8,000 − 5,672. Shift: 7,999 − 5,671</div>
+        <div class="practice-answer" id="t2q8-answer"><strong>2,328 books</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 9</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Recipe:</strong> A recipe needs 150.0g of flour. You have already added 87.6g. How much more flour do you need?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2q9')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2q9')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2q9-hint">150.0 − 87.6. Shift by 0.1: 149.9 − 87.5</div>
+        <div class="practice-answer" id="t2q9-answer"><strong>62.4g</strong></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">R1</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Reasoning:</strong> For 6,000 − 2,345, would you shift down by 1 or by 5? Explain your choice.
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2r1')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2r1')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2r1-hint">Shift by 1: 5,999 − 2,344. Shift by 5: 5,995 − 2,340. Which removes zeros or makes easier numbers?</div>
+        <div class="practice-answer" id="t2r1-answer">Shift by 1 is better. It gives 5,999 − 2,344, which removes all the zeros from 6,000. Both answers are correct (3,655), but shifting by 1 is cleaner.</div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">R2</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Reasoning:</strong> A water tank holds 10,000 litres when full. After a dry summer it has 2,847 litres left. A student used Constant Difference, shifting both numbers UP by 4, and got 10,004 − 2,851 = 7,153 litres used. Is the answer correct? Did they choose the best direction?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2r2')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2r2')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2r2-hint">Check: Does 10,004 − 2,851 = 7,153? Yes. But was shifting UP a good choice? What would shifting DOWN do?</div>
+        <div class="practice-answer" id="t2r2-answer">The answer is correct, but the direction was not ideal. 10,000 − 2,847 = 7,153. However, shifting UP by 4 gives 10,004 − 2,851, which still has a zero. Much better to shift DOWN by 3 to get 9,997 − 2,844 = 7,153, which removes the zeros and is much easier to subtract.</div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">R3</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Strategy Choice, Which Is Better?</strong> A family is driving to the coast. They have two possible calculations. Which would be easier with Constant Difference, and why?<br><span style="font-family:'Space Mono',monospace; font-size:14px; margin-top:8px; display:block;">Journey A: 7,500 km to destination, travelled 2,834 km so far</span><span style="font-family:'Space Mono',monospace; font-size:14px; display:block;">Journey B: 6,234 km to destination, travelled 2,147 km so far</span>
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't2r3')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't2r3')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t2r3-hint">Which total distance has a round number? Which can be more easily shifted to remove zeros or to a nice round number?</div>
+        <div class="practice-answer" id="t2r3-answer">Journey A (7,500 km) is much better for Constant Difference. 7,500 − 2,834: You can shift down by 4 to get 7,496 − 2,830 = 4,666 (removes the zero). Or shift down by 500 to get 7,000 − 2,334 = 4,666 (removes zeros from both!). Journey B (6,234 − 2,147) has no round numbers, so Constant Difference does not help much.</div>
+      </div>
+    </div>
+
+    <div class="tier-header tier-3">Tier 3: Challenging</div>
+    <div class="practice-grid">
+      <div class="practice-card">
+        <div class="practice-num">Question 1</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Open-Ended:</strong> Create your own subtraction problem where constant difference would be helpful. Explain why you chose those numbers.
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q1')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q1')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q1-hint">Think of a number with lots of zeros (like 5,000 or $100.00) and subtract something from it.</div>
+        <div class="practice-answer" id="t3q1-answer">Answers will vary. Look for problems with round numbers (zeros) in the top number, such as: 10,000 − 3,456, or $50.00 − $27.85, or 8,000 − 5,234. These are good because constant difference removes the zeros and makes the problem simpler.</div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 2</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Problem Solving:</strong> Two students solve 9,000 − 3,567 differently. Student A shifts down by 1. Student B shifts down by 7. They both get the same answer. Is this possible? Explain.
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q2')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q2')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q2-hint">Student A: 8,999 − 3,566. Student B: 8,993 − 3,560. Do both equal 5,433?</div>
+        <div class="practice-answer" id="t3q2-answer">Yes, absolutely! Both shifts work. Student A gets 8,999 − 3,566 = 5,433. Student B gets 8,993 − 3,560 = 5,433. Any shift amount works with constant difference, as long as you shift both numbers by the same amount. Different shifts, same answer.</div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 3</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>Investigation:</strong> Can constant difference help with 4,567 − 2,389? Why or why not?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q3')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q3')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q3-hint">Does 4,567 have any zeros? If not, does constant difference make the problem easier?</div>
+        <div class="practice-answer" id="t3q3-answer">Not really. 4,567 − 2,389 has no zeros, so constant difference does not remove zeros. The standard algorithm works fine here. Constant difference is most helpful when the top number has zeros (like 4,500 or 4,000), not when it is a random 4-digit number.</div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 4</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Distance:</strong> The distance from Sydney to Melbourne is 880km. After driving for 3 hours, a family has covered 267.5km. How far is left to drive?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q4')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q4')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q4-hint">10,000 − 2,847. Shift: 9,999 − 2,846</div>
+        <div class="practice-answer" id="t3q4-answer"><strong>7,153 L</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">9,999 − 2,846 = 7,153</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 5</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Distance:</strong> The distance from Sydney to Melbourne is 880km. After driving for 3 hours, a family has covered 267.5km. How far is left to drive?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q5')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q5')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q5-hint">880.0 − 267.5. Shift by 0.1: 879.9 − 267.4</div>
+        <div class="practice-answer" id="t3q5-answer"><strong>612.5 km</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">879.9 − 267.4 = 612.5</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 6</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Budget:</strong> A class has $500.00 to spend on an excursion. They have spent $287.45 on bus hire. How much is left for activities?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q6')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q6')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q6-hint">$500.00 − $287.45. Shift by $0.01: $499.99 − $287.44</div>
+        <div class="practice-answer" id="t3q6-answer"><strong>$212.55</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">$499.99 − $287.44 = $212.55</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 7</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Marathon:</strong> A marathon is 42.2km long. A runner has completed 28.7km. How much further do they need to run?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q7')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q7')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q7-hint">42.2 − 28.7. Shift by 0.1: 42.1 − 28.6</div>
+        <div class="practice-answer" id="t3q7-answer"><strong>13.5 km</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">42.1 − 28.6 = 13.5</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 8</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Sale:</strong> A laptop originally costs $2,000. It is on sale for $1,349. How much money do you save?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q8')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q8')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q8-hint">2,000 − 1,349. Shift: 1,999 − 1,348</div>
+        <div class="practice-answer" id="t3q8-answer"><strong>$651</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">1,999 − 1,348 = 651</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 9</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Library:</strong> A library has shelf space for 8,000 books. Currently it holds 5,672 books. How many more books can fit?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q9')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q9')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q9-hint">8,000 − 5,672. Shift: 7,999 − 5,671</div>
+        <div class="practice-answer" id="t3q9-answer"><strong>2,328 books</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">7,999 − 5,671 = 2,328</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 10</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Recipe:</strong> A recipe needs 150.0g of flour. You have already added 87.6g. How much more flour do you need?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q10')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q10')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q10-hint">150.0 − 87.6. Shift by 0.1: 149.9 − 87.5</div>
+        <div class="practice-answer" id="t3q10-answer"><strong>62.4g</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">149.9 − 87.5 = 62.4</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 11</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5eeff; border-radius:8px;">
+          <strong>The Climbing Challenge:</strong> A mountain peak is 5,000 metres high. A group of climbers has reached 1,847 metres. How much further must they climb to reach the summit? Use Constant Difference to solve.
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q11')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q11')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q11-hint">5,000 − 1,847. Shift both numbers down by 1: 4,999 − 1,846</div>
+        <div class="practice-answer" id="t3q11-answer"><strong>3,153 metres</strong><br><span style="font-family:'Space Mono',monospace; font-size:13px;">4,999 − 1,846 = 3,153</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 12</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#ffe8e8; border-radius:8px;">
+          <strong>Spot the Error:</strong> A water tank holds 10,000 litres when full. After a dry summer it has 2,847 litres left. A student used Constant Difference, shifting both numbers UP by 4, and got 10,004 − 2,851 = 7,153 litres used. Is the answer correct? Did they choose the best direction?
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q12')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q12')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q12-hint">Check: Does 10,004 − 2,851 = 7,153? Yes. But was shifting UP a good choice? What would shifting DOWN do?</div>
+        <div class="practice-answer" id="t3q12-answer"><strong>The answer is correct, but the direction was not ideal.</strong><br><span style="font-size:14px; line-height:1.6;">The answer 7,153 litres is right (10,000 − 2,847 = 7,153). However, shifting UP by 4 gives 10,004 − 2,851, which still has a zero. Much better to shift DOWN by 3 to get 9,997 − 2,844 = 7,153, which removes the zeros entirely and is much easier to subtract. Smart Constant Difference means choosing the direction that removes the most zeros!</span></div>
+      </div>
+
+      <div class="practice-card">
+        <div class="practice-num">Question 13</div>
+        <div style="font-size:15px; line-height:1.6; margin:12px 0; padding:14px; background:#f5f5f5; border-radius:8px;">
+          <strong>Strategy Choice, Which Is Better?</strong> A family is driving to the coast. They have two possible calculations. Which would be easier with Constant Difference, and why?<br><span style="font-family:'Space Mono',monospace; font-size:14px; margin-top:8px; display:block;">Journey A: 7,500 km to destination, travelled 2,834 km so far</span><span style="font-family:'Space Mono',monospace; font-size:14px; display:block;">Journey B: 6,234 km to destination, travelled 2,147 km so far</span>
+        </div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePractice(this, 'hint', 't3q13')">Need a hint?</button>
+          <button class="answer-btn" onclick="togglePractice(this, 'answer', 't3q13')">Show answer</button>
+        </div>
+        <div class="practice-hint" id="t3q13-hint">Which total distance has a round number? Which can be more easily shifted to remove zeros or to a nice round number?</div>
+        <div class="practice-answer" id="t3q13-answer"><strong>Journey A (7,500 km) is much better for Constant Difference.</strong><br><span style="font-size:14px; line-height:1.6;">7,500 − 2,834: You can shift down by 4 to get 7,496 − 2,830 = 4,666 (removes the zero from 2,834). Or shift down by 500 to get 7,000 − 2,334 = 4,666 (removes zeros from both!). Journey B (6,234 − 2,147) has no round numbers, so Constant Difference does not help much. Always look for numbers with zeros or close to round numbers!</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(16)">Previous</button>
+    <span class="slide-counter">Card 18 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(18)">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 18: Plenary -->
+<div class="slide" data-slide="18">
+  <div class="card">
+    <h2>When is the standard algorithm the worst choice?</h2>
+    <p style="font-size:1.35rem; line-height:1.8; margin-bottom:16px; background:#f0f7ff; border-left:4px solid var(--blue); border-radius:0 10px 10px 0; padding:14px 18px;">
+      A student says: <em>I always use the standard algorithm because I was taught it and it always works.</em><br><br>
+      When would you tell them <strong>not</strong> to use it?
+    </p>
+
+    <div class="callout teal">
+      <span class="label">The Answer</span>
+      <p>The standard algorithm becomes the worst choice when the top number has lots of zeros (like 10,000, 5,000, or $100.00). Every zero forces a trading cascade with multiple opportunities for error. Constant Difference eliminates this completely by shifting both numbers to remove the zeros.</p>
+    </div>
+
+    <div class="callout amber">
+      <span class="label">The General Rule</span>
+      <p>An efficient mathematician <strong>chooses</strong> their strategy based on the numbers. The standard algorithm is powerful and has its place, but it is not always the most efficient tool. Recognising <em>when</em> to switch is a mark of genuine mathematical thinking.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Today's Strategy, Quick Reference</h2>
+    <div style="background:#fffbf0; border:2px solid var(--amber); border-radius:14px; padding:18px 20px; margin-top:12px;">
+      <div class="tag amber" style="margin-bottom:8px;">Constant Difference</div>
+      <ol style="padding-left:20px; margin-top:12px; font-size:1.35rem; line-height:1.8;">
+        <li>Subtract 1 from <em>both</em> numbers (or any constant amount)</li>
+        <li>Repeat until zeros are gone</li>
+        <li>Solve with standard algorithm, no trading needed</li>
+      </ol>
+      <p style="margin-top:12px; font-size:1.35rem;"><strong>Best for:</strong> Numbers with trailing zeros (1,000, 5,000, 10,000, $50.00, 100.0, etc.)</p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="goToSlide(17)">Previous</button>
+    <span class="slide-counter">Card 19 of 19</span>
+    <button class="nav-btn" onclick="goToSlide(18)" disabled>Next</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+  let demoOrigNum1, demoOrigNum2, demoCurrentNum1, demoCurrentNum2;
+  let isDemoDragging = false, demoDragTarget = null;
+  let practiceOrigNum1, practiceOrigNum2, practiceCurrentNum1, practiceCurrentNum2;
+  let isPracticeDragging = false, practiceDragTarget = null;
+
+  const demoSvg = document.getElementById('demoNumberLine');
+  const practiceSvg = document.getElementById('practiceNumberLine');
+  const DEMO_PADDING = 80, DEMO_LINE_Y = 90;
+  const PRACTICE_PADDING = 80, PRACTICE_LINE_Y = 90;
+
+  function initDemo() {
+    demoCurrentNum1 = 10000;
+    demoCurrentNum2 = 4876;
+    demoOrigNum1 = demoCurrentNum1;
+    demoOrigNum2 = demoCurrentNum2;
+    if (demoSvg) drawDemoLine();
+    updateDemoDisplays();
+  }
+
+  function initPractice() {
+    const num1Input = document.getElementById('practice-num1');
+    const num2Input = document.getElementById('practice-num2');
+    if (num1Input && num2Input) {
+      practiceCurrentNum1 = parseInt(num1Input.value) || 5000;
+      practiceCurrentNum2 = parseInt(num2Input.value) || 2314;
+      practiceOrigNum1 = practiceCurrentNum1;
+      practiceOrigNum2 = practiceCurrentNum2;
+      if (practiceSvg) drawPracticeLine();
+      updatePracticeDisplay();
+    }
+  }
+
+  function getDemoScale() {
+    const range = demoCurrentNum1 - demoCurrentNum2;
+    return (1000 - 2 * DEMO_PADDING) / range;
+  }
+
+  function getPracticeScale() {
+    const range = practiceCurrentNum1 - practiceCurrentNum2;
+    return (1000 - 2 * PRACTICE_PADDING) / range;
+  }
+
+  function drawDemoLine() {
+    if (!demoSvg) return;
+    demoSvg.innerHTML = '';
+    const scale = getDemoScale();
+    const x1 = DEMO_PADDING;
+    const x2 = DEMO_PADDING + (demoCurrentNum1 - demoCurrentNum2) * scale;
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', DEMO_LINE_Y);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', DEMO_LINE_Y);
+    line.setAttribute('stroke', '#2D3436');
+    line.setAttribute('stroke-width', '3');
+    demoSvg.appendChild(line);
+
+    const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle1.setAttribute('cx', x1);
+    circle1.setAttribute('cy', DEMO_LINE_Y);
+    circle1.setAttribute('r', '12');
+    circle1.setAttribute('fill', '#FF6B6B');
+    circle1.setAttribute('cursor', 'grab');
+    circle1.setAttribute('data-num', '2');
+    demoSvg.appendChild(circle1);
+
+    const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle2.setAttribute('cx', x2);
+    circle2.setAttribute('cy', DEMO_LINE_Y);
+    circle2.setAttribute('r', '12');
+    circle2.setAttribute('fill', '#4ECDC4');
+    circle2.setAttribute('cursor', 'grab');
+    circle2.setAttribute('data-num', '1');
+    demoSvg.appendChild(circle2);
+
+    const text1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text1.setAttribute('x', x1);
+    text1.setAttribute('y', DEMO_LINE_Y + 35);
+    text1.setAttribute('text-anchor', 'middle');
+    text1.setAttribute('font-family', 'Space Mono');
+    text1.setAttribute('font-size', '14');
+    text1.setAttribute('fill', '#2D3436');
+    text1.textContent = demoCurrentNum2.toLocaleString();
+    demoSvg.appendChild(text1);
+
+    const text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text2.setAttribute('x', x2);
+    text2.setAttribute('y', DEMO_LINE_Y + 35);
+    text2.setAttribute('text-anchor', 'middle');
+    text2.setAttribute('font-family', 'Space Mono');
+    text2.setAttribute('font-size', '14');
+    text2.setAttribute('fill', '#2D3436');
+    text2.textContent = demoCurrentNum1.toLocaleString();
+    demoSvg.appendChild(text2);
+  }
+
+  function drawPracticeLine() {
+    if (!practiceSvg) return;
+    practiceSvg.innerHTML = '';
+    const scale = getPracticeScale();
+    const x1 = PRACTICE_PADDING;
+    const x2 = PRACTICE_PADDING + (practiceCurrentNum1 - practiceCurrentNum2) * scale;
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', PRACTICE_LINE_Y);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', PRACTICE_LINE_Y);
+    line.setAttribute('stroke', '#2D3436');
+    line.setAttribute('stroke-width', '3');
+    practiceSvg.appendChild(line);
+
+    const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle1.setAttribute('cx', x1);
+    circle1.setAttribute('cy', PRACTICE_LINE_Y);
+    circle1.setAttribute('r', '12');
+    circle1.setAttribute('fill', '#FF6B6B');
+    practiceSvg.appendChild(circle1);
+
+    const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle2.setAttribute('cx', x2);
+    circle2.setAttribute('cy', PRACTICE_LINE_Y);
+    circle2.setAttribute('r', '12');
+    circle2.setAttribute('fill', '#4ECDC4');
+    practiceSvg.appendChild(circle2);
+
+    const text1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text1.setAttribute('x', x1);
+    text1.setAttribute('y', PRACTICE_LINE_Y + 35);
+    text1.setAttribute('text-anchor', 'middle');
+    text1.setAttribute('font-family', 'Space Mono');
+    text1.setAttribute('font-size', '14');
+    text1.setAttribute('fill', '#2D3436');
+    text1.textContent = practiceCurrentNum2.toLocaleString();
+    practiceSvg.appendChild(text1);
+
+    const text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text2.setAttribute('x', x2);
+    text2.setAttribute('y', PRACTICE_LINE_Y + 35);
+    text2.setAttribute('text-anchor', 'middle');
+    text2.setAttribute('font-family', 'Space Mono');
+    text2.setAttribute('font-size', '14');
+    text2.setAttribute('fill', '#2D3436');
+    text2.textContent = practiceCurrentNum1.toLocaleString();
+    practiceSvg.appendChild(text2);
+  }
+
+  function updateDemoDisplays() {
+    const d1 = document.getElementById('demo-display1');
+    const d2 = document.getElementById('demo-display2');
+    const diff = document.getElementById('demo-diff');
+    if (d1) d1.textContent = demoCurrentNum1.toLocaleString();
+    if (d2) d2.textContent = demoCurrentNum2.toLocaleString();
+    if (diff) diff.textContent = (demoCurrentNum1 - demoCurrentNum2).toLocaleString();
+  }
+
+  function updatePracticeDisplay() {
+    const num1Input = document.getElementById('practice-num1');
+    const num2Input = document.getElementById('practice-num2');
+    if (num1Input && num2Input) {
+      practiceCurrentNum1 = parseInt(num1Input.value) || 0;
+      practiceCurrentNum2 = parseInt(num2Input.value) || 0;
+      if (practiceSvg) drawPracticeLine();
+      const d1 = document.getElementById('practice-display1');
+      const d2 = document.getElementById('practice-display2');
+      const diff = document.getElementById('practice-diff');
+      if (d1) d1.textContent = practiceCurrentNum1.toLocaleString();
+      if (d2) d2.textContent = practiceCurrentNum2.toLocaleString();
+      if (diff) diff.textContent = (practiceCurrentNum1 - practiceCurrentNum2).toLocaleString();
+    }
+  }
+
+  function shiftDemoBoth(amount) {
+    demoCurrentNum1 += amount;
+    demoCurrentNum2 += amount;
+    if (demoSvg) drawDemoLine();
+    updateDemoDisplays();
+  }
+
+  function shiftPracticeBoth(amount) {
+    practiceCurrentNum1 += amount;
+    practiceCurrentNum2 += amount;
+    if (practiceSvg) drawPracticeLine();
+    updatePracticeDisplay();
+  }
+
+  function resetDemo() {
+    demoCurrentNum1 = demoOrigNum1;
+    demoCurrentNum2 = demoOrigNum2;
+    if (demoSvg) drawDemoLine();
+    updateDemoDisplays();
+  }
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('mainContent');
+    if (sidebar && main) {
+      sidebar.classList.toggle('collapsed');
+      main.classList.toggle('sidebar-collapsed');
+    }
+  }
+
+  function goToSlide(slideNum) {
+    const slides = document.querySelectorAll('.slide');
+    const navBtns = document.querySelectorAll('.phase-btn');
+    const sidebarItems = document.querySelectorAll('.sidebar-item');
+
+    slides.forEach(s => s.classList.remove('active'));
+    navBtns.forEach(b => b.classList.remove('active'));
+    sidebarItems.forEach(i => i.classList.remove('active'));
+
+    if (slides[slideNum]) {
+      slides[slideNum].classList.add('active');
+      // Highlight the correct sidebar item (1:1 mapping, same index)
+      if (sidebarItems[slideNum]) sidebarItems[slideNum].classList.add('active');
+      // Highlight the correct phase nav button
+      const phaseMap = [0, 1,1,1, 2,2,2,2,2,2,2,2, 3,3,3,3,3,3, 4, 5];
+      if (phaseMap[slideNum] !== undefined && navBtns[phaseMap[slideNum]]) {
+        navBtns[phaseMap[slideNum]].classList.add('active');
+      }
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleCollapse(id, btn) {
+    const content = document.getElementById(id);
+    if (content && btn) {
+      content.classList.toggle('expanded');
+      btn.classList.toggle('expanded');
+    }
+  }
+
+  function toggleReveal(btn, id) {
+    const elem = document.getElementById(id);
+    if (elem) {
+      elem.classList.toggle('shown');
+    }
+  }
+
+  function togglePractice(btn, type, questionId) {
+    const element = document.getElementById(questionId + '-' + type);
+    if (element) {
+      element.classList.toggle('shown');
+      if (element.classList.contains('shown')) {
+        btn.textContent = type === 'hint' ? 'Hide hint' : 'Hide answer';
+      } else {
+        btn.textContent = type === 'hint' ? 'Need a hint?' : 'Show answer';
+      }
+    }
+  }
+
+  function setHeaderHeight() {
+    const header = document.querySelector('header');
+    const nav = document.getElementById('phaseNav');
+    const total = (header ? header.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+    document.documentElement.style.setProperty('--header-h', total + 'px');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    setHeaderHeight();
+    window.addEventListener('resize', setHeaderHeight);
+    initDemo();
+    initPractice();
+    goToSlide(0);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') {
+      const activeSlide = document.querySelector('.slide.active');
+      if (activeSlide) {
+        const currentNum = parseInt(activeSlide.getAttribute('data-slide'));
+        const totalSlides = document.querySelectorAll('.slide').length;
+        if (currentNum < totalSlides - 1) goToSlide(currentNum + 1);
+      }
+    } else if (e.key === 'ArrowLeft') {
+      const activeSlide = document.querySelector('.slide.active');
+      if (activeSlide) {
+        const currentNum = parseInt(activeSlide.getAttribute('data-slide'));
+        if (currentNum > 0) goToSlide(currentNum - 1);
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
