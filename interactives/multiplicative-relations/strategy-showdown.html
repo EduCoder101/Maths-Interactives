@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategy Showdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --accent: #4ECDC4;
+    --accent-dark: #38b2aa;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --green: #27AE60;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --orange: #FF8400;
+    --purple: #9B5DE5;
+    --purple-dark: #7c3aed;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 20px;
+    --border: #f1f5f9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Fredoka', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 52px;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    position: relative;
+  }
+
+  body::before {
+    content: ''; position: fixed;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: var(--accent); opacity: 0.08;
+    top: -80px; right: -50px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--purple); opacity: 0.08;
+    bottom: 10%; left: -50px; pointer-events: none; z-index: 0;
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-weight: 700; font-size: clamp(24px, 3.5vw, 36px); margin-bottom: 4px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 15px; color: var(--text-light); font-weight: 500; }
+
+  /* ── LEARNING CARD ── */
+  .learning-card {
+    width: 100%; max-width: 720px;
+    background: white; border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+    border-top: 5px solid var(--accent);
+  }
+  .learning-card h2 {
+    font-size: 1.1rem; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.1rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 0.75rem; margin-bottom: 0.4rem; font-size: 0.95rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.5rem; }
+  .success-criteria li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; font-size: 0.9rem; }
+  .success-criteria li::before { content: "\2713"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* ── NAV ── */
+  .phase-nav {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    justify-content: center; width: 100%; max-width: 720px;
+  }
+  .phase-btn {
+    padding: 8px 22px; border-radius: 30px; border: 2px solid #e0e0e0;
+    background: white; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.2s;
+  }
+  .phase-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .phase-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-dark); }
+  .phase-btn.level1-btn.active { background: var(--accent); border-color: var(--accent); }
+  .phase-btn.level2-btn.active { background: var(--red); border-color: var(--red); }
+  .phase-btn.level3-btn.active { background: var(--purple); border-color: var(--purple); }
+
+  /* ── SECTION ── */
+  .section { display: none; width: 100%; max-width: 720px; animation: fadeIn 0.35s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── CARD ── */
+  .card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-amber p { color: #665500; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--accent); }
+  .callout-teal .label { color: var(--accent-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  /* ── PROBLEM DISPLAY ── */
+  .problem-display {
+    text-align: center; padding: 24px; margin-bottom: 20px;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); border: 2px solid var(--border);
+  }
+  .problem-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--text-light); margin-bottom: 8px;
+  }
+  .problem-text {
+    font-family: 'Space Mono', monospace; font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700; color: var(--text-dark);
+  }
+
+  /* ── DOT COUNTER ── */
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #e0e5e8; border: 2px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease;
+  }
+  .dot.current { border-color: var(--text-dark); background: var(--text-dark); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  /* ── METHOD PANELS ── */
+  .method-panels {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;
+  }
+  .method-panel {
+    background: white; border-radius: 16px; padding: 20px 16px;
+    border: 3px solid var(--border); text-align: center; transition: all 0.3s;
+  }
+  .method-panel.panel-area { border-top: 4px solid var(--accent); }
+  .method-panel.panel-lattice { border-top: 4px solid var(--purple); }
+  .method-panel.panel-algo { border-top: 4px solid var(--red); }
+  .method-panel h4 {
+    font-size: 14px; font-weight: 700; margin-bottom: 6px;
+  }
+  .method-panel h4.area-title { color: var(--accent-dark); }
+  .method-panel h4.lattice-title { color: var(--purple-dark); }
+  .method-panel h4.algo-title { color: var(--red-dark); }
+  .method-panel .method-instruction {
+    font-size: 13px; color: var(--text-light); margin-bottom: 12px; line-height: 1.4;
+  }
+  .method-panel .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    width: 100%; max-width: 120px; text-align: center; padding: 10px;
+    border: 3px solid var(--border); border-radius: 14px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .method-panel .answer-input:focus { border-color: var(--accent); }
+  .method-panel .answer-input.correct { border-color: var(--green); background: var(--green-light); }
+  .method-panel .answer-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* ── RADAR ESTIMATE ── */
+  .radar-row {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .radar-row label { font-size: 15px; font-weight: 600; }
+  .radar-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 100px; text-align: center; padding: 8px;
+    border: 2px solid var(--amber); border-radius: 12px; outline: none;
+    background: #fffbf0; transition: border-color 0.2s;
+  }
+  .radar-input:focus { border-color: var(--amber-dark); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-red { background: var(--red); color: white; }
+  .btn-red:hover { background: var(--red-dark); transform: translateY(-2px); }
+  .btn-purple { background: var(--purple); color: white; }
+  .btn-purple:hover { background: var(--purple-dark); transform: translateY(-2px); }
+  .btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .btn-row { text-align: center; margin: 16px 0; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    border-radius: 12px; padding: 14px 18px; margin-top: 14px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* ── REFLECTION ── */
+  .reflection-area {
+    background: #f8f9fa; border-radius: 16px; padding: 20px;
+    margin-top: 16px; display: none;
+  }
+  .reflection-area.show { display: block; animation: fadeIn 0.3s; }
+  .reflection-area h4 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .reflection-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .reflection-option {
+    padding: 8px 18px; border-radius: 30px; border: 2px solid #e0e0e0;
+    background: white; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--text-dark);
+  }
+  .reflection-option:hover { border-color: var(--accent); }
+  .reflection-option.selected { background: var(--accent); color: white; border-color: var(--accent); }
+  .reflection-why {
+    width: 100%; min-height: 60px; border: 2px solid var(--border); border-radius: 12px;
+    padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    resize: vertical; outline: none; transition: border-color 0.3s;
+  }
+  .reflection-why:focus { border-color: var(--accent); }
+  .reflection-why-label { font-size: 14px; font-weight: 600; margin-bottom: 6px; margin-top: 8px; }
+
+  /* ── AREA MODEL GRID ── */
+  .area-grid {
+    display: grid; gap: 0; margin: 12px auto; border: 3px solid var(--text-dark); border-radius: 6px; overflow: hidden;
+  }
+  .area-grid.cols-2 { grid-template-columns: auto 1fr 1fr; grid-template-rows: auto 1fr; max-width: 260px; }
+  .area-grid.cols-4 { grid-template-columns: auto 1fr 1fr; grid-template-rows: auto 1fr 1fr; max-width: 300px; }
+  .area-grid .ag-corner { background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-light); border-bottom: 2px solid var(--text-dark); border-right: 2px solid var(--text-dark); padding: 6px; }
+  .area-grid .ag-top { background: #f5f5f5; display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; border-bottom: 2px solid var(--text-dark); }
+  .area-grid .ag-side { background: #f5f5f5; display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; border-right: 2px solid var(--text-dark); }
+  .area-grid .ag-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 8px; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 14px; border-right: 1px dashed var(--text-light); border-bottom: 1px dashed var(--text-light); background: rgba(78,205,196,0.06); }
+  .area-grid .ag-cell:last-child { border-right: none; }
+  .area-grid .ag-cell .ag-calc { font-size: 12px; color: var(--text-light); font-weight: 500; margin-bottom: 2px; }
+  .area-grid .ag-cell .ag-val { color: var(--blue); font-size: 16px; }
+
+  /* ── LATTICE GRID ── */
+  .lattice-table { border-collapse: collapse; margin: 12px auto; }
+  .lattice-table td { width: 60px; height: 60px; position: relative; border: 2px solid var(--text-dark); }
+  .lattice-table .lt-header { border: none; text-align: center; vertical-align: bottom; padding-bottom: 4px; font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--blue); }
+  .lattice-table .lt-side { border: none; text-align: left; vertical-align: middle; padding-left: 6px; font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--blue); }
+  .lattice-table .lt-corner { border: none; }
+  .lattice-table .lt-diag { border: none; text-align: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--purple); }
+  .lt-cell { position: relative; }
+  .lt-cell svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+  .lt-cell .lt-tens { position: absolute; top: 4px; left: 8px; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; }
+  .lt-cell .lt-ones { position: absolute; bottom: 4px; right: 8px; font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; }
+
+  /* ── ALGORITHM TABLE ── */
+  .algo-table { margin: 12px auto; border-collapse: collapse; }
+  .algo-table td { width: 40px; height: 40px; text-align: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; }
+  .algo-table .at-carry td { height: 24px; font-size: 13px; color: var(--red); }
+  .algo-table .at-top td { border-bottom: none; }
+  .algo-table .at-mult td { border-bottom: 3px solid var(--text-dark); }
+  .algo-table .at-mult td:first-child { font-size: 18px; color: var(--text-light); }
+  .algo-table .at-answer td { border-top: none; }
+
+  /* ── WORKED COMPARISON ── */
+  .worked-comparison {
+    display: none; margin-top: 16px;
+    background: white; border-radius: var(--radius); padding: 24px;
+    border: 2px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+  .worked-comparison.show { display: block; animation: fadeIn 0.35s; }
+  .worked-comparison h4 { font-size: 17px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+  .worked-methods {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+  }
+  .worked-method {
+    background: #f8f9fa; border-radius: 12px; padding: 16px; font-size: 14px;
+  }
+  .worked-method.wm-area { border-top: 3px solid var(--accent); }
+  .worked-method.wm-lattice { border-top: 3px solid var(--purple); }
+  .worked-method.wm-algo { border-top: 3px solid var(--red); }
+  .worked-method h5 { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .worked-method h5.area-title { color: var(--accent-dark); }
+  .worked-method h5.lattice-title { color: var(--purple-dark); }
+  .worked-method h5.algo-title { color: var(--red-dark); }
+  .worked-step {
+    display: flex; align-items: baseline; gap: 6px; padding: 4px 0;
+    font-size: 14px; line-height: 1.5;
+  }
+  .worked-step .mono { font-size: 14px; }
+  .worked-total {
+    margin-top: 8px; padding-top: 8px; border-top: 2px solid #e0e0e0;
+    font-weight: 700; font-size: 15px;
+  }
+  .worked-total .mono { font-size: 15px; }
+
+  /* ── STRATEGY SELECTION (Level 3) ── */
+  .strategy-choices {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;
+  }
+  .strategy-choice {
+    padding: 10px 20px; border-radius: 30px; border: 3px solid #e0e0e0;
+    background: white; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s; color: var(--text-dark);
+  }
+  .strategy-choice:hover { border-color: var(--purple); }
+  .strategy-choice.selected { background: var(--purple); color: white; border-color: var(--purple); }
+  .strategy-justify {
+    width: 100%; min-height: 60px; border: 2px solid var(--border); border-radius: 12px;
+    padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    resize: vertical; outline: none; transition: border-color 0.3s; margin-bottom: 16px;
+  }
+  .strategy-justify:focus { border-color: var(--purple); }
+  .strategy-answer-row {
+    display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px;
+  }
+  .strategy-answer-row label { font-size: 15px; font-weight: 600; }
+  .strategy-answer-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 130px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .strategy-answer-input:focus { border-color: var(--purple); }
+  .strategy-answer-input.correct { border-color: var(--green); background: var(--green-light); }
+  .strategy-answer-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  .expert-panel {
+    display: none; margin-top: 16px; padding: 20px; border-radius: 16px;
+    background: linear-gradient(135deg, #f5f0ff 0%, #f0f0ff 100%);
+    border: 2px solid var(--purple);
+  }
+  .expert-panel.show { display: block; animation: fadeIn 0.3s; }
+  .expert-panel h4 { font-size: 15px; font-weight: 700; color: var(--purple-dark); margin-bottom: 8px; }
+  .expert-panel p { font-size: 15px; line-height: 1.7; }
+
+  /* ── SUMMARY ── */
+  .summary-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--card-shadow); padding: 32px; text-align: center;
+    display: none; margin-top: 20px;
+  }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  /* ── WORKED EXAMPLE ── */
+  .worked-example-card {
+    background: white; border-radius: var(--radius); box-shadow: var(--card-shadow);
+    padding: 24px 28px; margin-bottom: 20px; border-top: 5px solid var(--accent);
+  }
+  .worked-example-card h3 {
+    font-size: 17px; font-weight: 700; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .we-content { display: none; margin-top: 16px; }
+  .we-content.open { display: block; }
+
+  /* ── GO DEEPER ── */
+  .go-deeper-card {
+    background: white; border-radius: var(--radius); box-shadow: var(--card-shadow);
+    border-top: 5px solid var(--accent); padding: 28px 32px; margin-bottom: 20px;
+    max-width: 720px; width: 100%;
+  }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--accent); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area {
+    width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px;
+    padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    resize: vertical; outline: none; transition: border-color 0.3s;
+  }
+  .ext-thinking-area:focus { border-color: var(--accent); }
+  .ext-reveal-btn {
+    background: transparent; color: var(--accent-dark); border: 2px solid var(--accent);
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px;
+  }
+  .ext-reveal-btn:hover { background: var(--accent); color: white; }
+  .ext-model-response {
+    display: none; margin-top: 16px; background: white; border-radius: 12px;
+    padding: 18px 22px; border: 2px solid var(--border);
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box {
+    border: 2px dashed var(--accent); border-radius: 12px; padding: 16px 20px;
+    margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6);
+    font-size: 14px; line-height: 1.6;
+  }
+  .go-deeper-level-btn {
+    display: block; width: 100%; text-align: left; padding: 20px 24px;
+    background: white; border: 2px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer;
+    font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 16px;
+  }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  @media (max-width: 600px) {
+    body { padding: 16px 10px 40px; }
+    .method-panels { grid-template-columns: 1fr; }
+    .worked-methods { grid-template-columns: 1fr; }
+    .card { padding: 20px 16px; }
+    .method-panel { padding: 16px 12px; }
+    .problem-display { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Strategy <span>Showdown</span></h1>
+  <p>Three methods, one answer. Which strategy wins?</p>
+</div>
+
+<!-- ── LISC ── -->
+<div class="learning-card">
+  <h2 onclick="toggleLearningSection()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="learningToggle">&#9660;</span>
+  </h2>
+  <div class="learning-content" id="learningContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to choose the most efficient multiplication strategy for a given problem and justify our choice.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can solve a multiplication using the area model, lattice, and formal algorithm.</li>
+      <li>I can compare my answers across methods to verify they are correct.</li>
+      <li>I can identify when a mental strategy is more efficient than a written one.</li>
+      <li>I can explain why I chose a particular strategy for a particular problem.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="phase-nav">
+  <button class="phase-btn active" onclick="showSection('learn', this)">Learn</button>
+  <button class="phase-btn level1-btn" onclick="showSection('level1', this)">Level 1</button>
+  <button class="phase-btn level2-btn" onclick="showSection('level2', this)">Level 2</button>
+  <button class="phase-btn level3-btn" onclick="showSection('level3', this)">Level 3</button>
+</nav>
+
+<!-- ══════ LEARN ══════ -->
+<div id="learn" class="section active">
+  <div class="card">
+    <h3>Three methods, one answer</h3>
+    <p>You have learned three written strategies for multiplication: the <strong>area model</strong>, the <strong>lattice method</strong>, and the <strong>formal algorithm</strong>. All three give the same answer because they are doing the same maths, just arranged differently.</p>
+    <p style="margin-top:12px;">In this activity, you will solve each problem using all three methods and decide which one felt most efficient. There is no single "best" method. The right choice depends on the numbers.</p>
+  </div>
+
+  <div class="worked-example-card">
+    <h3 onclick="toggleWorkedExample()">
+      Worked Example: <span class="mono">32 x 5</span>
+      <span class="toggle-icon" id="weToggle">&#9660;</span>
+    </h3>
+    <div class="we-content" id="weContent">
+      <div class="callout callout-amber">
+        <div class="label">Radar Estimate</div>
+        <p><strong>30</strong> x <strong>5</strong> = <strong>150</strong>. Our answer should be close to <strong>150</strong>.</p>
+      </div>
+      <div class="worked-methods" style="margin-top:16px;">
+
+        <!-- AREA MODEL -->
+        <div class="worked-method wm-area">
+          <h5 class="area-title">Area Model</h5>
+          <div class="area-grid cols-2">
+            <div class="ag-corner">&times;</div>
+            <div class="ag-top">30</div>
+            <div class="ag-top">2</div>
+            <div class="ag-side">5</div>
+            <div class="ag-cell"><span class="ag-calc">30 &times; 5</span><span class="ag-val">150</span></div>
+            <div class="ag-cell"><span class="ag-calc">2 &times; 5</span><span class="ag-val">10</span></div>
+          </div>
+          <div class="worked-total" style="text-align:center;"><span class="mono">150</span> + <span class="mono">10</span> = <span class="mono">160</span></div>
+        </div>
+
+        <!-- LATTICE -->
+        <div class="worked-method wm-lattice">
+          <h5 class="lattice-title">Lattice</h5>
+          <table class="lattice-table">
+            <tr>
+              <td class="lt-corner"></td>
+              <td class="lt-header">3</td>
+              <td class="lt-header">2</td>
+              <td class="lt-diag">1</td>
+            </tr>
+            <tr>
+              <td class="lt-side">5</td>
+              <td class="lt-cell">
+                <svg viewBox="0 0 60 60"><line x1="60" y1="0" x2="0" y2="60" stroke="#2D3436" stroke-width="1.5"/></svg>
+                <span class="lt-tens">1</span><span class="lt-ones">5</span>
+              </td>
+              <td class="lt-cell">
+                <svg viewBox="0 0 60 60"><line x1="60" y1="0" x2="0" y2="60" stroke="#2D3436" stroke-width="1.5"/></svg>
+                <span class="lt-tens">1</span><span class="lt-ones">0</span>
+              </td>
+              <td class="lt-diag">6</td>
+            </tr>
+            <tr>
+              <td class="lt-corner"></td>
+              <td class="lt-diag"></td>
+              <td class="lt-diag">0</td>
+              <td class="lt-corner"></td>
+            </tr>
+          </table>
+          <div class="worked-total" style="text-align:center;">Answer: <span class="mono">160</span></div>
+        </div>
+
+        <!-- ALGORITHM -->
+        <div class="worked-method wm-algo">
+          <h5 class="algo-title">Algorithm</h5>
+          <table class="algo-table">
+            <tr class="at-carry"><td></td><td style="color:var(--red);">1</td><td></td></tr>
+            <tr class="at-top"><td></td><td>3</td><td>2</td></tr>
+            <tr class="at-mult"><td>&times;</td><td></td><td>5</td></tr>
+            <tr class="at-answer"><td>1</td><td>6</td><td>0</td></tr>
+          </table>
+          <div class="worked-total" style="text-align:center;">Answer: <span class="mono">160</span></div>
+        </div>
+
+      </div>
+      <div class="callout callout-teal" style="margin-top:16px;">
+        <div class="label">All three match</div>
+        <p>Every method gives <strong>160</strong>, which is close to our Radar of <strong>150</strong>. Reasonable.</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+    <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Strategy Investigations</h3>
+    <p>Complete Level 3 to unlock</p>
+  </button>
+</div>
+
+<!-- ══════ LEVEL 1 ══════ -->
+<div id="level1" class="section">
+  <div class="card" style="border-top: 4px solid var(--accent);">
+    <h3 style="color:var(--accent-dark);">Level 1: Three Ways</h3>
+    <p>Solve each problem using <strong>all three methods</strong> on your whiteboard. Enter your answer from each method below. Then tell us which felt fastest.</p>
+  </div>
+  <div id="l1-dots" class="dot-counter"></div>
+  <div id="l1-question-area"></div>
+  <div id="l1-summary" class="summary-card"></div>
+</div>
+
+<!-- ══════ LEVEL 2 ══════ -->
+<div id="level2" class="section">
+  <div class="card" style="border-top: 4px solid var(--red);">
+    <h3 style="color:var(--red-dark);">Level 2: Three Ways (Bigger Numbers)</h3>
+    <p>Same challenge, but now with two-digit by two-digit multiplication. The area model has <strong>four sections</strong> and the lattice is a <strong>2 x 2</strong> grid.</p>
+  </div>
+  <div id="l2-dots" class="dot-counter"></div>
+  <div id="l2-question-area"></div>
+  <div id="l2-summary" class="summary-card"></div>
+</div>
+
+<!-- ══════ LEVEL 3 ══════ -->
+<div id="level3" class="section">
+  <div class="card" style="border-top: 4px solid var(--purple);">
+    <h3 style="color:var(--purple-dark);">Level 3: Choose Your Strategy</h3>
+    <p>For each problem, decide the <strong>best strategy</strong> before you solve. Sometimes mental is faster. Sometimes you need a written method. Choose wisely and explain why.</p>
+  </div>
+  <div id="l3-dots" class="dot-counter"></div>
+  <div id="l3-question-area"></div>
+  <div id="l3-summary" class="summary-card"></div>
+</div>
+
+<!-- ══════ GO DEEPER ══════ -->
+<div id="go-deeper-section" class="go-deeper-card" style="display:none;">
+  <h2>&#x1F513; Go Deeper: Strategy Investigations</h2>
+  <p>These tasks push your thinking beyond finding answers. You will explore, make conjectures, and reason like a mathematician.</p>
+
+  <!-- TASK 1: Specialising -->
+  <div class="ext-task">
+    <div class="ext-task-label">Specialising</div>
+    <div class="ext-task-prompt">
+      Pick any <span class="ext-numbers">5</span> two-digit numbers. Multiply each one by <span class="ext-numbers">25</span> using the method of your choice. Now look at your answers.
+    </div>
+    <div class="ext-task-sub">What do you notice about every answer? Can you explain why this happens?</div>
+    <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+    <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+    <div class="ext-model-response">
+      <div class="model-label">A mathematician's response</div>
+      <p>I tried <span class="ext-numbers">25</span> x <span class="ext-numbers">12</span> = <span class="ext-numbers">300</span>, <span class="ext-numbers">25</span> x <span class="ext-numbers">17</span> = <span class="ext-numbers">425</span>, <span class="ext-numbers">25</span> x <span class="ext-numbers">36</span> = <span class="ext-numbers">900</span>, <span class="ext-numbers">25</span> x <span class="ext-numbers">43</span> = <span class="ext-numbers">1,075</span>, and <span class="ext-numbers">25</span> x <span class="ext-numbers">58</span> = <span class="ext-numbers">1,450</span>.</p>
+      <p>I noticed every answer ends in <span class="ext-numbers">00</span>, <span class="ext-numbers">25</span>, <span class="ext-numbers">50</span>, or <span class="ext-numbers">75</span>. That is interesting. I first thought it was a coincidence, so I tried a few more and the same thing happened.</p>
+      <p>Then I thought about why. <span class="ext-numbers">25</span> x <span class="ext-numbers">4</span> = <span class="ext-numbers">100</span>. So every group of <span class="ext-numbers">4</span> gives a whole hundred. If the other number is a multiple of <span class="ext-numbers">4</span>, the answer ends in <span class="ext-numbers">00</span>. If there is a remainder of <span class="ext-numbers">1</span>, you get an extra <span class="ext-numbers">25</span>. Remainder <span class="ext-numbers">2</span> gives <span class="ext-numbers">50</span>. Remainder <span class="ext-numbers">3</span> gives <span class="ext-numbers">75</span>. That explains the four possible endings.</p>
+    </div>
+    <div class="mathematician-box">
+      <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+    </div>
+  </div>
+
+  <!-- TASK 2: Conjecturing -->
+  <div class="ext-task">
+    <div class="ext-task-label">Conjecturing</div>
+    <div class="ext-task-prompt">
+      "When one of the numbers in a multiplication is close to a power of <span class="ext-numbers">10</span> (like <span class="ext-numbers">9</span>, <span class="ext-numbers">11</span>, <span class="ext-numbers">49</span>, <span class="ext-numbers">99</span>, or <span class="ext-numbers">101</span>), a mental strategy is always the best choice."
+    </div>
+    <div class="ext-task-sub">Is this always true, sometimes true, or never true? Give examples to support your answer.</div>
+    <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+    <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+    <div class="ext-model-response">
+      <div class="model-label">A mathematician's response</div>
+      <p>My first instinct was "always". <span class="ext-numbers">99</span> x <span class="ext-numbers">13</span> = <span class="ext-numbers">100</span> x <span class="ext-numbers">13</span> - <span class="ext-numbers">13</span> = <span class="ext-numbers">1,287</span>. That is quick. And <span class="ext-numbers">49</span> x <span class="ext-numbers">6</span> = <span class="ext-numbers">50</span> x <span class="ext-numbers">6</span> - <span class="ext-numbers">6</span> = <span class="ext-numbers">294</span>. Also quick.</p>
+      <p>But then I tried <span class="ext-numbers">99</span> x <span class="ext-numbers">87</span>. Mentally: <span class="ext-numbers">100</span> x <span class="ext-numbers">87</span> - <span class="ext-numbers">87</span> = <span class="ext-numbers">8,700</span> - <span class="ext-numbers">87</span>. I found that tricky to do in my head because <span class="ext-numbers">8,700</span> - <span class="ext-numbers">87</span> is not simple to subtract mentally. I could do it, but a written method would have been faster for me.</p>
+      <p>So my conjecture is: <strong>sometimes true</strong>. The mental strategy works well when the compensation step (the adjustment) is small and easy. But when the second number is large, the compensation step can be harder than just using a written method.</p>
+    </div>
+    <div class="mathematician-box">
+      <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proved.
+    </div>
+  </div>
+
+  <!-- TASK 3: Generalising -->
+  <div class="ext-task">
+    <div class="ext-task-label">Generalising</div>
+    <div class="ext-task-prompt">
+      Write a set of rules that a Year 4 student could follow to decide whether to use a mental strategy, a written strategy, or a calculator for any multiplication problem.
+    </div>
+    <div class="ext-task-sub">Try to make your rules work for every multiplication, not just the ones you have practised. Test your rules on at least <span class="ext-numbers">3</span> different problems to check they give good advice.</div>
+    <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+    <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+    <div class="ext-model-response">
+      <div class="model-label">A mathematician's response</div>
+      <p>I started by listing the types of problems where mental worked well for me: multiplying by <span class="ext-numbers">5</span>, <span class="ext-numbers">10</span>, <span class="ext-numbers">25</span>, <span class="ext-numbers">50</span>, or numbers near them like <span class="ext-numbers">9</span>, <span class="ext-numbers">11</span>, <span class="ext-numbers">49</span>, <span class="ext-numbers">99</span>. The key seemed to be whether I could see a shortcut that avoided hard arithmetic.</p>
+      <p>I first tried writing the rule as "use mental if the numbers are small", but that failed. <span class="ext-numbers">47</span> x <span class="ext-numbers">6</span> is small, but there is no obvious shortcut. I would use a written method.</p>
+      <p>After more testing, here are my rules: First, check for convenient factors. Can you break a number into factors that make the multiplication easy? (Like <span class="ext-numbers">25</span> x <span class="ext-numbers">16</span> = <span class="ext-numbers">25</span> x <span class="ext-numbers">4</span> x <span class="ext-numbers">4</span>.) If so, try mental. Second, check for near-multiples of <span class="ext-numbers">10</span>. Can you round one number and adjust? (Like <span class="ext-numbers">99</span> x <span class="ext-numbers">13</span>.) If the adjustment is simple, try mental. Third, if neither shortcut works, use a written method. Fourth, use a calculator when the numbers are very large or when you need to focus on understanding the answer, not finding it.</p>
+      <p>I tested these rules on <span class="ext-numbers">25</span> x <span class="ext-numbers">36</span> (mental: <span class="ext-numbers">25</span> x <span class="ext-numbers">4</span> x <span class="ext-numbers">9</span> = <span class="ext-numbers">900</span>), <span class="ext-numbers">47</span> x <span class="ext-numbers">38</span> (no shortcut, use written), and <span class="ext-numbers">2,847</span> x <span class="ext-numbers">193</span> (too large, use calculator). The rules gave sensible advice all three times.</p>
+    </div>
+    <div class="mathematician-box">
+      <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means you are making a rule that works every time, not just for the examples you tried. A good general rule is one that someone else could follow and get good results.
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════ DATA ═══════ */
+const L1 = [
+  { a: 34, b: 6 },
+  { a: 47, b: 8 },
+  { a: 56, b: 3 },
+  { a: 28, b: 9 }
+];
+const L2 = [
+  { a: 23, b: 15 },
+  { a: 34, b: 27 },
+  { a: 47, b: 36 },
+  { a: 58, b: 43 }
+];
+const L3 = [
+  { a: 25, b: 16, best: 'Mental', reason: '<span class="mono">25</span> x <span class="mono">16</span> = <span class="mono">25</span> x <span class="mono">4</span> x <span class="mono">4</span> = <span class="mono">100</span> x <span class="mono">4</span> = <span class="mono">400</span>. Factorising turns this into a mental problem.' },
+  { a: 99, b: 13, best: 'Mental', reason: '<span class="mono">99</span> x <span class="mono">13</span> = <span class="mono">100</span> x <span class="mono">13</span> - <span class="mono">13</span> = <span class="mono">1,300</span> - <span class="mono">13</span> = <span class="mono">1,287</span>. Compensation: round to <span class="mono">100</span> and adjust.' },
+  { a: 47, b: 38, best: 'Written', reason: 'No convenient factors or near-multiples of <span class="mono">10</span>. A written strategy (area model, lattice, or algorithm) is the most efficient choice.' },
+  { a: 50, b: 88, best: 'Mental', reason: '<span class="mono">50</span> x <span class="mono">88</span> = <span class="mono">5</span> x <span class="mono">10</span> x <span class="mono">88</span> = <span class="mono">5</span> x <span class="mono">880</span> = <span class="mono">4,400</span>. Factorising <span class="mono">50</span> into <span class="mono">5</span> x <span class="mono">10</span> makes it straightforward.' }
+];
+
+const state = {
+  l1: { current: 0, score: 0, checked: [] },
+  l2: { current: 0, score: 0, checked: [] },
+  l3: { current: 0, score: 0, checked: [] }
+};
+
+/* ═══════ NAVIGATION ═══════ */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleLearningSection() {
+  const c = document.getElementById('learningContent');
+  const t = document.getElementById('learningToggle');
+  c.classList.toggle('open');
+  t.style.transform = c.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+function toggleWorkedExample() {
+  const c = document.getElementById('weContent');
+  const t = document.getElementById('weToggle');
+  c.classList.toggle('open');
+  t.style.transform = c.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+/* ═══════ FORMATTING ═══════ */
+function fmt(n) { return n.toLocaleString('en-AU'); }
+
+/* ═══════ WORKED COMPARISON GENERATORS ═══════ */
+function genAreaWorked(a, b) {
+  const aT = Math.floor(a / 10) * 10, aO = a % 10;
+  let html = '<div class="worked-method wm-area"><h5 class="area-title">Area Model</h5>';
+  if (b < 10) {
+    const p1 = aT * b, p2 = aO * b;
+    html += `<div class="area-grid cols-2">
+      <div class="ag-corner">&times;</div><div class="ag-top">${aT}</div><div class="ag-top">${aO}</div>
+      <div class="ag-side">${b}</div>
+      <div class="ag-cell"><span class="ag-calc">${aT} &times; ${b}</span><span class="ag-val">${fmt(p1)}</span></div>
+      <div class="ag-cell"><span class="ag-calc">${aO} &times; ${b}</span><span class="ag-val">${fmt(p2)}</span></div>
+    </div>`;
+    html += `<div class="worked-total" style="text-align:center;"><span class="mono">${fmt(p1)}</span> + <span class="mono">${fmt(p2)}</span> = <span class="mono">${fmt(p1+p2)}</span></div>`;
+  } else {
+    const bT = Math.floor(b / 10) * 10, bO = b % 10;
+    const p1 = aT * bT, p2 = aO * bT, p3 = aT * bO, p4 = aO * bO;
+    html += `<div class="area-grid cols-4">
+      <div class="ag-corner">&times;</div><div class="ag-top">${aT}</div><div class="ag-top">${aO}</div>
+      <div class="ag-side">${bT}</div>
+      <div class="ag-cell"><span class="ag-calc">${aT}&times;${bT}</span><span class="ag-val">${fmt(p1)}</span></div>
+      <div class="ag-cell"><span class="ag-calc">${aO}&times;${bT}</span><span class="ag-val">${fmt(p2)}</span></div>
+      <div class="ag-side">${bO}</div>
+      <div class="ag-cell"><span class="ag-calc">${aT}&times;${bO}</span><span class="ag-val">${fmt(p3)}</span></div>
+      <div class="ag-cell"><span class="ag-calc">${aO}&times;${bO}</span><span class="ag-val">${fmt(p4)}</span></div>
+    </div>`;
+    html += `<div class="worked-total" style="text-align:center;"><span class="mono">${fmt(p1)}</span> + <span class="mono">${fmt(p2)}</span> + <span class="mono">${fmt(p3)}</span> + <span class="mono">${fmt(p4)}</span> = <span class="mono">${fmt(p1+p2+p3+p4)}</span></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function genLatticeWorked(a, b) {
+  const dA = String(a).split('').map(Number);
+  const dB = String(b).split('').map(Number);
+  const numCols = dA.length, numRows = dB.length;
+  const answer = a * b;
+
+  /* compute cell products */
+  const cells = [];
+  for (let r = 0; r < numRows; r++) {
+    for (let c = 0; c < numCols; c++) {
+      const prod = dA[c] * dB[r];
+      cells.push({ r, c, tens: Math.floor(prod / 10), ones: prod % 10 });
+    }
+  }
+
+  /* compute diagonal sums */
+  const numDiags = numCols + numRows;
+  const rawDiags = new Array(numDiags).fill(0);
+  cells.forEach(cell => {
+    const d = cell.c + cell.r;
+    rawDiags[d] += cell.tens;
+    rawDiags[d + 1] += cell.ones;
+  });
+  const diagDigits = [];
+  let carry = 0;
+  for (let d = rawDiags.length - 1; d >= 0; d--) {
+    const sum = rawDiags[d] + carry;
+    diagDigits.unshift(sum % 10);
+    carry = Math.floor(sum / 10);
+  }
+  if (carry > 0) diagDigits.unshift(carry);
+  /* we need diagonal values positioned around the grid edges */
+  /* top-right corner diags go along the right side, bottom diags along the bottom */
+
+  let html = '<div class="worked-method wm-lattice"><h5 class="lattice-title">Lattice</h5>';
+  html += '<table class="lattice-table">';
+
+  /* header row: corner + digit headers + right diag cells */
+  html += '<tr><td class="lt-corner"></td>';
+  for (let c = 0; c < numCols; c++) html += `<td class="lt-header">${dA[c]}</td>`;
+  /* first right-side diagonal digit */
+  const ansDigits = String(answer).split('');
+  if (ansDigits.length > numDiags) {
+    html += `<td class="lt-diag">${ansDigits[0]}</td>`;
+  } else {
+    html += '<td class="lt-diag"></td>';
+  }
+  html += '</tr>';
+
+  /* cell rows */
+  for (let r = 0; r < numRows; r++) {
+    html += `<tr><td class="lt-side">${dB[r]}</td>`;
+    for (let c = 0; c < numCols; c++) {
+      const cell = cells[r * numCols + c];
+      html += `<td class="lt-cell">
+        <svg viewBox="0 0 60 60"><line x1="60" y1="0" x2="0" y2="60" stroke="#2D3436" stroke-width="1.5"/></svg>
+        <span class="lt-tens">${cell.tens}</span><span class="lt-ones">${cell.ones}</span>
+      </td>`;
+    }
+    /* right-side diagonal result */
+    const rightIdx = r + (ansDigits.length > numDiags ? 1 : 0);
+    html += `<td class="lt-diag">${ansDigits[rightIdx] !== undefined ? ansDigits[rightIdx] : ''}</td>`;
+    html += '</tr>';
+  }
+
+  /* bottom diagonal row */
+  html += '<tr><td class="lt-corner"></td>';
+  for (let c = 0; c < numCols; c++) {
+    const bottomIdx = numRows + c + (ansDigits.length > numDiags ? 1 : 0);
+    html += `<td class="lt-diag">${ansDigits[bottomIdx] !== undefined ? ansDigits[bottomIdx] : ''}</td>`;
+  }
+  html += '<td class="lt-corner"></td></tr>';
+
+  html += '</table>';
+  html += `<div class="worked-total" style="text-align:center;">Answer: <span class="mono">${fmt(answer)}</span></div></div>`;
+  return html;
+}
+
+function genAlgoWorked(a, b) {
+  let html = '<div class="worked-method wm-algo"><h5 class="algo-title">Algorithm</h5>';
+  const answer = a * b;
+  const ansDigits = String(answer).split('');
+
+  if (b < 10) {
+    const aDigits = String(a).split('');
+    /* compute carries */
+    let carry = 0;
+    const carries = [];
+    const results = [];
+    for (let i = aDigits.length - 1; i >= 0; i--) {
+      const prod = parseInt(aDigits[i]) * b + carry;
+      results.unshift(prod % 10);
+      carry = Math.floor(prod / 10);
+      carries.unshift(carry);
+    }
+    if (carry > 0) results.unshift(carry);
+
+    /* pad to same width */
+    const width = ansDigits.length;
+    const padA = new Array(width - aDigits.length).fill('').concat(aDigits);
+    const padB = new Array(width - 1).fill('').concat([b]);
+    const carryRow = new Array(width).fill('');
+    /* carries go above the digit they carry into */
+    let c2 = 0;
+    for (let i = aDigits.length - 1; i >= 0; i--) {
+      const prod = parseInt(aDigits[i]) * b + c2;
+      const newCarry = Math.floor(prod / 10);
+      if (newCarry > 0 && i > 0) {
+        const pos = width - aDigits.length + i - 1;
+        carryRow[pos] = newCarry;
+      } else if (newCarry > 0 && i === 0) {
+        /* carry becomes leading digit, no need to show in carry row */
+      }
+      c2 = newCarry;
+    }
+
+    html += '<table class="algo-table">';
+    html += '<tr class="at-carry">';
+    carryRow.forEach(v => html += `<td>${v !== '' ? '<span style="color:var(--red);">' + v + '</span>' : ''}</td>`);
+    html += '</tr>';
+    html += '<tr class="at-top">';
+    padA.forEach(v => html += `<td>${v}</td>`);
+    html += '</tr>';
+    html += '<tr class="at-mult">';
+    padB.forEach((v, i) => html += `<td>${i === 0 ? '&times;' : v}</td>`);
+    html += '</tr>';
+    html += '<tr class="at-answer">';
+    ansDigits.forEach(v => html += `<td>${v}</td>`);
+    html += '</tr>';
+    html += '</table>';
+  } else {
+    /* 2-digit x 2-digit: show two partial product rows */
+    const bO = b % 10, bT = Math.floor(b / 10);
+    const pp1 = a * bO, pp2 = a * bT * 10;
+    const pp1Digits = String(pp1).split('');
+    const pp2Digits = String(pp2).split('');
+    const width = ansDigits.length;
+    const aDigits = String(a).split('');
+
+    const padA = new Array(width - aDigits.length).fill('').concat(aDigits);
+    const padB = new Array(width - String(b).length).fill('').concat(String(b).split(''));
+
+    html += '<table class="algo-table">';
+    html += '<tr class="at-top">';
+    padA.forEach(v => html += `<td>${v}</td>`);
+    html += '</tr>';
+    html += '<tr class="at-mult">';
+    html += '<td>&times;</td>';
+    padB.forEach((v, i) => { if (i > 0 || padB.length === width - 1) html += `<td>${v}</td>`; });
+    /* ensure correct columns */
+    const bPad = new Array(width - 1 - String(b).length).fill('').concat(String(b).split(''));
+    html = '<div class="worked-method wm-algo"><h5 class="algo-title">Algorithm</h5>';
+    html += '<table class="algo-table">';
+    html += '<tr class="at-top">';
+    for (let i = 0; i < width; i++) html += `<td>${i < width - aDigits.length ? '' : aDigits[i - (width - aDigits.length)]}</td>`;
+    html += '</tr>';
+    html += '<tr class="at-mult"><td>&times;</td>';
+    for (let i = 1; i < width; i++) {
+      const bIdx = i - (width - String(b).length);
+      html += `<td>${bIdx >= 0 ? String(b)[bIdx] : ''}</td>`;
+    }
+    html += '</tr>';
+    /* partial product 1 */
+    const pad1 = new Array(width - pp1Digits.length).fill('').concat(pp1Digits);
+    html += '<tr class="at-answer">';
+    pad1.forEach(v => html += `<td>${v}</td>`);
+    html += '</tr>';
+    /* partial product 2 */
+    const pad2 = new Array(width - pp2Digits.length).fill('').concat(pp2Digits);
+    html += '<tr class="at-mult">';
+    pad2.forEach(v => html += `<td>${v}</td>`);
+    html += '</tr>';
+    /* final answer */
+    html += '<tr class="at-answer" style="font-weight:700;">';
+    ansDigits.forEach(v => html += `<td>${v}</td>`);
+    html += '</tr>';
+    html += '</table>';
+  }
+
+  html += `<div class="worked-total" style="text-align:center;">Answer: <span class="mono">${fmt(answer)}</span></div></div>`;
+  return html;
+}
+
+/* ═══════ QUESTION RENDERING (Levels 1 & 2) ═══════ */
+function renderCompareQuestion(level, questions, idx) {
+  const q = questions[idx];
+  const answer = q.a * q.b;
+  const prefix = level === 1 ? 'l1' : 'l2';
+  const levelColor = level === 1 ? 'var(--accent)' : 'var(--red)';
+  const btnClass = level === 1 ? 'btn-primary' : 'btn-red';
+
+  return `
+    <div class="problem-display">
+      <div class="problem-label">Question ${idx + 1} of ${questions.length}</div>
+      <div class="problem-text">${fmt(q.a)} x ${q.b}</div>
+    </div>
+    <div class="radar-row">
+      <label>Radar estimate:</label>
+      <input type="number" class="radar-input" id="${prefix}-radar-${idx}" placeholder="?">
+    </div>
+    <p style="text-align:center; font-size:14px; color:var(--text-light); margin-bottom:16px;">Solve using all three methods on your whiteboard, then enter your answer from each one.</p>
+    <div class="method-panels">
+      <div class="method-panel panel-area">
+        <h4 class="area-title">Area Model</h4>
+        <div class="method-instruction">Partition and add the partial products</div>
+        <input type="number" class="answer-input" id="${prefix}-area-${idx}" placeholder="?">
+      </div>
+      <div class="method-panel panel-lattice">
+        <h4 class="lattice-title">Lattice</h4>
+        <div class="method-instruction">Fill the grid, add the diagonals</div>
+        <input type="number" class="answer-input" id="${prefix}-lattice-${idx}" placeholder="?">
+      </div>
+      <div class="method-panel panel-algo">
+        <h4 class="algo-title">Algorithm</h4>
+        <div class="method-instruction">Multiply column by column</div>
+        <input type="number" class="answer-input" id="${prefix}-algo-${idx}" placeholder="?">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ${btnClass}" id="${prefix}-check-${idx}" onclick="checkCompare(${level}, ${idx})">Check all three</button>
+    </div>
+    <div class="feedback" id="${prefix}-fb-${idx}"></div>
+    <div class="reflection-area" id="${prefix}-reflect-${idx}">
+      <h4>Which method felt most efficient for this problem?</h4>
+      <div class="reflection-options">
+        <button class="reflection-option" onclick="selectReflection(this)">Area Model</button>
+        <button class="reflection-option" onclick="selectReflection(this)">Lattice</button>
+        <button class="reflection-option" onclick="selectReflection(this)">Algorithm</button>
+      </div>
+      <div class="reflection-why-label">Why?</div>
+      <textarea class="reflection-why" id="${prefix}-why-${idx}" placeholder="What made this method feel faster or easier?"></textarea>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn ${btnClass}" onclick="showWorkedComparison('${prefix}', ${idx})">Show how each method works</button>
+        <button class="btn ${btnClass}" onclick="nextCompare(${level}, ${idx})">Next</button>
+      </div>
+    </div>
+    <div class="worked-comparison" id="${prefix}-worked-${idx}">
+      <h4>All three methods compared</h4>
+      <div class="worked-methods">
+        ${genAreaWorked(q.a, q.b)}
+        ${genLatticeWorked(q.a, q.b)}
+        ${genAlgoWorked(q.a, q.b)}
+      </div>
+    </div>
+  `;
+}
+
+function checkCompare(level, idx) {
+  const prefix = level === 1 ? 'l1' : 'l2';
+  const questions = level === 1 ? L1 : L2;
+  const q = questions[idx];
+  const answer = q.a * q.b;
+  const st = level === 1 ? state.l1 : state.l2;
+
+  if (st.checked[idx]) return;
+
+  const areaVal = parseInt(document.getElementById(`${prefix}-area-${idx}`).value);
+  const latticeVal = parseInt(document.getElementById(`${prefix}-lattice-${idx}`).value);
+  const algoVal = parseInt(document.getElementById(`${prefix}-algo-${idx}`).value);
+  const fb = document.getElementById(`${prefix}-fb-${idx}`);
+
+  if (isNaN(areaVal) || isNaN(latticeVal) || isNaN(algoVal)) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = 'Enter an answer for all three methods before checking.';
+    return;
+  }
+
+  const areaOk = areaVal === answer;
+  const latticeOk = latticeVal === answer;
+  const algoOk = algoVal === answer;
+
+  document.getElementById(`${prefix}-area-${idx}`).className = 'answer-input ' + (areaOk ? 'correct' : 'wrong');
+  document.getElementById(`${prefix}-lattice-${idx}`).className = 'answer-input ' + (latticeOk ? 'correct' : 'wrong');
+  document.getElementById(`${prefix}-algo-${idx}`).className = 'answer-input ' + (algoOk ? 'correct' : 'wrong');
+
+  if (areaOk && latticeOk && algoOk) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = `All three methods give <span class="mono">${fmt(answer)}</span>. They match because they are all doing the same maths, just arranged differently.`;
+    st.score++;
+    st.checked[idx] = true;
+    document.getElementById(`${prefix}-check-${idx}`).disabled = true;
+    document.getElementById(`${prefix}-reflect-${idx}`).classList.add('show');
+    updateDots(prefix, questions.length, st);
+  } else {
+    let msg = '';
+    if (!areaOk) msg += `Your area model answer of <span class="mono">${fmt(areaVal)}</span> is not correct. `;
+    if (!latticeOk) msg += `Your lattice answer of <span class="mono">${fmt(latticeVal)}</span> is not correct. `;
+    if (!algoOk) msg += `Your algorithm answer of <span class="mono">${fmt(algoVal)}</span> is not correct. `;
+    msg += `The correct answer is <span class="mono">${fmt(answer)}</span>. Check your working and try to find where the error crept in.`;
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = msg;
+  }
+}
+
+function selectReflection(btn) {
+  btn.parentElement.querySelectorAll('.reflection-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function showWorkedComparison(prefix, idx) {
+  document.getElementById(`${prefix}-worked-${idx}`).classList.add('show');
+}
+
+function nextCompare(level, idx) {
+  const prefix = level === 1 ? 'l1' : 'l2';
+  const questions = level === 1 ? L1 : L2;
+  const st = level === 1 ? state.l1 : state.l2;
+
+  if (idx + 1 < questions.length) {
+    st.current = idx + 1;
+    document.getElementById(`${prefix}-question-area`).innerHTML = renderCompareQuestion(level, questions, st.current);
+    updateDots(prefix, questions.length, st);
+  } else {
+    showSummary(level, questions.length, st);
+  }
+}
+
+/* ═══════ LEVEL 3: STRATEGY SELECTION ═══════ */
+function renderStrategyQuestion(idx) {
+  const q = L3[idx];
+  const answer = q.a * q.b;
+  return `
+    <div class="problem-display">
+      <div class="problem-label">Question ${idx + 1} of ${L3.length}</div>
+      <div class="problem-text">${fmt(q.a)} x ${fmt(q.b)}</div>
+    </div>
+    <div class="radar-row">
+      <label>Radar estimate:</label>
+      <input type="number" class="radar-input" id="l3-radar-${idx}" placeholder="?">
+    </div>
+    <div class="card" style="text-align:center; border-top: 3px solid var(--purple);">
+      <h3 style="font-size:16px; color:var(--purple-dark);">Which strategy would you choose?</h3>
+      <div class="strategy-choices" id="l3-choices-${idx}">
+        <button class="strategy-choice" onclick="selectStrategy(this)">Mental</button>
+        <button class="strategy-choice" onclick="selectStrategy(this)">Area Model</button>
+        <button class="strategy-choice" onclick="selectStrategy(this)">Lattice</button>
+        <button class="strategy-choice" onclick="selectStrategy(this)">Algorithm</button>
+      </div>
+      <div class="reflection-why-label" style="text-align:left;">Why did you choose this strategy?</div>
+      <textarea class="strategy-justify" id="l3-justify-${idx}" placeholder="What makes this strategy a good fit for these numbers?"></textarea>
+      <div class="strategy-answer-row">
+        <label>Your answer:</label>
+        <input type="number" class="strategy-answer-input" id="l3-answer-${idx}" placeholder="?">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-purple" id="l3-check-${idx}" onclick="checkStrategy(${idx})">Check</button>
+      </div>
+    </div>
+    <div class="feedback" id="l3-fb-${idx}"></div>
+    <div class="expert-panel" id="l3-expert-${idx}">
+      <h4>Expert recommendation: ${q.best}</h4>
+      <p>${q.reason}</p>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn btn-purple" onclick="nextStrategy(${idx})">Next</button>
+      </div>
+    </div>
+  `;
+}
+
+function selectStrategy(btn) {
+  btn.parentElement.querySelectorAll('.strategy-choice').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function checkStrategy(idx) {
+  const q = L3[idx];
+  const answer = q.a * q.b;
+  const st = state.l3;
+
+  if (st.checked[idx]) return;
+
+  const chosen = document.querySelector(`#l3-choices-${idx} .selected`);
+  const answerVal = parseInt(document.getElementById(`l3-answer-${idx}`).value);
+  const fb = document.getElementById(`l3-fb-${idx}`);
+  const answerInput = document.getElementById(`l3-answer-${idx}`);
+
+  if (!chosen) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = 'Choose a strategy before checking.';
+    return;
+  }
+  if (isNaN(answerVal)) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = 'Enter your answer before checking.';
+    return;
+  }
+
+  const correct = answerVal === answer;
+  answerInput.className = 'strategy-answer-input ' + (correct ? 'correct' : 'wrong');
+
+  if (correct) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = `Correct! <span class="mono">${fmt(q.a)}</span> x <span class="mono">${fmt(q.b)}</span> = <span class="mono">${fmt(answer)}</span>.`;
+    st.score++;
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = `You answered <span class="mono">${fmt(answerVal)}</span>. The correct answer is <span class="mono">${fmt(answer)}</span>.`;
+  }
+
+  st.checked[idx] = true;
+  document.getElementById(`l3-check-${idx}`).disabled = true;
+  document.getElementById(`l3-expert-${idx}`).classList.add('show');
+  updateDots('l3', L3.length, st);
+}
+
+function nextStrategy(idx) {
+  if (idx + 1 < L3.length) {
+    state.l3.current = idx + 1;
+    document.getElementById('l3-question-area').innerHTML = renderStrategyQuestion(state.l3.current);
+    updateDots('l3', L3.length, state.l3);
+  } else {
+    showSummary(3, L3.length, state.l3);
+  }
+}
+
+/* ═══════ DOTS & SUMMARY ═══════ */
+function renderDots(prefix, total) {
+  const container = document.getElementById(`${prefix}-dots`);
+  container.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.textContent = i + 1;
+    container.appendChild(dot);
+  }
+}
+
+function updateDots(prefix, total, st) {
+  const dots = document.querySelectorAll(`#${prefix}-dots .dot`);
+  dots.forEach((dot, i) => {
+    dot.classList.remove('current', 'green', 'red');
+    if (i === st.current) dot.classList.add('current');
+    else if (st.checked[i]) dot.classList.add('green');
+  });
+}
+
+function showSummary(level, total, st) {
+  const prefix = level === 1 ? 'l1' : level === 2 ? 'l2' : 'l3';
+  const colors = { 1: 'var(--accent)', 2: 'var(--red)', 3: 'var(--purple)' };
+  const summary = document.getElementById(`${prefix}-summary`);
+  document.getElementById(`${prefix}-question-area`).innerHTML = '';
+
+  let nextBtn = '';
+  if (level < 3) {
+    const nextLevel = level + 1;
+    const nextPrefix = nextLevel === 2 ? 'level2' : 'level3';
+    const nextBtnClass = nextLevel === 2 ? 'btn-red' : 'btn-purple';
+    nextBtn = `<button class="btn ${nextBtnClass}" onclick="document.querySelectorAll('.phase-btn')[${nextLevel}].click();" style="margin-top:16px;">Start Level ${nextLevel}</button>`;
+  } else {
+    nextBtn = `<button class="btn btn-primary" onclick="openGoDeeper()" style="margin-top:16px;">Go Deeper</button>`;
+    unlockGoDeeper();
+  }
+
+  summary.innerHTML = `
+    <h3>Level ${level} Complete</h3>
+    <div class="summary-score" style="color:${colors[level]};">${st.score} / ${total}</div>
+    <p style="margin-top:8px; font-size:16px; color:var(--text-light);">${st.score === total ? 'Perfect score. All methods, one answer.' : 'Keep practising. Every method gives the same answer when the maths is right.'}</p>
+    ${nextBtn}
+  `;
+  summary.classList.add('show');
+}
+
+/* ═══════ GO DEEPER ═══════ */
+function unlockGoDeeper() {
+  const card = document.getElementById('go-deeper-card');
+  if (card) {
+    card.classList.remove('locked');
+    card.disabled = false;
+    card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+    card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  }
+}
+
+function openGoDeeper() {
+  showSection('learn', document.querySelector('.phase-btn'));
+  document.getElementById('go-deeper-section').style.display = 'block';
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ═══════ INIT ═══════ */
+function init() {
+  renderDots('l1', L1.length);
+  renderDots('l2', L2.length);
+  renderDots('l3', L3.length);
+
+  document.getElementById('l1-question-area').innerHTML = renderCompareQuestion(1, L1, 0);
+  document.getElementById('l2-question-area').innerHTML = renderCompareQuestion(2, L2, 0);
+  document.getElementById('l3-question-area').innerHTML = renderStrategyQuestion(0);
+
+  updateDots('l1', L1.length, state.l1);
+  updateDots('l2', L2.length, state.l2);
+  updateDots('l3', L3.length, state.l3);
+}
+
+init();
+</script>
+</body>
+</html>

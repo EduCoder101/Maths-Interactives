@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Division Radar</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-accent: #4ECDC4;
+    --bg-cream: #FFF8F0;
+    --text-dark: #2D3436;
+    --text-light: #636E72;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --level1-color: #4ECDC4;
+    --level2-color: #FF6B6B;
+    --level3-color: #9B5DE5;
+    --correct-color: #27AE60;
+    --incorrect-color: #E74C3C;
+    --green: #27AE60; --green-dark: #1a9c51;
+    --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b;
+    --teal: #4ECDC4; --teal-dark: #38b2aa;
+    --blue: #3498DB;
+    --purple: #9B5DE5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--bg-cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .page-header {
+    text-align: center;
+    padding: 40px 24px 28px;
+  }
+  .page-header h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .page-header h1 span { color: var(--teal); }
+  .page-header p {
+    color: var(--text-light);
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* MAIN */
+  main { max-width: 700px; margin: 0 auto; padding: 0 24px 60px; }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    border-top: 5px solid var(--primary-accent);
+  }
+  .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .card p { font-size: 16px; line-height: 1.7; color: #445; font-weight: 400; }
+
+  /* LEARNING CARD */
+  .learning-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+    border-top: 5px solid var(--primary-accent);
+  }
+  .learning-card h2 {
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .learning-card h2 .toggle-icon { font-size: 1.2rem; transition: transform 0.3s ease; }
+  .learning-content { display: none; margin-top: 1rem; }
+  .learning-content.open { display: block; }
+  .learning-content h3 { margin-top: 1rem; margin-bottom: 0.5rem; font-size: 1rem; }
+  .learning-content p { line-height: 1.6; font-size: 0.95rem; margin-bottom: 0.75rem; }
+  .success-criteria { list-style: none; margin-left: 0; margin-top: 0.75rem; }
+  .success-criteria li { padding: 0.5rem 0 0.5rem 1.5rem; position: relative; font-size: 0.95rem; }
+  .success-criteria li::before { content: "\2014"; position: absolute; left: 0; }
+
+  /* TEACHER MODELLING CARDS */
+  .model-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    border: 2px solid #e9ecef;
+  }
+  .model-card h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+  .model-card p { font-size: 16px; line-height: 1.7; }
+  .model-intro {
+    border-top: 5px solid var(--primary-accent);
+  }
+
+  /* Large problem display for teacher modelling */
+  .big-problem {
+    background: #ffffff;
+    border: 3px solid #e9ecef;
+    border-radius: 16px;
+    padding: 24px 32px;
+    text-align: center;
+    margin: 16px 0;
+  }
+  .big-problem-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text-light);
+    margin-bottom: 10px;
+  }
+  .big-problem-text {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(32px, 7vw, 48px);
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: 0.02em;
+  }
+
+  /* Step reveal for modelling */
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.3s ease; }
+  .reveal-btn {
+    background: var(--teal); color: var(--text-dark); border: none;
+    border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .reveal-btn:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+
+  /* Large maths display rows */
+  .big-maths {
+    display: flex; flex-direction: column; gap: 10px;
+    margin: 16px 0; text-align: left;
+  }
+  .big-maths-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    font-size: clamp(18px, 4vw, 24px); font-weight: 600;
+  }
+  .big-maths-row .mono {
+    font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: clamp(20px, 4.5vw, 28px);
+  }
+  .big-maths-row .arrow {
+    color: var(--teal-dark); font-weight: 700;
+  }
+  .big-estimate {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--text-dark);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(20px, 4.5vw, 28px);
+    border-radius: 10px;
+    padding: 4px 16px;
+  }
+  .big-actual {
+    display: inline-block;
+    background: var(--teal);
+    color: var(--text-dark);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(20px, 4.5vw, 28px);
+    border-radius: 10px;
+    padding: 4px 16px;
+  }
+  .big-direction {
+    font-size: 16px; line-height: 1.6; margin-top: 8px;
+    color: #445; font-style: italic;
+  }
+
+  /* Error demo for example 3 */
+  .error-demo {
+    background: #fff4f4; border: 2px dashed var(--red);
+    border-radius: 14px; padding: 22px 28px; margin: 16px 0; position: relative;
+  }
+  .error-badge {
+    position: absolute; top: -13px; left: 20px;
+    background: var(--red); color: #fff; font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; padding: 3px 14px; border-radius: 20px; text-transform: uppercase;
+  }
+
+  /* Callout for radar result */
+  .callout { border-radius: 12px; padding: 18px 22px; margin: 16px 0; }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 15px; line-height: 1.6; }
+  .callout-green { background: #e8f8e8; border-left: 5px solid var(--correct-color); }
+  .callout-green .label { color: var(--green-dark); }
+  .callout-green p { color: #1a5c2e; }
+  .callout-red { background: #fff4f4; border-left: 5px solid var(--red); }
+  .callout-red .label { color: var(--red-dark); }
+  .callout-red p { color: #5a1a1a; }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-teal p { color: #0a3832; }
+
+  /* LEVEL GRID */
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .level-btn {
+    background: white;
+    border: 3px solid #e9ecef;
+    border-radius: 20px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+  .level-btn:hover:not(.locked):not(.completed) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  .level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .level-btn p { font-size: 13px; color: var(--text-light); margin: 0; }
+  .level-btn.active { border-color: var(--teal); }
+  .level-btn.completed { border-color: var(--correct-color); background: #f0fdf4; }
+  .level-btn.completed::after { content: ' '; }
+  .l1-btn { border-top: 4px solid var(--level1-color); }
+  .l2-btn { border-top: 4px solid var(--level2-color); }
+  .l3-btn { border-top: 4px solid var(--level3-color); }
+
+  /* GO DEEPER LEVEL BUTTON */
+  .go-deeper-level-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 20px 24px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    transition: all 0.3s;
+    grid-column: 1 / -1;
+  }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--text-light); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  /* BAND LEGEND */
+  .band-legend {
+    display: flex; gap: 16px; justify-content: center;
+    margin: 12px 0 20px; flex-wrap: wrap; font-size: 13px; font-weight: 600;
+  }
+  .band-item { display: flex; align-items: center; gap: 6px; }
+  .band-swatch { width: 14px; height: 14px; border-radius: 4px; }
+
+  /* DOT COUNTER */
+  .dot-counter {
+    display: flex; gap: 8px; justify-content: center;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #e0e5e8; border: 2px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white;
+    transition: all 0.3s ease;
+  }
+  .dot.current { border-color: var(--text-dark); background: var(--text-dark); color: white; }
+  .dot.green { background: var(--correct-color); border-color: var(--correct-color); }
+  .dot.amber { background: var(--amber); border-color: var(--amber); color: var(--text-dark); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  /* PRACTICE AREA */
+  .practice-container {
+    background: white; border-radius: 20px;
+    box-shadow: var(--card-shadow); padding: 32px; margin-bottom: 20px;
+    border: 2px solid #e9ecef; text-align: center;
+  }
+  .level-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .problem-display {
+    font-family: 'Space Mono', monospace; font-size: clamp(28px, 6vw, 42px);
+    font-weight: 700; color: var(--text-dark); margin: 16px 0; letter-spacing: 0.02em;
+  }
+  .estimate-input {
+    font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700;
+    text-align: center; border: 3px solid #e9ecef; border-radius: 14px;
+    padding: 14px 20px; width: 200px; max-width: 100%;
+    transition: border-color 0.3s ease; outline: none;
+    color: var(--text-dark); background: #fafbfc;
+  }
+  .estimate-input:focus { border-color: var(--teal); }
+
+  .btn-primary {
+    background: var(--teal); color: var(--text-dark); border: none;
+    border-radius: 30px; padding: 12px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 17px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; margin-top: 16px; display: inline-block;
+  }
+  .btn-primary:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-dark {
+    background: var(--text-dark); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 17px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; margin-top: 12px; display: none;
+  }
+  .btn-dark:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .btn-back {
+    background: none; color: var(--text-light); border: 2px solid #e9ecef;
+    border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; margin-top: 16px;
+  }
+  .btn-back:hover { border-color: var(--text-dark); color: var(--text-dark); }
+
+  /* FEEDBACK */
+  .feedback-card {
+    border-radius: 16px; padding: 24px; margin: 20px 0;
+    display: none; text-align: left;
+  }
+  .feedback-card.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback-card.green-fb { background: #e8f8e8; border: 2px solid var(--correct-color); }
+  .feedback-card.amber-fb { background: #fffbf0; border: 2px solid var(--amber); }
+  .feedback-card.red-fb { background: #fff4f4; border: 2px solid var(--red); }
+  .feedback-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .feedback-card.green-fb .feedback-title { color: var(--green-dark); }
+  .feedback-card.amber-fb .feedback-title { color: var(--amber-dark); }
+  .feedback-card.red-fb .feedback-title { color: var(--red-dark); }
+  .feedback-detail { font-size: 15px; line-height: 1.7; }
+  .feedback-detail .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* COMPATIBLE NUMBER DISPLAY */
+  .compat-grid {
+    display: flex; flex-direction: column; gap: 6px;
+    margin: 12px 0; text-align: left;
+  }
+  .compat-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .compat-mult {
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px;
+  }
+  .compat-arrow { font-weight: 700; color: var(--teal-dark); font-size: 18px; }
+  .compat-result {
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px;
+    background: var(--amber); color: var(--text-dark); border-radius: 8px;
+    padding: 2px 12px;
+  }
+
+  /* SUMMARY */
+  .summary-card {
+    background: white; border-radius: 20px;
+    box-shadow: var(--card-shadow); padding: 32px; text-align: center; margin-bottom: 20px;
+    display: none;
+  }
+  .summary-score {
+    font-family: 'Space Mono', monospace; font-size: 56px; font-weight: 700;
+    margin: 8px 0;
+  }
+  .summary-label { font-size: 14px; color: var(--text-light); font-weight: 600; }
+  .summary-table {
+    width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; text-align: left;
+  }
+  .summary-table th {
+    background: #f1f5f9; padding: 10px 12px; font-weight: 700;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light);
+  }
+  .summary-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+  .summary-table .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* SECTION VISIBILITY */
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.35s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* GO DEEPER */
+  .go-deeper-card { background: white; border-radius: 20px; box-shadow: var(--card-shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: clamp(20px, 4vw, 26px); font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 15px; line-height: 1.6; color: var(--text-light); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 14px; font-style: italic; color: var(--text-light); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid #e9ecef; border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid #e9ecef; }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 14px; line-height: 1.6; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    main { padding: 0 12px 60px; }
+    .card, .worked-example, .practice-container { padding: 20px 18px; }
+    .level-grid { grid-template-columns: 1fr; }
+    .problem-display { font-size: 28px; }
+    .estimate-input { font-size: 20px; width: 160px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>The <span>Division Radar</span></h1>
+  <p>Estimation as a checking tool for division</p>
+</div>
+
+<main>
+
+<!-- LISC -->
+<div class="learning-card">
+  <h2 onclick="toggleLearningSection()">
+    Learning Intention &amp; Success Criteria
+    <span class="toggle-icon" id="learningToggle">&#x25BC;</span>
+  </h2>
+  <div class="learning-content" id="learningContent">
+    <h3>Learning Intention</h3>
+    <p>We are learning to estimate the result of a division before we calculate, so we can judge whether our answer is reasonable.</p>
+    <h3>Success Criteria</h3>
+    <ul class="success-criteria">
+      <li>I can find a compatible number close to the dividend that divides evenly by the divisor.</li>
+      <li>I can use that compatible number to make a quick estimate of the quotient.</li>
+      <li>I can judge whether a division answer is reasonable by comparing it to my estimate.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div id="landing" class="section active">
+
+  <!-- INTRO -->
+  <div class="model-card model-intro">
+    <h3>How to estimate a division</h3>
+    <p>Before you calculate, find a <strong>compatible number</strong> close to the dividend that divides evenly. This gives you a quick estimate to check your answer against.</p>
+    <div class="callout-teal callout" style="margin-top:16px;">
+      <div class="label">The Process</div>
+      <p><strong>1.</strong> Think of multiples of the divisor near the dividend.<br>
+      <strong>2.</strong> Pick the closest one. That gives your estimate.<br>
+      <strong>3.</strong> Calculate and check: does your answer match your estimate?</p>
+    </div>
+  </div>
+
+  <!-- EXAMPLE 1: Clean exact division -->
+  <div class="model-card">
+    <h3>Example 1: Estimate then check</h3>
+
+    <div class="big-problem">
+      <div class="big-problem-label">Problem</div>
+      <div class="big-problem-text">78 &divide; 6</div>
+    </div>
+
+    <div class="step-reveal" id="ex1-s1">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Step 1: Think of multiples of 6 near 78.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">6</span> x <span class="mono">12</span> = <span class="mono">72</span>
+        </div>
+        <div class="big-maths-row">
+          <span class="mono">6</span> x <span class="mono">13</span> = <span class="mono">78</span>
+        </div>
+      </div>
+      <p>78 is right on a multiple of 6.</p>
+    </div>
+
+    <div class="step-reveal" id="ex1-s2">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Step 2: Pick the compatible number.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">78</span> is exactly <span class="mono">6</span> x <span class="mono">13</span>
+        </div>
+      </div>
+      <p>Estimate: <span class="big-estimate">13</span></p>
+      <p class="big-direction">78 is an exact multiple, so this estimate should be spot on.</p>
+    </div>
+
+    <div class="step-reveal" id="ex1-s3">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Step 3: Calculate and check.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">78</span> &divide; <span class="mono">6</span> = <span class="big-actual">13</span>
+        </div>
+      </div>
+      <div class="callout callout-green" style="margin-top:12px;">
+        <div class="label">Radar Confirmed</div>
+        <p>Exactly 13. Our estimate matched perfectly.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="ex1-btn" onclick="revealExStep('ex1')">
+      Show multiples of 6 &#8594;
+    </button>
+  </div>
+
+  <!-- EXAMPLE 2: 3-digit -->
+  <div class="model-card">
+    <h3>Example 2: Larger number</h3>
+
+    <div class="big-problem">
+      <div class="big-problem-label">Problem</div>
+      <div class="big-problem-text">246 &divide; 4</div>
+    </div>
+
+    <div class="step-reveal" id="ex2-s1">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Step 1: Think of multiples of 4 near 246.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">4</span> x <span class="mono">60</span> = <span class="mono">240</span>
+        </div>
+        <div class="big-maths-row">
+          <span class="mono">4</span> x <span class="mono">70</span> = <span class="mono">280</span>
+        </div>
+      </div>
+      <p>246 sits between 240 and 280, much closer to 240.</p>
+    </div>
+
+    <div class="step-reveal" id="ex2-s2">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Step 2: Pick the closest compatible number.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">240</span> is only <span class="mono">6</span> away from <span class="mono">246</span>
+        </div>
+      </div>
+      <p>Estimate: <span class="big-estimate">about 60</span></p>
+      <p class="big-direction">I rounded DOWN from 246 to 240, so the real answer is a little more than 60.</p>
+    </div>
+
+    <div class="step-reveal" id="ex2-s3">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Step 3: Calculate and check.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">246</span> &divide; <span class="mono">4</span> = <span class="big-actual">61 remainder 2</span>
+        </div>
+      </div>
+      <div class="callout callout-green" style="margin-top:12px;">
+        <div class="label">Radar Confirmed</div>
+        <p>61 is just above 60. Exactly what we predicted.</p>
+      </div>
+    </div>
+
+    <button class="reveal-btn" id="ex2-btn" onclick="revealExStep('ex2')">
+      Show multiples of 4 &#8594;
+    </button>
+  </div>
+
+  <!-- EXAMPLE 3: Catching an error -->
+  <div class="model-card">
+    <h3>Example 3: Catching an error</h3>
+
+    <div class="error-demo" style="margin-top:16px;">
+      <span class="error-badge">Student's Answer</span>
+      <div style="margin-top:14px;">
+        <div class="big-problem" style="border-color:var(--red); background:#fff;">
+          <div class="big-problem-label">On the test paper</div>
+          <div class="big-problem-text">347 &divide; 6 = 97</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-reveal" id="ex3-s1">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Radar check: Find multiples of 6 near 347.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">6</span> x <span class="mono">50</span> = <span class="mono">300</span>
+        </div>
+        <div class="big-maths-row">
+          <span class="mono">6</span> x <span class="mono">60</span> = <span class="mono">360</span>
+        </div>
+      </div>
+      <p>The answer should be between 50 and 60.</p>
+      <p>Estimate: <span class="big-estimate">about 58</span></p>
+    </div>
+
+    <div class="step-reveal" id="ex3-s2">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">Compare the student's answer to our estimate.</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          Student's answer: <span class="mono" style="color:var(--red-dark);">97</span>
+        </div>
+        <div class="big-maths-row">
+          Our estimate: <span class="mono">about 58</span>
+        </div>
+      </div>
+      <div class="callout callout-red" style="margin-top:12px;">
+        <div class="label">Radar Alarm</div>
+        <p>97 is way above our estimate of 58. Something has gone wrong. We do not even need to check the working to know this answer is too large.</p>
+      </div>
+    </div>
+
+    <div class="step-reveal" id="ex3-s3">
+      <p style="font-size:17px; font-weight:600; margin-bottom:8px;">The correct answer:</p>
+      <div class="big-maths">
+        <div class="big-maths-row">
+          <span class="mono">347</span> &divide; <span class="mono">6</span> = <span class="big-actual">57 remainder 5</span>
+        </div>
+      </div>
+      <p style="margin-top:8px;">The student likely made a place value error in their calculation. Without a Radar estimate, this mistake could go unnoticed.</p>
+    </div>
+
+    <button class="reveal-btn" id="ex3-btn" onclick="revealExStep('ex3')">
+      Run the Radar check &#8594;
+    </button>
+  </div>
+
+  <!-- LEVEL GRID -->
+  <h3 style="text-align:center; margin-bottom:16px; font-size:20px;">Now sharpen your Radar</h3>
+  <div class="level-grid">
+    <button class="level-btn l1-btn" id="level-1-btn" onclick="startLevel(1)">
+      <h3 style="color:var(--level1-color);">Level 1</h3>
+      <p>2-digit &divide; 1-digit</p>
+    </button>
+    <button class="level-btn l2-btn" id="level-2-btn" onclick="startLevel(2)">
+      <h3 style="color:var(--level2-color);">Level 2</h3>
+      <p>3-digit &divide; 1-digit</p>
+    </button>
+    <button class="level-btn l3-btn" id="level-3-btn" onclick="startLevel(3)">
+      <h3 style="color:var(--level3-color);">Level 3</h3>
+      <p>Larger dividends</p>
+    </button>
+    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+      <h3>Go Deeper: Division Investigations</h3>
+      <p>Complete Level 3 to unlock</p>
+    </button>
+  </div>
+
+</div>
+
+<!-- PRACTICE SECTION -->
+<div id="practice" class="section">
+  <div class="level-label" id="level-label" style="text-align:center;"></div>
+
+  <div class="band-legend">
+    <div class="band-item"><div class="band-swatch" style="background:var(--correct-color);"></div> Within 10%</div>
+    <div class="band-item"><div class="band-swatch" style="background:var(--amber);"></div> Within 20%</div>
+    <div class="band-item"><div class="band-swatch" style="background:var(--red);"></div> Beyond 20%</div>
+  </div>
+
+  <div class="dot-counter" id="dot-counter"></div>
+
+  <div class="practice-container" id="practice-area">
+    <div class="problem-display" id="problem-display"></div>
+    <div style="margin-top:8px;">
+      <label style="font-size:15px;font-weight:600;color:var(--text-light);display:block;margin-bottom:8px;">Type your estimate of the quotient:</label>
+      <input type="text" class="estimate-input" id="estimate-input" inputmode="numeric" placeholder="?" autocomplete="off">
+    </div>
+    <div>
+      <button class="btn-primary" id="check-btn" onclick="checkEstimate()">Check Radar</button>
+      <button class="btn-dark" id="next-btn" onclick="nextProblem()">Next Problem &#8594;</button>
+    </div>
+
+    <div class="feedback-card" id="feedback-card">
+      <div class="feedback-title" id="feedback-title"></div>
+      <div class="feedback-detail" id="feedback-detail"></div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card" id="summary-card">
+    <div class="summary-label">Average Distance from Actual Quotient</div>
+    <div class="summary-score" id="summary-score"></div>
+    <div class="summary-label" id="summary-message"></div>
+
+    <table class="summary-table" id="summary-table">
+      <thead><tr><th>#</th><th>Problem</th><th>Your Estimate</th><th>Actual</th><th>Accuracy</th></tr></thead>
+      <tbody id="summary-tbody"></tbody>
+    </table>
+
+    <button class="btn-primary" id="retry-btn" onclick="startLevel(currentLevel)">Try Again (New Numbers)</button>
+    <br>
+    <button class="btn-back" onclick="backToLanding()">Back to Levels</button>
+  </div>
+</div>
+
+<!-- GO DEEPER SECTION -->
+<div id="go-deeper-section" class="section">
+  <button class="btn-back" onclick="backToLanding()" style="margin-bottom:20px;">Back to Levels</button>
+
+  <div class="go-deeper-card">
+    <h2>Go Deeper: Division Investigations</h2>
+    <p>These tasks push your thinking beyond finding answers. You will explore, make conjectures, and reason like a mathematician.</p>
+
+    <!-- TASK 1: Specialising -->
+    <div class="ext-task">
+      <div class="ext-task-label">Specialising</div>
+      <div class="ext-task-prompt">
+        Estimate each of these divisions using compatible numbers (find a nearby number that divides evenly). Then calculate the exact answer. How close was each estimate?
+      </div>
+      <div style="margin:12px 0; font-size:16px; font-weight:600; line-height:2;">
+        <span class="ext-numbers">156</span> &divide; <span class="ext-numbers">7</span> &nbsp;&nbsp;&nbsp;
+        <span class="ext-numbers">283</span> &divide; <span class="ext-numbers">4</span> &nbsp;&nbsp;&nbsp;
+        <span class="ext-numbers">497</span> &divide; <span class="ext-numbers">9</span>
+      </div>
+      <div class="ext-task-sub">Which estimate was closest to the actual answer? Which was furthest away? Why do you think that happened?</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>I looked for multiples of each divisor that were close to the dividend.</p>
+        <p><span class="ext-numbers">156</span> &divide; <span class="ext-numbers">7</span>: I know <span class="ext-numbers">7</span> x <span class="ext-numbers">22</span> = <span class="ext-numbers">154</span>. That is only <span class="ext-numbers">2</span> away from <span class="ext-numbers">156</span>. So my estimate was <span class="ext-numbers">22</span>. The actual answer is <span class="ext-numbers">22</span> remainder <span class="ext-numbers">2</span>. Spot on.</p>
+        <p><span class="ext-numbers">283</span> &divide; <span class="ext-numbers">4</span>: I know <span class="ext-numbers">4</span> x <span class="ext-numbers">70</span> = <span class="ext-numbers">280</span>. That is only <span class="ext-numbers">3</span> away. Estimate: <span class="ext-numbers">70</span>. Actual: <span class="ext-numbers">70</span> remainder <span class="ext-numbers">3</span>. Very close.</p>
+        <p><span class="ext-numbers">497</span> &divide; <span class="ext-numbers">9</span>: I know <span class="ext-numbers">9</span> x <span class="ext-numbers">55</span> = <span class="ext-numbers">495</span>. That is only <span class="ext-numbers">2</span> away. Estimate: <span class="ext-numbers">55</span>. Actual: <span class="ext-numbers">55</span> remainder <span class="ext-numbers">2</span>. Spot on again.</p>
+        <p>All three estimates were extremely close because the compatible numbers I found happened to be very near the dividends. The trick is knowing your times tables well enough to spot those nearby multiples quickly.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence and notice what makes an estimate better or worse.
+      </div>
+    </div>
+
+    <!-- TASK 2: Conjecturing -->
+    <div class="ext-task">
+      <div class="ext-task-label">Conjecturing</div>
+      <div class="ext-task-prompt">
+        "If the dividend increases by exactly the divisor, the quotient always increases by exactly <span class="ext-numbers">1</span>."
+      </div>
+      <div class="ext-task-sub">Is this always true, sometimes true, or never true? Test it with at least three different examples.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>I tested this with several examples.</p>
+        <p><span class="ext-numbers">47</span> &divide; <span class="ext-numbers">6</span> = <span class="ext-numbers">7</span> remainder <span class="ext-numbers">5</span>. Now add <span class="ext-numbers">6</span> to the dividend: <span class="ext-numbers">53</span> &divide; <span class="ext-numbers">6</span> = <span class="ext-numbers">8</span> remainder <span class="ext-numbers">5</span>. Quotient went from <span class="ext-numbers">7</span> to <span class="ext-numbers">8</span>. Up by <span class="ext-numbers">1</span>.</p>
+        <p><span class="ext-numbers">100</span> &divide; <span class="ext-numbers">7</span> = <span class="ext-numbers">14</span> remainder <span class="ext-numbers">2</span>. Add <span class="ext-numbers">7</span>: <span class="ext-numbers">107</span> &divide; <span class="ext-numbers">7</span> = <span class="ext-numbers">15</span> remainder <span class="ext-numbers">2</span>. Up by <span class="ext-numbers">1</span>.</p>
+        <p><span class="ext-numbers">55</span> &divide; <span class="ext-numbers">8</span> = <span class="ext-numbers">6</span> remainder <span class="ext-numbers">7</span>. Add <span class="ext-numbers">8</span>: <span class="ext-numbers">63</span> &divide; <span class="ext-numbers">8</span> = <span class="ext-numbers">7</span> remainder <span class="ext-numbers">7</span>. Up by <span class="ext-numbers">1</span>.</p>
+        <p>I started to think it was always true, but then I stopped and thought about why. Adding the divisor to the dividend means you are sharing one more "full group". The remainder stays the same because the extra amount is exactly one full group. So the quotient always increases by exactly <span class="ext-numbers">1</span>.</p>
+        <p>My answer: <strong>always true</strong>.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim you believe is true, based on evidence, and then trying to explain why it works every time.
+      </div>
+    </div>
+
+    <!-- TASK 3: Justifying -->
+    <div class="ext-task">
+      <div class="ext-task-label">Justifying</div>
+      <div class="ext-task-prompt">
+        A student estimates <span class="ext-numbers">347</span> &divide; <span class="ext-numbers">6</span> like this: "I will round <span class="ext-numbers">347</span> to <span class="ext-numbers">350</span> and round <span class="ext-numbers">6</span> to <span class="ext-numbers">10</span>. Then <span class="ext-numbers">350</span> &divide; <span class="ext-numbers">10</span> = <span class="ext-numbers">35</span>. My estimate is <span class="ext-numbers">35</span>."
+      </div>
+      <div class="ext-task-sub">The actual answer is <span class="ext-numbers">57</span> remainder <span class="ext-numbers">5</span>. What went wrong with the student's strategy? Explain why rounding the divisor caused such a big error.</div>
+      <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+      <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+      <div class="ext-model-response">
+        <div class="model-label">A mathematician's response</div>
+        <p>The student's estimate of <span class="ext-numbers">35</span> is very far from the actual answer of <span class="ext-numbers">57</span> remainder <span class="ext-numbers">5</span>. That is off by more than <span class="ext-numbers">22</span>. Let me figure out what went wrong.</p>
+        <p>The student rounded the divisor from <span class="ext-numbers">6</span> to <span class="ext-numbers">10</span>. That looks like a small change, but it changes everything. Dividing by <span class="ext-numbers">10</span> gives a much smaller quotient than dividing by <span class="ext-numbers">6</span>, because you are sharing among more groups.</p>
+        <p>I first tried rounding only the dividend: <span class="ext-numbers">348</span> &divide; <span class="ext-numbers">6</span> = <span class="ext-numbers">58</span>. That estimate is only <span class="ext-numbers">1</span> away from the actual quotient. Much better.</p>
+        <p>The lesson: <strong>never round the divisor</strong>. A small change to the divisor causes a huge change in the quotient. In multiplication you can sometimes round both numbers, but in division the divisor must stay exact. Only round the dividend.</p>
+      </div>
+      <div class="mathematician-box">
+        <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just saying the student is wrong. You are explaining <em>why</em> the strategy fails, so that everyone can avoid the same mistake.
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// STATE
+var currentLevel = 0;
+var totalProblems = 8;
+var currentProblem = 0;
+var problems = [];
+var results = [];
+var levelsCompleted = { 1: false, 2: false, 3: false };
+
+function formatNum(n) { return n.toLocaleString('en-GB'); }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function toggleLearningSection() {
+  var content = document.getElementById('learningContent');
+  var toggle = document.getElementById('learningToggle');
+  content.classList.toggle('open');
+  toggle.innerHTML = content.classList.contains('open') ? '&#x25B2;' : '&#x25BC;';
+}
+
+// STAGED EXAMPLE REVEALS
+var exStages = {};
+var exLabels = {
+  ex1: ['Pick the closest compatible number \u2192', 'Calculate and check \u2192', ''],
+  ex2: ['Pick the closest compatible number \u2192', 'Calculate and check \u2192', ''],
+  ex3: ['Compare to the student\'s answer \u2192', 'Show the correct answer \u2192', '']
+};
+
+function revealExStep(prefix) {
+  if (!exStages[prefix]) exStages[prefix] = 0;
+  exStages[prefix]++;
+  var s = exStages[prefix];
+  var btn = document.getElementById(prefix + '-btn');
+  document.getElementById(prefix + '-s' + s).classList.add('shown');
+  if (s < 3) {
+    btn.textContent = exLabels[prefix][s - 1];
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+// GENERATE PROBLEMS
+function generateProblems(level) {
+  problems = [];
+  var used = {};
+  for (var i = 0; i < totalProblems; i++) {
+    var tries = 0;
+    var a, b, key;
+    do {
+      tries++;
+      if (level === 1) {
+        // 2-digit ÷ 1-digit, quotient between 3 and 15
+        b = randInt(3, 9);
+        var q = randInt(3, 15);
+        var r = randInt(0, b - 1);
+        a = b * q + r;
+        // Keep 2-digit
+        if (a < 15 || a > 99) { a = -1; }
+      } else if (level === 2) {
+        // 3-digit ÷ 1-digit
+        b = randInt(3, 9);
+        var q = randInt(15, 99);
+        var r = randInt(0, b - 1);
+        a = b * q + r;
+        if (a < 100 || a > 999) { a = -1; }
+      } else {
+        // Level 3: 3-4 digit ÷ 1-digit
+        b = randInt(3, 9);
+        var q = randInt(40, 180);
+        var r = randInt(0, b - 1);
+        a = b * q + r;
+        if (a < 200 || a > 1500) { a = -1; }
+      }
+      key = a + '/' + b;
+    } while ((a < 0 || used[key]) && tries < 50);
+
+    if (a < 0) {
+      // Fallback
+      b = level === 1 ? randInt(3, 8) : randInt(3, 9);
+      a = level === 1 ? randInt(20, 90) : level === 2 ? randInt(100, 800) : randInt(200, 1200);
+    }
+    used[key] = true;
+
+    var actual = a / b;
+    var quotient = Math.floor(a / b);
+    var remainder = a % b;
+
+    // Find compatible number: nearest multiple of b to a
+    var nearestMult = Math.round(a / b) * b;
+    var smartEst = nearestMult / b;
+
+    problems.push({
+      a: a,
+      b: b,
+      actual: actual,
+      quotient: quotient,
+      remainder: remainder,
+      nearestMult: nearestMult,
+      smartEst: smartEst
+    });
+  }
+}
+
+// LEVEL COLOURS
+function getLevelColor(level) {
+  if (level === 1) return 'var(--level1-color)';
+  if (level === 2) return 'var(--level2-color)';
+  return 'var(--level3-color)';
+}
+
+function getLevelName(level) {
+  if (level === 1) return 'Level 1: 2-digit \u00f7 1-digit';
+  if (level === 2) return 'Level 2: 3-digit \u00f7 1-digit';
+  return 'Level 3: Larger dividends';
+}
+
+// START LEVEL
+function startLevel(level) {
+  currentLevel = level;
+  currentProblem = 0;
+  results = [];
+  generateProblems(level);
+
+  document.getElementById('landing').classList.remove('active');
+  document.getElementById('go-deeper-section').classList.remove('active');
+  document.getElementById('practice').classList.add('active');
+
+  var label = document.getElementById('level-label');
+  label.textContent = getLevelName(level);
+  label.style.color = getLevelColor(level);
+
+  document.getElementById('summary-card').style.display = 'none';
+  document.getElementById('practice-area').style.display = 'block';
+
+  buildDots();
+  showProblem();
+}
+
+function buildDots() {
+  var container = document.getElementById('dot-counter');
+  container.innerHTML = '';
+  for (var i = 0; i < totalProblems; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' current' : '');
+    dot.id = 'dot-' + i;
+    dot.textContent = i + 1;
+    container.appendChild(dot);
+  }
+}
+
+function showProblem() {
+  var p = problems[currentProblem];
+  document.getElementById('problem-display').innerHTML = formatNum(p.a) + ' &divide; ' + p.b;
+  document.getElementById('estimate-input').value = '';
+  document.getElementById('estimate-input').disabled = false;
+  document.getElementById('estimate-input').focus();
+  document.getElementById('check-btn').style.display = 'inline-block';
+  document.getElementById('next-btn').style.display = 'none';
+  var fc = document.getElementById('feedback-card');
+  fc.classList.remove('show', 'green-fb', 'amber-fb', 'red-fb');
+
+  for (var i = 0; i < totalProblems; i++) {
+    var d = document.getElementById('dot-' + i);
+    d.classList.remove('current');
+    if (i === currentProblem && !results[i]) d.classList.add('current');
+  }
+}
+
+function checkEstimate() {
+  var input = document.getElementById('estimate-input');
+  var raw = input.value.replace(/,/g, '').replace(/\s/g, '');
+  if (raw === '' || isNaN(Number(raw))) {
+    input.style.borderColor = 'var(--red)';
+    return;
+  }
+  var studentEst = parseFloat(raw);
+  var p = problems[currentProblem];
+  var actual = p.actual;
+  var pct = Math.abs(studentEst - actual) / actual * 100;
+
+  var band, bandClass, dotColor, bandTitle;
+  if (pct <= 10) {
+    band = 'green'; bandClass = 'green-fb'; dotColor = 'green';
+    bandTitle = 'Within 10%. Your Radar is sharp.';
+  } else if (pct <= 20) {
+    band = 'amber'; bandClass = 'amber-fb'; dotColor = 'amber';
+    bandTitle = 'Within 20%. Reasonable, but room to improve.';
+  } else {
+    band = 'red'; bandClass = 'red-fb'; dotColor = 'red';
+    bandTitle = 'Beyond 20%. Radar needs recalibrating.';
+  }
+
+  // Build feedback
+  var detail = '';
+  detail += '<div class="compat-grid">';
+  detail += '<div class="compat-row">';
+  detail += '<span class="compat-mult">Compatible number: <span class="mono">' + formatNum(p.nearestMult) + '</span></span>';
+  detail += '</div>';
+  detail += '<div class="compat-row">';
+  detail += '<span class="compat-mult"><span class="mono">' + formatNum(p.nearestMult) + ' &divide; ' + p.b + '</span></span>';
+  detail += '<span class="compat-arrow">&#8594;</span>';
+  detail += '<span class="compat-result">' + formatNum(p.smartEst) + '</span>';
+  detail += '</div>';
+  detail += '</div>';
+  detail += '<p style="margin-top:8px;"><strong>Your estimate:</strong> <span class="mono">' + formatNum(studentEst) + '</span></p>';
+  detail += '<p><strong>Actual answer:</strong> <span class="mono">' + formatNum(p.quotient);
+  if (p.remainder > 0) {
+    detail += ' remainder ' + p.remainder;
+  }
+  detail += '</span></p>';
+  detail += '<p><strong>Your estimate was <span class="mono">' + pct.toFixed(1) + '%</span> away.</strong></p>';
+
+  results[currentProblem] = {
+    a: p.a, b: p.b, actual: actual,
+    quotient: p.quotient, remainder: p.remainder,
+    studentEst: studentEst, pct: pct, band: band
+  };
+
+  var dot = document.getElementById('dot-' + currentProblem);
+  dot.classList.remove('current');
+  dot.classList.add(dotColor);
+
+  var fc = document.getElementById('feedback-card');
+  fc.className = 'feedback-card show ' + bandClass;
+  document.getElementById('feedback-title').textContent = bandTitle;
+  document.getElementById('feedback-detail').innerHTML = detail;
+
+  input.disabled = true;
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function nextProblem() {
+  currentProblem++;
+  if (currentProblem >= totalProblems) {
+    showSummary();
+  } else {
+    showProblem();
+  }
+}
+
+function showSummary() {
+  document.getElementById('practice-area').style.display = 'none';
+
+  var totalPct = 0;
+  results.forEach(function(r) { totalPct += r.pct; });
+  var avgPct = totalPct / results.length;
+
+  var scoreEl = document.getElementById('summary-score');
+  scoreEl.textContent = avgPct.toFixed(1) + '%';
+  if (avgPct <= 10) scoreEl.style.color = 'var(--green-dark)';
+  else if (avgPct <= 20) scoreEl.style.color = 'var(--amber-dark)';
+  else scoreEl.style.color = 'var(--red-dark)';
+
+  var msg = '';
+  if (avgPct <= 10) msg = 'Sharp Radar. Your estimates are consistently close.';
+  else if (avgPct <= 20) msg = 'Developing Radar. Keep practising with compatible numbers.';
+  else msg = 'Radar needs work. Focus on finding multiples of the divisor near the dividend.';
+  document.getElementById('summary-message').textContent = msg;
+
+  var tbody = document.getElementById('summary-tbody');
+  tbody.innerHTML = '';
+  results.forEach(function(r, i) {
+    var color = r.band === 'green' ? 'var(--green-dark)' : r.band === 'amber' ? 'var(--amber-dark)' : 'var(--red-dark)';
+    var tr = document.createElement('tr');
+    var actualText = formatNum(r.quotient);
+    if (r.remainder > 0) actualText += ' r' + r.remainder;
+    tr.innerHTML = '<td>' + (i + 1) + '</td>' +
+      '<td class="mono">' + formatNum(r.a) + ' &divide; ' + r.b + '</td>' +
+      '<td class="mono">' + formatNum(r.studentEst) + '</td>' +
+      '<td class="mono">' + actualText + '</td>' +
+      '<td class="mono" style="color:' + color + ';">' + r.pct.toFixed(1) + '%</td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('summary-card').style.display = 'block';
+
+  // Mark level complete if Sharp Radar
+  if (avgPct <= 15) {
+    levelsCompleted[currentLevel] = true;
+    var btn = document.getElementById('level-' + currentLevel + '-btn');
+    btn.classList.add('completed');
+
+    // Check if all levels done to unlock Go Deeper
+    if (levelsCompleted[3]) {
+      unlockGoDeeper();
+    }
+  }
+}
+
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  card.classList.remove('locked');
+  card.disabled = false;
+  card.innerHTML = '<h3>Go Deeper: Division Investigations</h3><p>Explore, reason, and think like a mathematician</p>';
+}
+
+function openGoDeeper() {
+  if (document.getElementById('go-deeper-card').classList.contains('locked')) return;
+  document.getElementById('landing').classList.remove('active');
+  document.getElementById('practice').classList.remove('active');
+  document.getElementById('go-deeper-section').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function backToLanding() {
+  document.getElementById('practice').classList.remove('active');
+  document.getElementById('go-deeper-section').classList.remove('active');
+  document.getElementById('landing').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ENTER KEY
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var input = document.getElementById('estimate-input');
+    if (document.activeElement === input && !input.disabled) {
+      checkEstimate();
+    } else if (input.disabled && document.getElementById('next-btn').style.display !== 'none') {
+      nextProblem();
+    }
+  }
+});
+</script>
+</body>
+</html>
