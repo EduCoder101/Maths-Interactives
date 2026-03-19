@@ -646,10 +646,7 @@ function clampTransferred(t) {
 
 function isFriendly(n) {
   if (n === 0) return false;
-  const abs = Math.abs(n);
-  if (abs >= 1000) return abs % 1000 === 0;
-  if (abs >= 100)  return abs % 100  === 0;
-  return abs % 10 === 0;
+  return Math.abs(n) % 10 === 0;
 }
 
 // ── render ────────────────────────────────────────────────────
@@ -779,8 +776,19 @@ function giveHint() {
     setNarration('Try ' + fmt(a) + ' ' + op + ' ' + fmt(b) + ', can you work it out now?');
   } else {
     const { a, b } = getCurrentValues();
-    showFeedback('neutral',
-      `💡 ${fmt(a)} is a friendly number, try counting on ${fmt(b)} from there!`, false);
+    if (isFriendly(a) && !isFriendly(b)) {
+      showFeedback('neutral',
+        `💡 ${fmt(a)} is a friendly number. Try ${op === '+' ? 'counting on' : 'counting back'} ${fmt(b)} from there!`, false);
+    } else if (isFriendly(b) && !isFriendly(a)) {
+      showFeedback('neutral',
+        `💡 ${fmt(b)} is a friendly number. Try ${op === '+' ? 'adding' : 'subtracting'} it ${op === '+' ? 'to' : 'from'} ${fmt(a)}!`, false);
+    } else if (isFriendly(a) && isFriendly(b)) {
+      showFeedback('neutral',
+        `💡 Both numbers are friendly! Work out ${fmt(a)} ${op} ${fmt(b)}.`, false);
+    } else {
+      showFeedback('neutral',
+        `💡 Try sliding a bit more to make one number end in a zero. That will make it easier to calculate!`, false);
+    }
   }
 }
 
@@ -801,9 +809,8 @@ function autoLevel() {
 
 function nearestFriendly(n) {
   const abs  = Math.abs(n);
-  const base = abs >= 500 ? 100 : 10;
-  const lo   = Math.floor(abs / base) * base;
-  const hi   = lo + base;
+  const lo   = Math.floor(abs / 10) * 10;
+  const hi   = lo + 10;
   const near = (abs - lo <= hi - abs) ? lo : hi;
   return n >= 0 ? near : -near;
 }
