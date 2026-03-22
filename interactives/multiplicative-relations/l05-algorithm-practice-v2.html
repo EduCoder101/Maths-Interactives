@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 5: The Formal Algorithm - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 48px 60px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 40px;
+    border: 2px solid var(--border);
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 1.25rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 10px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.3rem; margin-top: 16px; margin-bottom: 8px; color: var(--red-dark); }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p { font-size: 1.2rem; }
+  .lisc-content li { font-size: 1.1rem; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 14px; font-weight: 600; color: var(--muted); }
+
+  /* Callouts */
+  .callout {
+    border-radius: 12px; padding: 16px 20px; margin: 16px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+  .callout p { font-size: 1.15rem; line-height: 1.6; margin: 6px 0; }
+
+  /* Steps and Reveals */
+  .step-row {
+    display: flex; gap: 14px; align-items: flex-start; margin: 10px 0; font-size: 1.15rem; line-height: 1.6;
+  }
+  .step-num { font-weight: 700; min-width: 28px; color: var(--teal); font-size: 1.05rem; }
+  .step-text { flex: 1; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .step-hidden { opacity: 0; max-height: 0; overflow: hidden; transition: opacity 0.3s ease, max-height 0.3s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; max-height: 200px; pointer-events: auto; }
+
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  /* AREA MODEL (proper, with labels outside) */
+  .area-model-wrap { display: flex; flex-direction: column; align-items: center; margin: 16px 0; }
+  .area-model-container { position: relative; margin: 36px 50px 16px 50px; }
+  .area-model { display: flex; border: 3px solid var(--text); border-radius: 6px; overflow: visible; min-height: 90px; }
+  .area-section {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 18px 20px; border-right: 2px dashed var(--muted); position: relative;
+    min-width: 80px; transition: background 0.4s;
+  }
+  .area-section:last-child { border-right: none; }
+  .area-section .top-label {
+    position: absolute; top: -30px; font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 17px; color: var(--text);
+    background: var(--amber); padding: 2px 12px; border-radius: 8px;
+  }
+  .area-section .inner-calc {
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px;
+    color: var(--blue); text-align: center; line-height: 1.4;
+  }
+  .area-section .inner-calc .calc-result {
+    display: block; font-size: 20px; margin-top: 4px; color: var(--blue-dark);
+  }
+  .area-section.highlight { background: rgba(78,205,196,0.12); }
+  .area-side-label {
+    position: absolute; left: -44px; top: 50%; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 17px; color: var(--text);
+    background: var(--teal); padding: 2px 12px; border-radius: 8px;
+  }
+  .area-total {
+    text-align: center; margin-top: 10px; font-family: 'Space Mono', monospace;
+    font-size: 18px; font-weight: 700;
+  }
+
+  /* ALGORITHM TABLE */
+  .algo-table { margin: 16px auto; border-collapse: collapse; }
+  .algo-table td {
+    width: 52px; height: 52px; text-align: center; vertical-align: middle;
+    font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700;
+    border: none; position: relative;
+  }
+  .algo-table .carry-row td { height: 30px; font-size: 15px; color: var(--red); }
+  .algo-table .top-row td { border-bottom: none; }
+  .algo-table .mult-row td { border-bottom: 3px solid var(--text); }
+  .algo-table .mult-row td:first-child { font-size: 20px; color: var(--muted); }
+  .algo-table .answer-row td { border-top: none; }
+
+  .algo-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 44px; height: 44px; text-align: center; border: 2px solid var(--border);
+    border-radius: 8px; outline: none; transition: all 0.2s; background: white;
+  }
+  .algo-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .algo-input.correct { border-color: var(--green); background: var(--green-light); }
+  .algo-input.wrong { border-color: var(--red); background: var(--red-light); }
+  .algo-input.carry {
+    width: 30px; height: 30px; font-size: 14px;
+    color: var(--red); border-color: #fdd;
+  }
+  .algo-input.carry:focus { border-color: var(--red); }
+
+  /* RADAR ESTIMATE */
+  .radar-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+  .radar-input {
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    width: 120px; text-align: center; padding: 8px; border: 3px solid var(--amber);
+    border-radius: 14px; outline: none; background: #fffbf0;
+  }
+  .radar-input:focus { border-color: var(--orange); }
+  .radar-label { font-size: 1rem; font-weight: 700; color: var(--amber-dark); }
+
+  .feedback { border-radius: 12px; padding: 12px 16px; margin-top: 12px; display: none; font-size: 1.05rem; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .level-bar { display: flex; gap: 8px; margin-bottom: 14px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.l4 { background: #FF8C42; }
+  .level-btn.l5 { background: #6C63FF; }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  .btn { border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 12px; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover { background: var(--teal-dark); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; text-align: center; display: none; margin-top: 16px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-card h3 { font-size: 1.3rem; margin-bottom: 6px; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 44px; font-weight: 700; }
+
+  /* GO DEEPER EXTENSION */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 16px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
+  .go-deeper-card > p { font-size: 1.1rem; line-height: 1.6; color: var(--muted); margin-bottom: 16px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 6px; }
+  .ext-task-prompt { font-size: 1.1rem; line-height: 1.6; margin-bottom: 6px; }
+  .ext-task-sub { font-size: 0.95rem; font-style: italic; color: var(--muted); margin-bottom: 10px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 80px; border: 2px solid var(--border); border-radius: 12px; padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 14px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 8px 20px; font-family: 'Fredoka', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 12px; background: white; border-radius: 12px; padding: 14px 18px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-model-response p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 8px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 14px 16px; margin-top: 12px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 0.95rem; line-height: 1.5; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 16px 20px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 16px; }
+  .go-deeper-level-btn h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .go-deeper-level-btn p { font-size: 13px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 220px; }
+    main { margin-left: 220px; padding: 24px 24px 48px; }
+  }
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    main { padding: 16px 12px 32px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 18px 16px; }
+    .algo-table td { width: 38px; height: 38px; font-size: 20px; }
+    .algo-input { width: 34px; height: 34px; font-size: 18px; }
+    .algo-input.carry { width: 26px; height: 26px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Multiplicative Relations</div>
+  <h1><span>The Formal Algorithm</span> · Compressing the Area Model</h1>
+  <a href="../../index.html" class="back-link">&larr; Back</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Spot the Shortcut</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(2)">Example 1: 47 x 8</button>
+      <button class="sidebar-item" onclick="goToSlide(3)">Example 2: 236 x 7</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(4)">Q1: 54 x 6</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q2: 138 x 5</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(6)">Algorithm Practice</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use the formal multiplication algorithm, understanding why each step works.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can set up and solve a multiplication algorithm for numbers multiplied by a one-digit number.</li>
+          <li>I can solve the algorithm for 2-digit and 3-digit numbers multiplied by 2-digit numbers.</li>
+          <li>I can explain what each partial product row represents.</li>
+          <li>I can check my algorithm answer with a Radar estimate.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 7</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - Spot the Shortcut (36 x 4, different from I Do) -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h3>Two methods, same answer</h3>
+      <p>Here is <span class="mono">36 &times; 4</span> solved two ways. Which is faster?</p>
+
+      <div style="display:flex; gap:48px; flex-wrap:wrap; margin:20px 0; justify-content:center; align-items:flex-start;">
+        <!-- AREA MODEL with proper labels -->
+        <div>
+          <p style="font-weight:700; font-size:12px; color:var(--teal-dark); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px; text-align:center;">Area Model</p>
+          <div class="area-model-wrap">
+            <div class="area-model-container">
+              <div class="area-side-label">4</div>
+              <div class="area-model">
+                <div class="area-section" style="flex:30; min-width:120px;">
+                  <span class="top-label">30</span>
+                  <div class="inner-calc" style="opacity:1;">30 &times; 4<span class="calc-result">= 120</span></div>
+                </div>
+                <div class="area-section" style="flex:6; min-width:80px;">
+                  <span class="top-label">6</span>
+                  <div class="inner-calc" style="opacity:1;">6 &times; 4<span class="calc-result">= 24</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="area-total"><span class="mono">120 + 24 = 144</span></div>
+          </div>
+        </div>
+
+        <!-- ALGORITHM -->
+        <div style="text-align:center;">
+          <p style="font-weight:700; font-size:12px; color:var(--teal-dark); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px;">Algorithm</p>
+          <table class="algo-table" style="margin:12px auto;">
+            <tr class="carry-row"><td></td><td></td><td style="color:var(--red);">2</td></tr>
+            <tr class="top-row"><td></td><td>3</td><td>6</td></tr>
+            <tr class="mult-row"><td>&times;</td><td></td><td>4</td></tr>
+            <tr class="answer-row"><td>1</td><td>4</td><td>4</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout callout-teal">
+        <div class="label">Key idea</div>
+        <p>The algorithm is a <strong>compressed version</strong> of the area model. Every step in the algorithm corresponds to something in the area model. Same maths, faster writing.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 7</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: I DO - Example 1: 47 x 8 -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h3>Example 1: <span class="mono">47 &times; 8</span></h3>
+      <p style="margin-bottom:12px;">Watch how each step of the algorithm connects to the area model.</p>
+
+      <div style="display:flex; gap:40px; flex-wrap:wrap; margin:16px 0; justify-content:center; align-items:flex-start;">
+        <div style="text-align:center;">
+          <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px;">Algorithm</p>
+          <table class="algo-table">
+            <tr class="carry-row"><td></td><td></td><td id="ex1-carry">.</td></tr>
+            <tr class="top-row"><td></td><td>4</td><td>7</td></tr>
+            <tr class="mult-row"><td>&times;</td><td></td><td>8</td></tr>
+            <tr class="answer-row"><td id="ex1-a2">.</td><td id="ex1-a1">.</td><td id="ex1-a0">.</td></tr>
+          </table>
+        </div>
+        <div>
+          <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px; text-align:center;">Area Model</p>
+          <div class="area-model-wrap">
+            <div class="area-model-container">
+              <div class="area-side-label">8</div>
+              <div class="area-model">
+                <div class="area-section" id="ex1-area-tens" style="flex:40; min-width:110px;">
+                  <span class="top-label">40</span>
+                  <div class="inner-calc" style="opacity:1;">40 &times; 8<span class="calc-result">= 320</span></div>
+                </div>
+                <div class="area-section" id="ex1-area-ones" style="flex:7; min-width:80px;">
+                  <span class="top-label">7</span>
+                  <div class="inner-calc" style="opacity:1;">7 &times; 8<span class="calc-result">= 56</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="ex1-steps">
+        <div class="step-row"><span class="step-num">1.</span><span class="step-text"><span class="mono">8 &times; 7 = 56</span>. Write <span class="mono">6</span>, carry <span class="mono">5</span> (5 tens).</span></div>
+        <div class="step-row step-hidden" data-group="ex1"><span class="step-num">2.</span><span class="step-text"><span class="mono">8 &times; 4 tens = 32 tens</span>, plus <span class="mono">5</span> = <span class="mono">37</span> tens. Write <span class="mono">7</span>.</span></div>
+        <div class="step-row step-hidden" data-group="ex1"><span class="step-num">3.</span><span class="step-text">The <span class="mono">3</span> goes into hundreds. Answer: <span class="mono">376</span>. Check: <span class="mono">320 + 56 = 376</span>.</span></div>
+      </div>
+      <button class="step-reveal-btn" id="ex1-reveal-btn" onclick="revealEx1Step()">Reveal next step</button>
+
+      <div class="callout callout-amber" style="margin-top:12px;">
+        <div class="label">The carry is not magic</div>
+        <p>The carry is the tens (or hundreds) that overflow the current column. The area model makes this visible.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 7</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Example 2: 236 x 7 (with area model) -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h3>Example 2: <span class="mono">236 &times; 7</span></h3>
+      <p style="margin-bottom:12px;">Radar: <span class="mono">240 &times; 7 = 1,680</span>. Our answer should be close.</p>
+
+      <div style="display:flex; gap:36px; flex-wrap:wrap; margin:12px 0; justify-content:center; align-items:flex-start;">
+        <div style="text-align:center;">
+          <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px;">Algorithm</p>
+          <table class="algo-table">
+            <tr class="carry-row"><td></td><td id="ex2-c2">.</td><td id="ex2-c1">.</td><td></td></tr>
+            <tr class="top-row"><td></td><td>2</td><td>3</td><td>6</td></tr>
+            <tr class="mult-row"><td>&times;</td><td></td><td></td><td>7</td></tr>
+            <tr class="answer-row"><td id="ex2-a3">.</td><td id="ex2-a2">.</td><td id="ex2-a1">.</td><td id="ex2-a0">.</td></tr>
+          </table>
+        </div>
+        <div>
+          <p style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px; text-align:center;">Area Model</p>
+          <div class="area-model-wrap">
+            <div class="area-model-container">
+              <div class="area-side-label">7</div>
+              <div class="area-model">
+                <div class="area-section" id="ex2-area-h" style="flex:200; min-width:90px;">
+                  <span class="top-label">200</span>
+                  <div class="inner-calc" style="opacity:1;">200&times;7<span class="calc-result">= 1,400</span></div>
+                </div>
+                <div class="area-section" id="ex2-area-t" style="flex:30; min-width:72px;">
+                  <span class="top-label">30</span>
+                  <div class="inner-calc" style="opacity:1;">30&times;7<span class="calc-result">= 210</span></div>
+                </div>
+                <div class="area-section" id="ex2-area-o" style="flex:6; min-width:60px;">
+                  <span class="top-label">6</span>
+                  <div class="inner-calc" style="opacity:1;">6&times;7<span class="calc-result">= 42</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="area-total"><span class="mono">1,400 + 210 + 42 = 1,652</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="ex2-steps">
+        <div class="step-row"><span class="step-num">1.</span><span class="step-text">Ones: <span class="mono">7 &times; 6 = 42</span>. Write <span class="mono">2</span>, carry <span class="mono">4</span>.</span></div>
+        <div class="step-row step-hidden" data-group="ex2"><span class="step-num">2.</span><span class="step-text">Tens: <span class="mono">7 &times; 3 = 21</span>, plus <span class="mono">4</span> = <span class="mono">25</span>. Write <span class="mono">5</span>, carry <span class="mono">2</span>.</span></div>
+        <div class="step-row step-hidden" data-group="ex2"><span class="step-num">3.</span><span class="step-text">Hundreds: <span class="mono">7 &times; 2 = 14</span>, plus <span class="mono">2</span> = <span class="mono">16</span>. Write <span class="mono">6</span>.</span></div>
+        <div class="step-row step-hidden" data-group="ex2"><span class="step-num">4.</span><span class="step-text">The <span class="mono">1</span> goes to thousands. Answer: <span class="mono">1,652</span>. Radar said ~<span class="mono">1,680</span>. Close.</span></div>
+      </div>
+      <button class="step-reveal-btn" id="ex2-reveal-btn" onclick="revealGroupWithAlgo('ex2')">Reveal next step</button>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 7</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: WE DO - Q1 -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h3>Q1: <span class="mono">54 &times; 6</span></h3>
+      <p style="margin-bottom:12px;">Enter each digit and carry. Work right to left.</p>
+      <div id="wedo-card-0" style="text-align:center;"></div>
+      <div class="feedback" id="wedo-fb-0"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 7</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO - Q2 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h3>Q2: <span class="mono">138 &times; 5</span></h3>
+      <p style="margin-bottom:12px;">Radar estimate first, then work the algorithm step by step.</p>
+      <div id="wedo-card-1" style="text-align:center;"></div>
+      <div class="feedback" id="wedo-fb-1"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 7</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: PRACTICE -->
+  <div class="slide" id="slide-6">
+    <div class="card" style="padding:24px 32px;">
+      <h3>Algorithm Practice</h3>
+      <p style="font-size:1rem; color:var(--muted); margin-bottom:10px;">Radar estimate first, then work the algorithm step by step.</p>
+
+      <div class="level-bar">
+        <button class="level-btn l1 active" onclick="setLevel(1)">L1: No carries</button>
+        <button class="level-btn l2" onclick="setLevel(2)">L2: Single carry</button>
+        <button class="level-btn l3" onclick="setLevel(3)">L3: Multi carry</button>
+        <button class="level-btn l4" onclick="setLevel(4)">L4: 2d &times; 2d</button>
+        <button class="level-btn l5" onclick="setLevel(5)">L5: 3d &times; 2d</button>
+      </div>
+
+      <div class="dot-counter" id="practice-dots"></div>
+
+      <div id="practice-card" style="text-align:center;"></div>
+
+      <div class="summary-card" id="practice-summary">
+        <h3>Round Complete</h3>
+        <div class="summary-score" id="practice-score"></div>
+        <p id="practice-message" style="font-size:1rem; color:var(--muted); margin-bottom:12px;"></p>
+        <button class="btn btn-primary" onclick="startPractice()">Try Again</button>
+        <button class="btn btn-primary" id="go-deeper-summary-btn" style="display:none; margin-left:12px; background:var(--teal);" onclick="openGoDeeper()">Go Deeper</button>
+      </div>
+
+      <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+        <h3><span class="lock-icon" id="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Algorithm Investigations</h3>
+        <p id="go-deeper-card-desc">Complete the practice with a strong score to unlock</p>
+      </button>
+
+      <div id="go-deeper-section" style="display:none; margin-top:24px;">
+        <div class="go-deeper-card">
+          <h2>Go Deeper: Algorithm Investigations</h2>
+          <p>These tasks push your thinking deeper: spotting errors, testing claims, and finding patterns.</p>
+
+          <!-- Task 1: Specialising -->
+          <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">A student solved <span class="ext-numbers">347 &times; 8</span> using the algorithm. They got <span class="ext-numbers">2,876</span>. The correct answer is <span class="ext-numbers">2,776</span>. Find the error.</div>
+            <div class="ext-task-sub">Work the algorithm yourself first, then compare.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I worked <span class="ext-numbers">347 &times; 8</span> step by step:</p>
+              <p><strong>Ones:</strong> <span class="ext-numbers">8 &times; 7 = 56</span>. Write <span class="ext-numbers">6</span>, carry <span class="ext-numbers">5</span>.</p>
+              <p><strong>Tens:</strong> <span class="ext-numbers">8 &times; 4 = 32</span>, plus <span class="ext-numbers">5</span> = <span class="ext-numbers">37</span>. Write <span class="ext-numbers">7</span>, carry <span class="ext-numbers">3</span>.</p>
+              <p><strong>Hundreds:</strong> <span class="ext-numbers">8 &times; 3 = 24</span>, plus <span class="ext-numbers">3</span> = <span class="ext-numbers">27</span>. Answer: <span class="ext-numbers">2,776</span>.</p>
+              <p>The student got <span class="ext-numbers">2,876</span>. What if they carried <span class="ext-numbers">4</span> instead of <span class="ext-numbers">3</span>? Then <span class="ext-numbers">24 + 4 = 28</span>, giving <span class="ext-numbers">2,876</span>. That is the error.</p>
+              <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are tracing through a specific example step by step to find exactly where a mistake occurred.</div>
+            </div>
+          </div>
+
+          <!-- Task 2: Conjecturing -->
+          <div class="ext-task">
+            <div class="ext-task-label">Conjecturing</div>
+            <div class="ext-task-prompt"><em>"When you multiply a 3-digit number by a 1-digit number, the answer is always a 4-digit number."</em> Always, sometimes, or never true?</div>
+            <div class="ext-task-sub">Test the claim with examples. Can you find a counterexample?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p><span class="ext-numbers">100 &times; 1 = 100</span> (3 digits). <span class="ext-numbers">999 &times; 9 = 8,991</span> (4 digits). <span class="ext-numbers">100 &times; 9 = 900</span> (3 digits).</p>
+              <p>The claim is <strong>sometimes true</strong>. Small 3-digit numbers with small multipliers give 3-digit answers.</p>
+              <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. Finding just one counterexample is enough to prove "always" is wrong.</div>
+            </div>
+          </div>
+
+          <!-- Task 3: Generalising -->
+          <div class="ext-task">
+            <div class="ext-task-label">Generalising</div>
+            <div class="ext-task-prompt">You have the digits <span class="ext-numbers">3</span>, <span class="ext-numbers">5</span>, <span class="ext-numbers">7</span>, and <span class="ext-numbers">9</span>. Use exactly three to make a 3-digit number, multiply by the remaining digit. Each digit used once. Find the arrangement giving the largest product.</div>
+            <div class="ext-task-sub">Write a rule explaining how to arrange any digits to maximise the product.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>With <span class="ext-numbers">9</span> as multiplier: <span class="ext-numbers">753 &times; 9 = 6,777</span>.</p>
+              <p>With <span class="ext-numbers">7</span> as multiplier: <span class="ext-numbers">953 &times; 7 = 6,671</span>. The first is larger.</p>
+              <p><strong>Rule:</strong> Use the largest digit as the multiplier, arrange the rest in descending order.</p>
+              <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>generalising</em>. You formed a rule that works for any set of digits, not just these four.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 7</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── SLIDES AND NAVIGATION ──
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'Spot the Shortcut', section: 'Hook' },
+  { id: 'slide-2', title: 'Example 1: 47 x 8', section: 'I Do' },
+  { id: 'slide-3', title: 'Example 2: 236 x 7', section: 'I Do' },
+  { id: 'slide-4', title: 'Q1: 54 x 6', section: 'We Do' },
+  { id: 'slide-5', title: 'Q2: 138 x 5', section: 'We Do' },
+  { id: 'slide-6', title: 'Algorithm Practice', section: 'Practice' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+  if (index === 4 && !weDoBuilt[0]) buildWeDoCard(0);
+  if (index === 5 && !weDoBuilt[1]) buildWeDoCard(1);
+  if (index === 6 && practiceProblems.length === 0) startPractice();
+}
+
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+
+function updateNavButtons() {
+  const activeSlide = document.querySelector('.slide.active');
+  if (!activeSlide) return;
+  const navBtns = activeSlide.querySelectorAll('.nav-btn');
+  if (navBtns[0]) navBtns[0].disabled = currentSlide === 0;
+  if (navBtns[1]) navBtns[1].disabled = currentSlide === slides.length - 1;
+  const counter = activeSlide.querySelector('.slide-counter');
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  var btn = document.querySelector('.phase-btn[data-phase="' + phase + '"]');
+  if (btn) btn.classList.add('active');
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach((item, i) => {
+    item.classList.toggle('active', i === currentSlide);
+  });
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  var h = document.querySelector('header');
+  var nav = document.getElementById('phaseNav');
+  var total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight') nextSlide();
+  if (e.key === 'ArrowLeft') prevSlide();
+});
+
+function el(id) { return document.getElementById(id); }
+
+// ── I DO: EXAMPLE 1 REVEALS ──
+var ex1Step = 0;
+function revealEx1Step() {
+  var steps = document.querySelectorAll('[data-group="ex1"]');
+  if (ex1Step === 0) {
+    el('ex1-a0').textContent = '6';
+    el('ex1-carry').textContent = '5';
+    el('ex1-carry').style.color = 'var(--red)';
+    el('ex1-area-ones').classList.add('highlight');
+  } else if (ex1Step === 1) {
+    steps[0].classList.add('revealed');
+    el('ex1-a1').textContent = '7';
+    el('ex1-a2').textContent = '3';
+    el('ex1-area-tens').classList.add('highlight');
+  } else if (ex1Step === 2) {
+    steps[1].classList.add('revealed');
+  }
+  ex1Step++;
+  if (ex1Step >= 3) el('ex1-reveal-btn').style.display = 'none';
+}
+
+// ── I DO: EXAMPLE 2 REVEALS ──
+var revealState = {};
+function revealGroupWithAlgo(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.add('revealed');
+    revealState[group]++;
+  }
+  if (group === 'ex2') {
+    var fills = [
+      function() { el('ex2-a0').textContent = '2'; el('ex2-c1').textContent = '4'; el('ex2-c1').style.color = 'var(--red)'; el('ex2-area-o').classList.add('highlight'); },
+      function() { el('ex2-a1').textContent = '5'; el('ex2-c2').textContent = '2'; el('ex2-c2').style.color = 'var(--red)'; el('ex2-area-t').classList.add('highlight'); },
+      function() { el('ex2-a2').textContent = '6'; el('ex2-area-h').classList.add('highlight'); },
+      function() { el('ex2-a3').textContent = '1'; }
+    ];
+    if (revealState[group] - 1 < fills.length) fills[revealState[group] - 1]();
+  }
+  if (revealState[group] >= steps.length) el('ex2-reveal-btn').style.display = 'none';
+}
+
+// ── ALGORITHM TABLE BUILDER (single-digit multiplier) ──
+// Always uses aDigits.length + 1 columns minimum so x sign has its own column
+// and the single-digit multiplier sits in the ones (rightmost) column
+function buildAlgoTable(a, b, prefix, interactive) {
+  var answer = a * b;
+  var aDigits = String(a).split('').map(Number);
+  var ansDigits = String(answer).split('').map(Number);
+  // Always at least aDigits + 1 for the x column, or answer length if bigger
+  var cols = Math.max(ansDigits.length, aDigits.length + 1);
+
+  // Calculate carries working right to left
+  var carryValues = [];
+  var carry = 0;
+  for (var i = aDigits.length - 1; i >= 0; i--) {
+    var product = aDigits[i] * b + carry;
+    carry = Math.floor(product / 10);
+    carryValues[i] = carry;
+  }
+
+  var html = '<table class="algo-table">';
+
+  // Carry row: carries sit above the column to the LEFT of where they were generated
+  html += '<tr class="carry-row">';
+  var aOff = cols - aDigits.length;
+  for (var c = 0; c < cols; c++) {
+    var ci = c - aOff;
+    // carryValues[ci] is the carry OUT of digit position ci, displayed one column left (above ci-1... but actually above ci itself since it feeds into the next column left)
+    // Carry from ones column (ci=last) goes above tens column (ci=last-1), etc.
+    // So we display carryValues[ci+1] above column ci
+    var cDigitIdx = ci + 1; // which digit's carry goes here
+    if (ci >= 0 && cDigitIdx >= 0 && cDigitIdx < aDigits.length) {
+      var cVal = carryValues[cDigitIdx];
+      if (cVal > 0) {
+        if (interactive) {
+          html += '<td><input type="number" class="algo-input carry" id="' + prefix + '-carry-' + c + '" data-correct="' + cVal + '" placeholder=""></td>';
+        } else {
+          html += '<td style="color:var(--red);">' + cVal + '</td>';
+        }
+      } else {
+        html += '<td></td>';
+      }
+    } else if (c === aOff - 1 && carryValues[0] > 0) {
+      // Carry out of the leftmost digit (overflow into answer)
+      html += '<td></td>';
+    } else {
+      html += '<td></td>';
+    }
+  }
+  html += '</tr>';
+
+  // Top number row: right-aligned
+  html += '<tr class="top-row">';
+  for (var t = 0; t < cols; t++) {
+    var di = t - aOff;
+    html += '<td>' + (di >= 0 && di < aDigits.length ? aDigits[di] : '') + '</td>';
+  }
+  html += '</tr>';
+
+  // Multiplier row: x in first column, multiplier in last column
+  html += '<tr class="mult-row">';
+  for (var m = 0; m < cols; m++) {
+    if (m === 0) html += '<td style="font-size:20px;color:var(--muted);">&times;</td>';
+    else if (m === cols - 1) html += '<td>' + b + '</td>';
+    else html += '<td></td>';
+  }
+  html += '</tr>';
+
+  // Answer row: right-aligned
+  html += '<tr class="answer-row">';
+  var ansOff = cols - ansDigits.length;
+  for (var r = 0; r < cols; r++) {
+    var ai = r - ansOff;
+    if (ai >= 0 && ai < ansDigits.length) {
+      if (interactive) {
+        html += '<td><input type="number" class="algo-input" id="' + prefix + '-ans-' + r + '" data-correct="' + ansDigits[ai] + '" placeholder="?"></td>';
+      } else {
+        html += '<td>' + ansDigits[ai] + '</td>';
+      }
+    } else {
+      html += '<td></td>';
+    }
+  }
+  html += '</tr>';
+
+  html += '</table>';
+  return html;
+}
+
+// ── ALGORITHM TABLE BUILDER (multi-digit multiplier) ──
+// Fixed column alignment: uses consistent column count throughout
+function buildAlgoTableMultiDigit(a, b, prefix, interactive) {
+  var answer = a * b;
+  var aDigits = String(a).split('').map(Number);
+  var bDigits = String(b).split('').map(Number);
+  var ansDigits = String(answer).split('').map(Number);
+
+  // Compute partial products
+  var partials = [];
+  for (var i = bDigits.length - 1; i >= 0; i--) {
+    var pp = a * bDigits[i];
+    var shift = bDigits.length - 1 - i;
+    partials.push({ value: pp, digit: bDigits[i], shift: shift, digits: String(pp).split('').map(Number) });
+  }
+
+  // Total columns = max of (answer digits, top number digits + 1 for x sign)
+  var cols = Math.max(ansDigits.length, aDigits.length + 1);
+
+  var html = '<table class="algo-table">';
+
+  // Top number row
+  html += '<tr class="top-row">';
+  var aOff = cols - aDigits.length;
+  for (var t = 0; t < cols; t++) {
+    var di = t - aOff;
+    html += '<td>' + (di >= 0 && di < aDigits.length ? aDigits[di] : '') + '</td>';
+  }
+  html += '</tr>';
+
+  // Multiplier row
+  html += '<tr class="mult-row">';
+  var bOff = cols - bDigits.length;
+  for (var m = 0; m < cols; m++) {
+    if (m === 0) html += '<td style="font-size:20px;color:var(--muted);">&times;</td>';
+    else {
+      var bi = m - bOff;
+      html += '<td>' + (bi >= 0 && bi < bDigits.length ? bDigits[bi] : '') + '</td>';
+    }
+  }
+  html += '</tr>';
+
+  // Separator
+  html += '<tr style="height:4px;"><td colspan="' + cols + '" style="border-top:3px solid var(--text);height:4px;padding:0;"></td></tr>';
+
+  // Partial product rows
+  partials.forEach(function(pp, ppIdx) {
+    html += '<tr class="answer-row">';
+    // This partial product's digits, right-aligned with shift
+    var ppDigits = pp.digits;
+    var ppTotalWidth = ppDigits.length + pp.shift;
+    var ppOff = cols - ppTotalWidth;
+
+    for (var p = 0; p < cols; p++) {
+      var di = p - ppOff;
+      if (di >= 0 && di < ppDigits.length) {
+        if (interactive) {
+          html += '<td><input type="number" class="algo-input" id="' + prefix + '-pp' + ppIdx + '-' + p + '" data-correct="' + ppDigits[di] + '" placeholder="?"></td>';
+        } else {
+          html += '<td>' + ppDigits[di] + '</td>';
+        }
+      } else if (p >= cols - pp.shift) {
+        // Trailing zeros from the shift
+        html += '<td style="opacity:0.3;">0</td>';
+      } else {
+        html += '<td></td>';
+      }
+    }
+    html += '</tr>';
+  });
+
+  // Final answer separator and row
+  html += '<tr style="height:4px;"><td colspan="' + cols + '" style="border-top:3px solid var(--text);height:4px;padding:0;"></td></tr>';
+  html += '<tr class="answer-row">';
+  var ansOff = cols - ansDigits.length;
+  for (var r = 0; r < cols; r++) {
+    var ai = r - ansOff;
+    if (ai >= 0 && ai < ansDigits.length) {
+      if (interactive) {
+        html += '<td><input type="number" class="algo-input" id="' + prefix + '-ans-' + r + '" data-correct="' + ansDigits[ai] + '" placeholder="?"></td>';
+      } else {
+        html += '<td>' + ansDigits[ai] + '</td>';
+      }
+    } else {
+      html += '<td></td>';
+    }
+  }
+  html += '</tr>';
+
+  html += '</table>';
+  return html;
+}
+
+// ── WE DO ──
+var weDoBuilt = [false, false];
+var weDoProblems = [
+  { a: 54, b: 6, answer: 324 },
+  { a: 138, b: 5, answer: 690 }
+];
+
+function buildWeDoCard(idx) {
+  weDoBuilt[idx] = true;
+  var p = weDoProblems[idx];
+  var prefix = 'wedo' + idx;
+  var algoHTML = buildAlgoTable(p.a, p.b, prefix, true);
+  el('wedo-card-' + idx).innerHTML = algoHTML +
+    '<div style="margin-top:12px;"><button class="check-btn" onclick="checkAlgo(\'' + prefix + '\',' + p.a + ',' + p.b + ',' + idx + ',\'wedo\')">Check</button></div>';
+}
+
+function checkAlgo(prefix, a, b, idx, mode) {
+  var answer = a * b;
+  var allCorrect = true;
+  var inputs = document.querySelectorAll('[id^="' + prefix + '-"]');
+
+  inputs.forEach(function(inp) {
+    if (inp.tagName !== 'INPUT') return;
+    if (inp.style.visibility === 'hidden') return;
+    var correct = inp.getAttribute('data-correct');
+    if (correct === null || correct === '') return;
+    var val = inp.value.trim();
+    if (val === correct) {
+      inp.classList.add('correct');
+      inp.classList.remove('wrong');
+    } else {
+      inp.classList.add('wrong');
+      inp.classList.remove('correct');
+      allCorrect = false;
+    }
+    inp.disabled = true;
+  });
+
+  var fbId = mode + '-fb-' + idx;
+  var fb = el(fbId);
+  if (fb) {
+    if (allCorrect) {
+      fb.className = 'feedback show correct';
+      fb.innerHTML = '<strong>Correct!</strong> <span class="mono">' + a + ' &times; ' + b + ' = ' + answer.toLocaleString() + '</span>';
+    } else {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = '<strong>Not quite.</strong> The answer is <span class="mono">' + answer.toLocaleString() + '</span>. Check your carries and place values.';
+    }
+  }
+  return allCorrect;
+}
+
+// ── PRACTICE ──
+var practiceProblems = [];
+var practiceIdx = 0;
+var practiceResults = [];
+var practiceLevel = 1;
+var practiceTotal = 8;
+
+function setLevel(lvl) {
+  practiceLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i + 1 === lvl);
+  });
+  startPractice();
+}
+
+function generateProblems() {
+  var problems = [];
+  var pool;
+  if (practiceLevel === 1) {
+    pool = shuffle([[21,3],[31,2],[12,4],[11,5],[22,3],[13,2],[21,4],[32,3],[11,7],[23,2],[41,2],[12,3]]);
+  } else if (practiceLevel === 2) {
+    pool = shuffle([[36,4],[48,3],[27,5],[53,6],[45,7],[64,3],[73,4],[56,3],[38,4],[84,6],[67,3],[54,6]]);
+  } else if (practiceLevel === 3) {
+    pool = shuffle([[236,7],[347,8],[425,6],[638,4],[156,9],[274,8],[359,7],[463,6],[528,5],[347,6],[213,9],[187,8]]);
+  } else if (practiceLevel === 4) {
+    pool = shuffle([[23,14],[47,15],[58,23],[36,27],[42,19],[65,24],[31,28],[54,32],[29,17],[38,26],[45,19],[52,24]]);
+  } else {
+    pool = shuffle([[236,14],[147,23],[285,34],[156,27],[324,18],[473,25],[218,31],[465,22],[327,16],[214,28],[389,25],[152,34]]);
+  }
+  for (var i = 0; i < practiceTotal && i < pool.length; i++) {
+    problems.push({ a: pool[i][0], b: pool[i][1], answer: pool[i][0] * pool[i][1], multiDigitMult: practiceLevel >= 4 });
+  }
+  return problems;
+}
+
+function startPractice() {
+  practiceProblems = generateProblems();
+  practiceIdx = 0;
+  practiceResults = [];
+  el('practice-summary').classList.remove('show');
+  el('practice-card').style.display = 'block';
+  buildDots();
+  showPracticeProblem();
+}
+
+function buildDots() {
+  var c = el('practice-dots');
+  c.innerHTML = '';
+  for (var i = 0; i < practiceTotal; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = 'pdot-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
+  }
+}
+
+function showPracticeProblem() {
+  if (practiceIdx >= practiceTotal) { showPracticeSummary(); return; }
+  var p = practiceProblems[practiceIdx];
+  var card = el('practice-card');
+  var prefix = 'p' + practiceIdx;
+
+  var algoHTML = p.multiDigitMult ? buildAlgoTableMultiDigit(p.a, p.b, prefix, true) : buildAlgoTable(p.a, p.b, prefix, true);
+
+  card.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Question ' + (practiceIdx + 1) + ' of ' + practiceTotal + '</div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:28px;font-weight:700;margin-bottom:4px;">' + p.a + ' &times; ' + p.b + '</div>' +
+    '<div class="radar-row"><span class="radar-label">Radar:</span><input type="number" class="radar-input" id="' + prefix + '-radar" placeholder="~"></div>' +
+    algoHTML +
+    '<div style="margin-top:10px;"><button class="check-btn" id="practice-check" onclick="checkPracticeAlgo()">Check</button></div>' +
+    '<div class="feedback" id="practice-fb-' + practiceIdx + '"></div>' +
+    '<button class="btn btn-primary" id="practice-next" style="display:none;margin-top:10px;" onclick="nextPracticeProblem()">Next &rarr;</button>';
+
+  for (var j = 0; j < practiceTotal; j++) {
+    var d = el('pdot-' + j);
+    if (d) { d.classList.remove('current'); if (j === practiceIdx) d.classList.add('current'); }
+  }
+}
+
+function checkPracticeAlgo() {
+  var p = practiceProblems[practiceIdx];
+  var prefix = 'p' + practiceIdx;
+  var allCorrect = checkAlgo(prefix, p.a, p.b, practiceIdx, 'practice');
+
+  var radarInp = el(prefix + '-radar');
+  var radarVal = parseInt(radarInp.value, 10);
+  if (!isNaN(radarVal)) {
+    var pct = Math.abs(radarVal - p.answer) / p.answer * 100;
+    if (pct <= 10) { radarInp.style.borderColor = 'var(--green)'; radarInp.style.background = 'var(--green-light)'; }
+    else if (pct <= 20) { radarInp.style.borderColor = 'var(--amber)'; }
+    else { radarInp.style.borderColor = 'var(--red)'; radarInp.style.background = 'var(--red-light)'; }
+  }
+  radarInp.disabled = true;
+
+  practiceResults[practiceIdx] = allCorrect;
+  var dot = el('pdot-' + practiceIdx);
+  dot.classList.remove('current');
+  dot.classList.add(allCorrect ? 'green' : 'red');
+
+  el('practice-check').disabled = true;
+  el('practice-next').style.display = 'inline-block';
+}
+
+function nextPracticeProblem() {
+  practiceIdx++;
+  showPracticeProblem();
+}
+
+function showPracticeSummary() {
+  el('practice-card').style.display = 'none';
+  var correct = practiceResults.filter(function(r) { return r; }).length;
+  var scoreEl = el('practice-score');
+  scoreEl.textContent = correct + ' / ' + practiceTotal;
+  scoreEl.style.color = correct >= 7 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+  el('practice-message').textContent = correct >= 7 ? 'Excellent work.' : correct >= 5 ? 'Good progress. Watch your carries.' : 'Keep practising. Review the I Do section.';
+  el('practice-summary').classList.add('show');
+  if (correct >= 7) unlockGoDeeper();
+}
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ── GO DEEPER ──
+function unlockGoDeeper() {
+  var card = el('go-deeper-card');
+  card.classList.remove('locked');
+  card.disabled = false;
+  el('lock-icon').innerHTML = '&#x1F513;';
+  el('go-deeper-card-desc').textContent = 'Explore, reason, and think like a mathematician';
+  el('go-deeper-summary-btn').style.display = 'inline-block';
+}
+
+function openGoDeeper() {
+  var section = el('go-deeper-section');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+});
+</script>
+</body>
+</html>
