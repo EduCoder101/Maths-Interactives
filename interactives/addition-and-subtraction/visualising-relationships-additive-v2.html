@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualising Relationships: Additive Thinking</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,217,61,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  header p { display: none; }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="wheel"].active::after { background: var(--blue); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--amber); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 40px 60px 80px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    min-height: 400px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 24px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 16px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 24px; margin-bottom: 12px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Tags */
+  .tag { display: inline-block; background: var(--amber); color: var(--text);
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    border-radius: 20px; padding: 6px 16px; margin-right: 8px; margin-bottom: 12px; }
+  .tag.blue { background: var(--blue); color: #fff; }
+  .tag.teal { background: var(--teal); color: var(--text); }
+  .tag.amber { background: var(--amber); color: var(--text); }
+
+  /* Callouts */
+  .callout { border-radius: 12px; padding: 20px 24px; margin: 18px 0;
+    border-left: 5px solid var(--blue); background: #f0f7ff; }
+  .callout p { font-size: 1.3rem; line-height: 1.7; color: #0a2f6e; }
+  .callout.teal { border-left-color: var(--teal); background: #f0fafa; }
+  .callout.teal p { color: #0a3832; }
+  .callout.amber { border-left-color: var(--amber); background: #fffbf0; }
+  .callout.amber p { color: #665500; }
+  .callout.green { border-left-color: var(--green); background: #f0fdf4; }
+  .callout.green p { color: #0a3820; }
+  .callout-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+
+  /* Scenario box */
+  .scenario {
+    background: #f0f7ff; border-radius: 14px;
+    padding: 20px 24px; margin: 16px 0;
+    font-size: 1.35rem; font-weight: 600; color: var(--text);
+    border: 2px solid #d0e8ff;
+    font-family: 'Space Mono', monospace;
+    line-height: 1.6;
+  }
+
+  /* Bar Model Styles */
+  .bar-model-box {
+    background: #f4f8ff;
+    border: 2px solid #d0e8ff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin: 20px 0;
+  }
+  .bar-model-box .bm-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--blue-dark);
+    text-transform: uppercase; margin-bottom: 16px; font-family: 'Fredoka', sans-serif;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .bar-model-box .bm-title::before {
+    content: '';
+    display: inline-block; width: 14px; height: 14px;
+    background: var(--blue); border-radius: 3px;
+  }
+
+  .bar-model { font-family: 'Space Mono', monospace; }
+  .bar-model .bm-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 8px; font-family: 'Fredoka', sans-serif;
+  }
+  .bm-whole {
+    background: linear-gradient(135deg, #3498DB, #2176ae);
+    border-radius: 10px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px; font-weight: 700;
+    margin-bottom: 6px; width: 100%;
+    box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+    font-family: 'Space Mono', monospace;
+  }
+  .bm-parts { display: flex; gap: 6px; width: 100%; }
+  .bm-part {
+    height: 64px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    transition: all 0.4s ease;
+    font-family: 'Space Mono', monospace;
+    padding: 0 8px; text-align: center;
+  }
+  .bm-part.known { background: linear-gradient(135deg, #4ECDC4, #38b2aa); color: #fff; }
+  .bm-part.unknown {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: var(--text);
+    border: 3px dashed rgba(0,0,0,0.2);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.72; }
+  }
+  .bm-arrow { text-align: center; font-size: 22px; margin: 6px 0; color: var(--muted); }
+
+  /* Golden Rule */
+  .golden-rule {
+    background: linear-gradient(135deg, #FFD93D 0%, #FF8400 100%);
+    border-radius: 14px; padding: 24px 30px; margin: 24px 0;
+    text-align: center;
+  }
+  .golden-rule .gr-title {
+    font-size: 13px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: rgba(0,0,0,0.5); margin-bottom: 10px;
+  }
+  .golden-rule .gr-rules { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .gr-rule {
+    background: rgba(255,255,255,0.7); border-radius: 10px;
+    padding: 16px 24px; font-size: 17px; font-weight: 700; color: var(--text);
+    flex: 1; min-width: 200px;
+  }
+  .gr-rule span { display: block; font-size: 20px; margin-bottom: 4px; }
+
+  /* Reveal Buttons */
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-block;
+  }
+  .reveal-btn:hover { background: #444; }
+  .reveal-btn.green { background: var(--green); }
+  .reveal-btn.green:hover { background: var(--green-dark); }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Worked Toggle */
+  .worked-toggle {
+    width: 100%; background: #f4f8ff; border: 2px solid #d0e8ff; border-radius: 12px;
+    cursor: pointer; padding: 16px 22px; margin-top: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; color: var(--blue-dark);
+    transition: all 0.2s;
+  }
+  .worked-toggle:hover { background: #e4f0ff; }
+  .worked-toggle .wt-chevron { font-size: 18px; color: var(--muted); transition: transform 0.25s; }
+  .worked-toggle.open .wt-chevron { transform: rotate(180deg); }
+  .worked-body { display: none; margin-top: 14px; animation: fadeIn 0.25s ease; }
+  .worked-body.shown { display: block; }
+
+  /* Whiteboard Prompt */
+  .whiteboard-prompt {
+    background: #ffffff; color: var(--text); font-family: 'Space Mono', monospace;
+    border-radius: 14px; border: 2px solid var(--border);
+    padding: 28px 36px; font-size: 1.35rem;
+    line-height: 2.2; margin: 16px 0;
+    display: block; width: 100%;
+  }
+  .whiteboard-prompt .wlabel {
+    font-size: 11px; letter-spacing: 2px; color: var(--muted);
+    text-transform: uppercase; font-family: 'Fredoka', sans-serif;
+    display: block; margin-bottom: 10px; font-weight: 600;
+  }
+
+  /* Practice Grid */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 20px;
+    background: #fafafa;
+    border-radius: 12px;
+  }
+  .practice-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .practice-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    border-radius: 12px 12px 0 0;
+  }
+  .pc-blue::before { background: linear-gradient(135deg, #3498DB, #2176ae); }
+  .pc-teal::before { background: linear-gradient(135deg, #4ECDC4, #38b2aa); }
+  .pc-amber::before { background: linear-gradient(135deg, #FFD93D, #FF8400); }
+  .pc-red::before { background: linear-gradient(135deg, #FF6B6B, #c0392b); }
+  .pc-purple::before { background: linear-gradient(135deg, #AD1DEB, #6E3AFF); }
+
+  .pc-num { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .pc-type { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+  .pc-problem {
+    font-size: 1.2rem; line-height: 1.6; color: var(--text); margin: 10px 0 14px;
+    background: #f8faff; border-radius: 10px; padding: 14px 18px;
+    border: 2px solid var(--border); font-weight: 500;
+  }
+
+  .pc-bm-section { display: none; }
+  .pc-bm-section.shown { display: block; animation: fadeIn 0.25s ease; }
+  .pc-ans-section { display: none; margin-top: 12px; }
+  .pc-ans-section.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  .pc-toggle {
+    background: none; border: 2px solid var(--border); border-radius: 30px;
+    padding: 7px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px;
+    font-weight: 600; color: var(--muted); cursor: pointer; margin-top: 8px;
+    transition: all 0.2s;
+  }
+  .pc-toggle:hover { border-color: var(--text); color: var(--text); }
+  .pc-toggle.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .op-badge {
+    display: inline-block; font-weight: 700; font-size: 14px; border-radius: 8px;
+    padding: 4px 12px; margin: 4px 4px 4px 0; font-family: 'Space Mono', monospace;
+  }
+  .op-add { background: #d4f7e0; color: #1a5c35; }
+  .op-sub { background: #ffd4d4; color: #7a0000; }
+
+  /* Setting-out Table */
+  .pa {
+    font-family: 'Space Mono', monospace; font-size: 18px;
+    border-collapse: collapse; margin: 10px 0 4px;
+    background: #f8faff; border: 2px solid var(--border);
+    border-radius: 10px; padding: 10px; display: inline-table;
+  }
+  .pa td { padding: 2px 7px; text-align: center; min-width: 26px; line-height: 1.9; color: var(--text); }
+  .pa td.op { text-align: left; min-width: 18px; color: var(--muted); padding-right: 4px; }
+  .pa td.ph { color: var(--orange); font-weight: 700; }
+  .pa tr.ans td { color: var(--teal-dark); font-weight: 700; border-top: 2px solid var(--text); }
+  .anno { color: var(--muted); font-size: 13px; display: block; margin-top: 4px; font-style: italic; font-family: 'Fredoka', sans-serif; }
+
+  /* Mini Bar Model */
+  .mini-bm { margin: 12px 0; }
+  .mini-whole {
+    background: linear-gradient(135deg, #3498DB, #2176ae);
+    border-radius: 8px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 15px;
+    font-family: 'Space Mono', monospace; margin-bottom: 4px;
+    box-shadow: 0 3px 10px rgba(52,152,219,0.25);
+  }
+  .mini-parts { display: flex; gap: 4px; }
+  .mini-part {
+    height: 46px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+    font-family: 'Space Mono', monospace; padding: 0 6px; text-align: center;
+  }
+  .mini-known { background: linear-gradient(135deg, #4ECDC4, #38b2aa); color: #fff; }
+  .mini-unknown {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: var(--text); border: 2px dashed rgba(0,0,0,0.2);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  /* Wheel */
+  .wheel-container {
+    display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .wheel-wrap { position: relative; flex-shrink: 0; }
+  canvas.wheel-canvas {
+    display: block; border-radius: 50%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  .wheel-legend { flex: 1; min-width: 200px; }
+  .wheel-legend h4 { font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px; font-size: 1.2rem; font-weight: 500;
+  }
+  .legend-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+  .wheel-controls { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .wheel-btn {
+    padding: 8px 18px; border-radius: 30px; border: 2px solid var(--border);
+    font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; background: white; color: var(--text); transition: all 0.2s;
+  }
+  .wheel-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+  .wheel-btn:hover { border-color: var(--blue); }
+  .wheel-total {
+    font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 700;
+    margin-top: 14px; color: var(--text);
+    background: #f8faff; border-radius: 10px; padding: 10px 20px;
+    display: inline-block; border: 2px solid var(--border);
+  }
+
+  /* Challenge Card */
+  .wq-card { margin-top: 20px; }
+  .wq-qnum { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .wq-qtext { font-size: 1.35rem; font-weight: 600; color: var(--text); line-height: 1.6; margin-bottom: 16px; }
+  .wq-submit-row { display: flex; align-items: center; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+  .wq-total-display {
+    font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: 700;
+    color: var(--muted); background: #f8faff; border: 2px solid var(--border);
+    border-radius: 10px; padding: 8px 18px;
+  }
+  .wq-submit-btn {
+    background: var(--blue); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .wq-submit-btn:hover { background: var(--blue-dark); }
+
+  /* Navigation */
+  .slide-nav { display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 14px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  @media (max-width: 768px) {
+    header { padding: 8px 16px; }
+    .sidebar { width: 0; }
+    main { margin-left: 0; padding: 28px 24px 60px; }
+    .card { padding: 24px 28px; min-height: 300px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Addition & Subtraction</div>
+  <h1><span>Visualising Relationships</span> · Additive Thinking</h1>
+  <a href="../../index.html" class="back-link">← Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="wheel" onclick="goToPhase('Wheel')">Wheel</button>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item" onclick="goToSlide(0)">LISC</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Word Problems Trap</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Byron Shire Problem</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Part-Part-Whole</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Bar Model Byron Shire</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Golden Rule</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Worked Answer</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(7)">Instructions</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Scenario 1: Money</button>
+      <button class="sidebar-item" onclick="goToSlide(9)">Scenario 2: School</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(10)">All Practice Cards</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Wheel</div>
+      <button class="sidebar-item" onclick="goToSlide(11)">Decimal Wheel</button>
+      <button class="sidebar-item" onclick="goToSlide(12)">Missing Parts Challenge</button>
+    </div>
+  </div>
+</aside>
+
+<main id="mainContent">
+
+<!-- SLIDE 0: LISC -->
+<div class="slide active" id="slide-0">
+  <div class="card lisc-card">
+    <h2>Learning Intention and Success Criteria</h2>
+    <h3>Learning Intention</h3>
+    <p>We are learning to use visual models to understand the relationship between numbers in a word problem before calculating an answer.</p>
+    <h3>Success Criteria</h3>
+    <ul>
+      <li>I can identify if a word problem is asking me to find a missing part or the total whole.</li>
+      <li>I can draw a bar model to represent a whole number equation.</li>
+      <li>I can use a visual model to determine the correct operation (addition or subtraction).</li>
+    </ul>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+    <span class="slide-counter">Card 1 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 1: Hook - Intro -->
+<div class="slide" id="slide-1">
+  <div class="card">
+    <h3>Word problems love to trick us</h3>
+    <p>Figuring out whether you need to add or subtract can be tricky. A great strategy is to draw the maths first. Once you can see it, you cannot be tricked.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 2 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 2: Hook - Byron Shire Problem -->
+<div class="slide" id="slide-2">
+  <div class="card">
+    <h3>Read this problem</h3>
+    <div class="scenario">
+      Byron Shire had a population of 35,084.<br>
+      14,230 people lived in the town centre.<br>
+      The rest lived in the surrounding hills.<br><br>
+      <strong>How many people lived in the hills?</strong>
+    </div>
+    <div class="callout amber" style="margin-top:16px;">
+      <span class="callout-label">Think about it</span>
+      <p>Don't calculate yet. Do you <strong>add</strong> these numbers or <strong>subtract</strong> them? How do you know?</p>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal(this, 'hook-reveal-1')">Show the Reasoning</button>
+    <div class="step-reveal" id="hook-reveal-1">
+      <div class="callout teal" style="margin-top:16px;">
+        <span class="callout-label">The Reasoning</span>
+        <p>We know the <strong>total (whole)</strong>, 35,084, and we know <strong>one part</strong>, 14,230. We're looking for the <strong>other part</strong>. That means we subtract.</p>
+        <p style="margin-top:8px;">If you draw this before calculating, it becomes obvious. That's exactly what we're going to learn to do.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 3 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 3: I Do - Intro -->
+<div class="slide" id="slide-3">
+  <div class="card">
+    <div class="tag blue">The Bar Model</div>
+    <h3 style="margin-top:10px;">Part-Part-Whole</h3>
+    <p>Every addition or subtraction problem has the same structure: a <strong>whole</strong> made up of two <strong>parts</strong>. The Bar Model makes this visible.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 4 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 4: I Do - Bar Model -->
+<div class="slide" id="slide-4">
+  <div class="card">
+    <h3>The Bar Model, Byron Shire problem</h3>
+    <div class="bar-model-box">
+      <div class="bm-title">Bar Model</div>
+      <div class="bar-model">
+        <div class="bm-label">The Whole (top bar)</div>
+        <div class="bm-whole">35,084</div>
+        <div class="bm-arrow">↕</div>
+        <div class="bm-label">The Parts (underneath)</div>
+        <div class="bm-parts">
+          <div class="bm-part known" style="flex:14230;">14,230</div>
+          <div class="bm-part unknown" style="flex:20854;">?</div>
+        </div>
+        <div class="anno" style="margin-top:10px;">We have the whole and one part. We need to find the missing part. We subtract.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 5 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 5: I Do - Golden Rule -->
+<div class="slide" id="slide-5">
+  <div class="card">
+    <h3>The Golden Rule</h3>
+    <div class="golden-rule">
+      <div class="gr-title">The Golden Rule</div>
+      <div class="gr-rules">
+        <div class="gr-rule">
+          <span>➕</span> We know both <strong>parts</strong><br>Add to find the whole
+        </div>
+        <div class="gr-rule">
+          <span>➖</span> We know the <strong>whole</strong> and one part<br>Subtract to find the missing part
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 6 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 6: I Do - Worked Answer -->
+<div class="slide" id="slide-6">
+  <div class="card">
+    <h3>Worked Answer, Byron Shire</h3>
+    <button class="worked-toggle" onclick="toggleWorked(this, 'ido-worked-1')">
+      <span>Show the Calculation</span>
+      <span class="wt-chevron">▾</span>
+    </button>
+    <div class="worked-body" id="ido-worked-1">
+      <div class="callout teal" style="margin-top:16px;">
+        <span class="callout-label">Worked Answer</span>
+        <p>Operation: <strong>Subtraction</strong>, whole minus known part</p>
+      </div>
+      <table class="pa" style="margin-top:10px;">
+        <tr><td class="op"></td><td>3</td><td>5</td><td>,</td><td>0</td><td>8</td><td>4</td></tr>
+        <tr><td class="op">−</td><td>1</td><td>4</td><td>,</td><td>2</td><td>3</td><td>0</td></tr>
+        <tr class="ans"><td class="op"></td><td>2</td><td>0</td><td>,</td><td>8</td><td>5</td><td>4</td></tr>
+      </table>
+      <div class="anno">20,854 people lived in the hills</div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 7 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 7: We Do - Instructions -->
+<div class="slide" id="slide-7">
+  <div class="card">
+    <h3>Mini whiteboards: draw the model first</h3>
+    <p>For each scenario: sketch a Bar Model on your whiteboard. Put the <strong>question mark</strong> in the right place. Are we looking for a part or the whole? Then decide: <strong>add or subtract?</strong></p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 8 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 8: We Do - Scenario 1 -->
+<div class="slide" id="slide-8">
+  <div class="card">
+    <div class="tag amber">Scenario 1</div>
+    <div class="scenario" style="margin-top:12px;">
+      I had some money.<br>
+      I spent $45.<br>
+      I have $12 left.
+    </div>
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Sketch on your whiteboard:</span>
+      Draw the Bar Model.<br>
+      Where is the ?<br>
+      Add or subtract?
+    </div>
+    <button class="worked-toggle" onclick="toggleWorked(this, 'wedo-worked-1')">
+      <span>Show the Bar Model</span>
+      <span class="wt-chevron">▾</span>
+    </button>
+    <div class="worked-body" id="wedo-worked-1">
+      <div class="bar-model-box" style="margin-top:16px;">
+        <div class="bm-title">Bar Model, Scenario 1</div>
+        <div class="bm-whole">? (how much I started with)</div>
+        <div class="bm-arrow">↕</div>
+        <div class="bm-parts">
+          <div class="bm-part known" style="flex:45;">$45 spent</div>
+          <div class="bm-part known" style="flex:12;">$12 left</div>
+        </div>
+      </div>
+      <div class="callout teal" style="margin-top:12px;">
+        <span class="callout-label">Reasoning</span>
+        <p>We have <strong>both parts</strong> ($45 and $12). The <strong>whole</strong> is missing. Add the parts.</p>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-size:0.9rem; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">Working out:</div>
+        <table class="pa">
+          <tr><td class="op"></td><td>4</td><td>5</td></tr>
+          <tr><td class="op">+</td><td>1</td><td>2</td></tr>
+          <tr class="ans"><td class="op"></td><td>5</td><td>7</td></tr>
+        </table>
+        <div class="anno">I started with $57</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 9 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 9: We Do - Scenario 2 -->
+<div class="slide" id="slide-9">
+  <div class="card">
+    <div class="tag amber">Scenario 2</div>
+    <div class="scenario" style="margin-top:12px;">
+      A school had 520 students.<br>
+      310 students were in primary.<br>
+      The rest were in secondary.
+    </div>
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Sketch on your whiteboard:</span>
+      Draw the Bar Model.<br>
+      Where is the ?<br>
+      Add or subtract?
+    </div>
+    <button class="worked-toggle" onclick="toggleWorked(this, 'wedo-worked-2')">
+      <span>Show the Bar Model</span>
+      <span class="wt-chevron">▾</span>
+    </button>
+    <div class="worked-body" id="wedo-worked-2">
+      <div class="bar-model-box" style="margin-top:16px;">
+        <div class="bm-title">Bar Model, Scenario 2</div>
+        <div class="bm-whole">520 students</div>
+        <div class="bm-arrow">↕</div>
+        <div class="bm-parts">
+          <div class="bm-part known" style="flex:310;">310 primary</div>
+          <div class="bm-part unknown" style="flex:210;">? secondary</div>
+        </div>
+      </div>
+      <div class="callout teal" style="margin-top:12px;">
+        <span class="callout-label">Reasoning</span>
+        <p>We have the <strong>whole</strong> (520) and <strong>one part</strong> (310). A <strong>part</strong> is missing. Subtract to find it.</p>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-size:0.9rem; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">Working out:</div>
+        <table class="pa">
+          <tr><td class="op"></td><td>5</td><td>2</td><td>0</td></tr>
+          <tr><td class="op">−</td><td>3</td><td>1</td><td>0</td></tr>
+          <tr class="ans"><td class="op"></td><td>2</td><td>1</td><td>0</td></tr>
+        </table>
+        <div class="anno">There were 210 secondary students</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 10 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 10: Practice -->
+<div class="slide" id="slide-10">
+  <div class="card" style="min-height:auto; padding:0;">
+    <h3 style="padding:40px 48px 0;">Try these on your own</h3>
+    <div class="practice-grid">
+      <div class="practice-card pc-blue">
+        <div class="pc-num">Question 1</div>
+        <div class="pc-type">Finding a Part</div>
+        <div class="pc-problem">There are 8,450 books in the library. 3,210 are fiction. How many are non-fiction?</div>
+        <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p1', 'bm')">Show Bar Model</button>
+        <div id="p1-bm" class="pc-bm-section">
+          <div class="mini-bm" style="margin-top:12px;">
+            <div class="mini-whole">8,450</div>
+            <div class="mini-parts">
+              <div class="mini-part mini-known" style="flex:3210;">3,210</div>
+              <div class="mini-part mini-unknown" style="flex:5240;">?</div>
+            </div>
+          </div>
+          <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p1', 'ans')" style="margin-top:8px;">Show Answer</button>
+        </div>
+        <div id="p1-ans" class="pc-ans-section">
+          <div class="op-badge op-sub">SUBTRACT</div>
+          <table class="pa" style="margin-top:8px;">
+            <tr><td class="op"></td><td>8</td><td>,</td><td>4</td><td>5</td><td>0</td></tr>
+            <tr><td class="op">−</td><td>3</td><td>,</td><td>2</td><td>1</td><td>0</td></tr>
+            <tr class="ans"><td class="op"></td><td>5</td><td>,</td><td>2</td><td>4</td><td>0</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="practice-card pc-teal">
+        <div class="pc-num">Question 2</div>
+        <div class="pc-type">Finding the Whole</div>
+        <div class="pc-problem">A farmer has 1,450 sheep and 2,320 cows. How many animals does he have in total?</div>
+        <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p2', 'bm')">Show Bar Model</button>
+        <div id="p2-bm" class="pc-bm-section">
+          <div class="mini-bm" style="margin-top:12px;">
+            <div class="mini-whole">?</div>
+            <div class="mini-parts">
+              <div class="mini-part mini-known" style="flex:1450;">1,450</div>
+              <div class="mini-part mini-known" style="flex:2320;">2,320</div>
+            </div>
+          </div>
+          <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p2', 'ans')" style="margin-top:8px;">Show Answer</button>
+        </div>
+        <div id="p2-ans" class="pc-ans-section">
+          <div class="op-badge op-add">ADD</div>
+          <table class="pa" style="margin-top:8px;">
+            <tr><td class="op"></td><td>1</td><td>,</td><td>4</td><td>5</td><td>0</td></tr>
+            <tr><td class="op">+</td><td>2</td><td>,</td><td>3</td><td>2</td><td>0</td></tr>
+            <tr class="ans"><td class="op"></td><td>3</td><td>,</td><td>7</td><td>7</td><td>0</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="practice-card pc-amber">
+        <div class="pc-num">Question 3</div>
+        <div class="pc-type">Finding a Part</div>
+        <div class="pc-problem">A city has a population of 845,312. 123,587 people live in the north. How many live elsewhere?</div>
+        <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p3', 'bm')">Show Bar Model</button>
+        <div id="p3-bm" class="pc-bm-section">
+          <div class="mini-bm" style="margin-top:12px;">
+            <div class="mini-whole">845,312</div>
+            <div class="mini-parts">
+              <div class="mini-part mini-known" style="flex:123587;">123,587</div>
+              <div class="mini-part mini-unknown" style="flex:721725;">?</div>
+            </div>
+          </div>
+          <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p3', 'ans')" style="margin-top:8px;">Show Answer</button>
+        </div>
+        <div id="p3-ans" class="pc-ans-section">
+          <div class="op-badge op-sub">SUBTRACT</div>
+          <table class="pa" style="margin-top:8px;">
+            <tr><td class="op"></td><td>8</td><td>4</td><td>5</td><td>,</td><td>3</td><td>1</td><td>2</td></tr>
+            <tr><td class="op">−</td><td>1</td><td>2</td><td>3</td><td>,</td><td>5</td><td>8</td><td>7</td></tr>
+            <tr class="ans"><td class="op"></td><td>7</td><td>2</td><td>1</td><td>,</td><td>7</td><td>2</td><td>5</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="practice-card pc-red">
+        <div class="pc-num">Question 4</div>
+        <div class="pc-type">Finding the Whole</div>
+        <div class="pc-problem">An airline flew 451,238 km in June and 327,549 km in July. What was the total distance?</div>
+        <button class="pc-toggle bm-btn" onclick="togglePractice(this, 'p4', 'bm')">Show Bar Model</button>
+        <div id="p4-bm" class="pc-bm-section">
+          <div class="mini-bm" style="margin-top:12px;">
+            <div class="mini-whole">?</div>
+            <div class="mini-parts">
+              <div class="mini-part mini-known" style="flex:451238;">451,238</div>
+              <div class="mini-part mini-known" style="flex:327549;">327,549</div>
+            </div>
+          </div>
+          <button class="pc-toggle ans-btn" onclick="togglePractice(this, 'p4', 'ans')" style="margin-top:8px;">Show Answer</button>
+        </div>
+        <div id="p4-ans" class="pc-ans-section">
+          <div class="op-badge op-add">ADD</div>
+          <table class="pa" style="margin-top:8px;">
+            <tr><td class="op"></td><td>4</td><td>5</td><td>1</td><td>,</td><td>2</td><td>3</td><td>8</td></tr>
+            <tr><td class="op">+</td><td>3</td><td>2</td><td>7</td><td>,</td><td>5</td><td>4</td><td>9</td></tr>
+            <tr class="ans"><td class="op"></td><td>7</td><td>7</td><td>8</td><td>,</td><td>7</td><td>8</td><td>7</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 11 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 11: Wheel -->
+<div class="slide" id="slide-11">
+  <div class="card">
+    <h3>The Decimal Wheel</h3>
+    <p>Decimals work the same way as whole numbers. A "whole" can be the number <strong>1.00</strong>. We can use a Decimal Wheel to see how different parts make up one whole.</p>
+    <div class="wheel-container">
+      <div class="wheel-wrap">
+        <canvas id="mainWheel" class="wheel-canvas" width="300" height="300"></canvas>
+      </div>
+      <div class="wheel-legend">
+        <h4>The Parts:</h4>
+        <div id="legendItems"></div>
+        <div class="wheel-total">Total: <span id="wheelTotal">0.00 / 1.00</span></div>
+        <div class="wheel-controls">
+          <button class="wheel-btn active" onclick="setWheel('halves')">Halves</button>
+          <button class="wheel-btn" onclick="setWheel('quarters')">Quarters</button>
+          <button class="wheel-btn" onclick="setWheel('tenths')">Tenths</button>
+          <button class="wheel-btn" onclick="setWheel('mixed')">Mixed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 12 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 12: Wheel Challenge -->
+<div class="slide" id="slide-12">
+  <div class="card">
+    <div class="tag teal">Challenge</div>
+    <h3>Missing Parts Challenge</h3>
+    <p>Look at the wheels below. Some pieces are missing. Can you calculate the decimal value of the missing piece?</p>
+    <div class="wq-card">
+      <div class="wq-qnum">Challenge 1</div>
+      <div class="wq-qtext">The wheel has two parts: <strong>0.35</strong> and <strong>0.40</strong>. What is the value of the missing part?</div>
+      <div class="wq-submit-row">
+        <div class="wq-total-display">Current: <span>0.75</span></div>
+        <button class="reveal-btn" onclick="toggleReveal(this, 'wheel-sol-1')">Show Solution</button>
+      </div>
+      <div class="step-reveal" id="wheel-sol-1">
+        <div class="callout teal" style="margin-top:16px;">
+          <span class="callout-label">Solution</span>
+          <p>1. Add the known parts: 0.35 + 0.40 = 0.75</p>
+          <p>2. Subtract from the whole (1.00): 1.00 - 0.75 = <strong>0.25</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 13 of 13</span>
+    <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', title: 'LISC', section: 'Learning' },
+  { id: 'slide-1', title: 'Word Problems Trap', section: 'Hook' },
+  { id: 'slide-2', title: 'Byron Shire Problem', section: 'Hook' },
+  { id: 'slide-3', title: 'Part-Part-Whole', section: 'I Do' },
+  { id: 'slide-4', title: 'Bar Model Byron Shire', section: 'I Do' },
+  { id: 'slide-5', title: 'Golden Rule', section: 'I Do' },
+  { id: 'slide-6', title: 'Worked Answer', section: 'I Do' },
+  { id: 'slide-7', title: 'Instructions', section: 'We Do' },
+  { id: 'slide-8', title: 'Scenario 1: Money', section: 'We Do' },
+  { id: 'slide-9', title: 'Scenario 2: School', section: 'We Do' },
+  { id: 'slide-10', title: 'All Practice Cards', section: 'Practice' },
+  { id: 'slide-11', title: 'Decimal Wheel', section: 'Wheel' },
+  { id: 'slide-12', title: 'Missing Parts Challenge', section: 'Wheel' }
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Practice': 'practice',
+  'Wheel': 'wheel'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  currentSlide = index;
+  updateSlides();
+  updateSidebar();
+  updatePhaseNav();
+}
+
+function nextSlide() {
+  goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  goToSlide(currentSlide - 1);
+}
+
+function goToPhase(sectionName) {
+  const firstSlideInPhase = slides.findIndex(s => s.section === sectionName);
+  if (firstSlideInPhase >= 0) goToSlide(firstSlideInPhase);
+}
+
+function updateSlides() {
+  slides.forEach((s, i) => {
+    const slide = document.getElementById(s.id);
+    if (slide) slide.classList.toggle('active', i === currentSlide);
+  });
+  updateNavButtons();
+}
+
+function updateSidebar() {
+  document.querySelectorAll('.sidebar-item').forEach((item, i) => {
+    item.classList.toggle('active', i === currentSlide);
+  });
+}
+
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.phase === phase);
+  });
+}
+
+function updateNavButtons() {
+  const prevBtn = document.querySelector('.nav-btn:first-of-type');
+  const nextBtn = document.querySelector('.nav-btn:last-of-type');
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  const counter = document.querySelector('.slide-counter');
+  if (counter) counter.textContent = `Card ${currentSlide + 1} of ${slides.length}`;
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('mainContent');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function toggleReveal(btn, id) {
+  const body = document.getElementById(id);
+  if (body) {
+    body.classList.toggle('shown');
+    btn.classList.toggle('open', body.classList.contains('shown'));
+  }
+}
+
+function toggleWorked(btn, id) {
+  const body = document.getElementById(id);
+  if (body) {
+    body.classList.toggle('shown');
+    btn.classList.toggle('open', body.classList.contains('shown'));
+  }
+}
+
+function togglePractice(btn, qId, type) {
+  const bmSection = document.getElementById(qId + '-bm');
+  const ansSection = document.getElementById(qId + '-ans');
+  if (!bmSection || !ansSection) return;
+
+  const card = btn.closest('.practice-card');
+  const bmBtn = card.querySelector('.bm-btn');
+  const ansBtn = card.querySelector('.ans-btn');
+
+  if (type === 'bm') {
+    const isShown = bmSection.classList.toggle('shown');
+    bmBtn.classList.toggle('active', isShown);
+    bmBtn.textContent = isShown ? 'Hide Bar Model' : 'Show Bar Model';
+    if (!isShown) {
+      ansSection.classList.remove('shown');
+      ansBtn.classList.remove('active');
+      ansBtn.textContent = 'Show Answer';
+    }
+  } else if (type === 'ans') {
+    const isShown = ansSection.classList.toggle('shown');
+    ansBtn.classList.toggle('active', isShown);
+    ansBtn.textContent = isShown ? 'Hide Answer' : 'Show Answer';
+  }
+}
+
+// Wheel Logic
+const COLORS = ['#4ECDC4', '#FFD93D', '#FF6B6B', '#3498DB', '#AD1DEB', '#FF8400'];
+const states = {
+  halves: { slices: [50, 50], total: 1.00 },
+  quarters: { slices: [25, 25, 25, 25], total: 1.00 },
+  tenths: { slices: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], total: 1.00 },
+  mixed: { slices: [40, 35, 25], total: 1.00 }
+};
+
+function drawWheel(slices) {
+  const canvas = document.getElementById('mainWheel');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 150, cy = 150, r = 130;
+  ctx.clearRect(0, 0, 300, 300);
+
+  let start = -Math.PI / 2;
+  slices.forEach((count, i) => {
+    const angle = (count / 100) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i % COLORS.length];
+    ctx.fill();
+    start += angle;
+  });
+
+  for (let i = 0; i < 100; i++) {
+    const a = -Math.PI / 2 + (i / 100) * 2 * Math.PI;
+    const big = i % 10 === 0;
+    const inner = big ? r * 0.75 : r * 0.88;
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = big ? 2.5 : 1;
+    ctx.beginPath();
+    ctx.moveTo(cx + inner * Math.cos(a), cy + inner * Math.sin(a));
+    ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.strokeStyle = '#ccd';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function setWheel(state) {
+  const s = states[state];
+  drawWheel(s.slices);
+  const totalEl = document.getElementById('wheelTotal');
+  if (totalEl) totalEl.textContent = s.total.toFixed(2) + ' / 1.00';
+
+  const leg = document.getElementById('legendItems');
+  if (leg) {
+    leg.innerHTML = '';
+    s.slices.forEach((val, i) => {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `<div class="legend-dot" style="background:${COLORS[i % COLORS.length]}"></div><span>Part ${i + 1}: ${(val / 100).toFixed(2)}</span>`;
+      leg.appendChild(item);
+    });
+  }
+
+  document.querySelectorAll('.wheel-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase().includes(state));
+  });
+}
+
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+  updateSlides();
+  updateSidebar();
+  updatePhaseNav();
+  setWheel('halves');
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>

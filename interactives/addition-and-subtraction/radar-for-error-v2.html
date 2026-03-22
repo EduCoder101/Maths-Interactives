@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar for Error, Maths Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --orange: #FF8400;
+    --pink: #FF67E7;
+    --purple: #AD1DEB;
+    --blue: #3a7bd5;
+    --green: #27AE60;
+    --green-dark: #1a7a3f;
+    --cream: #FFF8F0;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #2D3436;
+    color: #fff;
+    padding: 16px 32px;
+    position: relative;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  header .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--teal);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+    flex: 1;
+  }
+
+  header h1 span { color: var(--amber); }
+
+  header a.back-link {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  header a.back-link:hover { color: #fff; }
+
+  /* ── PHASE NAV ── */
+  .phase-nav {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 32px;
+    background: #3d4347;
+    position: sticky;
+    top: 0;
+    z-index: 280;
+    flex-wrap: wrap;
+  }
+
+  .sidebar-toggle {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px 12px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .sidebar-toggle:hover { background: rgba(255,255,255,0.1); border-radius: 6px; }
+
+  .phase-btn {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .phase-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+
+  .phase-btn.active {
+    background: var(--teal);
+    color: var(--text);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: #2D3436;
+    color: #fff;
+    padding-top: var(--header-h);
+    overflow-y: auto;
+    z-index: 270;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.collapsed { transform: translateX(-260px); }
+
+  .sidebar-content { padding: 20px 0; }
+
+  .sidebar-section {
+    margin-bottom: 20px;
+  }
+
+  .sidebar-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    padding: 0 16px;
+    margin-bottom: 8px;
+  }
+
+  .sidebar-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    color: rgba(255,255,255,0.7);
+    padding: 10px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.2);
+    border-left-color: var(--teal);
+    color: #fff;
+  }
+
+  /* ── MAIN ── */
+  main {
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
+    padding-bottom: 60px;
+  }
+
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* ── SLIDES ── */
+  .slide {
+    display: none;
+    animation: fadeIn 0.3s ease;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 32px;
+  }
+
+  .slide.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px;
+    border: 2px solid var(--border);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .card.lisc-card {
+    border-top: 6px solid var(--red);
+  }
+
+  .card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .card h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 20px 0 12px 0;
+    color: var(--text);
+  }
+
+  .card p, .card li {
+    font-size: 1.35rem;
+    line-height: 1.7;
+    color: #445;
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+
+  .card ul {
+    padding-left: 24px;
+  }
+
+  .card ul li {
+    margin-bottom: 10px;
+  }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block;
+    background: var(--text);
+    color: #fff;
+    font-weight: 600;
+    font-size: 11px;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin: 0 6px 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tag.green { background: var(--green); }
+  .tag.amber { background: var(--amber); color: var(--text); }
+
+  /* ── DISCUSSION BOX ── */
+  .discussion {
+    background: #fffbf0;
+    border-left: 5px solid var(--amber);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+
+  .discussion .label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--amber-dark);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .discussion p {
+    font-size: 1.35rem;
+    line-height: 1.6;
+    color: #665500;
+  }
+
+  /* ── ALGO TABLE ── */
+  .algo-table {
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    border-collapse: collapse;
+    margin: 8px 0;
+  }
+
+  .algo-table td {
+    padding: 2px 4px;
+    text-align: center;
+    min-width: 28px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .algo-table td.op {
+    text-align: left;
+    min-width: 18px;
+    color: var(--muted);
+    font-size: 22px;
+  }
+
+  .algo-table td.thou { text-align: right; min-width: 36px; }
+  .algo-table .algo-line { border-top: 2.5px solid var(--text); margin: 2px 0; }
+  .algo-table .wrong-row td { color: var(--red); }
+  .algo-table .correct-row td { color: var(--teal-dark); font-weight: 700; }
+  .algo-table td.correct { color: var(--teal-dark); font-weight: 700; }
+
+  /* ── ERROR DEMO ── */
+  .error-demo {
+    background: #fff4f4;
+    border: 2px dashed var(--red);
+    border-radius: 14px;
+    padding: 22px 28px;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .error-badge {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── WORKED EXAMPLE ── */
+  .worked-example { margin: 16px 0; }
+
+  .worked-example .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .worked-example .step:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--text);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .step-text {
+    font-size: 1.35rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* ── REVEAL BUTTONS ── */
+  .reveal-btn {
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reveal-btn:hover { background: var(--teal-dark); }
+
+  .reveal-btn.green {
+    background: var(--teal);
+    color: var(--text);
+  }
+
+  .reveal-btn.green:hover { background: var(--teal-dark); color: #fff; }
+
+  /* ── BADGES ── */
+  .estimate-badge {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 8px;
+    padding: 4px 14px;
+    margin: 6px 4px 6px 0;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .actual-badge {
+    display: inline-block;
+    background: var(--teal);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 8px;
+    padding: 4px 14px;
+    margin: 6px 4px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* ── ALGO CORRECT DISPLAY ── */
+  .algo-correct {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    line-height: 2;
+    text-align: right;
+    display: inline-block;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 28px;
+    background: #f8faff;
+    color: var(--text);
+    margin-top: 10px;
+  }
+
+  .algo-correct .ans {
+    color: var(--teal-dark);
+    font-weight: 700;
+    border-top: 2.5px solid var(--text);
+    padding-top: 4px;
+    display: block;
+  }
+
+  .algo-correct .placeholder { color: var(--orange); font-weight: 700; }
+
+  .anno {
+    color: var(--muted);
+    font-size: 13px;
+    display: block;
+    margin-top: 4px;
+    font-style: italic;
+    font-family: 'Fredoka', sans-serif;
+  }
+
+  /* ── WE DO: WHITEBOARD PROMPT ── */
+  .whiteboard-prompt {
+    background: #f8f9fa;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wlabel {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .e-row {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .whiteboard-prompt table {
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .whiteboard-prompt td {
+    padding: 4px 6px;
+    text-align: center;
+    min-width: 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--text);
+  }
+
+  .whiteboard-prompt td.op { text-align: left; min-width: 14px; color: var(--muted); }
+
+  .wp-line { border-top: 2px solid var(--text); display: block; margin-top: 2px; }
+
+  .gp-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* ── AUDIT SECTION ── */
+  .audit-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 16px;
+  }
+
+  .audit-card {
+    background: #f8f9fa;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .audit-num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .audit-type {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .audit-equation {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 12px 0;
+    text-align: center;
+    padding: 12px;
+    background: #fff;
+    border-radius: 8px;
+  }
+
+  .audit-hint {
+    background: #fffbf0;
+    border-left: 4px solid var(--amber);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #665500;
+  }
+
+  .hint-label {
+    font-weight: 700;
+    color: var(--amber-dark);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-right: 6px;
+  }
+
+  .audit-toggle {
+    background: var(--amber);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .audit-toggle:hover { background: var(--amber-dark); }
+
+  .audit-answer {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    animation: fadeIn 0.25s ease;
+  }
+
+  .audit-answer.shown { display: block; }
+
+  .answer-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .algo-small {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    line-height: 1.8;
+    text-align: right;
+    display: inline-block;
+    padding: 12px 20px;
+    background: #fff;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  .algo-small .ans {
+    color: var(--teal-dark);
+    font-weight: 700;
+    border-top: 2px solid var(--text);
+    padding-top: 2px;
+    display: block;
+  }
+
+  /* ── PRACTICE SECTION ── */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .practice-card {
+    background: #f8f9fa;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .practice-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .practice-equation {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 12px 0;
+    text-align: center;
+    padding: 12px;
+    background: #fff;
+    border-radius: 8px;
+  }
+
+  .practice-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .hint-btn, .answer-btn {
+    flex: 1;
+    background: var(--amber);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .hint-btn:hover { background: var(--amber-dark); }
+
+  .answer-btn {
+    background: var(--green);
+    color: #fff;
+  }
+
+  .answer-btn:hover { background: var(--green-dark); }
+
+  .practice-hint, .practice-answer {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .practice-hint {
+    background: #fffbf0;
+    border-left: 4px solid var(--amber);
+    color: #665500;
+  }
+
+  .practice-answer {
+    background: #f0fdf4;
+    border-left: 4px solid var(--green);
+  }
+
+  .practice-hint.shown, .practice-answer.shown {
+    display: block;
+    animation: fadeIn 0.25s ease;
+  }
+
+  /* ── SLIDE NAVIGATION ── */
+  .slide-nav {
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-btn {
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 32px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover:not(:disabled) { background: var(--teal-dark); }
+
+  .nav-btn:disabled {
+    background: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .slide-counter {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 120px;
+    text-align: center;
+  }
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Addition & Subtraction</div>
+  <h1><span>Radar for Error</span> · Estimation as a Checking Tool</h1>
+  <a href="../../index.html" class="back-link">← Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="radar" onclick="goToPhase('Radar')">Radar</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="audit" onclick="goToPhase('Audit')">Audit</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item" onclick="goToSlide(0)">Learning Intention & Success Criteria</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Introducing the Radar</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Spot the Error</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Radar</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Could You Have Spotted This Sooner</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(4)">Example 1: Whole Numbers</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Example 2: Decimals and Money</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(6)">Instructions</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Question 1</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Question 2</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Audit</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Algorithm Audit</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(10)">Algorithm Practice, Full Range</button>
+    </div>
+  </div>
+</aside>
+
+<main id="mainContent">
+
+<!-- SLIDE 0: LEARNING INTENTION & SUCCESS CRITERIA -->
+<div class="slide active" id="slide-0">
+  <div class="card lisc-card">
+    <h2>Learning Intention and Success Criteria</h2>
+    <h3>Learning Intention</h3>
+    <p>We are learning to use estimation as a "Radar for Error" to check whether our calculations are reasonable, and to align numbers correctly in vertical algorithms.</p>
+    <h3>Success Criteria</h3>
+    <ul>
+      <li>I can round numbers to get a quick estimate before calculating</li>
+      <li>I can set up a vertical algorithm with digits correctly aligned by place value</li>
+      <li>I can use my estimate to check whether my final answer is reasonable</li>
+    </ul>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+    <span class="slide-counter">Card 1 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 1: HOOK - INTRODUCING THE RADAR -->
+<div class="slide" id="slide-1">
+  <div class="card">
+    <h3>Introducing the Radar for Error</h3>
+    <p>The greatest mathematicians don't just calculate perfectly, they know roughly what the answer should be before they even pick up a pen. That's your Radar for Error.</p>
+    <p style="margin-top:16px;">Today we're going to build that radar, then use it to check our formal algorithms.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 2 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 2: HOOK - SPOT THE ERROR -->
+<div class="slide" id="slide-2">
+  <div class="card">
+    <h3>Spot the Error</h3>
+    <p style="font-size:1.35rem; font-weight:700; color:#1a3a52; background:#f0f4ff; border-radius:10px; padding:14px 18px; margin-bottom:16px;">A school canteen made $4,562 on Monday and $35 on Tuesday. How much did it make altogether?</p>
+    <p>Someone has set up the algorithm below. The digits have all been added correctly. But the answer is completely wrong. What has gone wrong?</p>
+
+    <div class="error-demo" style="margin-top:18px;">
+      <span class="error-badge">Wrong</span>
+      <div style="margin-top:10px; display:flex; align-items:flex-start; gap:40px; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">What was written:</div>
+          <table class="algo-table">
+            <tr><td class="op"></td><td class="thou">4,</td><td class="h">5</td><td class="t">6</td><td class="o">2</td></tr>
+            <tr><td class="op">+</td><td class="thou">3,</td><td class="h">5</td><td class="t"></td><td class="o"></td></tr>
+            <tr><td colspan="5"><div class="algo-line"></div></td></tr>
+            <tr class="wrong-row"><td class="op"></td><td class="thou">8,</td><td class="h">0</td><td class="t">6</td><td class="o">2</td></tr>
+          </table>
+          <div class="anno">The 3 and 5 have been placed in the wrong columns</div>
+        </div>
+        <div id="correct-reveal" style="display:none;">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Correct alignment:</div>
+          <table class="algo-table">
+            <tr><td class="op"></td><td class="thou">4,</td><td class="h">5</td><td class="t">6</td><td class="o">2</td></tr>
+            <tr><td class="op">+</td><td class="thou"></td><td class="h"></td><td class="t correct">3</td><td class="o correct">5</td></tr>
+            <tr><td colspan="5"><div class="algo-line"></div></td></tr>
+            <tr class="correct-row"><td class="op"></td><td class="thou">4,</td><td class="h">5</td><td class="t">9</td><td class="o">7</td></tr>
+          </table>
+          <div class="anno">$35 sits in the tens and ones columns</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <div class="label">Think about it</div>
+      <p>Every digit was added correctly, 4+3=7, 5+5=10, so why is $8,062 the wrong answer?</p>
+    </div>
+
+    <button class="reveal-btn green" onclick="document.getElementById('correct-reveal').style.display='block'; this.style.display='none';">
+      Show correct alignment
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 3 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 3: RADAR - COULD YOU HAVE SPOTTED THIS SOONER -->
+<div class="slide" id="slide-3">
+  <div class="card">
+    <h3>Could You Have Spotted This Sooner</h3>
+    <div class="discussion" style="background:#e8f8f6; border-left-color:var(--green);">
+      <div class="label" style="color:var(--green-dark);">Think about it</div>
+      <p style="color:#0a3832; font-size:1.35rem;">If you had used your Radar for Error, you would have known $8,062 was impossible, before you even checked the working. How?</p>
+    </div>
+
+    <div id="radar-reveal" class="step-reveal" style="margin-top:20px;">
+      <p><strong>$4,562 is already more than $4,000.</strong> Adding just $35 should give something close to $4,600, so an answer of $8,062 is clearly wrong.</p>
+      <p style="margin-top:12px;"><strong>That's the Radar for Error.</strong> Estimate first, calculate, then check your answer makes sense.</p>
+    </div>
+
+    <button class="reveal-btn green" style="margin-top:20px;" onclick="document.getElementById('radar-reveal').classList.add('shown'); this.style.display='none';">
+      Show the reasoning
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 4 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 4: I DO - EXAMPLE 1 WHOLE NUMBERS -->
+<div class="slide" id="slide-4">
+  <div class="card">
+    <div class="tag">Example 1</div>
+    <div class="tag green">Whole Numbers</div>
+    <div style="font-family:'Space Mono',monospace; font-size:1.4rem; font-weight:700; color:var(--text); margin:12px 0; text-align:center; padding:12px; background:#f8f9fa; border-radius:8px;">1,428 + 653</div>
+
+    <div class="worked-example">
+      <div class="step" onclick="toggleReveal('ex1-s1')">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">Round each number</div>
+          <div class="step-text">What friendly numbers are these close to?</div>
+          <div class="step-reveal" id="ex1-s1">
+            <div style="margin-top:10px;">
+              <div style="font-size:1.35rem; margin-bottom:8px;">1,428 → rounds to <span class="estimate-badge">1,400</span></div>
+              <div style="font-size:1.35rem;">653 → rounds to <span class="estimate-badge">650</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex1-s2')">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">Add the estimate using expanded notation</div>
+          <div class="step-text">Think about adding in parts: hundreds first, then tens.</div>
+          <div class="step-reveal" id="ex1-s2">
+            <div style="margin-top:10px;">
+              <div style="font-size:1.35rem; margin-bottom:8px;">1,400 + 600 = <span class="estimate-badge">2,000</span></div>
+              <div style="font-size:1.35rem; margin-bottom:8px;">2,000 + 50 = <span class="estimate-badge">2,050</span></div>
+              <div class="anno">My estimate is approximately 2,050</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex1-s3')" style="background:#fffbf0; border-radius:10px; padding:14px; margin-top:4px;">
+        <div class="step-num" style="background:var(--amber); color:#2D3436;">3</div>
+        <div class="step-content">
+          <div class="step-label" style="color:var(--amber-dark);">Now you try, then reveal</div>
+          <div class="step-text">Set up the algorithm in your book. Click to check your answer.</div>
+          <div class="step-reveal" id="ex1-s3">
+            <div style="margin-top:10px;">
+              <div class="algo-correct">
+                1&nbsp;4&nbsp;2&nbsp;8<br>
+                +&nbsp;&nbsp;&nbsp;6&nbsp;5&nbsp;3<br>
+                <span class="ans">2&nbsp;0&nbsp;8&nbsp;1</span>
+              </div>
+              <div class="anno" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:16px; align-items:baseline;">
+                <span><strong>Estimate:</strong> ~2,050</span>
+                <span><strong>Actual:</strong> 2,081</span>
+                <span style="font-size:14px; color:var(--amber-dark);">Makes sense!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal-btn" onclick="document.getElementById('ex1-s1').classList.add('shown'); document.getElementById('ex1-s2').classList.add('shown'); this.style.display='none';">
+      Reveal steps 1 & 2
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 5 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 5: I DO - EXAMPLE 2 DECIMALS AND MONEY -->
+<div class="slide" id="slide-5">
+  <div class="card">
+    <div class="tag">Example 2</div>
+    <div class="tag amber">Decimals and Money</div>
+    <div style="font-family:'Space Mono',monospace; font-size:1.4rem; font-weight:700; color:var(--text); margin:12px 0; text-align:center; padding:12px; background:#f8f9fa; border-radius:8px;">$14.95 + $3.10</div>
+
+    <div class="worked-example">
+      <div class="step" onclick="toggleReveal('ex2-s1')">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">Round to friendly numbers</div>
+          <div class="step-text">What are these close to?</div>
+          <div class="step-reveal" id="ex2-s1">
+            <div style="margin-top:10px;">
+              <div style="font-size:1.35rem; margin-bottom:8px;">$14.95 → rounds to <span class="estimate-badge">$15</span></div>
+              <div style="font-size:1.35rem;">$3.10 → rounds to <span class="estimate-badge">$3</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex2-s2')">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">Add the friendly numbers</div>
+          <div class="step-text">In your head, what is $15 + $3?</div>
+          <div class="step-reveal" id="ex2-s2">
+            <div style="margin-top:10px;">
+              <div style="font-size:1.35rem;">$15 + $3 = <span class="estimate-badge">$18</span></div>
+              <div class="anno">My estimate is approximately $18</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" onclick="toggleReveal('ex2-s3')" style="background:#fffbf0; border-radius:10px; padding:14px; margin-top:4px;">
+        <div class="step-num" style="background:var(--amber); color:#2D3436;">3</div>
+        <div class="step-content">
+          <div class="step-label" style="color:var(--amber-dark);">Now you try, then reveal</div>
+          <div class="step-text">Set up the algorithm in your book. Click to check your answer.</div>
+          <div class="step-reveal" id="ex2-s3">
+            <div style="margin-top:10px;">
+              <div class="algo-correct">
+                $&nbsp;1&nbsp;4&nbsp;.&nbsp;9&nbsp;5<br>
+                +&nbsp;$&nbsp;&nbsp;3&nbsp;.&nbsp;1&nbsp;0<br>
+                <span class="ans">$&nbsp;1&nbsp;8&nbsp;.&nbsp;0&nbsp;5</span>
+              </div>
+              <div class="anno" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:16px; align-items:baseline;">
+                <span><strong>Estimate:</strong> ~$18</span>
+                <span><strong>Actual:</strong> $18.05</span>
+                <span style="font-size:14px; color:var(--amber-dark);">Makes sense!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal-btn" onclick="document.getElementById('ex2-s1').classList.add('shown'); document.getElementById('ex2-s2').classList.add('shown'); this.style.display='none';">
+      Reveal steps 1 & 2
+    </button>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 6 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 6: WE DO - INSTRUCTIONS -->
+<div class="slide" id="slide-6">
+  <div class="card">
+    <h3>Your Turn, Mini Whiteboards</h3>
+    <p>For each equation below, you must write <strong>E: [Estimate]</strong> at the top of your whiteboard first, before setting up the algorithm. Then calculate.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 7 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 7: WE DO - QUESTION 1 -->
+<div class="slide" id="slide-7">
+  <div class="card">
+    <div class="tag">Question 1</div>
+    <div class="tag" style="background:#ff7043; color:#fff;">Subtraction</div>
+    
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Write in your book first:</span>
+      <span class="e-row">E: [________]</span>
+      <table>
+        <tr><td class="op"></td><td>4</td><td>8</td><td>3</td></tr>
+        <tr><td class="op">−</td><td>1</td><td>9</td><td>7</td></tr>
+        <tr><td colspan="4"><span class="wp-line"></span></td></tr>
+        <tr><td class="op"></td><td></td><td></td><td></td></tr>
+      </table>
+    </div>
+
+    <button class="reveal-btn" onclick="toggleReveal('gp1-ans'); this.style.display='none';">
+      Show answer and estimate
+    </button>
+
+    <div class="step-reveal" id="gp1-ans" style="margin-top:14px;">
+      <div style="font-size:1.35rem;"><strong>Estimate:</strong> 480 − 200 = <span class="estimate-badge">280</span></div>
+      <div style="margin-top:10px;">
+        <div class="algo-correct">
+          4&nbsp;8&nbsp;3<br>
+          −&nbsp;1&nbsp;9&nbsp;7<br>
+          <span class="ans">2&nbsp;8&nbsp;6</span>
+        </div>
+      </div>
+      <div class="anno" style="margin-top:6px;">Estimate: ~280  |  Actual: 286</div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 8 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 8: WE DO - QUESTION 2 -->
+<div class="slide" id="slide-8">
+  <div class="card">
+    <div class="tag">Question 2</div>
+    <div class="tag amber">Decimal Subtraction</div>
+    
+    <div class="whiteboard-prompt">
+      <span class="wlabel">Write in your book first:</span>
+      <span class="e-row">E: [________]</span>
+      <table>
+        <tr><td class="op"></td><td>$</td><td>1</td><td>5</td><td>.</td><td>2</td><td>0</td></tr>
+        <tr><td class="op">−</td><td>$</td><td></td><td>4</td><td>.</td><td>8</td><td>5</td></tr>
+        <tr><td colspan="7"><span class="wp-line"></span></td></tr>
+        <tr><td class="op"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </table>
+    </div>
+
+    <button class="reveal-btn" onclick="toggleReveal('gp2-ans'); this.style.display='none';">
+      Show answer and estimate
+    </button>
+
+    <div class="step-reveal" id="gp2-ans" style="margin-top:14px;">
+      <div style="font-size:1.35rem;"><strong>Estimate:</strong> $15 − $5 = <span class="estimate-badge">$10</span></div>
+      <div style="margin-top:10px;">
+        <div class="algo-correct">
+          $&nbsp;1&nbsp;5&nbsp;.&nbsp;<span class="placeholder">2&nbsp;0</span><br>
+          −&nbsp;$&nbsp;&nbsp;4&nbsp;.&nbsp;8&nbsp;5<br>
+          <span class="ans">$&nbsp;1&nbsp;0&nbsp;.&nbsp;3&nbsp;5</span>
+        </div>
+      </div>
+      <div class="anno" style="margin-top:6px;"><span style="color:var(--amber-dark); font-weight:800;">2 0</span> = placeholder zero added so both numbers have the same decimal length</div>
+      <div class="anno">Estimate: ~$10  |  Actual: $10.35</div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 9 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 9: AUDIT - ALGORITHM AUDIT -->
+<div class="slide" id="slide-9">
+  <div class="card">
+    <h3>The Algorithm Audit</h3>
+    <p>This is a low-stakes diagnostic. It helps your teacher plan the next two weeks of maths. For every question, write your estimated answer before calculating. Show all working.</p>
+
+    <div class="audit-grid">
+      <!-- Q1 -->
+      <div class="audit-card">
+        <div class="audit-num">Question 1</div>
+        <div class="audit-type">Standard Addition</div>
+        <div class="audit-equation">3,456 + 2,139</div>
+        <div class="audit-hint">
+          <span class="hint-label">Radar check</span>
+          Round each number, then add. Does your answer make sense?
+        </div>
+        <button class="audit-toggle" onclick="toggleAudit(this, 'a1')">Show answer</button>
+        <div class="audit-answer" id="a1">
+          <div class="answer-row">
+            <span class="estimate-badge">E: ~5,600</span>
+            <span class="actual-badge">A: 5,595</span>
+          </div>
+          <div class="algo-small">
+            3&nbsp;4&nbsp;5&nbsp;6<br>
+            +&nbsp;2&nbsp;1&nbsp;3&nbsp;9<br>
+            <span class="ans">5&nbsp;5&nbsp;9&nbsp;5</span>
+          </div>
+          <div class="anno">3,400+2,100 = ~5,500</div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="audit-card">
+        <div class="audit-num">Question 2</div>
+        <div class="audit-type">Subtraction with Regrouping</div>
+        <div class="audit-equation">5,023 − 2,847</div>
+        <div class="audit-hint">
+          <span class="hint-label">Radar check</span>
+          Round each number. What is your approximate answer?
+        </div>
+        <button class="audit-toggle" onclick="toggleAudit(this, 'a2')">Show answer</button>
+        <div class="audit-answer" id="a2">
+          <div class="answer-row">
+            <span class="estimate-badge">E: ~2,200</span>
+            <span class="actual-badge">A: 2,176</span>
+          </div>
+          <div class="algo-small">
+            5&nbsp;0&nbsp;2&nbsp;3<br>
+            −&nbsp;2&nbsp;8&nbsp;4&nbsp;7<br>
+            <span class="ans">2&nbsp;1&nbsp;7&nbsp;6</span>
+          </div>
+          <div class="anno">5,000−2,800 = ~2,200</div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="audit-card">
+        <div class="audit-num">Question 3</div>
+        <div class="audit-type">Money Addition</div>
+        <div class="audit-equation">$23.45 + $16.80</div>
+        <div class="audit-hint">
+          <span class="hint-label">Radar check</span>
+          What is $20 + $15? Your answer should be close to that.
+        </div>
+        <button class="audit-toggle" onclick="toggleAudit(this, 'a3')">Show answer</button>
+        <div class="audit-answer" id="a3">
+          <div class="answer-row">
+            <span class="estimate-badge">E: ~$40</span>
+            <span class="actual-badge">A: $40.25</span>
+          </div>
+          <div class="algo-small">
+            $&nbsp;2&nbsp;3&nbsp;.&nbsp;4&nbsp;5<br>
+            +&nbsp;$&nbsp;1&nbsp;6&nbsp;.&nbsp;8&nbsp;0<br>
+            <span class="ans">$&nbsp;4&nbsp;0&nbsp;.&nbsp;2&nbsp;5</span>
+          </div>
+          <div class="anno">$23+$17 = ~$40</div>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="audit-card">
+        <div class="audit-num">Question 4</div>
+        <div class="audit-type">Decimal Subtraction</div>
+        <div class="audit-equation">12.7 − 3.95</div>
+        <div class="audit-hint">
+          <span class="hint-label">Radar check</span>
+          Round each number. Is your answer between 8 and 9?
+        </div>
+        <button class="audit-toggle" onclick="toggleAudit(this, 'a4')">Show answer</button>
+        <div class="audit-answer" id="a4">
+          <div class="answer-row">
+            <span class="estimate-badge">E: ~9</span>
+            <span class="actual-badge">A: 8.75</span>
+          </div>
+          <div class="algo-small">
+            1&nbsp;2&nbsp;.&nbsp;7&nbsp;0<br>
+            −&nbsp;&nbsp;3&nbsp;.&nbsp;9&nbsp;5<br>
+            <span class="ans">&nbsp;8&nbsp;.&nbsp;7&nbsp;5</span>
+          </div>
+          <div class="anno">13−4 = ~9</div>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="audit-card">
+        <div class="audit-num">Question 5</div>
+        <div class="audit-type">Large Number Addition</div>
+        <div class="audit-equation">8,567 + 4,325</div>
+        <div class="audit-hint">
+          <span class="hint-label">Radar check</span>
+          Is your answer more than 12,000?
+        </div>
+        <button class="audit-toggle" onclick="toggleAudit(this, 'a5')">Show answer</button>
+        <div class="audit-answer" id="a5">
+          <div class="answer-row">
+            <span class="estimate-badge">E: ~12,900</span>
+            <span class="actual-badge">A: 12,892</span>
+          </div>
+          <div class="algo-small">
+            8&nbsp;5&nbsp;6&nbsp;7<br>
+            +&nbsp;4&nbsp;3&nbsp;2&nbsp;5<br>
+            <span class="ans">1&nbsp;2&nbsp;8&nbsp;9&nbsp;2</span>
+          </div>
+          <div class="anno">8,600+4,300 = ~12,900</div>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="audit-card">
+        <div class="audit-num">Question 6</div>
+        <div class="audit-type">Money Subtraction</div>
+        <div class="audit-equation">$45.30 − $18.75</div>
+        <div class="audit-hint">
+          <span class="hint-label">Radar check</span>
+          What is $45 − $19? Your answer should be close to that.
+        </div>
+        <button class="audit-toggle" onclick="toggleAudit(this, 'a6')">Show answer</button>
+        <div class="audit-answer" id="a6">
+          <div class="answer-row">
+            <span class="estimate-badge">E: ~$26</span>
+            <span class="actual-badge">A: $26.55</span>
+          </div>
+          <div class="algo-small">
+            $&nbsp;4&nbsp;5&nbsp;.&nbsp;3&nbsp;0<br>
+            −&nbsp;$&nbsp;1&nbsp;8&nbsp;.&nbsp;7&nbsp;5<br>
+            <span class="ans">$&nbsp;2&nbsp;6&nbsp;.&nbsp;5&nbsp;5</span>
+          </div>
+          <div class="anno">$45−$19 = ~$26</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 10 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 10: PRACTICE -->
+<div class="slide" id="slide-10">
+  <div class="card">
+    <h3>Algorithm Practice, Full Range</h3>
+    
+    <div class="practice-grid">
+      <!-- P1 -->
+      <div class="practice-card">
+        <div class="practice-num">Q1</div>
+        <div class="practice-equation">234 + 156</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p1h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p1a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p1h">Round: 230+160=~390</div>
+        <div class="practice-answer" id="p1a"><strong>390</strong></div>
+      </div>
+
+      <!-- P2 -->
+      <div class="practice-card">
+        <div class="practice-num">Q2</div>
+        <div class="practice-equation">567 − 234</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p2h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p2a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p2h">Round: 570−230=~340</div>
+        <div class="practice-answer" id="p2a"><strong>333</strong></div>
+      </div>
+
+      <!-- P3 -->
+      <div class="practice-card">
+        <div class="practice-num">Q3</div>
+        <div class="practice-equation">$12.50 + $7.25</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p3h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p3a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p3h">Round: $12.50+$7.25=~$20</div>
+        <div class="practice-answer" id="p3a"><strong>$19.75</strong></div>
+      </div>
+
+      <!-- P4 -->
+      <div class="practice-card">
+        <div class="practice-num">Q4</div>
+        <div class="practice-equation">1,234 + 5,678</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p4h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p4a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p4h">Round: 1,200+5,700=~6,900</div>
+        <div class="practice-answer" id="p4a"><strong>6,912</strong></div>
+      </div>
+
+      <!-- P5 -->
+      <div class="practice-card">
+        <div class="practice-num">Q5</div>
+        <div class="practice-equation">8,000 − 3,456</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p5h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p5a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p5h">Round: 8,000−3,500=~4,500</div>
+        <div class="practice-answer" id="p5a"><strong>4,544</strong></div>
+      </div>
+
+      <!-- P6 -->
+      <div class="practice-card">
+        <div class="practice-num">Q6</div>
+        <div class="practice-equation">$56.80 − $23.45</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p6h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p6a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p6h">Round: $57−$23=~$34</div>
+        <div class="practice-answer" id="p6a"><strong>$33.35</strong></div>
+      </div>
+
+      <!-- P7 -->
+      <div class="practice-card">
+        <div class="practice-num">Q7</div>
+        <div class="practice-equation">3,456 + 2,789</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p7h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p7a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p7h">Round: 3,500+2,800=~6,300</div>
+        <div class="practice-answer" id="p7a"><strong>6,245</strong></div>
+      </div>
+
+      <!-- P8 -->
+      <div class="practice-card">
+        <div class="practice-num">Q8</div>
+        <div class="practice-equation">9,876 − 4,321</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p8h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p8a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p8h">Round: 9,900−4,300=~5,600</div>
+        <div class="practice-answer" id="p8a"><strong>5,555</strong></div>
+      </div>
+
+      <!-- P9 -->
+      <div class="practice-card">
+        <div class="practice-num">Q9</div>
+        <div class="practice-equation">45.67 + 23.45</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p9h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p9a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p9h">Round: 46+23=~69</div>
+        <div class="practice-answer" id="p9a"><strong>69.12</strong></div>
+      </div>
+
+      <!-- P10 -->
+      <div class="practice-card">
+        <div class="practice-num">Q10</div>
+        <div class="practice-equation">$100.00 − $37.65</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p10h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p10a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p10h">Round: $100−$38=~$62</div>
+        <div class="practice-answer" id="p10a"><strong>$62.35</strong></div>
+      </div>
+
+      <!-- P11 -->
+      <div class="practice-card">
+        <div class="practice-num">Q11</div>
+        <div class="practice-equation">2,345 + 6,789</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p11h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p11a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p11h">Round: 2,300+6,800=~9,100</div>
+        <div class="practice-answer" id="p11a"><strong>9,134</strong></div>
+      </div>
+
+      <!-- P12 -->
+      <div class="practice-card">
+        <div class="practice-num">Q12</div>
+        <div class="practice-equation">7,654 − 2,345</div>
+        <div class="practice-buttons">
+          <button class="hint-btn" onclick="togglePQ(this, 'p12h')">Hint</button>
+          <button class="answer-btn" onclick="togglePQ(this, 'p12a')">Answer</button>
+        </div>
+        <div class="practice-hint" id="p12h">Round: 7,700−2,300=~5,400</div>
+        <div class="practice-answer" id="p12a"><strong>5,309</strong></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 11 of 11</span>
+    <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention & Success Criteria', section: 'Learning' },
+  { id: 'slide-1', title: 'Introducing the Radar for Error', section: 'Hook' },
+  { id: 'slide-2', title: 'Spot the Error', section: 'Hook' },
+  { id: 'slide-3', title: 'Could You Have Spotted This Sooner', section: 'Radar' },
+  { id: 'slide-4', title: 'Example 1: Whole Numbers', section: 'I Do' },
+  { id: 'slide-5', title: 'Example 2: Decimals and Money', section: 'I Do' },
+  { id: 'slide-6', title: 'Instructions', section: 'We Do' },
+  { id: 'slide-7', title: 'Question 1', section: 'We Do' },
+  { id: 'slide-8', title: 'Question 2', section: 'We Do' },
+  { id: 'slide-9', title: 'Algorithm Audit', section: 'Audit' },
+  { id: 'slide-10', title: 'Algorithm Practice, Full Range', section: 'Practice' }
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'Radar': 'radar',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Audit': 'audit',
+  'Practice': 'practice'
+};
+
+let currentSlideIndex = 0;
+let sidebarCollapsed = false;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  
+  const activeSlide = document.querySelector('.slide.active');
+  if (activeSlide) activeSlide.classList.remove('active');
+  
+  const newSlide = document.getElementById(slides[index].id);
+  if (newSlide) newSlide.classList.add('active');
+  
+  currentSlideIndex = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebar();
+}
+
+function nextSlide() {
+  if (currentSlideIndex < slides.length - 1) {
+    goToSlide(currentSlideIndex + 1);
+  }
+}
+
+function prevSlide() {
+  if (currentSlideIndex > 0) {
+    goToSlide(currentSlideIndex - 1);
+  }
+}
+
+function goToPhase(sectionName) {
+  const index = slides.findIndex(s => s.section === sectionName);
+  if (index !== -1) {
+    goToSlide(index);
+  }
+}
+
+function updateNavButtons() {
+  const prevBtn = document.querySelector('.slide-nav .nav-btn:first-child');
+  const nextBtn = document.querySelector('.slide-nav .nav-btn:last-child');
+  const counter = document.querySelector('.slide-counter');
+  
+  if (prevBtn) prevBtn.disabled = currentSlideIndex === 0;
+  if (nextBtn) nextBtn.disabled = currentSlideIndex === slides.length - 1;
+  if (counter) counter.textContent = `Card ${currentSlideIndex + 1} of ${slides.length}`;
+}
+
+function updatePhaseNav() {
+  const currentSection = slides[currentSlideIndex].section;
+  const phaseButtons = document.querySelectorAll('.phase-btn');
+  
+  phaseButtons.forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  const activePhase = sectionToPhase[currentSection];
+  const activeBtn = document.querySelector(`[data-phase="${activePhase}"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+function updateSidebar() {
+  const items = document.querySelectorAll('.sidebar-item');
+  items.forEach(item => item.classList.remove('active'));
+  
+  if (items[currentSlideIndex]) {
+    items[currentSlideIndex].classList.add('active');
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('mainContent');
+  
+  sidebarCollapsed = !sidebarCollapsed;
+  
+  if (sidebarCollapsed) {
+    sidebar.classList.add('collapsed');
+    main.classList.add('sidebar-collapsed');
+  } else {
+    sidebar.classList.remove('collapsed');
+    main.classList.remove('sidebar-collapsed');
+  }
+}
+
+function toggleReveal(id) {
+  const elem = document.getElementById(id);
+  if (elem) {
+    elem.classList.toggle('shown');
+  }
+}
+
+function toggleAudit(btn, id) {
+  const answer = document.getElementById(id);
+  if (answer) {
+    answer.classList.toggle('shown');
+    btn.textContent = answer.classList.contains('shown') ? 'Hide answer' : 'Show answer';
+  }
+}
+
+function togglePQ(btn, id) {
+  const elem = document.getElementById(id);
+  if (elem) {
+    elem.classList.toggle('shown');
+  }
+}
+
+function setHeaderHeight() {
+  const header = document.querySelector('header');
+  const nav = document.querySelector('.phase-nav');
+  if (header && nav) {
+    const height = header.offsetHeight + nav.offsetHeight;
+    document.documentElement.style.setProperty('--header-h', height + 'px');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebar();
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>
