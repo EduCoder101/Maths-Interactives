@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 8: Deconstructing Multi-Step Problems - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #AD1DEB;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,107,107,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--red); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="plenary"].active::after { background: var(--blue); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--amber); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 40px 60px 80px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    min-height: 400px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 24px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 16px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 24px; margin-bottom: 12px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Tags */
+  .tag { display: inline-block; background: var(--amber); color: var(--text);
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    border-radius: 20px; padding: 6px 16px; margin-right: 8px; margin-bottom: 12px; }
+
+  /* Callouts */
+  .callout { border-radius: 12px; padding: 20px 24px; margin: 18px 0;
+    border-left: 5px solid var(--blue); background: #f0f7ff; }
+  .callout p { font-size: 1.3rem; line-height: 1.7; color: #0a2f6e; }
+  .callout-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .callout.teal { border-left-color: var(--teal); background: #f0fafa; }
+  .callout.teal p { color: #0a3832; }
+  .callout.amber { border-left-color: var(--amber); background: #fffbf0; }
+  .callout.amber p { color: #665500; }
+  .callout.red { border-left-color: var(--red); background: #fff4f4; }
+  .callout.red p { color: #5c1a1a; }
+  .callout.green { border-left-color: var(--green); background: #f0fdf4; }
+  .callout.green p { color: #0a3820; }
+
+  /* Equations */
+  .equation-box {
+    background: #f0f7ff; border: 2px solid #d0e8ff; border-radius: 14px;
+    padding: 20px 28px; margin: 16px 0; font-family: 'Space Mono', monospace;
+    font-size: 48px; font-weight: 700; color: var(--text); display: inline-block;
+  }
+
+  /* Reveal Buttons */
+  .reveal-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px;
+    transition: all 0.2s; display: inline-block;
+  }
+  .reveal-btn:hover { background: #444; }
+  .reveal-btn.blue { background: var(--blue); }
+  .reveal-btn.blue:hover { background: var(--blue-dark); }
+  .reveal-btn.amber { background: var(--amber); color: var(--text); }
+  .reveal-btn.amber:hover { background: var(--amber-dark); }
+  .reveal-btn.red { background: var(--red); color: #fff; }
+  .reveal-btn.red:hover { background: #e05555; }
+  .reveal-btn.green { background: var(--green); color: #fff; }
+  .reveal-btn.green:hover { background: var(--green-dark); }
+
+  .step-reveal { display: none; }
+  .step-reveal.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  /* Bar model */
+  .bar-model {
+    font-family: 'Space Mono', monospace;
+    margin: 20px 0;
+  }
+  .bar-whole {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2D3436;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .bar-parts {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .bar-part {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    padding: 14px 8px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    min-height: 52px;
+  }
+  .bar-part.blue { background: #dbeafe; color: var(--blue-dark); border: 2px solid var(--blue); }
+  .bar-part.teal { background: #ccfbf1; color: var(--teal-dark); border: 2px solid var(--teal); }
+  .bar-part.amber { background: #fef9c3; color: #92400e; border: 2px solid var(--amber); }
+  .bar-part.red { background: #fee2e2; color: #991b1b; border: 2px solid var(--red); }
+  .bar-part.unknown { background: #f5eeff; color: var(--purple); border: 2px dashed var(--purple); }
+
+  /* Hidden-step highlight */
+  .hidden-step-tag {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 20px;
+    padding: 3px 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .highlight-number {
+    background: #fef9c3;
+    border-bottom: 2px solid var(--amber-dark);
+    padding: 0 3px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+
+  /* Practice Cards */
+  .practice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .practice-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .practice-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .practice-problem {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    margin: 12px 0;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--border);
+  }
+  .practice-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .hint-btn, .answer-btn {
+    flex: 1;
+    background: var(--amber);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .hint-btn:hover { background: var(--amber-dark); }
+  .answer-btn { background: var(--teal); }
+  .answer-btn:hover { background: var(--teal-dark); }
+  .practice-hint, .practice-answer {
+    margin-top: 12px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+  }
+  .practice-hint { background: #fffbf0; border-left: 4px solid var(--amber); color: #665500; }
+  .practice-answer { background: #f0fafa; border-left: 4px solid var(--teal); }
+  .practice-hint.shown, .practice-answer.shown { display: block; animation: fadeIn 0.25s ease; }
+
+  .tier-header {
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 17px;
+    margin: 24px 0 16px;
+    color: white;
+  }
+  .tier-1 { background: linear-gradient(135deg, var(--teal), var(--blue)); }
+  .tier-2 { background: linear-gradient(135deg, var(--amber), var(--orange)); color: #2D3436; }
+  .tier-3 { background: linear-gradient(135deg, var(--purple), #6E3AFF); }
+
+  /* Go Deeper */
+  .go-deeper-section { max-width: 700px; margin: 2rem auto; }
+  .go-deeper-toggle {
+    width: 100%; padding: 1.2rem 1.5rem; background: white; border: 2px solid #4ECDC4;
+    border-radius: 20px; cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; font-family: 'Fredoka', sans-serif; font-size: 1.1rem;
+    font-weight: 600; color: #2D3436; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .go-deeper-toggle:hover { background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .go-deeper-toggle .arrow { transition: transform 0.3s ease; font-size: 1.3rem; }
+  .go-deeper-toggle.open .arrow { transform: rotate(180deg); }
+  .go-deeper-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+    background: white; border-radius: 0 0 20px 20px; margin-top: -10px;
+  }
+  .go-deeper-toggle.open + .go-deeper-content { max-height: 5000px; padding: 1.5rem; border: 2px solid #4ECDC4; border-top: none; }
+  .ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ext-task-label { font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #4ECDC4; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .ext-task-prompt { font-family: 'Fredoka', sans-serif; font-size: 1.05rem; font-weight: 500; color: #2D3436; margin-bottom: 0.75rem; line-height: 1.6; }
+  .ext-task-sub { font-family: 'Fredoka', sans-serif; font-size: 0.95rem; color: #636E72; font-style: italic; margin-bottom: 1rem; }
+  .ext-thinking-area {
+    width: 100%; min-height: 100px; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 12px;
+    font-family: 'Fredoka', sans-serif; font-size: 1rem; resize: vertical;
+    transition: border-color 0.3s ease; box-sizing: border-box;
+  }
+  .ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+  .ext-reveal-btn {
+    display: block; margin: 1rem 0; padding: 0.7rem 1.2rem; background: transparent;
+    border: 2px solid #4ECDC4; border-radius: 25px; color: #4ECDC4; font-family: 'Fredoka', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+  }
+  .ext-reveal-btn:hover { background: #4ECDC4; color: white; }
+  .ext-model-response {
+    display: none; background: #fefefe; border: 1px solid #e0e0e0; border-radius: 12px;
+    padding: 1.2rem; margin: 0.5rem 0 1rem 0; font-family: 'Fredoka', sans-serif;
+    font-size: 0.97rem; line-height: 1.7; color: #2D3436;
+  }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+  .ext-model-response .model-label { font-weight: 600; color: #4ECDC4; margin-bottom: 0.75rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mathematician-box {
+    background: linear-gradient(135deg, #f0fdfa, #e8f8f5); border: 2px dashed #4ECDC4;
+    border-radius: 12px; padding: 1rem 1.2rem; margin-top: 1rem;
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; line-height: 1.5;
+  }
+
+  /* Navigation */
+  .slide-nav { display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none;
+    border-radius: 30px; padding: 14px 32px; font-family: 'Fredoka', sans-serif;
+    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* Collapse */
+  .collapse-header {
+    background: linear-gradient(135deg, #FFD93D, #FF8400);
+    color: #2D3436;
+    padding: 16px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .collapse-header:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    transform: translateY(-2px);
+  }
+  .collapse-header.blue {
+    background: linear-gradient(135deg, #b3d9ff, #3a7bd5);
+    color: #fff;
+  }
+  .collapse-icon {
+    font-size: 24px;
+    transition: transform 0.3s;
+  }
+  .collapse-header.expanded .collapse-icon {
+    transform: rotate(180deg);
+  }
+  .collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .collapse-content.expanded {
+    max-height: 4000px;
+  }
+
+  @media (max-width: 768px) {
+    header { padding: 8px 16px; }
+    .sidebar { width: 0; }
+    main { margin-left: 0; padding: 28px 24px 60px; }
+    .card { padding: 24px 28px; min-height: 300px; }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Addition & Subtraction</div>
+  <h1><span>Deconstructing Multi-Step</span> · Breaking Down Complex Problems</h1>
+  <a href="../../index.html" class="back-link">← Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="plenary" onclick="goToPhase('Plenary')">Plenary</button>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Problem 1 - Bike Ride</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Problem 2 - Swimming</button>
+      <button class="sidebar-item" onclick="goToSlide(3)">Problem 3 - Tuck Shop</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">What They Have in Common</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Step 1 - Meet the Problem</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Step 2 - Visualise Bar Model</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Step 3 - Estimate</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Step 4 - Calculate</button>
+      <button class="sidebar-item" onclick="goToSlide(9)">Step 5 - Check</button>
+      <button class="sidebar-item" onclick="goToSlide(10)">Subtraction Example</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(11)">Guided Practice Problem</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(12)">All Practice Cards</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Plenary</div>
+      <button class="sidebar-item" onclick="goToSlide(13)">Wrap Up</button>
+    </div>
+  </div>
+</aside>
+
+<main id="mainContent">
+
+<!-- SLIDE 0: LISC -->
+<div class="slide active" id="slide-0">
+  <div class="card lisc-card">
+    <div class="lisc-content">
+      <h2>Learning Intention and Success Criteria</h2>
+      <h3>Learning Intention</h3>
+      <p>We are learning a 4-step protocol to break down multi-step word problems and spot hidden steps that try to trick us.</p>
+      <h3>Success Criteria</h3>
+      <ul>
+        <li>I can use the 4-step protocol: Visualise, Estimate, Calculate, Check</li>
+        <li>I can identify hidden steps in a word problem (like return trips or repeated items)</li>
+        <li>I can draw a bar model that has more than two parts</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+    <span class="slide-counter">Card 1 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 1: Hook Problem 1 -->
+<div class="slide" id="slide-1">
+  <div class="card">
+    <h3>Problem 1. Alex's Bike Ride</h3>
+    <p style="margin-bottom:16px;">Read the whole problem carefully, then shout out your answer:</p>
+
+    <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:1.9; color:var(--text);">
+      On Tuesday, Alex rode <span class="highlight-number">4 km</span> to a friend's house, then <span class="highlight-number">12 km</span> to the beach.<br><br>
+      <strong>How far did Alex travel before he got home?</strong>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="reveal-btn red" onclick="toggleReveal('trap1-reveal')">Reveal the answer</button>
+    </div>
+
+    <div id="trap1-reveal" class="step-reveal" style="margin-top:20px;">
+      <div class="callout red">
+        <span class="callout-label">The Hidden Step</span>
+        <p>Most people blurt out <strong>16 km</strong>, but the question asks how far Alex travelled <em>before he got home</em>. That means the return journey is included: 4 km + 12 km + 12 km + 4 km = <strong>32 km</strong>.</p>
+        <p style="margin-top:10px;">The hidden step is the return trip, which the question implies without spelling out. Reading "before he got home" carefully is the key.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 2 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 2: Hook Problem 2 -->
+<div class="slide" id="slide-2">
+  <div class="card">
+    <h3>Problem 2. The Swimming Carnival</h3>
+    <p style="margin-bottom:16px;">Here's another one. Read every word:</p>
+
+    <div style="background:#f0fafa; border:3px solid var(--teal); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:1.9; color:var(--text);">
+      At the school swimming carnival, the Year 5 relay team swam <span class="highlight-number">4 laps</span> of the <span class="highlight-number">25 m</span> pool in the heats. In the final, they swam <span class="highlight-number">6 laps</span>.<br><br>
+      <strong>How many metres did the team swim across both races in total?</strong>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="reveal-btn red" onclick="toggleReveal('trap2-reveal')">Reveal the answer</button>
+    </div>
+
+    <div id="trap2-reveal" class="step-reveal" style="margin-top:20px;">
+      <div class="callout red">
+        <span class="callout-label">The Hidden Step</span>
+        <p>The trap is adding 4 + 6 = 10 and stopping there. But 10 what? The pool is 25 m long, you have to multiply by 25 to get metres. The hidden step is converting laps to metres <em>first</em>: (4 × 25) + (6 × 25) = 100 + 150 = <strong>250 m</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 3 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 3: Hook Problem 3 -->
+<div class="slide" id="slide-3">
+  <div class="card">
+    <h3>Problem 3. Tuck Shop Tuesday</h3>
+    <p style="margin-bottom:16px;">One more, this one has a different kind of hidden step:</p>
+
+    <div style="background:#fffbf0; border:3px solid var(--amber); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:18px; line-height:1.9; color:var(--text);">
+      The school tuck shop sells pies for <span class="highlight-number">$3.50</span> each. On Tuesday, <span class="highlight-number">3 students</span> each buy a pie and a drink. The drinks cost <span class="highlight-number">$2.00</span> each.<br><br>
+      <strong>How much does the tuck shop collect from these 3 students in total?</strong>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="reveal-btn red" onclick="toggleReveal('trap3-reveal')">Reveal the answer</button>
+    </div>
+
+    <div id="trap3-reveal" class="step-reveal" style="margin-top:20px;">
+      <div class="callout red">
+        <span class="callout-label">The Hidden Step</span>
+        <p>Some students add $3.50 + $2.00 = $5.50 and call it done. But <em>each of 3 students</em> buys both items, the hidden step is multiplying the per-person cost by 3: $5.50 × 3 = <strong>$16.50</strong>.</p>
+        <p style="margin-top:10px;">The word "each" is almost always a signal that a multiplication step is hiding inside the problem.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 4 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 4: Pattern Summary -->
+<div class="slide" id="slide-4">
+  <div class="card" style="background:linear-gradient(135deg, #fff8f0, #fffbf0); border:2px solid var(--amber);">
+    <h3>What do these three problems have in common?</h3>
+    <div style="text-align:center; margin:16px 0;">
+      <button class="reveal-btn amber" onclick="toggleReveal('pattern-reveal')">Show the pattern</button>
+    </div>
+    <div id="pattern-reveal" class="step-reveal">
+      <div class="callout amber">
+        <span class="callout-label">The Pattern</span>
+        <p>Every problem contains information that <em>sounds</em> straightforward but contains a step that is easy to skip. The problems are not trying to trick you unfairly, all the information is there. But you have to read every single word and ask: <strong>"Have I used all of the important information?"</strong></p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; margin-top:14px;">
+        <div style="background:white; border-radius:10px; padding:14px; border:2px solid var(--blue); text-align:center;">
+          <div style="font-size:22px; margin-bottom:6px;">Return journey</div>
+          <div style="font-size:13px; font-weight:700; color:var(--blue-dark);">Same way means double</div>
+        </div>
+        <div style="background:white; border-radius:10px; padding:14px; border:2px solid var(--teal); text-align:center;">
+          <div style="font-size:22px; margin-bottom:6px;">Units conversion</div>
+          <div style="font-size:13px; font-weight:700; color:var(--teal-dark);">Laps × metres per lap</div>
+        </div>
+        <div style="background:white; border-radius:10px; padding:14px; border:2px solid var(--amber-dark); text-align:center;">
+          <div style="font-size:22px; margin-bottom:6px;">Each means multiply</div>
+          <div style="font-size:13px; font-weight:700; color:var(--amber-dark);">Per-person × number of people</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 5 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 5: I Do Step 1 -->
+<div class="slide" id="slide-5">
+  <div class="card">
+    <h3>Step 1. Meet the Problem</h3>
+    <p style="margin-bottom:16px;">Alex is going on a bike ride.</p>
+
+    <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:16px; line-height:1.9; color:var(--text);">
+      Alex cycles 4 km to his friend's house, then 12 km to the beach. After visiting, he cycles home the same way.<br>
+      <strong>How far does he cycle in total before getting home?</strong>
+    </div>
+
+    <p style="color: #445; font-size: 15px; line-height: 1.6;">Read the problem carefully. What is being asked? What numbers are given? What's the hidden information?</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 6 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 6: I Do Step 2 -->
+<div class="slide" id="slide-6">
+  <div class="card">
+    <h3>Step 2. Visualise. Draw the Bar Model</h3>
+    <p style="color: #445; font-size: 15px; line-height: 1.6; margin-bottom: 18px;">The problem asks about a return journey. Draw all four parts:</p>
+
+    <div class="bar-model">
+      <div class="bar-whole">Total distance (Whole)</div>
+      <div class="bar-parts">
+        <div class="bar-part blue" style="flex:4;">4 km<br><span style="font-size:12px; font-weight:400;">to friend's</span></div>
+        <div class="bar-part teal" style="flex:12;">12 km<br><span style="font-size:12px; font-weight:400;">to beach</span></div>
+        <div class="bar-part red" style="flex:12;">12 km <span class="hidden-step-tag">hidden</span><br><span style="font-size:12px; font-weight:400;">beach back</span></div>
+        <div class="bar-part amber" style="flex:4;">4 km <span class="hidden-step-tag">hidden</span><br><span style="font-size:12px; font-weight:400;">home</span></div>
+      </div>
+    </div>
+
+    <div class="callout red">
+      <span class="callout-label">The Hidden Steps</span>
+      <p>The problem does not explicitly say Alex cycles 12 km back from the beach and 4 km from his friend's home, but "the same way" means he must. These are the hidden steps.</p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 7 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 7: I Do Step 3 -->
+<div class="slide" id="slide-7">
+  <div class="card">
+    <h3>Step 3. Estimate. Radar for Error</h3>
+
+    <div class="callout amber">
+      <span class="callout-label">Round and estimate</span>
+      <p style="font-family:'Space Mono', monospace; font-size:16px; margin-bottom: 12px;">4 + 12 is about 15. The whole trip is there and back, so double it: 15 × 2 = <strong>30</strong></p>
+      <p><strong>My answer should be near 30.</strong> If I get something very different, I will know something is wrong.</p>
+    </div>
+
+    <p style="color: #445; font-size: 15px; line-height: 1.6; margin-top: 18px;">Before calculating the exact answer, always estimate. This is your safety net.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 8 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 8: I Do Step 4 -->
+<div class="slide" id="slide-8">
+  <div class="card">
+    <h3>Step 4. Calculate. Do the Maths</h3>
+
+    <div class="callout teal">
+      <span class="callout-label">Exact calculation</span>
+      <p style="font-family:'Space Mono', monospace; font-size:18px; font-weight: 600;">4 + 12 + 12 + 4 = <strong>32 km</strong></p>
+    </div>
+
+    <p style="color: #445; font-size: 15px; line-height: 1.6; margin-top: 18px;">We could use a mental strategy here because the numbers are friendly. We could also write it as an algorithm. The method is our choice.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 9 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 9: I Do Step 5 -->
+<div class="slide" id="slide-9">
+  <div class="card">
+    <h3>Step 5. Check. Compare to Estimate</h3>
+
+    <div class="callout blue">
+      <span class="callout-label">Does it match?</span>
+      <p><strong>Our estimate:</strong> 30 km<br><strong>Our exact answer:</strong> 32 km<br><br>32 is very close to 30. Confidence is high. We can be sure our answer is correct.</p>
+    </div>
+
+    <p style="color: #445; font-size: 15px; line-height: 1.6; margin-top: 18px;">Always compare your exact answer to your estimate. A result of 320 km when you estimated 30 would be a red flag. Always go back and find the error.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 10 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 10: I Do Step 6 - Subtraction Example -->
+<div class="slide" id="slide-10">
+  <div class="card">
+    <h3>The Protocol Works for Subtraction Too</h3>
+    <p style="color: #445; font-size: 15px; line-height: 1.6; margin-bottom: 18px;">Some problems give you the whole and two of the parts. You need to subtract to find the missing part.</p>
+
+    <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin:16px 0; font-size:16px; line-height:1.9; color:var(--text);">
+      A shire has a total population of <span class="highlight-number">35,084</span>. Town A has <span class="highlight-number">14,230</span> people. Town B has <span class="highlight-number">12,100</span> people.<br>
+      <strong>How many people live in the rest of the shire?</strong>
+    </div>
+
+    <div class="bar-model">
+      <div class="bar-whole">35,084 (Whole, given)</div>
+      <div class="bar-parts">
+        <div class="bar-part blue" style="flex:14;">14,230<br><span style="font-size:12px; font-weight:400;">Town A</span></div>
+        <div class="bar-part teal" style="flex:12;">12,100<br><span style="font-size:12px; font-weight:400;">Town B</span></div>
+        <div class="bar-part unknown" style="flex:9;">?<br><span style="font-size:12px; font-weight:400;">Rest of shire</span></div>
+      </div>
+    </div>
+
+    <div class="callout amber" style="margin-top:16px;">
+      <span class="callout-label">Key Insight</span>
+      <p>You must subtract <em>both</em> known parts from the whole, not just one. The hidden step is remembering to use both numbers.</p>
+    </div>
+
+    <div class="callout teal" style="margin-top:16px;">
+      <span class="callout-label">Calculate</span>
+      <p style="font-family:'Space Mono', monospace; font-size:16px;">35,084 - 14,230 = 20,854<br>20,854 - 12,100 = <strong>8,754</strong></p>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 11 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 11: We Do -->
+<div class="slide" id="slide-11">
+  <div class="card">
+    <h3>Guided Practice Problem</h3>
+
+    <div style="background:#f0f7ff; border:3px solid var(--blue); border-radius:14px; padding:22px 28px; margin-bottom:20px; font-size:18px; line-height:1.9; color:var(--text);">
+      I have <span class="highlight-number">$50</span>. I buy a book for <span class="highlight-number">$14</span> and two pens for <span class="highlight-number">$3 each</span>.<br>
+      <strong>How much change do I get?</strong>
+    </div>
+
+    <p style="font-size:16px; margin-bottom:16px;">On your mini-whiteboards: draw the Bar Model and write down the hidden step <strong>before you calculate</strong>.</p>
+
+    <div style="text-align:center; margin-bottom:20px;">
+      <button class="reveal-btn amber" onclick="toggleReveal('wedo-hidden')">What is the hidden step?</button>
+    </div>
+
+    <div id="wedo-hidden" class="step-reveal">
+      <div class="callout red">
+        <span class="callout-label">The Hidden Step</span>
+        <p>The problem says <em>"two pens for $3 each"</em>, you must calculate the cost of two pens first: $3 × 2 = $6. If you just use $3, you will get the wrong answer.</p>
+      </div>
+
+      <div class="bar-model" style="margin-top:16px;">
+        <div class="bar-whole">$50 (Whole, what I started with)</div>
+        <div class="bar-parts">
+          <div class="bar-part blue" style="flex:14;">$14<br><span style="font-size:12px; font-weight:400;">Book</span></div>
+          <div class="bar-part red" style="flex:6;">$6 <span class="hidden-step-tag">hidden</span><br><span style="font-size:12px; font-weight:400;">2 × $3 pens</span></div>
+          <div class="bar-part unknown" style="flex:30;">?<br><span style="font-size:12px; font-weight:400;">Change</span></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin:20px 0;">
+        <button class="reveal-btn green" onclick="toggleReveal('wedo-answer')">Show full working</button>
+      </div>
+    </div>
+
+    <div id="wedo-answer" class="step-reveal">
+      <div class="callout amber">
+        <span class="callout-label">Estimate</span>
+        <p>I am spending about $14 + $6 = $20. Change should be about $30.</p>
+      </div>
+      <div class="callout teal">
+        <span class="callout-label">Calculate</span>
+        <p style="font-family:'Space Mono', monospace; font-size:16px;">Step 1: 2 × $3 = $6 (hidden step)<br>Step 2: $14 + $6 = $20 (total spent)<br>Step 3: $50 - $20 = <strong>$30 change</strong></p>
+      </div>
+      <div class="callout blue">
+        <span class="callout-label">Check</span>
+        <p>$30 matches our estimate.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 12 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- SLIDE 12: Practice -->
+<div class="slide" id="slide-12">
+  <div class="card">
+    <h3>Student Practice. All Tiers</h3>
+  </div>
+
+  <div class="callout amber" style="margin-bottom:24px;">
+    <span class="callout-label">Reminder</span>
+    <p>For every problem: draw the Bar Model first, write your Radar estimate, show your calculation, then check. Do not skip steps.</p>
+  </div>
+
+  <div class="tier-header tier-1">Tier 1. Whole Numbers</div>
+
+  <div class="practice-grid">
+    <div class="practice-card">
+      <div class="practice-num">Problem 1</div>
+      <div class="practice-problem">
+        The school library has 1,240 fiction books and 876 non-fiction books. A donation adds another 350 books, all fiction. How many fiction books does the library have now?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q1')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q1')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="q1-hint">Draw the bar model. The hidden step: the 350 adds only to fiction, not to the total library. What is the question actually asking for?</div>
+      <div class="practice-answer" id="q1-answer">
+        <strong>1,590 fiction books.</strong><br>
+        <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">1,240 + 350 = 1,590</span><br>
+        <span style="font-size:13px; color:var(--muted);">The 876 non-fiction books is extraneous, the question only asks about fiction.</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Problem 2</div>
+      <div class="practice-problem">
+        A town has a population of 24,500. Over summer, 3,120 people move in and 1,875 people move out. What is the population at the end of summer?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q2')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q2')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="q2-hint">Two operations in this one, you both add and subtract. Which happens first? Does it matter? Try both ways and see.</div>
+      <div class="practice-answer" id="q2-answer">
+        <strong>25,745 people.</strong><br>
+        <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">24,500 + 3,120 = 27,620<br>27,620 - 1,875 = 25,745</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier-header tier-2" style="margin-top:28px;">Tier 2. Decimals</div>
+
+  <div class="practice-grid">
+    <div class="practice-card">
+      <div class="practice-num">Problem 3</div>
+      <div class="practice-problem">
+        A plank is 4.5 m long. Two pieces measuring 1.15 m each are cut off. How much plank is left?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q3')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q3')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="q3-hint">Hidden step: TWO pieces are cut off. Find the total removed first: 1.15 + 1.15 = 2.30. Then subtract from 4.5. Line up your decimal points.</div>
+      <div class="practice-answer" id="q3-answer">
+        <strong>2.2 m remaining.</strong><br>
+        <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">1.15 + 1.15 = 2.30<br>4.50 - 2.30 = 2.20</span>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-num">Problem 4</div>
+      <div class="practice-problem">
+        Mia runs 2.75 km to the park, then 1.8 km to her grandmother's house. After visiting, she runs home the same way. How far does she run in total before getting home?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q4')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q4')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="q4-hint">Return journey, just like Alex. She runs the same route back. Draw all 4 parts in your bar model: park, grandmother, grandmother back, home.</div>
+      <div class="practice-answer" id="q4-answer">
+        <strong>9.1 km total.</strong><br>
+        <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">2.75 + 1.80 + 1.80 + 2.75 = 9.10</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier-header tier-3" style="margin-top:28px;">Tier 3. Extension</div>
+
+  <div class="practice-grid">
+    <div class="practice-card" style="border-color:var(--purple);">
+      <div class="practice-num" style="color:var(--purple);">Problem 5</div>
+      <div class="practice-problem">
+        A recipe needs 0.75 kg of flour per batch. Ava wants to make 3 batches. The bag of flour she has weighs 2.5 kg. How much flour will be left in the bag after she bakes all 3 batches?
+      </div>
+      <div class="practice-buttons">
+        <button class="hint-btn" onclick="togglePractice(this, 'hint', 'q5')">Need a hint?</button>
+        <button class="answer-btn" onclick="togglePractice(this, 'answer', 'q5')">Show answer</button>
+      </div>
+      <div class="practice-hint" id="q5-hint">Two hidden steps: first find total flour used (0.75 × 3 = ?). Then subtract from 2.5. Draw a bar model where the whole is the bag and the parts are each batch plus the leftovers.</div>
+      <div class="practice-answer" id="q5-answer">
+        <strong>0.25 kg left.</strong><br>
+        <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--teal-dark);">0.75 × 3 = 2.25 (total used)<br>2.50 - 2.25 = 0.25 (remaining)</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="slide-nav">
+  <button class="nav-btn" onclick="prevSlide()">Previous</button>
+  <span class="slide-counter">Card 13 of 14</span>
+  <button class="nav-btn" onclick="nextSlide()">Next</button>
+</div>
+
+<!-- SLIDE 13: Plenary -->
+<div class="slide" id="slide-13">
+  <div class="card">
+    <h3>The 4-Step Protocol. Quick Reference</h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:14px;">
+      <div style="background:#dbeafe; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--blue);">
+        <div style="font-size:28px; margin-bottom:6px;">1</div>
+        <div style="font-weight:700; font-size:16px; color:var(--blue-dark);">Visualise</div>
+        <div style="font-size:13px; color:#1e3a6e; margin-top:6px;">Draw the Bar Model. Every time.</div>
+      </div>
+      <div style="background:#fef9c3; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--amber);">
+        <div style="font-size:28px; margin-bottom:6px;">2</div>
+        <div style="font-weight:700; font-size:16px; color:#92400e;">Estimate</div>
+        <div style="font-size:13px; color:#78350f; margin-top:6px;">Radar for Error. Write it down.</div>
+      </div>
+      <div style="background:#ccfbf1; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--teal);">
+        <div style="font-size:28px; margin-bottom:6px;">3</div>
+        <div style="font-weight:700; font-size:16px; color:var(--teal-dark);">Calculate</div>
+        <div style="font-size:13px; color:#0a3832; margin-top:6px;">Mental, written, or calculator?</div>
+      </div>
+      <div style="background:#e8fdf0; border-radius:12px; padding:16px; text-align:center; border:2px solid var(--green);">
+        <div style="font-size:28px; margin-bottom:6px;">4</div>
+        <div style="font-weight:700; font-size:16px; color:var(--green-dark);">Check</div>
+        <div style="font-size:13px; color:#064e26; margin-top:6px;">Does it match the Radar?</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 14 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', section: 'Learning' },
+  { id: 'slide-1', section: 'Hook' },
+  { id: 'slide-2', section: 'Hook' },
+  { id: 'slide-3', section: 'Hook' },
+  { id: 'slide-4', section: 'Hook' },
+  { id: 'slide-5', section: 'I Do' },
+  { id: 'slide-6', section: 'I Do' },
+  { id: 'slide-7', section: 'I Do' },
+  { id: 'slide-8', section: 'I Do' },
+  { id: 'slide-9', section: 'I Do' },
+  { id: 'slide-10', section: 'I Do' },
+  { id: 'slide-11', section: 'We Do' },
+  { id: 'slide-12', section: 'Practice' },
+  { id: 'slide-13', section: 'Plenary' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Practice': 'practice',
+  'Plenary': 'plenary',
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+
+  if (index >= 0 && index < slides.length) {
+    currentSlide = index;
+    document.getElementById(slides[index].id).classList.add('active');
+    document.querySelectorAll('.sidebar-item')[index].classList.add('active');
+    updateNavButtons();
+    updatePhaseNav();
+    setHeaderHeight();
+  }
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) {
+    goToSlide(currentSlide + 1);
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 0) {
+    goToSlide(currentSlide - 1);
+  }
+}
+
+function updateNavButtons() {
+  const prevBtn = document.querySelector('.slide-nav .nav-btn:first-child');
+  const nextBtn = document.querySelector('.slide-nav .nav-btn:last-child');
+  const counter = document.querySelector('.slide-counter');
+
+  prevBtn.disabled = currentSlide === 0;
+  nextBtn.disabled = currentSlide === slides.length - 1;
+  counter.textContent = `Card ${currentSlide + 1} of ${slides.length}`;
+}
+
+function goToPhase(phaseName) {
+  const firstSlideInPhase = slides.findIndex(s => s.section === phaseName);
+  if (firstSlideInPhase !== -1) {
+    goToSlide(firstSlideInPhase);
+  }
+}
+
+function updatePhaseNav() {
+  const currentSection = slides[currentSlide].section;
+  const phaseData = sectionToPhase[currentSection];
+
+  document.querySelectorAll('.phase-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.phase === phaseData) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('mainContent');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const header = document.querySelector('header');
+  const phaseNav = document.querySelector('.phase-nav');
+  const totalHeight = header.offsetHeight + phaseNav.offsetHeight;
+  document.documentElement.style.setProperty('--header-h', totalHeight + 'px');
+}
+
+function toggleReveal(id) {
+  document.getElementById(id).classList.toggle('shown');
+}
+
+function toggleCollapse(id) {
+  const content = document.getElementById(id);
+  const header = content.previousElementSibling;
+  content.classList.toggle('expanded');
+  header.classList.toggle('expanded');
+}
+
+function togglePractice(btn, type, questionId) {
+  const element = document.getElementById(questionId + '-' + type);
+  element.classList.toggle('shown');
+  if (element.classList.contains('shown')) {
+    btn.textContent = type === 'hint' ? 'Hide hint' : 'Hide answer';
+  } else {
+    btn.textContent = type === 'hint' ? 'Need a hint?' : 'Show answer';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  goToSlide(0);
+  setHeaderHeight();
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>
