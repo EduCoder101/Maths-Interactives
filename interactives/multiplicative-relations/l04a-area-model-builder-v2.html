@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4: The Area Model - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--amber); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 0;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout.callout-blue { background: rgba(52,152,219,0.1); border-left-color: var(--blue); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  /* EQUATION BOX */
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 24px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 16px 0;
+  }
+
+  /* ALGORITHM BOX */
+  .algorithm-box {
+    background: #fafbfc; border: 2px solid var(--border); border-radius: 14px;
+    padding: 20px 28px; margin: 16px 0; display: inline-block; min-width: 180px;
+    text-align: right; font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: 22px; line-height: 2;
+  }
+  .algorithm-box .algo-label {
+    font-size: 11px; letter-spacing: 2px; color: var(--muted);
+    text-transform: uppercase; font-family: 'Fredoka', sans-serif;
+    display: block; margin-bottom: 8px; font-weight: 600; text-align: left;
+  }
+  .algorithm-box .algo-line { display: block; }
+  .algorithm-box .algo-multiply { border-bottom: 2px solid var(--text); padding-bottom: 4px; }
+  .algorithm-box .algo-carry { font-size: 13px; color: var(--blue); vertical-align: super; }
+
+  /* ESTIMATION BLOCK */
+  .estimate-block {
+    background: linear-gradient(135deg, #fffbf0, #fff8e8); border: 2px solid var(--amber);
+    border-radius: 14px; padding: 20px 24px; margin: 16px 0; text-align: center;
+  }
+  .estimate-block .est-label {
+    font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--amber-dark); margin-bottom: 10px;
+  }
+  .estimate-block .est-rounding {
+    display: flex; flex-direction: column; gap: 6px; align-items: center; margin: 10px 0;
+  }
+  .est-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .est-original { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; }
+  .est-arrow { font-weight: 700; color: var(--teal-dark); font-size: 18px; }
+  .est-rounded { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; background: var(--amber); color: var(--text); border-radius: 8px; padding: 2px 12px; }
+
+  /* AREA MODEL VISUAL */
+  .area-model-wrap { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+  .area-model-container { position: relative; margin: 40px 60px 20px 60px; }
+  .area-model { display: flex; border: 3px solid var(--text); border-radius: 6px; overflow: visible; min-height: 100px; }
+  .area-section {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px 14px; border-right: 2px dashed var(--muted); position: relative;
+    min-width: 70px; transition: background 0.4s;
+  }
+  .area-section:last-child { border-right: none; }
+  .area-section .top-label {
+    position: absolute; top: -32px; font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 16px; color: var(--text);
+    background: var(--amber); padding: 2px 10px; border-radius: 8px;
+  }
+  .area-section .inner-calc {
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px;
+    color: var(--blue); text-align: center; line-height: 1.4;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .area-section .inner-calc.show { opacity: 1; }
+  .area-section .inner-calc .calc-result {
+    display: block; font-size: 20px; margin-top: 4px; color: var(--blue-dark);
+  }
+  .area-section.filled { background: rgba(78, 205, 196, 0.1); }
+  .area-side-label {
+    position: absolute; left: -45px; top: 50%; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px; color: var(--text);
+    background: var(--teal); padding: 2px 10px; border-radius: 8px;
+  }
+  .area-total {
+    text-align: center; margin-top: 14px; font-size: 18px; font-weight: 700;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .area-total.show { opacity: 1; }
+
+  /* AREA MODEL STAGED REVEAL */
+  .area-top-full {
+    position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px;
+    background: var(--amber); color: var(--text);
+    padding: 2px 12px; border-radius: 8px; white-space: nowrap;
+    opacity: 0; transition: opacity 0.4s; z-index: 2;
+  }
+  .area-top-full.show { opacity: 1; }
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+    display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .area-total .mono { color: var(--green-dark); font-size: 22px; font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* I DO STEP PROGRESSION */
+  .ido-progression { position: relative; }
+  .ido-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .ido-dot { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; transition: all 0.3s; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.35); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%; color: white;
+    font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .step-badge.red { background: var(--red); }
+  .step-badge.amber { background: var(--amber); color: var(--text); }
+  .step-badge.green { background: var(--green); }
+  .step-badge.teal { background: var(--teal); color: var(--text); }
+  .step-badge.blue { background: var(--blue); }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 16px; }
+  .ido-step-nav button {
+    background: var(--teal); color: var(--text); border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .ido-step-nav button:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .ido-step-nav .back { background: rgba(0,0,0,0.06); color: var(--text); }
+  .ido-step-nav .back:hover { background: rgba(0,0,0,0.12); }
+
+  .step-row {
+    display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; font-size: 1.2rem; line-height: 1.6;
+  }
+  .step-num {
+    font-weight: 700; min-width: 32px; color: var(--teal); font-size: 1.1rem;
+  }
+  .step-text { flex: 1; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .step-hidden { opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; pointer-events: auto; }
+
+  /* INPUTS */
+  .ia-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 80px; text-align: center; padding: 8px; border: 2px solid var(--border);
+    border-radius: 10px; outline: none; transition: border-color 0.2s;
+  }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* FEEDBACK */
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* BUTTONS */
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  /* DOT COUNTER */
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #e0e5e8; border: 2px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease;
+  }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.amber { background: var(--amber); border-color: var(--amber); color: #333; }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  /* LEVEL BAR */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: #F7B731; }
+  .level-btn.l4 { background: var(--orange); }
+  .level-btn.l5 { background: var(--blue); }
+  .level-btn.l6 { background: var(--green); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* SUMMARY */
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 16px;
+  }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .go-deeper-level-btn {
+    display: block; width: 100%; text-align: left; padding: 20px 24px;
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif;
+    transition: all 0.3s; margin-top: 20px;
+  }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+
+  /* GO DEEPER */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 20px 18px; }
+    .ia-input { width: 60px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Multiplicative Relations</div>
+  <h1><span>The Area Model</span></h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">The Tiled Floor</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Distributive Property</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Example 1: 47 x 8</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Example 2: 236 x 4</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q1: 63 x 5</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q2: 124 x 3</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q3: 347 x 6</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Independent Practice</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use the area model to partition and multiply 2 and 3 digit numbers by a one digit number.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can draw and label an area model to represent a multiplication.</li>
+          <li>I can partition a number into hundreds, tens, and ones and multiply each part separately.</li>
+          <li>I can add the partial products to find the final answer.</li>
+          <li>I can explain how the area model connects to the formal algorithm.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - The Tiled Floor -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h3>The Tiled Floor Problem</h3>
+      <p>The school hall is <strong>24</strong> metres long and <strong>6</strong> metres wide. How many square metres of tiles are needed?</p>
+      <p style="margin-top:10px;">Most of you would try <strong>24 times 6</strong> straight away. But what if we could see what this looks like as a shape?</p>
+
+      <div style="text-align:center; margin:20px 0;">
+        <button class="am-reveal-btn" id="hook-reveal-btn" onclick="nextHookReveal()">Picture this as a rectangle &rarr;</button>
+      </div>
+
+      <div id="hook-area-reveal" style="display:none;">
+        <div class="area-model-container">
+          <!-- Unsplit rectangle -->
+          <div id="hook-am-unsplit" class="area-model" style="min-height:90px;">
+            <div class="area-section filled" style="flex:1; border-right:none;"></div>
+            <div class="area-top-full" id="hook-top-full">24</div>
+          </div>
+          <!-- Split rectangle -->
+          <div id="hook-am-split" class="area-model" style="min-height:90px; display:none;">
+            <div class="area-section filled" style="flex:5;">
+              <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="hook-top-20">20</div>
+              <div class="inner-calc" id="hook-calc-left">20 times 6<span class="calc-result">= 120</span></div>
+            </div>
+            <div class="area-section filled" style="flex:1;">
+              <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="hook-top-4">4</div>
+              <div class="inner-calc" id="hook-calc-right">4 times 6<span class="calc-result">= 24</span></div>
+            </div>
+          </div>
+          <div class="area-side-label" id="hook-side-label" style="opacity:0;transition:opacity 0.4s;">6</div>
+        </div>
+        <div class="area-total" id="hook-total" style="margin-top:16px;">Total: <span class="mono">120 + 24 = 144</span> square metres</div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Distributive Property -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h3>The Distributive Property</h3>
+      <p>What we just did has a formal name: the <strong>distributive property</strong>.</p>
+      <p style="margin-top:8px;">We distributed the multiplication across a sum:</p>
+      <div style="text-align:center; margin:16px 0; font-size:17px; line-height:2;">
+        <div><strong>6 times 24</strong> = <strong>6 times (20 + 4)</strong></div>
+        <div>= <span class="mono">120</span> + <span class="mono">24</span></div>
+        <div>= <span class="mono">144</span></div>
+      </div>
+      <p>Instead of one hard multiplication, we get two easy ones.</p>
+
+      <div class="callout callout-teal">
+        <span class="label">Key vocabulary</span>
+        <p>Each smaller product (<strong>120</strong> and <strong>24</strong>) is called a <strong>partial product</strong>. We add all the partial products to get the final product.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Example 1: 47 x 8 -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h3>Example 1: 2 digit by 1 digit</h3>
+
+      <div class="ido-progression" id="ex1-progression">
+        <div class="ido-dots" id="ex1-dots">
+          <div class="ido-dot active"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+        </div>
+
+        <!-- Step 1: Show the algorithm -->
+        <div class="ido-step active card" id="ex1-step-1" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge red">1</div>
+            <div style="font-size:1.15rem;font-weight:600;">The formal algorithm</div>
+          </div>
+          <p>Here is <span class="mono">47 times 8</span> solved with the formal written algorithm:</p>
+          <div style="text-align:center; margin:16px 0;">
+            <div class="algorithm-box">
+              <span class="algo-label">Written algorithm</span>
+              <span class="algo-line">  4 7</span>
+              <span class="algo-line algo-multiply">times  8</span>
+              <span class="algo-line">3 7 6</span>
+            </div>
+          </div>
+          <p>The answer is <span class="mono">376</span>. But <strong>why</strong> does this work? What is actually happening at each step?</p>
+          <div class="ido-step-nav">
+            <span></span>
+            <button class="next" onclick="goToIdoStep('ex1', 2, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Estimation -->
+        <div class="ido-step card" id="ex1-step-2" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge amber">2</div>
+            <div style="font-size:1.15rem;font-weight:600;">Radar estimate</div>
+          </div>
+          <div class="estimate-block">
+            <div class="est-label">Estimate first</div>
+            <div class="est-rounding">
+              <div class="est-row">
+                <span class="est-original">47</span>
+                <span class="est-arrow">&rarr;</span>
+                <span class="est-rounded">50</span>
+              </div>
+            </div>
+            <p style="margin:10px 0;font-size:15px;font-weight:600;">50 times 8 = <span class="mono">400</span></p>
+            <p style="font-size:14px;color:var(--muted);">Rounded up from 47, so the real answer is a little less than 400. Our algorithm answer of <span class="mono">376</span> is close. Radar confirmed.</p>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex1', 1, 5)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex1', 3, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 3: The question -->
+        <div class="ido-step card" id="ex1-step-3" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge blue">3</div>
+            <div style="font-size:1.15rem;font-weight:600;">Think about it</div>
+          </div>
+          <div class="callout callout-blue">
+            <span class="label">Discussion</span>
+            <p>How could you work out <strong>47 times 8</strong> without using the formal algorithm? What if you broke 47 apart into friendlier numbers?</p>
+          </div>
+          <p style="margin-top:12px;">47 is made up of <strong>40</strong> and <strong>7</strong>. What if we multiplied each part by 8 separately?</p>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex1', 2, 5)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex1', 4, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Reveal the area model -->
+        <div class="ido-step card" id="ex1-step-4" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge green">4</div>
+            <div style="font-size:1.15rem;font-weight:600;">The area model</div>
+          </div>
+          <p>Let's build the area model for <strong>47 times 8</strong>, one piece at a time.</p>
+          <div class="area-model-container">
+            <!-- Unsplit -->
+            <div id="ex1-am-unsplit" class="area-model" style="min-height:90px;">
+              <div class="area-section filled" style="flex:1; border-right:none;"></div>
+              <div class="area-top-full" id="ex1-top-full">47</div>
+            </div>
+            <!-- Split -->
+            <div id="ex1-am-split" class="area-model" style="min-height:90px; display:none;">
+              <div class="area-section filled" style="flex:40;">
+                <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex1-top-l">40</div>
+                <div class="inner-calc" id="ex1-calc-l">40 times 8<span class="calc-result">= 320</span></div>
+              </div>
+              <div class="area-section filled" style="flex:7;">
+                <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex1-top-r">7</div>
+                <div class="inner-calc" id="ex1-calc-r">7 times 8<span class="calc-result">= 56</span></div>
+              </div>
+            </div>
+            <div class="area-side-label" id="ex1-side" style="opacity:0;transition:opacity 0.4s;">8</div>
+          </div>
+          <div class="area-total" id="ex1-total">Total: <span class="mono">320 + 56 = 376</span></div>
+          <div style="text-align:center; margin:12px 0;">
+            <button class="am-reveal-btn" id="ex1-am-btn" onclick="nextAmReveal('ex1')">Show the dimensions &rarr;</button>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex1', 3, 5)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex1', 5, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Connect back to algorithm -->
+        <div class="ido-step card" id="ex1-step-5" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge teal">5</div>
+            <div style="font-size:1.15rem;font-weight:600;">Connecting the two</div>
+          </div>
+          <div class="callout callout-teal">
+            <span class="label">The connection</span>
+            <p>The algorithm is a <strong>compressed version</strong> of the area model. In the algorithm, when you multiply 8 times 7 = 56, that is the right hand section of the area model. When you multiply 8 times 40 = 320, that is the left hand section. The algorithm just writes it more compactly.</p>
+          </div>
+          <div style="display:flex; gap:20px; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:16px;">
+            <div class="algorithm-box" style="font-size:18px;">
+              <span class="algo-label">Algorithm</span>
+              <span class="algo-line">  4 7</span>
+              <span class="algo-line algo-multiply">times  8</span>
+              <span class="algo-line">3 7 6</span>
+            </div>
+            <div style="font-size:16px; text-align:left; padding-top:20px;">
+              <div style="margin-bottom:6px;"><strong>8 times 7 = 56</strong> &rarr; right box</div>
+              <div><strong>8 times 40 = 320</strong> &rarr; left box</div>
+            </div>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex1', 4, 5)">&larr; Back</button>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Example 2: 236 x 4 -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h3>Example 2: 3 digit by 1 digit</h3>
+
+      <div class="ido-progression" id="ex2-progression">
+        <div class="ido-dots" id="ex2-dots">
+          <div class="ido-dot active"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+        </div>
+
+        <!-- Step 1: Algorithm -->
+        <div class="ido-step active card" id="ex2-step-1" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge red">1</div>
+            <div style="font-size:1.15rem;font-weight:600;">The formal algorithm</div>
+          </div>
+          <p>Here is <span class="mono">236 times 4</span> solved with the algorithm:</p>
+          <div style="text-align:center; margin:16px 0;">
+            <div class="algorithm-box">
+              <span class="algo-label">Written algorithm</span>
+              <span class="algo-line"> 2 3 6</span>
+              <span class="algo-line algo-multiply">times    4</span>
+              <span class="algo-line"> 9 4 4</span>
+            </div>
+          </div>
+          <p>The answer is <span class="mono">944</span>. Let's check this with an estimate, then see what the algorithm is actually doing.</p>
+          <div class="ido-step-nav">
+            <span></span>
+            <button class="next" onclick="goToIdoStep('ex2', 2, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Estimation -->
+        <div class="ido-step card" id="ex2-step-2" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge amber">2</div>
+            <div style="font-size:1.15rem;font-weight:600;">Radar estimate</div>
+          </div>
+          <div class="estimate-block">
+            <div class="est-label">Estimate first</div>
+            <div class="est-rounding">
+              <div class="est-row">
+                <span class="est-original">236</span>
+                <span class="est-arrow">&rarr;</span>
+                <span class="est-rounded">240</span>
+              </div>
+            </div>
+            <p style="margin:10px 0;font-size:15px;font-weight:600;">240 times 4 = <span class="mono">960</span></p>
+            <p style="font-size:14px;color:var(--muted);">Rounded up slightly, so the real answer is a little less than 960. Our answer of <span class="mono">944</span> is very close. Radar confirmed.</p>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex2', 1, 5)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex2', 3, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 3: The question -->
+        <div class="ido-step card" id="ex2-step-3" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge blue">3</div>
+            <div style="font-size:1.15rem;font-weight:600;">Think about it</div>
+          </div>
+          <div class="callout callout-blue">
+            <span class="label">Discussion</span>
+            <p>236 has three place values: <strong>200</strong>, <strong>30</strong>, and <strong>6</strong>. What if we multiplied each part by 4 separately?</p>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex2', 2, 5)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex2', 4, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Area model -->
+        <div class="ido-step card" id="ex2-step-4" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge green">4</div>
+            <div style="font-size:1.15rem;font-weight:600;">The area model</div>
+          </div>
+          <p>Let's build the area model for <strong>236 times 4</strong>, one piece at a time.</p>
+          <div class="area-model-container">
+            <!-- Unsplit -->
+            <div id="ex2-am-unsplit" class="area-model" style="min-height:90px;">
+              <div class="area-section filled" style="flex:1; border-right:none;"></div>
+              <div class="area-top-full" id="ex2-top-full">236</div>
+            </div>
+            <!-- Split -->
+            <div id="ex2-am-split" class="area-model" style="min-height:90px; display:none;">
+              <div class="area-section filled" style="flex:200;">
+                <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex2-top-l">200</div>
+                <div class="inner-calc" id="ex2-calc-l">200 times 4<span class="calc-result">= 800</span></div>
+              </div>
+              <div class="area-section filled" style="flex:30;">
+                <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex2-top-m">30</div>
+                <div class="inner-calc" id="ex2-calc-m">30 times 4<span class="calc-result">= 120</span></div>
+              </div>
+              <div class="area-section filled" style="flex:6;">
+                <div class="top-label" style="opacity:0;transition:opacity 0.4s;" id="ex2-top-r">6</div>
+                <div class="inner-calc" id="ex2-calc-r">6 times 4<span class="calc-result">= 24</span></div>
+              </div>
+            </div>
+            <div class="area-side-label" id="ex2-side" style="opacity:0;transition:opacity 0.4s;">4</div>
+          </div>
+          <div class="area-total" id="ex2-total">Total: <span class="mono">800 + 120 + 24 = 944</span></div>
+          <div style="text-align:center; margin:12px 0;">
+            <button class="am-reveal-btn" id="ex2-am-btn" onclick="nextAmReveal('ex2')">Show the dimensions &rarr;</button>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex2', 3, 5)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex2', 5, 5)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Connection -->
+        <div class="ido-step card" id="ex2-step-5" style="border: none; box-shadow: none; padding: 16px 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge teal">5</div>
+            <div style="font-size:1.15rem;font-weight:600;">The connection</div>
+          </div>
+          <div class="callout callout-teal">
+            <span class="label">Algorithm = compressed area model</span>
+            <p>In the algorithm, multiplying the ones digit (4 times 6 = 24) gives the right box. Multiplying the tens (4 times 30 = 120) gives the middle box. Multiplying the hundreds (4 times 200 = 800) gives the left box. Same maths, different layout.</p>
+          </div>
+
+          <div class="callout callout-amber" style="margin-top:12px;">
+            <span class="label">Estimation check</span>
+            <p>We estimated <span class="mono">960</span>. Our answer is <span class="mono">944</span>. The difference is only <span class="mono">16</span>. Radar confirmed.</p>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex2', 4, 5)">&larr; Back</button>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO - Q1: 63 x 5 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h3>We Do: Q1</h3>
+      <p><span class="mono" style="font-size:22px;">63 times 5</span></p>
+      <div class="estimate-block" style="margin:12px 0;">
+        <div class="est-label">Radar estimate</div>
+        <div class="est-rounding"><div class="est-row">
+          <span class="est-original">63</span>
+          <span class="est-arrow">&rarr;</span>
+          <span class="est-rounded">60</span>
+        </div></div>
+        <p style="margin:8px 0;font-size:14px;font-weight:600;">60 times 5 = <span class="mono">300</span></p>
+      </div>
+      <p style="margin-top:8px;">Fill in each partial product, then the total.</p>
+      <div class="area-model-container" style="margin:30px auto 10px 50px; max-width:500px;"><div class="area-model" style="min-height:80px;">
+        <div class="area-section" style="flex:60;">
+          <div class="top-label">60</div>
+          <input type="number" class="ia-input" id="wedo-pp-0-0" placeholder="?">
+        </div>
+        <div class="area-section" style="flex:3;">
+          <div class="top-label">3</div>
+          <input type="number" class="ia-input" id="wedo-pp-0-1" placeholder="?">
+        </div>
+      </div><div class="area-side-label">5</div></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <span style="font-size:16px;font-weight:700;">Total:</span>
+        <input type="number" class="ia-input" id="wedo-total-0" placeholder="?">
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(0)">Check</button></div>
+      <div class="feedback" id="wedo-fb-0"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO - Q2: 124 x 3 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h3>We Do: Q2</h3>
+      <p><span class="mono" style="font-size:22px;">124 times 3</span></p>
+      <div class="estimate-block" style="margin:12px 0;">
+        <div class="est-label">Radar estimate</div>
+        <div class="est-rounding"><div class="est-row">
+          <span class="est-original">124</span>
+          <span class="est-arrow">&rarr;</span>
+          <span class="est-rounded">120</span>
+        </div></div>
+        <p style="margin:8px 0;font-size:14px;font-weight:600;">120 times 3 = <span class="mono">360</span></p>
+      </div>
+      <p style="margin-top:8px;">Fill in each partial product, then the total.</p>
+      <div class="area-model-container" style="margin:30px auto 10px 50px; max-width:500px;"><div class="area-model" style="min-height:80px;">
+        <div class="area-section" style="flex:100;">
+          <div class="top-label">100</div>
+          <input type="number" class="ia-input" id="wedo-pp-1-0" placeholder="?">
+        </div>
+        <div class="area-section" style="flex:20;">
+          <div class="top-label">20</div>
+          <input type="number" class="ia-input" id="wedo-pp-1-1" placeholder="?">
+        </div>
+        <div class="area-section" style="flex:4;">
+          <div class="top-label">4</div>
+          <input type="number" class="ia-input" id="wedo-pp-1-2" placeholder="?">
+        </div>
+      </div><div class="area-side-label">3</div></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <span style="font-size:16px;font-weight:700;">Total:</span>
+        <input type="number" class="ia-input" id="wedo-total-1" placeholder="?">
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(1)">Check</button></div>
+      <div class="feedback" id="wedo-fb-1"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO - Q3: 347 x 6 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h3>We Do: Q3</h3>
+      <p><span class="mono" style="font-size:22px;">347 times 6</span></p>
+      <div class="estimate-block" style="margin:12px 0;">
+        <div class="est-label">Radar estimate</div>
+        <div class="est-rounding"><div class="est-row">
+          <span class="est-original">347</span>
+          <span class="est-arrow">&rarr;</span>
+          <span class="est-rounded">350</span>
+        </div></div>
+        <p style="margin:8px 0;font-size:14px;font-weight:600;">350 times 6 = <span class="mono">2100</span></p>
+      </div>
+      <p style="margin-top:8px;">Fill in each partial product, then the total.</p>
+      <div class="area-model-container" style="margin:30px auto 10px 50px; max-width:500px;"><div class="area-model" style="min-height:80px;">
+        <div class="area-section" style="flex:300;">
+          <div class="top-label">300</div>
+          <input type="number" class="ia-input" id="wedo-pp-2-0" placeholder="?">
+        </div>
+        <div class="area-section" style="flex:40;">
+          <div class="top-label">40</div>
+          <input type="number" class="ia-input" id="wedo-pp-2-1" placeholder="?">
+        </div>
+        <div class="area-section" style="flex:7;">
+          <div class="top-label">7</div>
+          <input type="number" class="ia-input" id="wedo-pp-2-2" placeholder="?">
+        </div>
+      </div><div class="area-side-label">6</div></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <span style="font-size:16px;font-weight:700;">Total:</span>
+        <input type="number" class="ia-input" id="wedo-total-2" placeholder="?">
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(2)">Check</button></div>
+      <div class="feedback" id="wedo-fb-2"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: PRACTICE - All levels -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h3>Independent Practice</h3>
+      <p style="font-size:16px; color:var(--muted); margin-bottom:8px;">For each problem: estimate first, then split the number into parts, fill in the partial products, and find the total.</p>
+
+      <div class="level-bar">
+        <button class="level-btn l1 active" onclick="setYouDoLevel(1)">Level 1 (2-digit)</button>
+        <button class="level-btn l2" onclick="setYouDoLevel(2)">Level 2 (3-digit)</button>
+        <button class="level-btn l3" onclick="setYouDoLevel(3)">Level 3 (2times2)</button>
+        <button class="level-btn l4" onclick="setYouDoLevel(4)">Level 4 (3times2)</button>
+        <button class="level-btn l5" onclick="setYouDoLevel(5)">Level 5 (3times3)</button>
+        <button class="level-btn l6" onclick="setYouDoLevel(6)">Level 6 (4times3)</button>
+      </div>
+
+      <div class="dot-counter" id="yd-dots"></div>
+
+      <div id="yd-card" class="card" style="text-align:center;"></div>
+
+      <div class="summary-card" id="yd-summary">
+        <h3>Round Complete</h3>
+        <div class="summary-score" id="yd-score"></div>
+        <p id="yd-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+        <button class="btn btn-primary" onclick="startYouDo()">Try Again (New Problems)</button>
+      </div>
+
+      <div id="go-deeper-section" style="display:none;margin-top:30px;">
+        <div class="go-deeper-card">
+          <h2>Go Deeper</h2>
+          <p>You are ready to think like a mathematician. These tasks will help you spot errors, test conjecture, and justify your reasoning.</p>
+        </div>
+
+        <!-- TASK 1: Specialising -->
+        <div class="go-deeper-card">
+          <h3 style="font-size:18px; font-weight:700; margin-bottom:16px; color:var(--teal-dark);">Task 1: Specialising</h3>
+          <div class="ext-task">
+            <div class="ext-task-label">Your Challenge</div>
+            <div class="ext-task-prompt">A student split <span class="ext-numbers">47 times 8</span> into <span class="ext-numbers">(40 times 8) + (7 times 8)</span> and got:</div>
+            <div style="background:#fff; border-left:5px solid var(--amber); padding:14px; margin:12px 0; border-radius:8px; font-family:'Space Mono',monospace; font-size:14px;">
+              40 times 8 = <strong>360</strong><br>
+              7 times 8 = 56<br>
+              Total = 416
+            </div>
+            <div class="ext-task-sub">Is the area model correct? Find and explain any error.</div>
+            <textarea class="ext-thinking-area" id="task1-thinking" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="revealTask1()">Check with model answer</button>
+            <div class="ext-model-response" id="task1-response">
+              <div class="model-label">Model Answer</div>
+              <p>The error is in the first partial product. <span class="ext-numbers">40 times 8 = 320</span>, not 360. You might have multiplied 45 times 8 by mistake, or added 40 + 8 instead of multiplying them.</p>
+              <p>The correct calculation is:</p>
+              <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+                40 times 8 = 320<br>
+                7 times 8 = 56<br>
+                Total = 320 + 56 = <span class="ext-numbers">376</span>
+              </div>
+              <div class="mathematician-box">
+                <strong>Mathematician's Tip:</strong> Always double check each partial product. A small multiplication error gets carried through to the final answer!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TASK 2: Conjecturing -->
+        <div class="go-deeper-card">
+          <h3 style="font-size:18px; font-weight:700; margin-bottom:16px; color:var(--teal-dark);">Task 2: Conjecturing</h3>
+          <div class="ext-task">
+            <div class="ext-task-label">Your Challenge</div>
+            <div class="ext-task-prompt">"Splitting a number into more parts in the area model always gives a different final answer."</div>
+            <div class="ext-task-sub">Is this statement <strong>Always true</strong>, <strong>Sometimes true</strong>, or <strong>Never true</strong>? Use <span class="ext-numbers">47 times 8</span> to show your thinking.</div>
+            <textarea class="ext-thinking-area" id="task2-thinking" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="revealTask2()">Check with model answer</button>
+            <div class="ext-model-response" id="task2-response">
+              <div class="model-label">Model Answer</div>
+              <p><strong>Never true.</strong> The total is always the same regardless of how you partition the numbers. Here's why:</p>
+              <p>Let me try <span class="ext-numbers">47 times 8</span> three different ways:</p>
+              <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+                (40 + 7) times 8 = (40 times 8) + (7 times 8) = 320 + 56 = <span class="ext-numbers">376</span><br><br>
+                (30 + 17) times 8 = (30 times 8) + (17 times 8) = 240 + 136 = <span class="ext-numbers">376</span><br><br>
+                (20 + 20 + 7) times 8 = (20 times 8) + (20 times 8) + (7 times 8) = 160 + 160 + 56 = <span class="ext-numbers">376</span>
+              </div>
+              <p>Every way gives <span class="ext-numbers">376</span>! The partition doesn't matter. Only the original numbers (47 and 8) determine the answer.</p>
+              <div class="mathematician-box">
+                <strong>Big Idea:</strong> This is because multiplication is distributive. <span class="ext-numbers">47 times 8</span> equals the same thing no matter how you split 47.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TASK 3: Justifying -->
+        <div class="go-deeper-card">
+          <h3 style="font-size:18px; font-weight:700; margin-bottom:16px; color:var(--teal-dark);">Task 3: Justifying</h3>
+          <div class="ext-task">
+            <div class="ext-task-label">Your Challenge</div>
+            <div class="ext-task-prompt">A student says that <span class="ext-numbers">99 times 7</span> is easier to solve with the area model by splitting it as <span class="ext-numbers">(100 - 1) times 7</span> instead of <span class="ext-numbers">(90 + 9) times 7</span>.</div>
+            <div class="ext-task-sub">Do you agree? Justify your reasoning by showing the calculation both ways.</div>
+            <textarea class="ext-thinking-area" id="task3-thinking" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="revealTask3()">Check with model answer</button>
+            <div class="ext-model-response" id="task3-response">
+              <div class="model-label">Model Answer</div>
+              <p>I agree that the first method is easier. Both ways give the same answer, but <span class="ext-numbers">(100 - 1) times 7</span> is faster for mental maths.</p>
+              <p><strong>Method 1: (100 - 1) times 7</strong></p>
+              <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+                (100 - 1) times 7 = (100 times 7) - (1 times 7) = 700 - 7 = <span class="ext-numbers">693</span>
+              </div>
+              <p><strong>Method 2: (90 + 9) times 7</strong></p>
+              <div style="background:#f0fdfa; padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin:10px 0;">
+                (90 + 9) times 7 = (90 times 7) + (9 times 7) = 630 + 63 = <span class="ext-numbers">693</span>
+              </div>
+              <p>Both equal <span class="ext-numbers">693</span>, but Method 1 is faster because <span class="ext-numbers">100 times 7</span> is easier to calculate mentally than <span class="ext-numbers">90 times 7</span>. For numbers close to 100 or 1000, this trick is very handy!</p>
+              <div class="mathematician-box">
+                <strong>Mathematician's Tip:</strong> Look for numbers that are close to a "friendly" number like 10, 100, or 1000. Splitting using complementary subtraction can be faster than addition.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── NAVIGATION SYSTEM ──
+const slides = [
+  { id: 'Learning', name: 'Learning Intention' },
+  { id: 'Hook', name: 'The Tiled Floor' },
+  { id: 'Hook', name: 'Distributive Property' },
+  { id: 'I Do', name: 'Example 1: 47 x 8' },
+  { id: 'I Do', name: 'Example 2: 236 x 4' },
+  { id: 'We Do', name: 'Q1: 63 x 5' },
+  { id: 'We Do', name: 'Q2: 124 x 3' },
+  { id: 'We Do', name: 'Q3: 347 x 6' },
+  { id: 'Practice', name: 'Independent Practice' }
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Practice': 'practice'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + index).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  if (currentSlide > 0) goToSlide(currentSlide - 1);
+}
+
+function updateNavButtons() {
+  const prevBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[0];
+  const nextBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[1];
+  const counter = document.querySelectorAll('.slide.active .slide-counter')[0];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+
+function goToPhase(sectionName) {
+  for (let i = 0; i < slides.length; i++) {
+    if (slides[i].id === sectionName) {
+      goToSlide(i);
+      break;
+    }
+  }
+}
+
+function updatePhaseNav() {
+  const section = slides[currentSlide].id;
+  const phase = sectionToPhase[section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-phase="' + phase + '"]').classList.add('active');
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item')[currentSlide].classList.add('active');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const headerHeight = document.querySelector('header').offsetHeight;
+  const navHeight = document.querySelector('.phase-nav').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', (headerHeight + navHeight) + 'px');
+}
+
+// ── HOOK STAGED REVEAL ──
+let hookStage = 0;
+function nextHookReveal() {
+  hookStage++;
+  const btn = document.getElementById('hook-reveal-btn');
+  if (hookStage === 1) {
+    document.getElementById('hook-area-reveal').style.display = 'block';
+    btn.textContent = 'Add the dimensions ' + String.fromCharCode(8594);
+  } else if (hookStage === 2) {
+    document.getElementById('hook-top-full').classList.add('show');
+    document.getElementById('hook-side-label').style.opacity = '1';
+    btn.textContent = 'Split 24 into friendlier numbers ' + String.fromCharCode(8594);
+  } else if (hookStage === 3) {
+    document.getElementById('hook-am-unsplit').style.display = 'none';
+    document.getElementById('hook-am-split').style.display = 'flex';
+    document.getElementById('hook-top-20').style.opacity = '1';
+    document.getElementById('hook-top-4').style.opacity = '1';
+    btn.textContent = 'Calculate 20 times 6 ' + String.fromCharCode(8594);
+  } else if (hookStage === 4) {
+    document.getElementById('hook-calc-left').classList.add('show');
+    btn.textContent = 'Calculate 4 times 6 ' + String.fromCharCode(8594);
+  } else if (hookStage === 5) {
+    document.getElementById('hook-calc-right').classList.add('show');
+    btn.textContent = 'Add the parts ' + String.fromCharCode(8594);
+  } else if (hookStage === 6) {
+    document.getElementById('hook-total').classList.add('show');
+    btn.style.display = 'none';
+  }
+}
+
+// ── I DO AREA MODEL STAGED REVEAL ──
+const amStage = {};
+const amCalcConfig = {
+  'ex1': {
+    calcIds: ['ex1-calc-l', 'ex1-calc-r'],
+    labels: ['Calculate 40 times 8 ' + String.fromCharCode(8594), 'Calculate 7 times 8 ' + String.fromCharCode(8594), 'Add the parts ' + String.fromCharCode(8594)]
+  },
+  'ex2': {
+    calcIds: ['ex2-calc-l', 'ex2-calc-m', 'ex2-calc-r'],
+    labels: ['Calculate 200 times 4 ' + String.fromCharCode(8594), 'Calculate 30 times 4 ' + String.fromCharCode(8594), 'Calculate 6 times 4 ' + String.fromCharCode(8594), 'Add the parts ' + String.fromCharCode(8594)]
+  }
+};
+
+function nextAmReveal(prefix) {
+  if (!amStage[prefix]) amStage[prefix] = 0;
+  amStage[prefix]++;
+  const stage = amStage[prefix];
+  const btn = document.getElementById(prefix + '-am-btn');
+  const config = amCalcConfig[prefix];
+  const numCalcs = config ? config.calcIds.length : 0;
+
+  if (stage === 1) {
+    document.getElementById(prefix + '-top-full').classList.add('show');
+    document.getElementById(prefix + '-side').style.opacity = '1';
+    btn.textContent = 'Split into parts ' + String.fromCharCode(8594);
+  } else if (stage === 2) {
+    document.getElementById(prefix + '-am-unsplit').style.display = 'none';
+    document.getElementById(prefix + '-am-split').style.display = 'flex';
+    document.querySelectorAll('#' + prefix + '-am-split .top-label').forEach(el => el.style.opacity = '1');
+    btn.textContent = config.labels[0];
+  } else if (stage > 2 && stage <= 2 + numCalcs) {
+    const calcIdx = stage - 3;
+    document.getElementById(config.calcIds[calcIdx]).classList.add('show');
+    btn.textContent = config.labels[calcIdx + 1];
+  } else if (stage === 3 + numCalcs) {
+    document.getElementById(prefix + '-total').classList.add('show');
+    btn.style.display = 'none';
+  }
+}
+
+// ── I DO STEP PROGRESSION ──
+function goToIdoStep(prefix, stepNum, totalSteps) {
+  document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+  const dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('active', 'visited');
+    if (i === stepNum - 1) dot.classList.add('active');
+    else if (i < stepNum - 1) dot.classList.add('visited');
+  });
+}
+
+// ── WE DO ──
+const weDoData = [
+  { a: 63, b: 5, parts: [60, 3], partials: [300, 15], answer: 315, roundA: 60, est: 300 },
+  { a: 124, b: 3, parts: [100, 20, 4], partials: [300, 60, 12], answer: 372, roundA: 120, est: 360 },
+  { a: 347, b: 6, parts: [300, 40, 7], partials: [1800, 240, 42], answer: 2082, roundA: 350, est: 2100 }
+];
+
+function checkWeDo(idx) {
+  const p = weDoData[idx];
+  const fb = document.getElementById('wedo-fb-' + idx);
+  let allCorrect = true;
+
+  for (let i = 0; i < p.parts.length; i++) {
+    const inp = document.getElementById('wedo-pp-' + idx + '-' + i);
+    const val = parseInt(inp.value, 10);
+    if (val === p.partials[i]) {
+      inp.classList.add('correct'); inp.classList.remove('wrong');
+    } else {
+      inp.classList.add('wrong'); inp.classList.remove('correct');
+      allCorrect = false;
+    }
+    inp.disabled = true;
+  }
+
+  const totalInp = document.getElementById('wedo-total-' + idx);
+  const totalVal = parseInt(totalInp.value, 10);
+  if (totalVal === p.answer) {
+    totalInp.classList.add('correct'); totalInp.classList.remove('wrong');
+  } else {
+    totalInp.classList.add('wrong'); totalInp.classList.remove('correct');
+    allCorrect = false;
+  }
+  totalInp.disabled = true;
+
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> ' + p.parts.map((v, i) => '<span class="mono">' + v + ' times ' + p.b + ' = ' + p.partials[i] + '</span>').join(' + ') + ' = <span class="mono">' + p.answer + '</span>. Your estimate was <span class="mono">' + p.est + '</span>. Close.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The partial products are: ' + p.parts.map((v, i) => '<span class="mono">' + v + ' times ' + p.b + ' = ' + p.partials[i] + '</span>').join(', ') + '. Total: <span class="mono">' + p.answer + '</span>.';
+  }
+}
+
+// ── YOU DO ──
+let ydProblems = [];
+let ydIdx = 0;
+let ydResults = [];
+let ydLevel = 1;
+let ydTotal = 8;
+
+function setYouDoLevel(lvl) {
+  ydLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach((b, i) => {
+    b.classList.toggle('active', i + 1 === lvl);
+  });
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  document.getElementById('go-deeper-section').style.display = 'none';
+  startYouDo();
+}
+
+function generateYouDoProblems() {
+  const problems = [];
+  if (ydLevel === 1) {
+    const pool = shuffle([23, 34, 42, 53, 61, 72, 45, 56, 67, 38, 47, 83, 64, 76, 91, 28]);
+    const mults = [3, 4, 5, 6, 7, 8, 9];
+    for (let i = 0; i < ydTotal; i++) {
+      const a = pool[i];
+      const b = mults[Math.floor(Math.random() * mults.length)];
+      const tens = Math.floor(a / 10) * 10;
+      const ones = a % 10;
+      const roundA = Math.round(a / 10) * 10;
+      problems.push({
+        a: a, b: b,
+        aParts: [tens, ones],
+        bParts: [b],
+        answer: a * b,
+        roundA: roundA,
+        est: roundA * b,
+        numAParts: 2,
+        numBParts: 1
+      });
+    }
+  } else if (ydLevel === 2) {
+    const pool3 = shuffle([124, 213, 236, 312, 347, 428, 156, 245, 367, 423, 512, 634, 271, 183, 329, 451]);
+    const mults3 = [3, 4, 5, 6, 7, 8];
+    for (let j = 0; j < ydTotal; j++) {
+      const a3 = pool3[j];
+      const b3 = mults3[Math.floor(Math.random() * mults3.length)];
+      const h = Math.floor(a3 / 100) * 100;
+      const t = Math.floor((a3 % 100) / 10) * 10;
+      const o = a3 % 10;
+      const parts3 = [h];
+      if (t > 0) parts3.push(t);
+      if (o > 0) parts3.push(o);
+      const roundA3 = Math.round(a3 / 10) * 10;
+      problems.push({
+        a: a3, b: b3,
+        aParts: parts3,
+        bParts: [b3],
+        answer: a3 * b3,
+        roundA: roundA3,
+        est: roundA3 * b3,
+        numAParts: parts3.length,
+        numBParts: 1
+      });
+    }
+  }
+  return problems;
+}
+
+function shuffle(array) {
+  const arr = array.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startYouDo() {
+  ydProblems = generateYouDoProblems();
+  ydIdx = 0;
+  ydResults = [];
+  renderYouDoProblem();
+}
+
+function renderYouDoProblem() {
+  if (ydIdx >= ydTotal) {
+    endYouDo();
+    return;
+  }
+  const p = ydProblems[ydIdx];
+  const card = document.getElementById('yd-card');
+  const dots = document.getElementById('yd-dots');
+
+  dots.innerHTML = '';
+  for (let i = 0; i < ydTotal; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === ydIdx ? ' current' : (i < ydIdx ? ' green' : ''));
+    dot.textContent = i + 1;
+    dots.appendChild(dot);
+  }
+
+  const estText = 'Estimate: ' + p.roundA + ' times ' + p.b + ' = ' + p.est;
+  card.innerHTML = '<p style="font-size:1.2rem;margin-bottom:12px;">Problem ' + (ydIdx + 1) + ' of ' + ydTotal + '</p>' +
+    '<p><span class="mono" style="font-size:22px;">' + p.a + ' times ' + p.b + '</span></p>' +
+    '<p style="font-size:15px;color:var(--muted);margin:10px 0;">' + estText + '</p>' +
+    '<div style="text-align:center;margin:20px 0;"><button class="step-reveal-btn" onclick="revealAnswer(' + ydIdx + ')">Show answer</button></div>' +
+    '<div id="yd-answer-' + ydIdx + '" style="display:none;"><p style="font-size:1.15rem;margin:10px 0;"><span class="mono">' + p.answer + '</span></p>' +
+    '<button class="step-reveal-btn" style="background:var(--green);" onclick="nextYouDoProblem()">Next problem ' + String.fromCharCode(8594) + '</button></div>';
+}
+
+function revealAnswer(idx) {
+  document.getElementById('yd-answer-' + idx).style.display = 'block';
+  ydResults[idx] = true;
+}
+
+function nextYouDoProblem() {
+  ydIdx++;
+  renderYouDoProblem();
+}
+
+function endYouDo() {
+  const correct = ydResults.filter(r => r).length;
+  document.getElementById('yd-card').style.display = 'none';
+  document.getElementById('yd-summary').classList.add('show');
+  document.getElementById('yd-score').textContent = correct + ' of ' + ydTotal;
+  const perc = Math.round((correct / ydTotal) * 100);
+  let msg = 'Excellent work!';
+  if (perc < 100) msg = 'Good attempt. Review the ones you found tricky.';
+  document.getElementById('yd-message').textContent = msg;
+
+  if (correct === ydTotal) {
+    document.getElementById('go-deeper-section').style.display = 'block';
+  }
+}
+
+// ── GO DEEPER ──
+function revealTask1() {
+  document.getElementById('task1-response').classList.add('visible');
+}
+function revealTask2() {
+  document.getElementById('task2-response').classList.add('visible');
+}
+function revealTask3() {
+  document.getElementById('task3-response').classList.add('visible');
+}
+
+// ── KEYBOARD NAVIGATION ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>
