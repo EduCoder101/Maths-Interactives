@@ -375,6 +375,75 @@
   }
   .btn-primary { background: var(--teal); color: white; }
   .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .btn-amber { background: var(--amber); color: var(--text); }
+  .btn-amber:hover { background: var(--amber-dark); transform: translateY(-2px); }
+
+  /* ── ESTIMATION & DECOMPOSITION ── */
+  .est-input {
+    font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+    text-align: center; border: 3px solid var(--border); border-radius: 14px;
+    padding: 10px 16px; width: 160px; max-width: 100%;
+    transition: border-color 0.3s ease; outline: none; background: #fff;
+  }
+  .est-input:focus { border-color: var(--amber); }
+  .est-result {
+    margin-top: 10px; font-size: 15px; font-weight: 600; padding: 8px 16px;
+    border-radius: 10px; display: none;
+  }
+  .est-result.show { display: inline-block; animation: fadeIn 0.3s; }
+  .est-result.excellent { background: var(--green-light); color: var(--green-dark); border: 2px solid var(--green); }
+  .est-result.good { background: #fffbf0; color: var(--amber-dark); border: 2px solid var(--amber); }
+  .est-result.needs-work { background: var(--red-light); color: var(--red-dark); border: 2px solid var(--red); }
+
+  .decomp-row {
+    display: flex; align-items: center; gap: 10px; justify-content: center;
+    margin: 12px 0; flex-wrap: wrap;
+  }
+  .decomp-label { font-size: 16px; font-weight: 600; }
+  .decomp-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 80px; text-align: center; padding: 8px; border: 2px solid var(--amber);
+    border-radius: 10px; outline: none; transition: border-color 0.2s; background: #fffbf0;
+  }
+  .decomp-input:focus { border-color: var(--amber-dark); }
+  .decomp-input.correct { border-color: var(--green); background: var(--green-light); }
+  .decomp-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* ── 2D AREA GRID MODEL ── */
+  .area-grid-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+  .area-grid-container { position: relative; margin: 40px 20px 20px 80px; }
+  .area-grid {
+    display: grid; border: 3px solid var(--text); border-collapse: collapse;
+    background: white; border-radius: 6px; overflow: hidden;
+  }
+  .area-grid-header-cell {
+    background: var(--amber); color: var(--text); font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 15px; padding: 12px 8px; text-align: center;
+    border-right: 2px solid var(--text); border-bottom: 2px solid var(--text);
+  }
+  .area-grid-header-cell:last-child { border-right: none; }
+  .area-grid-row-header {
+    background: var(--teal); color: var(--text); font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 15px; padding: 12px 8px; text-align: center;
+    border-right: 2px solid var(--text); border-bottom: 2px solid var(--text);
+  }
+  .area-grid-row-header:last-of-type { border-bottom: none; }
+  .area-grid-cell {
+    display: flex; align-items: center; justify-content: center; padding: 10px 8px;
+    border-right: 2px dashed var(--muted); border-bottom: 2px dashed var(--muted);
+    min-width: 70px; min-height: 70px;
+  }
+  .area-grid-cell:last-child { border-right: none; }
+  .area-grid-cell:nth-child(3n) { border-right: none; }
+  .area-grid-row-header + .area-grid-cell:nth-child(3n+1) { border-bottom: none; }
+  .grid-cell-input {
+    font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700;
+    width: 60px; text-align: center; padding: 6px; border: 2px solid var(--border);
+    border-radius: 8px; outline: none; transition: border-color 0.2s; background: #fff;
+  }
+  .grid-cell-input:focus { border-color: var(--blue); }
+  .grid-cell-input.correct { border-color: var(--green); background: var(--green-light); }
+  .grid-cell-input.wrong { border-color: var(--red); background: var(--red-light); }
 
   .go-deeper-level-btn {
     display: block; width: 100%; text-align: left; padding: 20px 24px;
@@ -1317,7 +1386,7 @@ let ydTotal = 8;
 
 function setYouDoLevel(lvl) {
   ydLevel = lvl;
-  document.querySelectorAll('.level-btn').forEach((b, i) => {
+  document.querySelectorAll('.level-btn').forEach(function(b, i) {
     b.classList.toggle('active', i + 1 === lvl);
   });
   document.getElementById('yd-summary').classList.remove('show');
@@ -1372,86 +1441,533 @@ function generateYouDoProblems() {
         numBParts: 1
       });
     }
+  } else if (ydLevel === 3) {
+    // Level 3: 2-digit × 2-digit
+    const pool2x2a = shuffle([12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28]);
+    const pool2x2b = shuffle([12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 31]);
+    for (let k = 0; k < ydTotal; k++) {
+      const a2x2 = pool2x2a[k];
+      const b2x2 = pool2x2b[k];
+      const t1 = Math.floor(a2x2 / 10) * 10;
+      const o1 = a2x2 % 10;
+      const t2 = Math.floor(b2x2 / 10) * 10;
+      const o2 = b2x2 % 10;
+      const roundA2x2 = Math.round(a2x2 / 10) * 10;
+      problems.push({
+        a: a2x2, b: b2x2,
+        aParts: [t1, o1],
+        bParts: [t2, o2],
+        answer: a2x2 * b2x2,
+        roundA: roundA2x2,
+        est: roundA2x2 * b2x2,
+        numAParts: 2,
+        numBParts: 2
+      });
+    }
+  } else if (ydLevel === 4) {
+    // Level 4: 3-digit × 2-digit
+    const pool3x2a = shuffle([124, 156, 213, 236, 245, 267, 312, 324, 347, 356, 367, 423, 436, 451, 512, 567]);
+    const pool3x2b = shuffle([12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 31]);
+    for (let m = 0; m < ydTotal; m++) {
+      const a3x2 = pool3x2a[m];
+      const b3x2 = pool3x2b[m];
+      const h1 = Math.floor(a3x2 / 100) * 100;
+      const t1a = Math.floor((a3x2 % 100) / 10) * 10;
+      const o1a = a3x2 % 10;
+      const t2a = Math.floor(b3x2 / 10) * 10;
+      const o2a = b3x2 % 10;
+      const roundA3x2 = Math.round(a3x2 / 10) * 10;
+      problems.push({
+        a: a3x2, b: b3x2,
+        aParts: [h1, t1a, o1a],
+        bParts: [t2a, o2a],
+        answer: a3x2 * b3x2,
+        roundA: roundA3x2,
+        est: roundA3x2 * b3x2,
+        numAParts: 3,
+        numBParts: 2
+      });
+    }
+  } else if (ydLevel === 5) {
+    // Level 5: 3-digit × 3-digit
+    const pool3x3a = shuffle([124, 156, 213, 236, 245, 267, 312, 324, 347, 156, 145, 267, 312, 234, 125, 267]);
+    const pool3x3b = shuffle([123, 124, 132, 134, 142, 143, 145, 152, 154, 162, 165, 172, 174, 182, 183, 214]);
+    for (let n = 0; n < ydTotal; n++) {
+      const a3x3 = pool3x3a[n];
+      const b3x3 = pool3x3b[n];
+      const h2 = Math.floor(a3x3 / 100) * 100;
+      const t2 = Math.floor((a3x3 % 100) / 10) * 10;
+      const o2 = a3x3 % 10;
+      const h3 = Math.floor(b3x3 / 100) * 100;
+      const t3 = Math.floor((b3x3 % 100) / 10) * 10;
+      const o3 = b3x3 % 10;
+      const roundA3x3 = Math.round(a3x3 / 10) * 10;
+      problems.push({
+        a: a3x3, b: b3x3,
+        aParts: [h2, t2, o2],
+        bParts: [h3, t3, o3],
+        answer: a3x3 * b3x3,
+        roundA: roundA3x3,
+        est: roundA3x3 * b3x3,
+        numAParts: 3,
+        numBParts: 3
+      });
+    }
+  } else if (ydLevel === 6) {
+    // Level 6: 4-digit × 3-digit
+    const pool4x3a = shuffle([1234, 1356, 1567, 1892, 2145, 2156, 2345, 2367, 2456, 3124, 3254, 3412, 4123, 4156, 4234, 4567]);
+    const pool4x3b = shuffle([123, 124, 132, 134, 142, 143, 145, 152, 154, 162, 165, 172, 174, 182, 183, 214]);
+    for (let p = 0; p < ydTotal; p++) {
+      const a4x3 = pool4x3a[p];
+      const b4x3 = pool4x3b[p];
+      const th = Math.floor(a4x3 / 1000) * 1000;
+      const h4 = Math.floor((a4x3 % 1000) / 100) * 100;
+      const t4 = Math.floor((a4x3 % 100) / 10) * 10;
+      const o4 = a4x3 % 10;
+      const h5 = Math.floor(b4x3 / 100) * 100;
+      const t5 = Math.floor((b4x3 % 100) / 10) * 10;
+      const o5 = b4x3 % 10;
+      const roundA4x3 = Math.round(a4x3 / 10) * 10;
+      problems.push({
+        a: a4x3, b: b4x3,
+        aParts: [th, h4, t4, o4],
+        bParts: [h5, t5, o5],
+        answer: a4x3 * b4x3,
+        roundA: roundA4x3,
+        est: roundA4x3 * b4x3,
+        numAParts: 4,
+        numBParts: 3
+      });
+    }
   }
   return problems;
-}
-
-function shuffle(array) {
-  const arr = array.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
 }
 
 function startYouDo() {
   ydProblems = generateYouDoProblems();
   ydIdx = 0;
   ydResults = [];
-  renderYouDoProblem();
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  buildDots('yd-dots', ydTotal);
+  showYouDoProblem();
 }
 
-function renderYouDoProblem() {
-  if (ydIdx >= ydTotal) {
-    endYouDo();
-    return;
+function buildDots(containerId, count) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = containerId + '-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
   }
+}
+
+function showYouDoProblem() {
+  if (ydIdx >= ydTotal) { showYouDoSummary(); return; }
   const p = ydProblems[ydIdx];
   const card = document.getElementById('yd-card');
-  const dots = document.getElementById('yd-dots');
 
-  dots.innerHTML = '';
-  for (let i = 0; i < ydTotal; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'dot' + (i === ydIdx ? ' current' : (i < ydIdx ? ' green' : ''));
-    dot.textContent = i + 1;
-    dots.appendChild(dot);
+  // Phase 1: Estimation + Decomposition
+  let decompInputsA = '';
+  for (let i = 0; i < p.numAParts; i++) {
+    decompInputsA += '<input type="number" class="decomp-input" id="yd-decomp-a-' + i + '" placeholder="?">';
+    if (i < p.numAParts - 1) decompInputsA += '<span style="font-size:18px;font-weight:700;">+</span>';
   }
 
-  const estText = 'Estimate: ' + p.roundA + ' times ' + p.b + ' = ' + p.est;
-  card.innerHTML = '<p style="font-size:1.2rem;margin-bottom:12px;">Problem ' + (ydIdx + 1) + ' of ' + ydTotal + '</p>' +
-    '<p><span class="mono" style="font-size:22px;">' + p.a + ' times ' + p.b + '</span></p>' +
-    '<p style="font-size:15px;color:var(--muted);margin:10px 0;">' + estText + '</p>' +
-    '<div style="text-align:center;margin:20px 0;"><button class="step-reveal-btn" onclick="revealAnswer(' + ydIdx + ')">Show answer</button></div>' +
-    '<div id="yd-answer-' + ydIdx + '" style="display:none;"><p style="font-size:1.15rem;margin:10px 0;"><span class="mono">' + p.answer + '</span></p>' +
-    '<button class="step-reveal-btn" style="background:var(--green);" onclick="nextYouDoProblem()">Next problem ' + String.fromCharCode(8594) + '</button></div>';
+  let decompInputsB = '';
+  for (let ii = 0; ii < p.numBParts; ii++) {
+    decompInputsB += '<input type="number" class="decomp-input" id="yd-decomp-b-' + ii + '" placeholder="?">';
+    if (ii < p.numBParts - 1) decompInputsB += '<span style="font-size:18px;font-weight:700;">+</span>';
+  }
+
+  let decompSection = '';
+  if (ydLevel <= 2) {
+    // Levels 1-2: only split first number
+    decompSection =
+      '<p style="font-size:15px;font-weight:600;margin-bottom:8px;">Step 2: Split <span class="mono">' + fmtNum(p.a) + '</span> into parts</p>' +
+      '<div class="decomp-row">' +
+        '<span class="decomp-label">' + fmtNum(p.a) + ' =</span>' +
+        decompInputsA +
+      '</div>';
+  } else {
+    // Levels 3-6: split both numbers
+    decompSection =
+      '<p style="font-size:15px;font-weight:600;margin-bottom:12px;">Step 2: Split both numbers</p>' +
+      '<div class="decomp-row">' +
+        '<span class="decomp-label">' + fmtNum(p.a) + ' =</span>' +
+        decompInputsA +
+      '</div>' +
+      '<div class="decomp-row">' +
+        '<span class="decomp-label">' + fmtNum(p.b) + ' =</span>' +
+        decompInputsB +
+      '</div>';
+  }
+
+  card.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (ydIdx + 1) + ' of ' + ydTotal + '</div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:28px;font-weight:700;margin-bottom:16px;">' + fmtNum(p.a) + ' &times; ' + fmtNum(p.b) + '</div>' +
+
+    // Estimation step
+    '<div class="estimate-block" style="margin-bottom:16px;" id="yd-est-block">' +
+      '<div class="est-label">Step 1: Radar estimate</div>' +
+      '<p style="font-size:14px;margin-bottom:8px;">Round <span class="mono">' + fmtNum(p.a) + '</span> to a friendly number, then multiply.</p>' +
+      '<div style="display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+        '<span style="font-size:15px;font-weight:600;">My estimate:</span>' +
+        '<input type="number" class="est-input" id="yd-est-input" placeholder="?">' +
+      '</div>' +
+      '<div style="margin-top:10px;"><button class="btn btn-amber" id="yd-est-btn" onclick="checkYouDoEstimate()">Check Estimate</button></div>' +
+      '<div class="est-result" id="yd-est-result"></div>' +
+    '</div>' +
+
+    // Decomposition step
+    '<div id="yd-decomp-block" style="display:none;">' +
+      decompSection +
+      '<div style="margin-top:10px;"><button class="check-btn" id="yd-decomp-btn" onclick="checkYouDoDecomp()">Check Split</button></div>' +
+      '<div class="feedback" id="yd-decomp-fb"></div>' +
+    '</div>' +
+
+    // Area model + partial products step
+    '<div id="yd-area-block" style="display:none;"></div>' +
+
+    // Next button
+    '<button class="btn btn-primary" id="yd-next" style="display:none;margin-top:16px;" onclick="nextYouDo()">Next &rarr;</button>';
+
+  // Update dots
+  for (let j = 0; j < ydTotal; j++) {
+    const d = document.getElementById('yd-dots-' + j);
+    if (d) { d.classList.remove('current'); if (j === ydIdx) d.classList.add('current'); }
+  }
 }
 
-function revealAnswer(idx) {
-  document.getElementById('yd-answer-' + idx).style.display = 'block';
-  ydResults[idx] = true;
+function checkYouDoEstimate() {
+  const p = ydProblems[ydIdx];
+  const input = document.getElementById('yd-est-input');
+  const raw = input.value.replace(/,/g, '').replace(/\s/g, '');
+  if (raw === '' || isNaN(Number(raw))) { input.style.borderColor = 'var(--red)'; return; }
+
+  const studentEst = parseInt(raw, 10);
+  const actual = p.answer;
+  const pct = Math.abs(studentEst - actual) / actual * 100;
+
+  const result = document.getElementById('yd-est-result');
+  result.classList.add('show');
+  result.classList.remove('excellent', 'good', 'needs-work');
+
+  if (pct <= 10) {
+    result.classList.add('excellent');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Sharp Radar.';
+  } else if (pct <= 20) {
+    result.classList.add('good');
+    result.innerHTML = 'Within <span class="mono">' + pct.toFixed(0) + '%</span>. Reasonable estimate.';
+  } else {
+    result.classList.add('needs-work');
+    result.innerHTML = '<span class="mono">' + pct.toFixed(0) + '%</span> away. Try rounding to the nearest ' + (p.a < 100 ? '10' : '100') + '.';
+  }
+
+  input.disabled = true;
+  document.getElementById('yd-est-btn').disabled = true;
+  document.getElementById('yd-decomp-block').style.display = 'block';
 }
 
-function nextYouDoProblem() {
+function checkYouDoDecomp() {
+  const p = ydProblems[ydIdx];
+  const partsA = [];
+  const partsB = [];
+  let allValid = true;
+
+  // Get parts for first number
+  for (let i = 0; i < p.numAParts; i++) {
+    const inp = document.getElementById('yd-decomp-a-' + i);
+    const val = parseInt(inp.value, 10);
+    if (isNaN(val)) { allValid = false; inp.style.borderColor = 'var(--red)'; continue; }
+    partsA.push(val);
+  }
+
+  // Get parts for second number (only for levels 3-6)
+  if (ydLevel > 2) {
+    for (let ii = 0; ii < p.numBParts; ii++) {
+      const inp2 = document.getElementById('yd-decomp-b-' + ii);
+      const val2 = parseInt(inp2.value, 10);
+      if (isNaN(val2)) { allValid = false; inp2.style.borderColor = 'var(--red)'; continue; }
+      partsB.push(val2);
+    }
+  } else {
+    partsB = [p.b];
+  }
+
+  if (!allValid) return;
+
+  // Check: parts must sum to the original numbers
+  const sumA = partsA.reduce(function(a, b) { return a + b; }, 0);
+  const sumB = partsB.reduce(function(a, b) { return a + b; }, 0);
+  const fb = document.getElementById('yd-decomp-fb');
+
+  if (sumA !== p.a) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> Your parts for <span class="mono">' + fmtNum(p.a) + '</span> add up to <span class="mono">' + fmtNum(sumA) + '</span>, but they need to add up to <span class="mono">' + fmtNum(p.a) + '</span>. Try splitting into place value parts.';
+    for (let k = 0; k < p.numAParts; k++) {
+      document.getElementById('yd-decomp-a-' + k).classList.add('wrong');
+    }
+    return;
+  }
+
+  if (ydLevel > 2 && sumB !== p.b) {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> Your parts for <span class="mono">' + fmtNum(p.b) + '</span> add up to <span class="mono">' + fmtNum(sumB) + '</span>, but they need to add up to <span class="mono">' + fmtNum(p.b) + '</span>. Try splitting into place value parts.';
+    for (let kk = 0; kk < p.numBParts; kk++) {
+      document.getElementById('yd-decomp-b-' + kk).classList.add('wrong');
+    }
+    return;
+  }
+
+  // Mark as correct
+  for (let j = 0; j < p.numAParts; j++) {
+    document.getElementById('yd-decomp-a-' + j).classList.add('correct');
+    document.getElementById('yd-decomp-a-' + j).disabled = true;
+  }
+  if (ydLevel > 2) {
+    for (let jj = 0; jj < p.numBParts; jj++) {
+      document.getElementById('yd-decomp-b-' + jj).classList.add('correct');
+      document.getElementById('yd-decomp-b-' + jj).disabled = true;
+    }
+  }
+
+  fb.className = 'feedback show correct';
+  let msg = '<strong>Good split.</strong> ' + partsA.map(function(v) { return '<span class="mono">' + fmtNum(v) + '</span>'; }).join(' + ') + ' = <span class="mono">' + fmtNum(p.a) + '</span>';
+  if (ydLevel > 2) {
+    msg += ' and ' + partsB.map(function(v) { return '<span class="mono">' + fmtNum(v) + '</span>'; }).join(' + ') + ' = <span class="mono">' + fmtNum(p.b) + '</span>';
+  }
+  fb.innerHTML = msg;
+
+  document.getElementById('yd-decomp-btn').disabled = true;
+
+  // Now show the area model with partial product inputs
+  showYouDoAreaModel(partsA, partsB, p);
+}
+
+function showYouDoAreaModel(partsA, partsB, p) {
+  const areaBlock = document.getElementById('yd-area-block');
+  areaBlock.style.display = 'block';
+
+  const isMultiDim = ydLevel > 2;
+
+  if (!isMultiDim) {
+    // Levels 1-2: 1D area strip
+    let sectionsHTML = '';
+    for (let i = 0; i < partsA.length; i++) {
+      sectionsHTML += '<div class="area-section filled" style="flex:' + Math.max(partsA[i], 10) + ';">' +
+        '<div class="top-label">' + fmtNum(partsA[i]) + '</div>' +
+        '<input type="number" class="ia-input" id="yd-pp-' + i + '" placeholder="?">' +
+        '</div>';
+    }
+
+    areaBlock.innerHTML =
+      '<p style="font-size:15px;font-weight:600;margin:16px 0 8px;">Step 3: Fill in the partial products</p>' +
+      '<div class="area-model-container" style="margin:30px auto 10px 50px; max-width:500px;">' +
+        '<div class="area-model" style="min-height:80px;">' + sectionsHTML + '</div>' +
+        '<div class="area-side-label">' + partsB[0] + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">' +
+        '<span style="font-size:16px;font-weight:700;">Total:</span>' +
+        '<input type="number" class="ia-input" id="yd-total" placeholder="?">' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:12px;"><button class="check-btn" id="yd-area-btn" onclick="checkYouDoArea()">Check</button></div>' +
+      '<div class="feedback" id="yd-area-fb"></div>';
+
+    // Store the student's parts for checking
+    ydProblems[ydIdx].studentPartsA = partsA;
+    ydProblems[ydIdx].studentPartsB = partsB;
+  } else {
+    // Levels 3-6: 2D grid
+    let gridHTML = '';
+    let cellId = 0;
+
+    // Top row with column headers
+    gridHTML += '<div class="area-grid-header-cell" style="grid-column: 1; grid-row: 1;"></div>';
+    for (let col = 0; col < partsA.length; col++) {
+      gridHTML += '<div class="area-grid-header-cell" style="grid-column: ' + (col + 2) + '; grid-row: 1;">' + fmtNum(partsA[col]) + '</div>';
+    }
+
+    // Left column with row headers + grid cells
+    for (let row = 0; row < partsB.length; row++) {
+      gridHTML += '<div class="area-grid-row-header" style="grid-column: 1; grid-row: ' + (row + 2) + ';">' + fmtNum(partsB[row]) + '</div>';
+      for (let col2 = 0; col2 < partsA.length; col2++) {
+        const expectedVal = partsA[col2] * partsB[row];
+        gridHTML += '<div class="area-grid-cell" style="grid-column: ' + (col2 + 2) + '; grid-row: ' + (row + 2) + ';">' +
+          '<input type="number" class="grid-cell-input" id="yd-grid-' + row + '-' + col2 + '" placeholder="?" data-expected="' + expectedVal + '">' +
+          '</div>';
+        cellId++;
+      }
+    }
+
+    const gridStyles = 'grid-template-columns: 60px ' + Array(partsA.length).fill('1fr').join(' ') + '; grid-template-rows: 40px ' + Array(partsB.length).fill('1fr').join(' ') + ';';
+
+    areaBlock.innerHTML =
+      '<p style="font-size:15px;font-weight:600;margin:16px 0 12px;">Step 3: Fill in the area grid</p>' +
+      '<div class="area-grid-container">' +
+        '<div class="area-grid" style="' + gridStyles + '">' + gridHTML + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap;">' +
+        '<span style="font-size:16px;font-weight:700;">Total:</span>' +
+        '<input type="number" class="ia-input" id="yd-total" placeholder="?">' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:12px;"><button class="check-btn" id="yd-area-btn" onclick="checkYouDoArea()">Check</button></div>' +
+      '<div class="feedback" id="yd-area-fb"></div>';
+
+    // Store the student's parts for checking
+    ydProblems[ydIdx].studentPartsA = partsA;
+    ydProblems[ydIdx].studentPartsB = partsB;
+  }
+}
+
+function checkYouDoArea() {
+  const p = ydProblems[ydIdx];
+  const partsA = p.studentPartsA;
+  const partsB = p.studentPartsB;
+  let allCorrect = true;
+  const isMultiDim = ydLevel > 2;
+
+  if (!isMultiDim) {
+    // Levels 1-2: 1D grid checking
+    for (let i = 0; i < partsA.length; i++) {
+      const inp = document.getElementById('yd-pp-' + i);
+      const expected = partsA[i] * partsB[0];
+      const val = parseInt(inp.value, 10);
+      if (val === expected) {
+        inp.classList.add('correct'); inp.classList.remove('wrong');
+      } else {
+        inp.classList.add('wrong'); inp.classList.remove('correct');
+        allCorrect = false;
+      }
+      inp.disabled = true;
+    }
+  } else {
+    // Levels 3-6: 2D grid checking
+    for (let r = 0; r < partsB.length; r++) {
+      for (let c = 0; c < partsA.length; c++) {
+        const inp2d = document.getElementById('yd-grid-' + r + '-' + c);
+        const expected2d = partsA[c] * partsB[r];
+        const val2d = parseInt(inp2d.value, 10);
+        if (val2d === expected2d) {
+          inp2d.classList.add('correct'); inp2d.classList.remove('wrong');
+        } else {
+          inp2d.classList.add('wrong'); inp2d.classList.remove('correct');
+          allCorrect = false;
+        }
+        inp2d.disabled = true;
+      }
+    }
+  }
+
+  const totalInp = document.getElementById('yd-total');
+  const totalVal = parseInt(totalInp.value, 10);
+  if (totalVal === p.answer) {
+    totalInp.classList.add('correct'); totalInp.classList.remove('wrong');
+  } else {
+    totalInp.classList.add('wrong'); totalInp.classList.remove('correct');
+    allCorrect = false;
+  }
+  totalInp.disabled = true;
+
+  const fb = document.getElementById('yd-area-fb');
+  if (allCorrect) {
+    fb.className = 'feedback show correct';
+    if (!isMultiDim) {
+      // 1D: list as simple products
+      fb.innerHTML = '<strong>Correct.</strong> ' + partsA.map(function(v, i) {
+        return '<span class="mono">' + fmtNum(v) + ' &times; ' + partsB[0] + ' = ' + fmtNum(v * partsB[0]) + '</span>';
+      }).join(' + ') + ' = <span class="mono">' + fmtNum(p.answer) + '</span>';
+    } else {
+      // 2D: describe grid structure
+      fb.innerHTML = '<strong>Correct.</strong> All ' + (partsA.length * partsB.length) + ' cells filled correctly. Total: <span class="mono">' + fmtNum(p.answer) + '</span>';
+    }
+  } else {
+    fb.className = 'feedback show incorrect';
+    if (!isMultiDim) {
+      fb.innerHTML = '<strong>Not quite.</strong> The partial products are: ' + partsA.map(function(v, i) {
+        return '<span class="mono">' + fmtNum(v) + ' &times; ' + partsB[0] + ' = ' + fmtNum(v * partsB[0]) + '</span>';
+      }).join(', ') + '. Total: <span class="mono">' + fmtNum(p.answer) + '</span>.';
+    } else {
+      fb.innerHTML = '<strong>Not quite.</strong> Check each cell carefully. Each cell should be the column part times the row part. Total should be <span class="mono">' + fmtNum(p.answer) + '</span>.';
+    }
+  }
+
+  ydResults[ydIdx] = allCorrect;
+  const dot = document.getElementById('yd-dots-' + ydIdx);
+  dot.classList.remove('current');
+  dot.classList.add(allCorrect ? 'green' : 'red');
+
+  document.getElementById('yd-area-btn').disabled = true;
+  document.getElementById('yd-next').style.display = 'inline-block';
+}
+
+function nextYouDo() {
   ydIdx++;
-  renderYouDoProblem();
+  showYouDoProblem();
 }
 
-function endYouDo() {
-  const correct = ydResults.filter(r => r).length;
+function showYouDoSummary() {
   document.getElementById('yd-card').style.display = 'none';
-  document.getElementById('yd-summary').classList.add('show');
-  document.getElementById('yd-score').textContent = correct + ' of ' + ydTotal;
-  const perc = Math.round((correct / ydTotal) * 100);
-  let msg = 'Excellent work!';
-  if (perc < 100) msg = 'Good attempt. Review the ones you found tricky.';
+  const correct = ydResults.filter(function(r) { return r; }).length;
+  const scoreEl = document.getElementById('yd-score');
+  scoreEl.textContent = correct + ' / ' + ydTotal;
+  scoreEl.style.color = correct >= 7 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+
+  const msg = correct >= 7 ? 'Excellent. You understand the area model well.' :
+            correct >= 5 ? 'Good progress. Check which partial products tripped you up.' :
+            'Keep practising. Review the I Do section.';
   document.getElementById('yd-message').textContent = msg;
 
-  if (correct === ydTotal) {
-    document.getElementById('go-deeper-section').style.display = 'block';
+  // Unlock Go Deeper if score is 7 or higher
+  if (correct >= 7) {
+    const gdBtn = document.getElementById('yd-godeeper-btn');
+    gdBtn.classList.remove('locked');
+    gdBtn.onclick = function() { showGoDeeper(); };
+    gdBtn.innerHTML = '<h3>&#x1F513; Go Deeper</h3><p>Explore deeper thinking tasks about area models.</p>';
   }
+
+  document.getElementById('yd-summary').classList.add('show');
 }
 
+// ── UTILITIES ──
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function fmtNum(n) { return n.toLocaleString('en-GB'); }
+
 // ── GO DEEPER ──
+function showGoDeeper() {
+  document.getElementById('go-deeper-section').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function unlockGoDeeper() {
+  // This function is called if user tries to click before unlocking
+  alert('Complete this round with 7 or more correct answers to unlock Go Deeper.');
+}
+
 function revealTask1() {
-  document.getElementById('task1-response').classList.add('visible');
+  const resp = document.getElementById('task1-response');
+  resp.classList.toggle('visible');
 }
+
 function revealTask2() {
-  document.getElementById('task2-response').classList.add('visible');
+  const resp = document.getElementById('task2-response');
+  resp.classList.toggle('visible');
 }
+
 function revealTask3() {
-  document.getElementById('task3-response').classList.add('visible');
+  const resp = document.getElementById('task3-response');
+  resp.classList.toggle('visible');
 }
 
 // ── KEYBOARD NAVIGATION ──
