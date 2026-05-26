@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 6: Equivalence by Re-dividing the Whole - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--amber); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 0;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout.callout-blue { background: rgba(52,152,219,0.1); border-left-color: var(--blue); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  /* FRACTION NOTATION */
+  .frac {
+    display: inline-flex; flex-direction: column; align-items: center;
+    vertical-align: middle; font-family: 'Space Mono', monospace; font-weight: 700;
+    line-height: 1.05; margin: 0 3px;
+  }
+  .frac .num { display: block; padding: 0 6px; border-bottom: 2px solid currentColor; }
+  .frac .den { display: block; padding: 0 6px; }
+  .frac.big { font-size: 26px; }
+
+  /* FRACTION BAR VISUAL */
+  .frac-bar-wrap { margin: 18px auto; text-align: center; }
+  .frac-bar {
+    display: flex; width: 100%; max-width: 540px; height: 72px;
+    border: 3px solid var(--text); border-radius: 8px; overflow: hidden; margin: 0 auto;
+    background: #fff;
+  }
+  .frac-seg { flex: 1; border-right: 2px solid var(--text); transition: background 0.4s ease; }
+  .frac-seg:last-child { border-right: none; }
+  .frac-seg.shaded { background: var(--teal); }
+  .frac-seg.shaded-2 { background: var(--amber); }
+  .frac-bar-caption {
+    text-align: center; font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: 18px; margin-top: 10px; color: var(--text);
+  }
+  .equiv-record {
+    text-align: center; font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: 24px; margin: 16px 0; color: var(--teal-dark);
+  }
+  .reveal-stage { opacity: 0; transition: opacity 0.4s ease; }
+  .reveal-stage.show { opacity: 1; }
+
+  /* EQUATION BOX */
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 40px; font-weight: 700;
+    text-align: center; padding: 24px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 16px 0;
+  }
+
+  /* I DO STEP PROGRESSION */
+  .ido-progression { position: relative; }
+  .ido-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .ido-dot { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; transition: all 0.3s; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.35); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%; color: white;
+    font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .step-badge.red { background: var(--red); }
+  .step-badge.amber { background: var(--amber); color: var(--text); }
+  .step-badge.green { background: var(--green); }
+  .step-badge.teal { background: var(--teal); color: var(--text); }
+  .step-badge.blue { background: var(--blue); }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 16px; }
+  .ido-step-nav button {
+    background: var(--teal); color: var(--text); border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .ido-step-nav button:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .ido-step-nav .back { background: rgba(0,0,0,0.06); color: var(--text); }
+  .ido-step-nav .back:hover { background: rgba(0,0,0,0.12); }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* REVEAL BUTTON */
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+
+  /* INPUTS */
+  .ia-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 70px; text-align: center; padding: 8px; border: 2px solid var(--border);
+    border-radius: 10px; outline: none; transition: border-color 0.2s;
+  }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* FEEDBACK */
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* BUTTONS */
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 16px;
+  }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  /* DOT COUNTER */
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #e0e5e8; border: 2px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease;
+  }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  /* LEVEL BAR */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* SUMMARY */
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  /* GO DEEPER */
+  .go-deeper-level-btn {
+    display: block; width: 100%; text-align: left; padding: 20px 24px;
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif;
+    transition: all 0.3s; margin-top: 20px;
+  }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 20px 18px; }
+    .ia-input { width: 60px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Representing Quantity Fractions</div>
+  <h1>Lesson 6: <span>Equivalence by Re-dividing the Whole</span></h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">The Coin Swap</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Re-dividing the Bar</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Example 1: The Half Family</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Example 2: Thirds and the Shortcut</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q1: halves to quarters</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q2: fifths to tenths</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q3: a non-unit fraction</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Independent Practice</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning that the same quantity can be named by different fractions when we re-divide the whole.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can re-divide a whole into more pieces without changing the amount that is shaded.</li>
+          <li>I can write equivalent fractions using a diagram, in words, and in fraction notation.</li>
+          <li>I can find an equivalent fraction by multiplying the numerator and denominator by the same number.</li>
+          <li>I can explain why we must do the same thing to the top and the bottom.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - The Coin Swap -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h3>The Coin Swap</h3>
+      <p>I have one <strong>$1 coin</strong>. You have two <strong>50c coins</strong>.</p>
+      <p style="margin-top:10px;">Who has more money?</p>
+      <div style="text-align:center; margin:20px 0;">
+        <button class="am-reveal-btn" id="hook1-btn" onclick="revealHook1()">Reveal the answer &rarr;</button>
+      </div>
+      <div id="hook1-reveal" class="reveal-stage">
+        <div class="callout callout-teal">
+          <span class="label">Same amount, different names</span>
+          <p>Nobody has more. <span class="mono">$1</span> and <span class="mono">50c + 50c</span> are the <strong>same amount of money</strong>, just shared into a different number of coins.</p>
+          <p>Fractions work the same way. We can cut the same amount into a different number of pieces and the amount does not change. When two fractions name the same amount we call them <strong>equivalent</strong>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Re-dividing the bar -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h3>Re-dividing the Bar</h3>
+      <p>Here is one whole chocolate bar. It is the number <strong>1</strong>. I have shaded exactly one half of it.</p>
+
+      <div class="frac-bar-wrap">
+        <div class="frac-bar" id="hook2-bar">
+          <div class="frac-seg shaded"></div>
+          <div class="frac-seg"></div>
+        </div>
+        <div class="frac-bar-caption" id="hook2-cap">One half shaded</div>
+      </div>
+
+      <p>Watch what happens to the <strong>name</strong> of the shaded part as I keep cutting, without eating or adding any chocolate.</p>
+
+      <div style="text-align:center; margin:16px 0;">
+        <button class="am-reveal-btn" id="hook2-btn" onclick="nextHook2()">Cut each piece in half &rarr;</button>
+      </div>
+
+      <div class="equiv-record reveal-stage" id="hook2-record"></div>
+
+      <div class="callout callout-amber reveal-stage" id="hook2-bigidea">
+        <span class="label">Big idea</span>
+        <p>The shaded amount never changed. Only the number of pieces changed. <span class="mono">1/2</span>, <span class="mono">2/4</span> and <span class="mono">4/8</span> all name the same amount. They are <strong>equivalent fractions</strong>.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Example 1 -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h3>Example 1: Building the Half Family</h3>
+      <div class="ido-progression" id="ex1-progression">
+        <div class="ido-dots" id="ex1-dots">
+          <div class="ido-dot active"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="ido-step active" id="ex1-step-1">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge red">1</div>
+            <div style="font-size:1.15rem;font-weight:600;">Start with the whole</div>
+          </div>
+          <p>This bar is one whole, the number <strong>1</strong>. I shade <span class="frac"><span class="num">1</span><span class="den">2</span></span> of it.</p>
+          <div class="frac-bar-wrap">
+            <div class="frac-bar">
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg"></div>
+            </div>
+            <div class="frac-bar-caption">1 shaded piece out of 2 equal pieces is <span class="mono">1/2</span></div>
+          </div>
+          <div class="ido-step-nav">
+            <span></span>
+            <button class="next" onclick="goToIdoStep('ex1', 2, 4)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="ido-step" id="ex1-step-2">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge amber">2</div>
+            <div style="font-size:1.15rem;font-weight:600;">Re-divide into quarters</div>
+          </div>
+          <p>I cut each of the two pieces in half. Now there are <strong>4</strong> equal pieces. The same chocolate is shaded, but now it is <strong>2</strong> of the pieces.</p>
+          <div class="frac-bar-wrap">
+            <div class="frac-bar">
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+            </div>
+            <div class="frac-bar-caption">2 shaded out of 4 is <span class="mono">2/4</span></div>
+          </div>
+          <p>The amount did not change, so <span class="mono">1/2 = 2/4</span>.</p>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex1', 1, 4)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex1', 3, 4)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="ido-step" id="ex1-step-3">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge green">3</div>
+            <div style="font-size:1.15rem;font-weight:600;">Re-divide into eighths</div>
+          </div>
+          <p>I cut every piece in half again. Now there are <strong>8</strong> equal pieces and <strong>4</strong> are shaded.</p>
+          <div class="frac-bar-wrap">
+            <div class="frac-bar">
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+            </div>
+            <div class="frac-bar-caption">4 shaded out of 8 is <span class="mono">4/8</span></div>
+          </div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex1', 2, 4)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex1', 4, 4)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="ido-step" id="ex1-step-4">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge teal">4</div>
+            <div style="font-size:1.15rem;font-weight:600;">Record the equivalent fractions</div>
+          </div>
+          <div class="equiv-record">1/2 = 2/4 = 4/8</div>
+          <div class="callout callout-teal">
+            <span class="label">Three ways to record it</span>
+            <p><strong>Diagram:</strong> the same shaded bar. <strong>Words:</strong> one half equals two quarters equals four eighths. <strong>Notation:</strong> <span class="mono">1/2 = 2/4 = 4/8</span>.</p>
+          </div>
+          <p>Re-dividing each piece into 2 doubled both the shaded pieces and the total pieces. That is the secret we will turn into a number rule next.</p>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex1', 3, 4)">&larr; Back</button>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Example 2 -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h3>Example 2: Thirds, and the Number Shortcut</h3>
+      <div class="ido-progression" id="ex2-progression">
+        <div class="ido-dots" id="ex2-dots">
+          <div class="ido-dot active"></div>
+          <div class="ido-dot"></div>
+          <div class="ido-dot"></div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="ido-step active" id="ex2-step-1">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge red">1</div>
+            <div style="font-size:1.15rem;font-weight:600;">Shade one third</div>
+          </div>
+          <p>A new whole, cut into <strong>3</strong> equal pieces. I shade <span class="frac"><span class="num">1</span><span class="den">3</span></span>.</p>
+          <div class="frac-bar-wrap">
+            <div class="frac-bar" style="max-width:480px;">
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+            </div>
+            <div class="frac-bar-caption">1 out of 3 is <span class="mono">1/3</span></div>
+          </div>
+          <div class="ido-step-nav">
+            <span></span>
+            <button class="next" onclick="goToIdoStep('ex2', 2, 3)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="ido-step" id="ex2-step-2">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge amber">2</div>
+            <div style="font-size:1.15rem;font-weight:600;">Re-divide into sixths</div>
+          </div>
+          <p>I cut each third in half. Now <strong>6</strong> pieces, and <strong>2</strong> are shaded.</p>
+          <div class="frac-bar-wrap">
+            <div class="frac-bar" style="max-width:480px;">
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg shaded"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+              <div class="frac-seg"></div>
+            </div>
+            <div class="frac-bar-caption">2 out of 6 is <span class="mono">2/6</span></div>
+          </div>
+          <div class="equiv-record">1/3 = 2/6</div>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex2', 1, 3)">&larr; Back</button>
+            <button class="next" onclick="goToIdoStep('ex2', 3, 3)">Next &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="ido-step" id="ex2-step-3">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div class="step-badge teal">3</div>
+            <div style="font-size:1.15rem;font-weight:600;">The number shortcut</div>
+          </div>
+          <p>Cutting every piece into 2 multiplied the top by 2 and the bottom by 2:</p>
+          <div style="text-align:center; font-size:20px; line-height:2.2; margin:12px 0;">
+            <div><span class="mono">1/3</span> &rarr; top <span class="mono">1 &times; 2 = 2</span>, bottom <span class="mono">3 &times; 2 = 6</span> &rarr; <span class="mono">2/6</span></div>
+          </div>
+          <div class="callout callout-teal">
+            <span class="label">The rule</span>
+            <p>To make an equivalent fraction, multiply the numerator and the denominator by the <strong>same</strong> number. What we do to the bottom, we must do to the top, because that is exactly what re-dividing the whole does to a diagram.</p>
+          </div>
+          <p>So <span class="mono">2/3 = (2&times;2)/(3&times;2) = 4/6</span> as well.</p>
+          <div class="ido-step-nav">
+            <button class="back" onclick="goToIdoStep('ex2', 2, 3)">&larr; Back</button>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO Q1 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h3>We Do: Q1</h3>
+      <p>The top bar shows <span class="mono">1/2</span>. The bottom bar is re-divided into quarters and the same amount is shaded. How many quarters is that?</p>
+      <div class="frac-bar-wrap">
+        <div class="frac-bar" style="max-width:480px;">
+          <div class="frac-seg shaded"></div>
+          <div class="frac-seg"></div>
+        </div>
+        <div class="frac-bar-caption"><span class="mono">1/2</span></div>
+      </div>
+      <div class="frac-bar-wrap">
+        <div class="frac-bar" style="max-width:480px;">
+          <div class="frac-seg shaded-2"></div>
+          <div class="frac-seg shaded-2"></div>
+          <div class="frac-seg"></div>
+          <div class="frac-seg"></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-size:20px;" class="mono">1/2 =</span>
+        <input type="number" class="ia-input" id="wedo-in-0" placeholder="?">
+        <span style="font-size:20px;" class="mono">/4</span>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(0)">Check</button></div>
+      <div class="feedback" id="wedo-fb-0"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO Q2 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h3>We Do: Q2</h3>
+      <p>Use the number shortcut. To change fifths into tenths, the bottom is multiplied by 2. What must we do to the top?</p>
+      <div class="equation-box"><span class="frac big"><span class="num">1</span><span class="den">5</span></span> = <span class="frac big"><span class="num">?</span><span class="den">10</span></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-size:20px;" class="mono">1/5 =</span>
+        <input type="number" class="ia-input" id="wedo-in-1" placeholder="?">
+        <span style="font-size:20px;" class="mono">/10</span>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(1)">Check</button></div>
+      <div class="feedback" id="wedo-fb-1"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO Q3 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h3>We Do: Q3</h3>
+      <p>This time the fraction is not a unit fraction. Find the equivalent fraction in sixths.</p>
+      <div class="equation-box"><span class="frac big"><span class="num">2</span><span class="den">3</span></span> = <span class="frac big"><span class="num">?</span><span class="den">6</span></span></div>
+      <p style="font-size:1rem;color:var(--muted);text-align:center;">Hint: the bottom went from 3 to 6, so it was multiplied by 2.</p>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-size:20px;" class="mono">2/3 =</span>
+        <input type="number" class="ia-input" id="wedo-in-2" placeholder="?">
+        <span style="font-size:20px;" class="mono">/6</span>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(2)">Check</button></div>
+      <div class="feedback" id="wedo-fb-2"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: PRACTICE -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h3>Independent Practice</h3>
+      <p style="font-size:16px; color:var(--muted); margin-bottom:8px;">Find the missing number that makes the fractions equivalent. Use the number rule: multiply the top and bottom by the same number.</p>
+
+      <div class="level-bar">
+        <button class="level-btn l1 active" onclick="setYouDoLevel(1)">Level 1 (2, 4, 8)</button>
+        <button class="level-btn l2" onclick="setYouDoLevel(2)">Level 2 (3, 6 and 5, 10)</button>
+        <button class="level-btn l3" onclick="setYouDoLevel(3)">Level 3 (find the multiplier)</button>
+      </div>
+
+      <div class="dot-counter" id="yd-dots"></div>
+      <div id="yd-card" class="card" style="text-align:center;"></div>
+
+      <div class="summary-card" id="yd-summary">
+        <h3>Round Complete</h3>
+        <div class="summary-score" id="yd-score"></div>
+        <p id="yd-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+        <button class="btn btn-primary" onclick="startYouDo()">Try Again (New Questions)</button>
+      </div>
+
+      <button class="go-deeper-level-btn locked" id="yd-godeeper-btn" onclick="unlockGoDeeper()" disabled>
+        <h3>&#x1F512; Go Deeper: Equivalence Investigations</h3>
+        <p>Complete this round with 7 or more correct to unlock.</p>
+      </button>
+
+      <div id="go-deeper-section" style="display:none;margin-top:30px;">
+        <div class="go-deeper-card">
+          <h2>Go Deeper</h2>
+          <p>These tasks push your thinking. You will explore, test a claim, and justify your reasoning like a mathematician.</p>
+        </div>
+
+        <!-- TASK 1: Specialising -->
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">Start with <span class="ext-numbers">1/2</span>. Re-divide the whole into more and more pieces and write down three different fractions that are equal to <span class="ext-numbers">1/2</span>.</div>
+            <div class="ext-task-sub">Look at the numbers in your fractions. What do you notice about the numerator and the denominator each time?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I started by cutting each half in two to get <span class="ext-numbers">2/4</span>. Then I cut those in two to get <span class="ext-numbers">4/8</span>. Then I tried cutting the halves into three to get <span class="ext-numbers">3/6</span>.</p>
+              <p>So three fractions equal to one half are <span class="ext-numbers">2/4</span>, <span class="ext-numbers">4/8</span> and <span class="ext-numbers">3/6</span>.</p>
+              <p>I noticed that the denominator is always double the numerator: <span class="ext-numbers">4</span> is double <span class="ext-numbers">2</span>, <span class="ext-numbers">8</span> is double <span class="ext-numbers">4</span>, <span class="ext-numbers">6</span> is double <span class="ext-numbers">3</span>. That makes sense, because one half means the shaded part is always exactly half of the whole.</p>
+            </div>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence before making any claim.
+          </div>
+        </div>
+
+        <!-- TASK 2: Conjecturing -->
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Conjecturing</div>
+            <div class="ext-task-prompt">A student says: "To make an equivalent fraction, I can add the same number to the top and the bottom. So <span class="ext-numbers">1/2</span> is the same as <span class="ext-numbers">2/3</span> because I added 1 to each."</div>
+            <div class="ext-task-sub">Is this always true, sometimes true, or never true? Use a diagram or the number rule to test it.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>My answer is <strong>never true</strong> for equivalence. I tested the claim. Is <span class="ext-numbers">1/2</span> the same as <span class="ext-numbers">2/3</span>?</p>
+              <p>I drew one half, then I drew two thirds. Two thirds covers more of the bar than one half, so they are not the same amount. The student is wrong.</p>
+              <p>I worked out why. Re-dividing the whole <em>multiplies</em> the pieces, it does not <em>add</em> to them. When I cut each half in two, the <span class="ext-numbers">1</span> shaded piece became <span class="ext-numbers">2</span>, which is times 2, not plus 1. Adding the same number to the top and bottom changes how big the shaded part is compared with the whole, so it cannot give an equivalent fraction.</p>
+            </div>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em> and then testing. A claim in maths has to survive being tested with examples and a counterexample beats it.
+          </div>
+        </div>
+
+        <!-- TASK 3: Justifying -->
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Justifying</div>
+            <div class="ext-task-prompt">Is <span class="ext-numbers">3/4</span> equivalent to <span class="ext-numbers">6/8</span>?</div>
+            <div class="ext-task-sub">Prove your answer in two different ways: once with a diagram by re-dividing the whole, and once with the number rule.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>Yes, they are equivalent. Here are my two proofs.</p>
+              <p><strong>Diagram:</strong> I shade <span class="ext-numbers">3</span> out of <span class="ext-numbers">4</span> pieces of a bar. Then I cut each piece in half, giving <span class="ext-numbers">8</span> pieces. The shaded part is now <span class="ext-numbers">6</span> pieces. I did not add or remove any shading, so <span class="ext-numbers">3/4</span> and <span class="ext-numbers">6/8</span> are the same amount.</p>
+              <p><strong>Number rule:</strong> the bottom went from <span class="ext-numbers">4</span> to <span class="ext-numbers">8</span>, which is times 2. So I do the same to the top: <span class="ext-numbers">3 &times; 2 = 6</span>. That gives <span class="ext-numbers">6/8</span>, so they match.</p>
+              <p>Both methods agree, so I am confident the answer is yes.</p>
+            </div>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. Proving the same result two different ways is powerful, because if the methods agree you can really trust the answer.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 9</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── NAVIGATION SYSTEM ──
+const slides = [
+  { id: 'Learning', name: 'Learning Intention' },
+  { id: 'Hook', name: 'The Coin Swap' },
+  { id: 'Hook', name: 'Re-dividing the Bar' },
+  { id: 'I Do', name: 'Example 1: The Half Family' },
+  { id: 'I Do', name: 'Example 2: Thirds and the Shortcut' },
+  { id: 'We Do', name: 'Q1' },
+  { id: 'We Do', name: 'Q2' },
+  { id: 'We Do', name: 'Q3' },
+  { id: 'Practice', name: 'Independent Practice' }
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Practice': 'practice'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + index).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+}
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+
+function updateNavButtons() {
+  const prevBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[0];
+  const nextBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[1];
+  const counter = document.querySelectorAll('.slide.active .slide-counter')[0];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+function goToPhase(sectionName) {
+  for (let i = 0; i < slides.length; i++) { if (slides[i].id === sectionName) { goToSlide(i); break; } }
+}
+function updatePhaseNav() {
+  const section = slides[currentSlide].id;
+  const phase = sectionToPhase[section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-phase="' + phase + '"]').classList.add('active');
+}
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item')[currentSlide].classList.add('active');
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+function setHeaderHeight() {
+  const headerHeight = document.querySelector('header').offsetHeight;
+  const navHeight = document.querySelector('.phase-nav').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', (headerHeight + navHeight) + 'px');
+}
+
+// ── HOOK 1 ──
+function revealHook1() {
+  document.getElementById('hook1-reveal').classList.add('show');
+  document.getElementById('hook1-btn').style.display = 'none';
+}
+
+// ── HOOK 2 STAGED REVEAL ──
+let hook2Stage = 0;
+function nextHook2() {
+  hook2Stage++;
+  const bar = document.getElementById('hook2-bar');
+  const cap = document.getElementById('hook2-cap');
+  const rec = document.getElementById('hook2-record');
+  const btn = document.getElementById('hook2-btn');
+  if (hook2Stage === 1) {
+    bar.innerHTML = '<div class="frac-seg shaded"></div><div class="frac-seg shaded"></div><div class="frac-seg"></div><div class="frac-seg"></div>';
+    cap.textContent = 'Now 2 pieces are shaded out of 4. That is 2/4.';
+    rec.textContent = '1/2 = 2/4';
+    rec.classList.add('show');
+    btn.textContent = 'Cut each piece in half again ' + String.fromCharCode(8594);
+  } else if (hook2Stage === 2) {
+    bar.innerHTML = '<div class="frac-seg shaded"></div><div class="frac-seg shaded"></div><div class="frac-seg shaded"></div><div class="frac-seg shaded"></div><div class="frac-seg"></div><div class="frac-seg"></div><div class="frac-seg"></div><div class="frac-seg"></div>';
+    cap.textContent = 'Now 4 pieces are shaded out of 8. That is 4/8.';
+    rec.textContent = '1/2 = 2/4 = 4/8';
+    btn.textContent = 'What does this mean? ' + String.fromCharCode(8594);
+  } else if (hook2Stage === 3) {
+    document.getElementById('hook2-bigidea').classList.add('show');
+    btn.style.display = 'none';
+  }
+}
+
+// ── I DO STEP PROGRESSION ──
+function goToIdoStep(prefix, stepNum, totalSteps) {
+  document.querySelectorAll('#' + prefix + '-progression .ido-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(prefix + '-step-' + stepNum).classList.add('active');
+  const dots = document.querySelectorAll('#' + prefix + '-dots .ido-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('active', 'visited');
+    if (i === stepNum - 1) dot.classList.add('active');
+    else if (i < stepNum - 1) dot.classList.add('visited');
+  });
+}
+
+// ── WE DO ──
+const weDoData = [
+  { num: 1, den: 2, targetDen: 4, answer: 2 },
+  { num: 1, den: 5, targetDen: 10, answer: 2 },
+  { num: 2, den: 3, targetDen: 6, answer: 4 }
+];
+function checkWeDo(idx) {
+  const p = weDoData[idx];
+  const inp = document.getElementById('wedo-in-' + idx);
+  const fb = document.getElementById('wedo-fb-' + idx);
+  const val = parseInt(inp.value, 10);
+  inp.disabled = true;
+  const k = p.targetDen / p.den;
+  if (val === p.answer) {
+    inp.classList.add('correct'); inp.classList.remove('wrong');
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> The bottom was multiplied by <span class="mono">' + k + '</span>, so the top is too: <span class="mono">' + p.num + ' &times; ' + k + ' = ' + p.answer + '</span>. So <span class="mono">' + p.num + '/' + p.den + ' = ' + p.answer + '/' + p.targetDen + '</span>.';
+  } else {
+    inp.classList.add('wrong'); inp.classList.remove('correct');
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The bottom went from <span class="mono">' + p.den + '</span> to <span class="mono">' + p.targetDen + '</span>, which is times <span class="mono">' + k + '</span>. Do the same to the top: <span class="mono">' + p.num + ' &times; ' + k + ' = ' + p.answer + '</span>.';
+  }
+}
+
+// ── YOU DO ──
+let ydProblems = [];
+let ydIdx = 0;
+let ydResults = [];
+let ydLevel = 1;
+const ydTotal = 8;
+
+function setYouDoLevel(lvl) {
+  ydLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) { b.classList.toggle('active', i + 1 === lvl); });
+  document.getElementById('go-deeper-section').style.display = 'none';
+  startYouDo();
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+
+function generateYouDoProblems() {
+  const problems = [];
+  // base fractions per level: [num, den]
+  let bases, multipliers, mode;
+  if (ydLevel === 1) {
+    bases = shuffle([[1,2],[1,2],[1,4],[3,4],[1,2],[2,4],[1,4],[3,4]]);
+    multipliers = [2,4];   // 2->4, 2->8, 4->8
+    mode = 'numerator';
+  } else if (ydLevel === 2) {
+    bases = shuffle([[1,3],[2,3],[1,5],[2,5],[3,5],[1,3],[2,5],[4,5]]);
+    multipliers = [2];     // 3->6, 5->10
+    mode = 'numerator';
+  } else {
+    bases = shuffle([[1,2],[2,3],[3,4],[1,5],[2,3],[3,5],[1,4],[2,5]]);
+    multipliers = [2,3,4]; // find the multiplier / missing denominator
+    mode = 'mixed';
+  }
+  for (let i = 0; i < ydTotal; i++) {
+    const base = bases[i % bases.length];
+    const num = base[0], den = base[1];
+    let k;
+    if (ydLevel === 1) {
+      // ensure target denominator is in {4,8} family
+      k = (den === 2) ? (Math.random() < 0.5 ? 2 : 4) : 2; // 4->8 only
+    } else if (ydLevel === 2) {
+      k = 2;
+    } else {
+      k = multipliers[Math.floor(Math.random() * multipliers.length)];
+    }
+    const targetDen = den * k;
+    const answerNum = num * k;
+    // For level 3 'mixed', randomly ask for the missing numerator OR denominator
+    let ask = 'numerator';
+    if (mode === 'mixed' && Math.random() < 0.5) ask = 'denominator';
+    problems.push({ num: num, den: den, k: k, targetDen: targetDen, answerNum: answerNum, ask: ask });
+  }
+  return problems;
+}
+
+function startYouDo() {
+  ydProblems = generateYouDoProblems();
+  ydIdx = 0;
+  ydResults = [];
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  buildDots('yd-dots', ydTotal);
+  showYouDoProblem();
+}
+
+function buildDots(containerId, count) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = containerId + '-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
+  }
+}
+
+function fracHTML(n, d) {
+  return '<span class="frac big"><span class="num">' + n + '</span><span class="den">' + d + '</span></span>';
+}
+
+function showYouDoProblem() {
+  if (ydIdx >= ydTotal) { showYouDoSummary(); return; }
+  const p = ydProblems[ydIdx];
+  const card = document.getElementById('yd-card');
+
+  let equationHTML, inputHTML;
+  if (p.ask === 'denominator') {
+    // num/den = answerNum/?   ... but to keep it a single unknown we show known numerator on the right
+    equationHTML = fracHTML(p.num, p.den) + ' <span style="font-size:26px;">=</span> ' + fracHTML(p.answerNum, '?');
+    inputHTML = '<span class="mono" style="font-size:20px;">' + p.num + '/' + p.den + ' = ' + p.answerNum + '/</span>' +
+                '<input type="number" class="ia-input" id="yd-input" placeholder="?">';
+  } else {
+    equationHTML = fracHTML(p.num, p.den) + ' <span style="font-size:26px;">=</span> ' + fracHTML('?', p.targetDen);
+    inputHTML = '<span class="mono" style="font-size:20px;">' + p.num + '/' + p.den + ' =</span>' +
+                '<input type="number" class="ia-input" id="yd-input" placeholder="?">' +
+                '<span class="mono" style="font-size:20px;">/' + p.targetDen + '</span>';
+  }
+
+  card.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (ydIdx + 1) + ' of ' + ydTotal + '</div>' +
+    '<div class="equation-box">' + equationHTML + '</div>' +
+    '<p style="font-size:15px;color:var(--muted);margin-bottom:10px;">Find the missing number that makes these fractions equivalent.</p>' +
+    '<div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">' + inputHTML + '</div>' +
+    '<div style="text-align:center;margin-top:12px;"><button class="check-btn" id="yd-check-btn" onclick="checkYouDo()">Check</button></div>' +
+    '<div class="feedback" id="yd-fb"></div>' +
+    '<button class="btn btn-primary" id="yd-next" style="display:none;margin-top:14px;" onclick="nextYouDo()">Next &rarr;</button>';
+
+  for (let j = 0; j < ydTotal; j++) {
+    const d = document.getElementById('yd-dots-' + j);
+    if (d) { d.classList.remove('current'); if (j === ydIdx) d.classList.add('current'); }
+  }
+}
+
+function checkYouDo() {
+  const p = ydProblems[ydIdx];
+  const inp = document.getElementById('yd-input');
+  const fb = document.getElementById('yd-fb');
+  const val = parseInt(inp.value, 10);
+  const expected = (p.ask === 'denominator') ? p.targetDen : p.answerNum;
+  inp.disabled = true;
+  document.getElementById('yd-check-btn').disabled = true;
+  let correct = (val === expected);
+
+  if (correct) {
+    inp.classList.add('correct');
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> Multiply top and bottom by <span class="mono">' + p.k + '</span>: <span class="mono">' + p.num + '/' + p.den + ' = ' + p.answerNum + '/' + p.targetDen + '</span>.';
+  } else {
+    inp.classList.add('wrong');
+    fb.className = 'feedback show incorrect';
+    if (p.ask === 'denominator') {
+      fb.innerHTML = '<strong>Not quite.</strong> The top went from <span class="mono">' + p.num + '</span> to <span class="mono">' + p.answerNum + '</span>, which is times <span class="mono">' + p.k + '</span>. Do the same to the bottom: <span class="mono">' + p.den + ' &times; ' + p.k + ' = ' + p.targetDen + '</span>.';
+    } else {
+      fb.innerHTML = '<strong>Not quite.</strong> The bottom went from <span class="mono">' + p.den + '</span> to <span class="mono">' + p.targetDen + '</span>, which is times <span class="mono">' + p.k + '</span>. Do the same to the top: <span class="mono">' + p.num + ' &times; ' + p.k + ' = ' + p.answerNum + '</span>.';
+    }
+  }
+
+  ydResults[ydIdx] = correct;
+  const dot = document.getElementById('yd-dots-' + ydIdx);
+  dot.classList.remove('current');
+  dot.classList.add(correct ? 'green' : 'red');
+  document.getElementById('yd-next').style.display = 'inline-block';
+}
+
+function nextYouDo() { ydIdx++; showYouDoProblem(); }
+
+function showYouDoSummary() {
+  document.getElementById('yd-card').style.display = 'none';
+  const correct = ydResults.filter(function(r) { return r; }).length;
+  const scoreEl = document.getElementById('yd-score');
+  scoreEl.textContent = correct + ' / ' + ydTotal;
+  scoreEl.style.color = correct >= 7 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('yd-message').textContent = correct >= 7 ? 'Excellent. You can find equivalent fractions confidently.' :
+    correct >= 5 ? 'Good progress. Remember to do the same to the top and the bottom.' :
+    'Keep practising. Re-read the I Do examples about re-dividing the whole.';
+  if (correct >= 7) {
+    const gd = document.getElementById('yd-godeeper-btn');
+    gd.classList.remove('locked');
+    gd.disabled = false;
+    gd.onclick = function() { showGoDeeper(); };
+    gd.innerHTML = '<h3>&#x1F513; Go Deeper: Equivalence Investigations</h3><p>Explore, test a claim, and justify your reasoning.</p>';
+  }
+  document.getElementById('yd-summary').classList.add('show');
+}
+
+function showGoDeeper() {
+  document.getElementById('go-deeper-section').style.display = 'block';
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+function unlockGoDeeper() {
+  alert('Complete this round with 7 or more correct answers to unlock Go Deeper.');
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+  startYouDo();
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>

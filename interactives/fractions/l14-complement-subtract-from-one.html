@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 14: The Complement Principle, Subtracting from 1 - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--amber); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 48px;
+    border: 2px solid var(--border); margin-bottom: 0;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout.callout-blue { background: rgba(52,152,219,0.1); border-left-color: var(--blue); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  /* FRACTION NOTATION */
+  .frac {
+    display: inline-flex; flex-direction: column; align-items: center;
+    vertical-align: middle; font-family: 'Space Mono', monospace; font-weight: 700;
+    line-height: 1.05; margin: 0 3px;
+  }
+  .frac .num { display: block; padding: 0 6px; border-bottom: 2px solid currentColor; }
+  .frac .den { display: block; padding: 0 6px; }
+  .frac.big { font-size: 26px; }
+
+  /* FRACTION BAR VISUAL */
+  .frac-bar-wrap { margin: 18px auto; text-align: center; }
+  .frac-bar {
+    display: flex; width: 100%; max-width: 540px; height: 72px;
+    border: 3px solid var(--text); border-radius: 8px; overflow: hidden; margin: 0 auto;
+    background: #fff;
+  }
+  .frac-seg { flex: 1; border-right: 2px solid var(--text); transition: background 0.4s ease; }
+  .frac-seg:last-child { border-right: none; }
+  .frac-seg.shaded { background: var(--teal); }
+  .frac-seg.shaded-2 { background: var(--amber); }
+  .frac-bar-caption {
+    text-align: center; font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: 18px; margin-top: 10px; color: var(--text);
+  }
+  .equiv-record {
+    text-align: center; font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: 24px; margin: 16px 0; color: var(--teal-dark);
+  }
+  .reveal-stage { opacity: 0; transition: opacity 0.4s ease; }
+  .reveal-stage.show { opacity: 1; }
+
+  /* SVG BAR MODEL (v2 hero visual) */
+  .bar-svg-wrap { text-align: center; margin: 14px auto 6px; }
+  .bar-svg { width: 100%; max-width: 560px; height: auto; }
+  .bar-fill { fill: var(--teal); opacity: 0; transition: opacity 0.45s ease; }
+  .bar-fill.show { opacity: 1; }
+  .bar-cut { stroke: #fff; stroke-width: 3; opacity: 0; transition: opacity 0.4s ease; }
+  .bar-cut.show { opacity: 1; }
+  .bar-remove { fill: #fff; opacity: 0; transition: opacity 0.45s ease; }
+  .bar-remove.show { opacity: 1; }
+  .bar-cap { font-size: 1.05rem; font-weight: 600; color: var(--muted); text-align: center; margin-top: 4px; }
+  .bar-cap .mono { color: var(--text); }
+  .prompt { font-size: 1.5rem; font-weight: 600; text-align: center; margin-bottom: 6px; }
+  .reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 8px;
+  }
+  .reveal-btn:hover:not(:disabled) { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .reveal-btn:disabled { background: #ccc; cursor: default; transform: none; box-shadow: none; }
+
+  /* EQUATION BOX */
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 40px; font-weight: 700;
+    text-align: center; padding: 24px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 16px 0;
+  }
+
+  /* I DO STEP PROGRESSION */
+  .ido-progression { position: relative; }
+  .ido-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .ido-dot { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; transition: all 0.3s; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.35); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%; color: white;
+    font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .step-badge.red { background: var(--red); }
+  .step-badge.amber { background: var(--amber); color: var(--text); }
+  .step-badge.green { background: var(--green); }
+  .step-badge.teal { background: var(--teal); color: var(--text); }
+  .step-badge.blue { background: var(--blue); }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 16px; }
+  .ido-step-nav button {
+    background: var(--teal); color: var(--text); border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .ido-step-nav button:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .ido-step-nav .back { background: rgba(0,0,0,0.06); color: var(--text); }
+  .ido-step-nav .back:hover { background: rgba(0,0,0,0.12); }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* REVEAL BUTTON */
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+
+  /* INPUTS */
+  .ia-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 70px; text-align: center; padding: 8px; border: 2px solid var(--border);
+    border-radius: 10px; outline: none; transition: border-color 0.2s;
+  }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* FEEDBACK */
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* BUTTONS */
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .btn {
+    border: none; border-radius: 30px; padding: 12px 28px;
+    font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 16px;
+  }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  /* DOT COUNTER */
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #e0e5e8; border: 2px solid #d1d5db;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease;
+  }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  /* LEVEL BAR */
+  .level-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+
+  /* SUMMARY */
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+
+  /* GO DEEPER */
+  .go-deeper-level-btn {
+    display: block; width: 100%; text-align: left; padding: 20px 24px;
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif;
+    transition: all 0.3s; margin-top: 20px;
+  }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 20px 18px; }
+    .ia-input { width: 60px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Representing Quantity Fractions</div>
+  <h1>Lesson 14: <span>The Complement Principle, Subtracting from 1</span></h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">How Much Pizza Is Left?</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(2)">Example 1: 1 - 1/5</button>
+      <button class="sidebar-item" onclick="goToSlide(3)">Example 2: 1 - 3/8</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(4)">Q1: 1 - 1/3</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q2: 1 - 7/10</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q3: word problem</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(7)">Independent Practice</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to subtract a fraction from 1 by renaming the whole as a fraction with the same denominator.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can rename the number 1 as a fraction such as 5/5 or 8/8.</li>
+          <li>I can explain that any fraction with the same top and bottom is equal to 1.</li>
+          <li>I can subtract a fraction from 1 by renaming 1 to match the denominator.</li>
+          <li>I can find the complement of a fraction mentally, the part that makes it up to a whole.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <div class="prompt">A whole bar. Take away <span class="frac"><span class="num">1</span><span class="den">8</span></span>. How much is left?</div>
+      <div class="bar-svg-wrap">
+        <svg class="bar-svg" viewBox="0 0 560 60" role="img" aria-label="one whole bar in eighths">
+          <rect x="2" y="4" width="556" height="48" fill="#fff" stroke="#2D3436" stroke-width="3"/>
+          <rect id="hk-fill" class="bar-fill" x="2" y="4" width="556" height="48"/>
+          <rect id="hk-remove" class="bar-remove" x="490" y="5" width="67" height="46"/>
+          <line x1="71.5" y1="4" x2="71.5" y2="52" stroke="#2D3436" stroke-width="2"/>
+          <line x1="141" y1="4" x2="141" y2="52" stroke="#2D3436" stroke-width="2"/>
+          <line x1="210.5" y1="4" x2="210.5" y2="52" stroke="#2D3436" stroke-width="2"/>
+          <line x1="280" y1="4" x2="280" y2="52" stroke="#2D3436" stroke-width="2"/>
+          <line x1="349.5" y1="4" x2="349.5" y2="52" stroke="#2D3436" stroke-width="2"/>
+          <line x1="419" y1="4" x2="419" y2="52" stroke="#2D3436" stroke-width="2"/>
+          <line x1="488.5" y1="4" x2="488.5" y2="52" stroke="#2D3436" stroke-width="2"/>
+        </svg>
+        <div class="bar-cap" id="hk-cap">The whole bar is one</div>
+      </div>
+      <div style="text-align:center;">
+        <button class="reveal-btn" id="hook-btn" onclick="nextHook()">Fill the whole bar &rarr;</button>
+      </div>
+      <div class="callout callout-amber reveal-stage" id="hook-answer">
+        <span class="label">The big idea</span>
+        <p>The whole bar is <span class="mono">8/8</span>. Take one eighth and <span class="mono">7/8</span> is left. To subtract from 1, we rename 1 as a fraction with the same denominator. The part left is called the <strong>complement</strong>.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: I DO Example 1 -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <div class="prompt"><span class="mono" style="font-size:1.5rem;">1</span> &minus; <span class="frac"><span class="num">1</span><span class="den">5</span></span></div>
+      <div class="bar-svg-wrap">
+        <svg class="bar-svg" viewBox="0 0 560 60" role="img" aria-label="bar for one take away one fifth">
+          <rect x="2" y="4" width="556" height="48" fill="#fff" stroke="#2D3436" stroke-width="3"/>
+          <rect id="e1-fill" class="bar-fill" x="2" y="4" width="556" height="48"/>
+          <rect id="e1-remove" class="bar-remove" x="447" y="5" width="110" height="46"/>
+          <line id="e1-c1" class="bar-cut" x1="113.2" y1="4" x2="113.2" y2="52"/>
+          <line id="e1-c2" class="bar-cut" x1="224.4" y1="4" x2="224.4" y2="52"/>
+          <line id="e1-c3" class="bar-cut" x1="335.6" y1="4" x2="335.6" y2="52"/>
+          <line id="e1-c4" class="bar-cut" x1="446.8" y1="4" x2="446.8" y2="52"/>
+        </svg>
+        <div class="bar-cap" id="e1-cap">The whole bar is one</div>
+      </div>
+      <div style="text-align:center;">
+        <button class="reveal-btn" id="e1-btn" onclick="nextEx1()">Rename 1 as <span class="mono">5/5</span> &rarr;</button>
+      </div>
+      <div class="equiv-record reveal-stage" id="e1-record">1 &minus; 1/5 = 5/5 &minus; 1/5 = 4/5</div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO Example 2 -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <div class="prompt"><span class="mono" style="font-size:1.5rem;">1</span> &minus; <span class="frac"><span class="num">3</span><span class="den">8</span></span></div>
+      <div class="bar-svg-wrap">
+        <svg class="bar-svg" viewBox="0 0 560 60" role="img" aria-label="bar for one take away three eighths">
+          <rect x="2" y="4" width="556" height="48" fill="#fff" stroke="#2D3436" stroke-width="3"/>
+          <rect id="e2-fill" class="bar-fill" x="2" y="4" width="556" height="48"/>
+          <rect id="e2-remove" class="bar-remove" x="350" y="5" width="207" height="46"/>
+          <line id="e2-c1" class="bar-cut" x1="71.5" y1="4" x2="71.5" y2="52"/>
+          <line id="e2-c2" class="bar-cut" x1="141" y1="4" x2="141" y2="52"/>
+          <line id="e2-c3" class="bar-cut" x1="210.5" y1="4" x2="210.5" y2="52"/>
+          <line id="e2-c4" class="bar-cut" x1="280" y1="4" x2="280" y2="52"/>
+          <line id="e2-c5" class="bar-cut" x1="349.5" y1="4" x2="349.5" y2="52"/>
+          <line id="e2-c6" class="bar-cut" x1="419" y1="4" x2="419" y2="52"/>
+          <line id="e2-c7" class="bar-cut" x1="488.5" y1="4" x2="488.5" y2="52"/>
+        </svg>
+        <div class="bar-cap" id="e2-cap">The whole bar is one</div>
+      </div>
+      <div style="text-align:center;">
+        <button class="reveal-btn" id="e2-btn" onclick="nextEx2()">Rename 1 as <span class="mono">8/8</span> &rarr;</button>
+      </div>
+      <div class="equiv-record reveal-stage" id="e2-record">1 &minus; 3/8 = 8/8 &minus; 3/8 = 5/8</div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: WE DO Q1 -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h3>We Do: Q1</h3>
+      <p>Rename 1 as thirds, then subtract. How many thirds are left?</p>
+      <div class="equation-box"><span class="frac big"><span class="num">3</span><span class="den">3</span></span> &minus; <span class="frac big"><span class="num">1</span><span class="den">3</span></span> = <span class="frac big"><span class="num">?</span><span class="den">3</span></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-size:20px;" class="mono">Answer:</span>
+        <input type="number" class="ia-input" id="wedo-in-0" placeholder="?">
+        <span style="font-size:20px;" class="mono">/3</span>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(0)">Check</button></div>
+      <div class="feedback" id="wedo-fb-0"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO Q2 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h3>We Do: Q2</h3>
+      <p>Rename 1 as <span class="mono">10/10</span>, then subtract. What adds to <strong>7</strong> to make <strong>10</strong>?</p>
+      <div class="equation-box"><span class="frac big"><span class="num">10</span><span class="den">10</span></span> &minus; <span class="frac big"><span class="num">7</span><span class="den">10</span></span> = <span class="frac big"><span class="num">?</span><span class="den">10</span></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-size:20px;" class="mono">Answer:</span>
+        <input type="number" class="ia-input" id="wedo-in-1" placeholder="?">
+        <span style="font-size:20px;" class="mono">/10</span>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(1)">Check</button></div>
+      <div class="feedback" id="wedo-fb-1"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO Q3 word problem -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h3>We Do: Q3</h3>
+      <p>A full jar of paint. Noah uses <span class="mono">5/6</span>. Rename the jar as <span class="mono">6/6</span>. How much paint is left?</p>
+      <div class="equation-box"><span class="frac big"><span class="num">6</span><span class="den">6</span></span> &minus; <span class="frac big"><span class="num">5</span><span class="den">6</span></span> = <span class="frac big"><span class="num">?</span><span class="den">6</span></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-size:20px;" class="mono">Answer:</span>
+        <input type="number" class="ia-input" id="wedo-in-2" placeholder="?">
+        <span style="font-size:20px;" class="mono">/6</span>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(2)">Check</button></div>
+      <div class="feedback" id="wedo-fb-2"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: PRACTICE -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h3>Independent Practice</h3>
+      <p style="font-size:16px; color:var(--muted); margin-bottom:8px;">Rename 1 to match the denominator, then subtract to find the complement.</p>
+
+      <div class="level-bar">
+        <button class="level-btn l1 active" onclick="setYouDoLevel(1)">Level 1 (unit fractions)</button>
+        <button class="level-btn l2" onclick="setYouDoLevel(2)">Level 2 (non-unit fractions)</button>
+        <button class="level-btn l3" onclick="setYouDoLevel(3)">Level 3 (word problems)</button>
+      </div>
+
+      <div class="dot-counter" id="yd-dots"></div>
+      <div id="yd-card" class="card" style="text-align:center;"></div>
+
+      <div class="summary-card" id="yd-summary">
+        <h3>Round Complete</h3>
+        <div class="summary-score" id="yd-score"></div>
+        <p id="yd-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+        <button class="btn btn-primary" onclick="startYouDo()">Try Again (New Questions)</button>
+      </div>
+
+      <button class="go-deeper-level-btn locked" id="yd-godeeper-btn" onclick="unlockGoDeeper()" disabled>
+        <h3>&#x1F512; Go Deeper: Complement Investigations</h3>
+        <p>Complete this round with 7 or more correct to unlock.</p>
+      </button>
+
+      <div id="go-deeper-section" style="display:none;margin-top:30px;">
+        <div class="go-deeper-card">
+          <h2>Go Deeper</h2>
+          <p>These tasks push your thinking. You will explore, work backwards, and justify your reasoning like a mathematician.</p>
+        </div>
+
+        <!-- TASK 1: Specialising -->
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">Subtract each of these from 1: <span class="ext-numbers">1/4</span>, <span class="ext-numbers">2/4</span> and <span class="ext-numbers">3/4</span>. Write the complement each time.</div>
+            <div class="ext-task-sub">Look at the fraction you started with and the complement you found. What do the two numerators always add up to?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I renamed the whole as <span class="ext-numbers">4/4</span> each time. For <span class="ext-numbers">1 &minus; 1/4</span> I got <span class="ext-numbers">3/4</span>. For <span class="ext-numbers">1 &minus; 2/4</span> I got <span class="ext-numbers">2/4</span>. For <span class="ext-numbers">1 &minus; 3/4</span> I got <span class="ext-numbers">1/4</span>.</p>
+              <p>I lined up the starting numerator and the complement numerator: <span class="ext-numbers">1</span> and <span class="ext-numbers">3</span>, then <span class="ext-numbers">2</span> and <span class="ext-numbers">2</span>, then <span class="ext-numbers">3</span> and <span class="ext-numbers">1</span>.</p>
+              <p>Every single time the two numerators added up to <span class="ext-numbers">4</span>, which is the denominator. That makes sense, because together they have to rebuild the whole, and the whole is <span class="ext-numbers">4/4</span>.</p>
+            </div>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to spot a pattern before you make a claim.
+          </div>
+        </div>
+
+        <!-- TASK 2: Justifying (reverse) -->
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Justifying</div>
+            <div class="ext-task-prompt">A fraction is subtracted from 1 and the complement that is left is <span class="ext-numbers">2/10</span>. What was the fraction that was subtracted? Explain how you know there is only one answer.</div>
+            <div class="ext-task-sub">Use the idea that the two parts must rebuild the whole. How can you check your answer?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I know the whole is <span class="ext-numbers">10/10</span> because the complement is in tenths. The part that was left is <span class="ext-numbers">2/10</span>, so the part that was taken away must be the rest of the whole.</p>
+              <p>At first I thought I might need to try lots of fractions, but then I realised the two parts have to add to <span class="ext-numbers">10/10</span>. So the missing numerator is <span class="ext-numbers">10 &minus; 2 = 8</span>. The fraction subtracted was <span class="ext-numbers">8/10</span>.</p>
+              <p>There is only one answer because once the complement is fixed at <span class="ext-numbers">2/10</span>, the other part has no choice, it must be <span class="ext-numbers">8/10</span>. I checked: <span class="ext-numbers">8/10 + 2/10 = 10/10 = 1</span>, so it is correct.</p>
+            </div>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just finding an answer, you are explaining why it must be the only one.
+          </div>
+        </div>
+
+        <!-- TASK 3: Generalising -->
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Generalising</div>
+            <div class="ext-task-prompt">Write a rule that works for subtracting <span class="ext-numbers">any</span> fraction from 1, no matter what the denominator is. Then test your rule on a denominator you have not used yet, such as <span class="ext-numbers">12</span>.</div>
+            <div class="ext-task-sub">Can you describe the rule in words so a friend could follow it without drawing a bar?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>My first try at a rule was "take the top away from the bottom". I tested it on <span class="ext-numbers">1 &minus; 3/8</span>: bottom take away top is <span class="ext-numbers">8 &minus; 3 = 5</span>, and the answer is <span class="ext-numbers">5/8</span>. That worked.</p>
+              <p>But I wanted to be careful, so I wrote the rule more fully: rename the whole 1 as a fraction with the same denominator, keep that denominator, and the new numerator is the old denominator take away the old numerator.</p>
+              <p>I tested it on a new denominator, <span class="ext-numbers">12</span>. For <span class="ext-numbers">1 &minus; 5/12</span>, the new numerator is <span class="ext-numbers">12 &minus; 5 = 7</span>, so the answer is <span class="ext-numbers">7/12</span>. The denominator stays <span class="ext-numbers">12</span>. My rule still works.</p>
+            </div>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means you are making a rule that works every time, not just for the examples you tried.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── NAVIGATION SYSTEM ──
+const slides = [
+  { id: 'Learning', name: 'Learning Intention' },
+  { id: 'Hook', name: 'How Much Pizza Is Left?' },
+  { id: 'I Do', name: 'Example 1: 1 - 1/5' },
+  { id: 'I Do', name: 'Example 2: 1 - 3/8' },
+  { id: 'We Do', name: 'Q1: 1 - 1/3' },
+  { id: 'We Do', name: 'Q2: 1 - 7/10' },
+  { id: 'We Do', name: 'Q3: word problem' },
+  { id: 'Practice', name: 'Independent Practice' }
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Practice': 'practice'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + index).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+}
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+
+function updateNavButtons() {
+  const prevBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[0];
+  const nextBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[1];
+  const counter = document.querySelectorAll('.slide.active .slide-counter')[0];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+function goToPhase(sectionName) {
+  for (let i = 0; i < slides.length; i++) { if (slides[i].id === sectionName) { goToSlide(i); break; } }
+}
+function updatePhaseNav() {
+  const section = slides[currentSlide].id;
+  const phase = sectionToPhase[section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-phase="' + phase + '"]').classList.add('active');
+}
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item')[currentSlide].classList.add('active');
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+function setHeaderHeight() {
+  const headerHeight = document.querySelector('header').offsetHeight;
+  const navHeight = document.querySelector('.phase-nav').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', (headerHeight + navHeight) + 'px');
+}
+
+// ── HOOK staged reveal: 1 - 1/8 ──
+let hookStage = 0;
+function nextHook() {
+  hookStage++;
+  const btn = document.getElementById('hook-btn');
+  const cap = document.getElementById('hk-cap');
+  if (hookStage === 1) {
+    document.getElementById('hk-fill').classList.add('show');
+    cap.innerHTML = 'The whole bar is <span class="mono">8/8</span>';
+    btn.innerHTML = 'Take away one eighth ' + String.fromCharCode(8594);
+  } else if (hookStage === 2) {
+    document.getElementById('hk-remove').classList.add('show');
+    cap.innerHTML = 'One eighth gone leaves <span class="mono">7/8</span>';
+    btn.innerHTML = 'Why does this work? ' + String.fromCharCode(8594);
+  } else if (hookStage === 3) {
+    document.getElementById('hook-answer').classList.add('show');
+    btn.disabled = true;
+  }
+}
+
+// ── I DO Example 1: 1 - 1/5 ──
+let e1Stage = 0;
+function nextEx1() {
+  e1Stage++;
+  const btn = document.getElementById('e1-btn');
+  const cap = document.getElementById('e1-cap');
+  if (e1Stage === 1) {
+    document.getElementById('e1-fill').classList.add('show');
+    ['e1-c1','e1-c2','e1-c3','e1-c4'].forEach(function(id){ document.getElementById(id).classList.add('show'); });
+    cap.innerHTML = 'One whole, cut into fifths: <span class="mono">5/5</span>';
+    btn.innerHTML = 'Take away <span class="mono">1/5</span> ' + String.fromCharCode(8594);
+  } else if (e1Stage === 2) {
+    document.getElementById('e1-remove').classList.add('show');
+    cap.innerHTML = 'One fifth removed leaves <span class="mono">4/5</span>';
+    btn.innerHTML = 'Record it ' + String.fromCharCode(8594);
+  } else if (e1Stage === 3) {
+    document.getElementById('e1-record').classList.add('show');
+    btn.disabled = true;
+  }
+}
+
+// ── I DO Example 2: 1 - 3/8 ──
+let e2Stage = 0;
+function nextEx2() {
+  e2Stage++;
+  const btn = document.getElementById('e2-btn');
+  const cap = document.getElementById('e2-cap');
+  if (e2Stage === 1) {
+    document.getElementById('e2-fill').classList.add('show');
+    ['e2-c1','e2-c2','e2-c3','e2-c4','e2-c5','e2-c6','e2-c7'].forEach(function(id){ document.getElementById(id).classList.add('show'); });
+    cap.innerHTML = 'One whole, cut into eighths: <span class="mono">8/8</span>';
+    btn.innerHTML = 'Take away <span class="mono">3/8</span> ' + String.fromCharCode(8594);
+  } else if (e2Stage === 2) {
+    document.getElementById('e2-remove').classList.add('show');
+    cap.innerHTML = 'Three eighths removed leaves <span class="mono">5/8</span>';
+    btn.innerHTML = 'Record it ' + String.fromCharCode(8594);
+  } else if (e2Stage === 3) {
+    document.getElementById('e2-record').classList.add('show');
+    btn.disabled = true;
+  }
+}
+
+// ── WE DO ──
+// 1 - a/d, renaming the whole as d/d. answer = d - a.
+const weDoData = [
+  { a: 1, d: 3, answer: 2 },   // 1 - 1/3 = 3/3 - 1/3 = 2/3
+  { a: 7, d: 10, answer: 3 },  // 1 - 7/10 = 10/10 - 7/10 = 3/10
+  { a: 5, d: 6, answer: 1 }    // 1 - 5/6 = 6/6 - 5/6 = 1/6
+];
+function checkWeDo(idx) {
+  const p = weDoData[idx];
+  const inp = document.getElementById('wedo-in-' + idx);
+  const fb = document.getElementById('wedo-fb-' + idx);
+  const val = parseInt(inp.value, 10);
+  inp.disabled = true;
+  if (val === p.answer) {
+    inp.classList.add('correct'); inp.classList.remove('wrong');
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> Rename 1 as <span class="mono">' + p.d + '/' + p.d + '</span>, then subtract: <span class="mono">' + p.d + '/' + p.d + ' &minus; ' + p.a + '/' + p.d + ' = ' + p.answer + '/' + p.d + '</span>. The numerators add back to the denominator: <span class="mono">' + p.a + ' + ' + p.answer + ' = ' + p.d + '</span>.';
+  } else {
+    inp.classList.add('wrong'); inp.classList.remove('correct');
+    fb.className = 'feedback show incorrect';
+    const shown = isNaN(val) ? '(blank)' : val;
+    fb.innerHTML = '<strong>Not quite.</strong> You answered <span class="mono">' + shown + '</span>. Rename 1 as <span class="mono">' + p.d + '/' + p.d + '</span>, then subtract the numerators: <span class="mono">' + p.d + ' &minus; ' + p.a + ' = ' + p.answer + '</span>. The answer is <span class="mono">' + p.answer + '/' + p.d + '</span>.';
+  }
+}
+
+// ── YOU DO ──
+let ydProblems = [];
+let ydIdx = 0;
+let ydResults = [];
+let ydLevel = 1;
+const ydTotal = 8;
+
+function setYouDoLevel(lvl) {
+  ydLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) { b.classList.toggle('active', i + 1 === lvl); });
+  document.getElementById('go-deeper-section').style.display = 'none';
+  startYouDo();
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+
+// Word-problem templates for Level 3 (1 - a/d)
+const wordTemplates = [
+  function(p) { return 'A whole cake is shared at a party. Guests eat ' + fr(p.a, p.d) + ' of it. What fraction of the cake is left?'; },
+  function(p) { return 'A bottle of water is full. You drink ' + fr(p.a, p.d) + ' of the bottle. What fraction is left?'; },
+  function(p) { return 'A garden bed is fully planted. ' + fr(p.a, p.d) + ' of the plants are flowers. What fraction are not flowers?'; },
+  function(p) { return 'A jar of paint is full. You use ' + fr(p.a, p.d) + ' of the jar. What fraction of the paint is left?'; }
+];
+function fr(n, d) { return '<span class="mono">' + n + '/' + d + '</span>'; }
+
+// Generate 1 - a/d. Level 1 unit fractions, Level 2 non-unit, Level 3 mixed (word).
+function makeProblem(level) {
+  const dens = [2, 3, 4, 5, 6, 8, 10];
+  const d = dens[Math.floor(Math.random() * dens.length)];
+  let a;
+  if (level === 1) {
+    a = 1; // unit fraction
+  } else if (level === 2) {
+    // non-unit: 2 .. d-1 (so denominators >= 3 to give a valid non-unit). d=2 has no non-unit < 1, so reroll.
+    if (d === 2) return makeProblem(level);
+    a = 2 + Math.floor(Math.random() * (d - 2)); // 2 .. d-1
+  } else {
+    a = 1 + Math.floor(Math.random() * (d - 1)); // 1 .. d-1, unit or non-unit
+  }
+  const answer = d - a; // complement, strictly between 0 and d
+  return { a: a, d: d, answer: answer };
+}
+
+function generateYouDoProblems() {
+  const problems = [];
+  for (let i = 0; i < ydTotal; i++) {
+    const p = makeProblem(ydLevel);
+    if (ydLevel === 3) p.word = wordTemplates[Math.floor(Math.random() * wordTemplates.length)];
+    problems.push(p);
+  }
+  return problems;
+}
+
+function startYouDo() {
+  ydProblems = generateYouDoProblems();
+  ydIdx = 0;
+  ydResults = [];
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  buildDots('yd-dots', ydTotal);
+  showYouDoProblem();
+}
+
+function buildDots(containerId, count) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = containerId + '-' + i;
+    d.textContent = i + 1;
+    c.appendChild(d);
+  }
+}
+
+function fracHTML(n, d) {
+  return '<span class="frac big"><span class="num">' + n + '</span><span class="den">' + d + '</span></span>';
+}
+
+function showYouDoProblem() {
+  if (ydIdx >= ydTotal) { showYouDoSummary(); return; }
+  const p = ydProblems[ydIdx];
+  const card = document.getElementById('yd-card');
+
+  const equationHTML = '<span style="font-size:32px;">1</span> <span style="font-size:26px;">&minus;</span> ' +
+    fracHTML(p.a, p.d) + ' <span style="font-size:26px;">=</span> ' + fracHTML('?', p.d);
+
+  let promptHTML;
+  if (ydLevel === 3 && p.word) {
+    promptHTML = '<p style="font-size:15px;color:var(--text);margin-bottom:10px;">' + p.word(p) + '</p>' +
+      '<p style="font-size:14px;color:var(--muted);margin-bottom:10px;">Give your answer in ' + p.d + 'ths.</p>';
+  } else {
+    promptHTML = '<p style="font-size:15px;color:var(--muted);margin-bottom:10px;">Rename 1 as ' + p.d + '/' + p.d + ', then subtract. Give your answer in ' + p.d + 'ths.</p>';
+  }
+
+  const inputHTML = '<span class="mono" style="font-size:20px;">Answer:</span>' +
+    '<input type="number" class="ia-input" id="yd-input" placeholder="?">' +
+    '<span class="mono" style="font-size:20px;">/' + p.d + '</span>';
+
+  card.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (ydIdx + 1) + ' of ' + ydTotal + '</div>' +
+    '<div class="equation-box">' + equationHTML + '</div>' +
+    promptHTML +
+    '<div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">' + inputHTML + '</div>' +
+    '<div style="text-align:center;margin-top:12px;"><button class="check-btn" id="yd-check-btn" onclick="checkYouDo()">Check</button></div>' +
+    '<div class="feedback" id="yd-fb"></div>' +
+    '<button class="btn btn-primary" id="yd-next" style="display:none;margin-top:14px;" onclick="nextYouDo()">Next &rarr;</button>';
+
+  for (let j = 0; j < ydTotal; j++) {
+    const d = document.getElementById('yd-dots-' + j);
+    if (d) { d.classList.remove('current'); if (j === ydIdx) d.classList.add('current'); }
+  }
+}
+
+function checkYouDo() {
+  const p = ydProblems[ydIdx];
+  const inp = document.getElementById('yd-input');
+  const fb = document.getElementById('yd-fb');
+  const val = parseInt(inp.value, 10);
+  inp.disabled = true;
+  document.getElementById('yd-check-btn').disabled = true;
+  const correct = (val === p.answer);
+
+  if (correct) {
+    inp.classList.add('correct');
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> Rename 1 as <span class="mono">' + p.d + '/' + p.d + '</span>: <span class="mono">' + p.d + '/' + p.d + ' &minus; ' + p.a + '/' + p.d + ' = ' + p.answer + '/' + p.d + '</span>.';
+  } else {
+    inp.classList.add('wrong');
+    fb.className = 'feedback show incorrect';
+    const shown = isNaN(val) ? '(blank)' : val;
+    fb.innerHTML = '<strong>Not quite.</strong> You answered <span class="mono">' + shown + '</span>. Rename 1 as <span class="mono">' + p.d + '/' + p.d + '</span>, then subtract the numerators: <span class="mono">' + p.d + ' &minus; ' + p.a + ' = ' + p.answer + '</span>. The answer is <span class="mono">' + p.answer + '/' + p.d + '</span>.';
+  }
+
+  ydResults[ydIdx] = correct;
+  const dot = document.getElementById('yd-dots-' + ydIdx);
+  dot.classList.remove('current');
+  dot.classList.add(correct ? 'green' : 'red');
+  document.getElementById('yd-next').style.display = 'inline-block';
+}
+
+function nextYouDo() { ydIdx++; showYouDoProblem(); }
+
+function showYouDoSummary() {
+  document.getElementById('yd-card').style.display = 'none';
+  const correct = ydResults.filter(function(r) { return r; }).length;
+  const scoreEl = document.getElementById('yd-score');
+  scoreEl.textContent = correct + ' / ' + ydTotal;
+  scoreEl.style.color = correct >= 7 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('yd-message').textContent = correct >= 7 ? 'Excellent. You can subtract a fraction from 1 confidently.' :
+    correct >= 5 ? 'Good progress. Remember to rename the whole 1 to match the denominator.' :
+    'Keep practising. Re-read the I Do examples about renaming the whole as a fraction.';
+  if (correct >= 7) {
+    const gd = document.getElementById('yd-godeeper-btn');
+    gd.classList.remove('locked');
+    gd.disabled = false;
+    gd.onclick = function() { showGoDeeper(); };
+    gd.innerHTML = '<h3>&#x1F513; Go Deeper: Complement Investigations</h3><p>Explore, work backwards, and justify your reasoning.</p>';
+  }
+  document.getElementById('yd-summary').classList.add('show');
+}
+
+function showGoDeeper() {
+  document.getElementById('go-deeper-section').style.display = 'block';
+  document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' });
+}
+function unlockGoDeeper() {
+  alert('Complete this round with 7 or more correct answers to unlock Go Deeper.');
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+  startYouDo();
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>

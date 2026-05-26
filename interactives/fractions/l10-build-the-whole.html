@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10: Building the Whole from a Part - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa; --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b; --orange: #FF8400; --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #2ECC71; --green-dark: #1a9c51; --purple: #9B5DE5; --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72; --border: #f1f5f9; --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px; --green-light: #e8f8e8; --red-light: #fff4f4; --header-h: 120px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+  header { background: #2D3436; color: #fff; padding: 12px 32px; position: relative; overflow: hidden; z-index: 300; display: flex; align-items: center; gap: 20px; }
+  header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%); pointer-events: none; }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--amber); }
+  .back-link { margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600; text-decoration: none; white-space: nowrap; position: relative; z-index: 1; opacity: 0.8; transition: opacity 0.2s; }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+  .phase-nav { background: #3d4347; display: flex; align-items: center; padding: 0; position: sticky; top: 0; z-index: 280; border-bottom: 2px solid rgba(255,255,255,0.08); }
+  .sidebar-toggle { background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-size: 22px; cursor: pointer; padding: 14px 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn { background: none; border: none; color: rgba(255,255,255,0.5); font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 14px 24px; transition: all 0.2s ease; position: relative; white-space: nowrap; }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after { content: ''; position: absolute; bottom: 0; left: 12px; right: 12px; height: 3px; background: var(--teal); border-radius: 3px 3px 0 0; }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: #2D3436; color: #fff; z-index: 200; overflow-y: auto; transition: width 0.3s ease; padding-top: var(--header-h); }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px; text-align: left; }
+  .sidebar-item { background: none; border: none; color: rgba(255,255,255,0.7); font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; padding: 10px 18px; width: 100%; text-align: left; transition: all 0.2s ease; display: block; }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active { background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal); padding-left: 14px; }
+  main { margin-left: 260px; transition: margin-left 0.3s ease; padding: 32px 60px 40px; }
+  main.sidebar-collapsed { margin-left: 0; }
+  .slide { display: none; animation: fadeIn 0.4s ease; width: 100%; max-width: 960px; margin: 0 auto; }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 40px 48px; border: 2px solid var(--border); margin-bottom: 0; }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.8; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .slide-nav { display: flex; gap: 16px; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .nav-btn { background: var(--text); color: #fff; border: none; border-radius: 30px; padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+  .callout { border-radius: 12px; padding: 20px 24px; margin: 20px 0; border-left: 5px solid var(--border); }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout.callout-blue { background: rgba(52,152,219,0.1); border-left-color: var(--blue); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-weight: 700; line-height: 1.05; margin: 0 3px; }
+  .frac .num { display: block; padding: 0 6px; border-bottom: 2px solid currentColor; }
+  .frac .den { display: block; padding: 0 6px; }
+  .frac.big { font-size: 26px; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .tape-wrap { margin: 18px auto; text-align: center; }
+  .tape { display: flex; width: 100%; max-width: 560px; height: 64px; border: 3px solid var(--text); border-radius: 8px; overflow: hidden; margin: 0 auto; background: #fff; }
+  .tape-seg { flex: 1; border-right: 2px solid var(--text); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; color: var(--text); transition: background 0.4s ease; }
+  .tape-seg:last-child { border-right: none; }
+  .tape-seg.shaded { background: var(--teal); color: #08332f; }
+  .tape-seg.unknown { background: repeating-linear-gradient(45deg, #fff, #fff 6px, #f1f5f9 6px, #f1f5f9 12px); color: var(--muted); }
+  .tape-caption { text-align: center; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; margin-top: 10px; color: var(--text); }
+  .reveal-stage { opacity: 0; transition: opacity 0.4s ease; }
+  .reveal-stage.show { opacity: 1; }
+  .equation-box { font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700; text-align: center; padding: 22px; background: white; border-radius: 14px; border: 2px solid var(--border); margin: 16px 0; }
+  .ido-progression { position: relative; }
+  .ido-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .ido-dot { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; transition: all 0.3s; }
+  .ido-dot.active { background: var(--red); transform: scale(1.3); }
+  .ido-dot.visited { background: rgba(255,107,107,0.35); }
+  .ido-step { display: none; }
+  .ido-step.active { display: block; animation: fadeIn 0.35s ease; }
+  .step-badge { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: white; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .step-badge.red { background: var(--red); }
+  .step-badge.amber { background: var(--amber); color: var(--text); }
+  .step-badge.green { background: var(--green); }
+  .step-badge.teal { background: var(--teal); color: var(--text); }
+  .ido-step-nav { display: flex; justify-content: space-between; margin-top: 16px; }
+  .ido-step-nav button { background: var(--teal); color: var(--text); border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .ido-step-nav button:hover { background: var(--teal-dark); color: #fff; transform: translateY(-2px); }
+  .ido-step-nav .back { background: rgba(0,0,0,0.06); color: var(--text); }
+  .ido-step-nav .back:hover { background: rgba(0,0,0,0.12); }
+  .am-reveal-btn { background: var(--blue); color: #fff; border: none; border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .ia-input { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; width: 80px; text-align: center; padding: 8px; border: 2px solid var(--border); border-radius: 10px; outline: none; transition: border-color 0.2s; }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 14px; display: none; font-size: 15px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 16px; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+  .level-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 8px 22px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); }
+  .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.25); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; text-align: center; display: none; margin-top: 20px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 20px 24px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 20px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; } header h1 { font-size: 1rem; } .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; } .sidebar { display: none; }
+    .card { padding: 20px 18px; } .ia-input { width: 60px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Representing Quantity Fractions</div>
+  <h1>Lesson 10: <span>Building the Whole from a Part</span></h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">The Mystery Class</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(2)">Example 1: 2/5 is 10</button>
+      <button class="sidebar-item" onclick="goToSlide(3)">Example 2: 3/4 is 9</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(4)">Q1: 2/3 is 8</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q2: 3/8 is 6</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q3: 4/5 is 12</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(7)">Independent Practice</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to work backwards from a fractional part to find the whole.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can use a known part to find the value of one equal part.</li>
+          <li>I can build the whole by counting all the parts.</li>
+          <li>I can use a tape diagram to work backwards.</li>
+          <li>I can solve word problems where the whole is unknown.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <div class="prompt" style="font-size:1.4rem;font-weight:600;text-align:center;margin-bottom:6px;">One sixth of a class is 5. How big is the whole class?</div>
+      <div class="tape-wrap">
+        <div class="tape" style="max-width:540px;">
+          <div class="tape-seg shaded" id="hk-s0">5</div>
+          <div class="tape-seg unknown" id="hk-s1">?</div>
+          <div class="tape-seg unknown" id="hk-s2">?</div>
+          <div class="tape-seg unknown" id="hk-s3">?</div>
+          <div class="tape-seg unknown" id="hk-s4">?</div>
+          <div class="tape-seg unknown" id="hk-s5">?</div>
+        </div>
+        <div class="tape-caption reveal-stage" id="hk-cap">One sixth is 5</div>
+      </div>
+      <div style="text-align:center; margin:8px 0;">
+        <button class="am-reveal-btn" id="hook-btn" onclick="nextHook()">Build the whole &rarr;</button>
+      </div>
+      <div class="callout callout-teal reveal-stage" id="hook-reveal">
+        <span class="label">The big idea</span>
+        <p>The whole is all <span class="mono">6</span> sixths: <span class="mono">6 &times; 5 = 30</span>. Use one part to build every part back up.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: I DO Example 1 -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <div class="prompt" style="font-size:1.4rem;font-weight:600;text-align:center;margin-bottom:6px;"><span class="frac"><span class="num">2</span><span class="den">5</span></span> of a number is 10. Find the whole.</div>
+      <div class="tape-wrap">
+        <div class="tape" style="max-width:520px;">
+          <div class="tape-seg shaded" id="e1-s0">?</div>
+          <div class="tape-seg shaded" id="e1-s1">?</div>
+          <div class="tape-seg unknown" id="e1-s2">?</div>
+          <div class="tape-seg unknown" id="e1-s3">?</div>
+          <div class="tape-seg unknown" id="e1-s4">?</div>
+        </div>
+        <div class="tape-caption reveal-stage" id="e1-cap">&nbsp;</div>
+      </div>
+      <div style="text-align:center; margin:8px 0;">
+        <button class="am-reveal-btn" id="e1-btn" onclick="nextE1()">Show what we know &rarr;</button>
+      </div>
+      <div class="equation-box reveal-stage" id="e1-eq">one part = 10 &divide; 2 = 5, whole = 5 &times; 5 = 25</div>
+      <div class="callout callout-teal reveal-stage" id="e1-rule">
+        <span class="label">The rule</span>
+        <p>Divide the part by the top to find one part, then multiply by the bottom to build the whole.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO Example 2 -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <div class="prompt" style="font-size:1.4rem;font-weight:600;text-align:center;margin-bottom:6px;"><span class="frac"><span class="num">3</span><span class="den">4</span></span> of a number is 9. Find the whole.</div>
+      <div class="tape-wrap">
+        <div class="tape" style="max-width:460px;">
+          <div class="tape-seg shaded" id="e2-s0">?</div>
+          <div class="tape-seg shaded" id="e2-s1">?</div>
+          <div class="tape-seg shaded" id="e2-s2">?</div>
+          <div class="tape-seg unknown" id="e2-s3">?</div>
+        </div>
+        <div class="tape-caption reveal-stage" id="e2-cap">&nbsp;</div>
+      </div>
+      <div style="text-align:center; margin:8px 0;">
+        <button class="am-reveal-btn" id="e2-btn" onclick="nextE2()">Show what we know &rarr;</button>
+      </div>
+      <div class="equation-box reveal-stage" id="e2-eq">one part = 9 &divide; 3 = 3, whole = 3 &times; 4 = 12</div>
+      <div class="callout callout-amber reveal-stage" id="e2-check">
+        <span class="label">Check it makes sense</span>
+        <p>Three quarters of <span class="mono">12</span> is <span class="mono">9</span>, so the whole is a little more than the part.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: WE DO Q1 -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h3>We Do: Q1</h3>
+      <p><span class="frac big"><span class="num">2</span><span class="den">3</span></span> of a number is <span class="mono">8</span>. Find the whole.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:14px;">
+        <div><span style="font-size:16px;">One third (8 &divide; 2):</span> <input type="number" class="ia-input" id="wedo-a-0" placeholder="?"></div>
+        <div><span style="font-size:16px;">The whole (one third &times; 3):</span> <input type="number" class="ia-input" id="wedo-b-0" placeholder="?"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(0)">Check</button></div>
+      <div class="feedback" id="wedo-fb-0"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO Q2 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h3>We Do: Q2</h3>
+      <p><span class="frac big"><span class="num">3</span><span class="den">8</span></span> of a number is <span class="mono">6</span>. Find the whole.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:14px;">
+        <div><span style="font-size:16px;">One eighth (6 &divide; 3):</span> <input type="number" class="ia-input" id="wedo-a-1" placeholder="?"></div>
+        <div><span style="font-size:16px;">The whole (one eighth &times; 8):</span> <input type="number" class="ia-input" id="wedo-b-1" placeholder="?"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(1)">Check</button></div>
+      <div class="feedback" id="wedo-fb-1"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO Q3 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h3>We Do: Q3</h3>
+      <p>Lucy has read <span class="frac big"><span class="num">4</span><span class="den">5</span></span> of her book, which is <span class="mono">12</span> pages. How many pages are in the whole book?</p>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:14px;">
+        <div><span style="font-size:16px;">One fifth (12 &divide; 4):</span> <input type="number" class="ia-input" id="wedo-a-2" placeholder="?"></div>
+        <div><span style="font-size:16px;">The whole (one fifth &times; 5):</span> <input type="number" class="ia-input" id="wedo-b-2" placeholder="?"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="check-btn" onclick="checkWeDo(2)">Check</button></div>
+      <div class="feedback" id="wedo-fb-2"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: PRACTICE -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h3>Independent Practice</h3>
+      <p style="font-size:16px; color:var(--muted); margin-bottom:8px;">Divide the part by its top number to find one part, then multiply by the bottom number to build the whole.</p>
+      <div class="level-bar">
+        <button class="level-btn l1 active" onclick="setYouDoLevel(1)">Level 1</button>
+        <button class="level-btn l2" onclick="setYouDoLevel(2)">Level 2</button>
+        <button class="level-btn l3" onclick="setYouDoLevel(3)">Level 3 (word problems)</button>
+      </div>
+      <div class="dot-counter" id="yd-dots"></div>
+      <div id="yd-card" class="card" style="text-align:center;"></div>
+      <div class="summary-card" id="yd-summary">
+        <h3>Round Complete</h3>
+        <div class="summary-score" id="yd-score"></div>
+        <p id="yd-message" style="font-size:16px; color:var(--muted); margin-bottom:16px;"></p>
+        <button class="btn btn-primary" onclick="startYouDo()">Try Again (New Questions)</button>
+      </div>
+      <button class="go-deeper-level-btn locked" id="yd-godeeper-btn" onclick="unlockGoDeeper()" disabled>
+        <h3>&#x1F512; Go Deeper: Reverse Reasoning Investigations</h3>
+        <p>Complete this round with 7 or more correct to unlock.</p>
+      </button>
+      <div id="go-deeper-section" style="display:none;margin-top:30px;">
+        <div class="go-deeper-card">
+          <h2>Go Deeper</h2>
+          <p>These tasks push your thinking. You will explore, test a claim, and justify your reasoning.</p>
+        </div>
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">Different fractions of a whole are all equal to <span class="ext-numbers">12</span>. If <span class="ext-numbers">2/3</span> of a number is <span class="ext-numbers">12</span>, find the whole. Then do the same for <span class="ext-numbers">3/4</span> is <span class="ext-numbers">12</span>, and <span class="ext-numbers">4/5</span> is <span class="ext-numbers">12</span>.</div>
+            <div class="ext-task-sub">What happens to the size of the whole as the fraction gets closer to 1?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>If <span class="ext-numbers">2/3</span> is <span class="ext-numbers">12</span>: one third is <span class="ext-numbers">6</span>, whole is <span class="ext-numbers">18</span>. If <span class="ext-numbers">3/4</span> is <span class="ext-numbers">12</span>: one quarter is <span class="ext-numbers">4</span>, whole is <span class="ext-numbers">16</span>. If <span class="ext-numbers">4/5</span> is <span class="ext-numbers">12</span>: one fifth is <span class="ext-numbers">3</span>, whole is <span class="ext-numbers">15</span>.</p>
+              <p>I noticed the whole gets smaller as the fraction gets closer to 1. That makes sense: if a bigger chunk of the whole is still only <span class="ext-numbers">12</span>, the whole cannot be very big.</p>
+            </div>
+          </div>
+          <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>specialising</em>. Trying ordered cases reveals a pattern.</div>
+        </div>
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Conjecturing</div>
+            <div class="ext-task-prompt">A student says: "To find the whole, you always multiply the part by the bottom number." For <span class="ext-numbers">3/4</span> is <span class="ext-numbers">9</span>, they did <span class="ext-numbers">9 &times; 4 = 36</span>.</div>
+            <div class="ext-task-sub">Is their method always right, sometimes right, or never right? Check it.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>It is only sometimes right. It works when the part is a UNIT fraction (top number 1), because then the part already is one part. But for <span class="ext-numbers">3/4</span> is <span class="ext-numbers">9</span>, the <span class="ext-numbers">9</span> is three quarters, not one quarter.</p>
+              <p>The correct whole is <span class="ext-numbers">12</span>, not <span class="ext-numbers">36</span>. You must first divide by the top to get one part (<span class="ext-numbers">9 &divide; 3 = 3</span>), then multiply by the bottom (<span class="ext-numbers">3 &times; 4 = 12</span>). The student skipped the dividing step.</p>
+            </div>
+          </div>
+          <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>conjecturing</em> and testing a method with examples to find when it breaks.</div>
+        </div>
+        <div class="go-deeper-card">
+          <div class="ext-task">
+            <div class="ext-task-label">Justifying</div>
+            <div class="ext-task-prompt">If <span class="ext-numbers">5/6</span> of a number is <span class="ext-numbers">20</span>, is the whole bigger or smaller than <span class="ext-numbers">20</span>?</div>
+            <div class="ext-task-sub">Answer without fully calculating first, then check by working it out. Explain how you knew.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I knew the whole had to be bigger than <span class="ext-numbers">20</span> straight away. <span class="ext-numbers">5/6</span> is less than one whole, so if only five sixths is <span class="ext-numbers">20</span>, the full six sixths must be more than <span class="ext-numbers">20</span>.</p>
+              <p>Then I checked: one sixth is <span class="ext-numbers">20 &divide; 5 = 4</span>, so the whole is <span class="ext-numbers">4 &times; 6 = 24</span>. Yes, <span class="ext-numbers">24</span> is bigger than <span class="ext-numbers">20</span>. My reasoning held up.</p>
+            </div>
+          </div>
+          <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>justifying</em>. Reasoning about size before calculating is a powerful check.</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 8</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'Learning', name: 'Learning Intention' },
+  { id: 'Hook', name: 'The Mystery Class' },
+  { id: 'I Do', name: 'Example 1: 2/5 is 10' },
+  { id: 'I Do', name: 'Example 2: 3/4 is 9' },
+  { id: 'We Do', name: 'Q1' },
+  { id: 'We Do', name: 'Q2' },
+  { id: 'We Do', name: 'Q3' },
+  { id: 'Practice', name: 'Independent Practice' }
+];
+const sectionToPhase = { 'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido', 'We Do': 'wedo', 'Practice': 'practice' };
+let currentSlide = 0;
+function goToSlide(index) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + index).classList.add('active');
+  currentSlide = index; updateNavButtons(); updatePhaseNav(); updateSidebarActive();
+}
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+function updateNavButtons() {
+  const prevBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[0];
+  const nextBtn = document.querySelectorAll('.slide.active .slide-nav .nav-btn')[1];
+  const counter = document.querySelectorAll('.slide.active .slide-counter')[0];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+function goToPhase(sectionName) { for (let i = 0; i < slides.length; i++) { if (slides[i].id === sectionName) { goToSlide(i); break; } } }
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].id];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-phase="' + phase + '"]').classList.add('active');
+}
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item')[currentSlide].classList.add('active');
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+function setHeaderHeight() {
+  const h = document.querySelector('header').offsetHeight + document.querySelector('.phase-nav').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', h + 'px');
+}
+// HOOK staged reveal: 1/6 is 5, whole is 30 (reversed tape)
+let hookStage = 0;
+function nextHook() {
+  hookStage++;
+  const btn = document.getElementById('hook-btn');
+  if (hookStage === 1) {
+    for (let i = 1; i < 6; i++) {
+      const seg = document.getElementById('hk-s' + i);
+      seg.textContent = '5'; seg.classList.remove('unknown'); seg.classList.add('shaded');
+    }
+    document.getElementById('hk-cap').innerHTML = 'All 6 sixths are 5, so the whole is 6 &times; 5 = 30';
+    document.getElementById('hk-cap').classList.add('show');
+    document.getElementById('hook-reveal').classList.add('show');
+    btn.disabled = true;
+  }
+}
+// I DO Example 1 staged reveal: 2/5 is 10, whole is 25 (reversed tape)
+let e1Stage = 0;
+function nextE1() {
+  e1Stage++;
+  const btn = document.getElementById('e1-btn');
+  const cap = document.getElementById('e1-cap');
+  if (e1Stage === 1) {
+    document.getElementById('e1-s0').textContent = '?';
+    document.getElementById('e1-s1').textContent = '?';
+    cap.innerHTML = 'The 2 shaded fifths are 10 altogether';
+    cap.classList.add('show');
+    btn.textContent = 'Find one fifth ' + String.fromCharCode(8594);
+  } else if (e1Stage === 2) {
+    document.getElementById('e1-s0').textContent = '5';
+    document.getElementById('e1-s1').textContent = '5';
+    cap.innerHTML = 'One fifth is 10 &divide; 2 = 5';
+    btn.textContent = 'Build the whole ' + String.fromCharCode(8594);
+  } else if (e1Stage === 3) {
+    for (let i = 2; i < 5; i++) {
+      const seg = document.getElementById('e1-s' + i);
+      seg.textContent = '5'; seg.classList.remove('unknown');
+    }
+    cap.innerHTML = 'The whole is 5 &times; 5 = 25';
+    btn.textContent = 'Record it ' + String.fromCharCode(8594);
+  } else if (e1Stage === 4) {
+    document.getElementById('e1-eq').classList.add('show');
+    document.getElementById('e1-rule').classList.add('show');
+    btn.disabled = true;
+  }
+}
+// I DO Example 2 staged reveal: 3/4 is 9, whole is 12 (reversed tape)
+let e2Stage = 0;
+function nextE2() {
+  e2Stage++;
+  const btn = document.getElementById('e2-btn');
+  const cap = document.getElementById('e2-cap');
+  if (e2Stage === 1) {
+    cap.innerHTML = 'The 3 shaded quarters are 9 altogether';
+    cap.classList.add('show');
+    btn.textContent = 'Find one quarter ' + String.fromCharCode(8594);
+  } else if (e2Stage === 2) {
+    for (let i = 0; i < 3; i++) document.getElementById('e2-s' + i).textContent = '3';
+    cap.innerHTML = 'One quarter is 9 &divide; 3 = 3';
+    btn.textContent = 'Build the whole ' + String.fromCharCode(8594);
+  } else if (e2Stage === 3) {
+    const seg = document.getElementById('e2-s3');
+    seg.textContent = '3'; seg.classList.remove('unknown');
+    cap.innerHTML = 'The whole is 3 &times; 4 = 12';
+    btn.textContent = 'Record it ' + String.fromCharCode(8594);
+  } else if (e2Stage === 4) {
+    document.getElementById('e2-eq').classList.add('show');
+    document.getElementById('e2-check').classList.add('show');
+    btn.disabled = true;
+  }
+}
+// WE DO: part value=val, fraction m/n -> onePart=val/m, whole=onePart*n
+const weDoData = [
+  { m: 2, n: 3, val: 8, onePart: 4, whole: 12 },
+  { m: 3, n: 8, val: 6, onePart: 2, whole: 16 },
+  { m: 4, n: 5, val: 12, onePart: 3, whole: 15 }
+];
+function checkWeDo(idx) {
+  const p = weDoData[idx];
+  const a = document.getElementById('wedo-a-' + idx), b = document.getElementById('wedo-b-' + idx);
+  const fb = document.getElementById('wedo-fb-' + idx);
+  const av = parseInt(a.value, 10), bv = parseInt(b.value, 10);
+  a.disabled = true; b.disabled = true;
+  const aOK = av === p.onePart, bOK = bv === p.whole;
+  a.classList.add(aOK ? 'correct' : 'wrong'); b.classList.add(bOK ? 'correct' : 'wrong');
+  if (aOK && bOK) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> One part is <span class="mono">' + p.val + ' &divide; ' + p.m + ' = ' + p.onePart + '</span>, then the whole is <span class="mono">' + p.onePart + ' &times; ' + p.n + ' = ' + p.whole + '</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> Divide the part by the top: <span class="mono">' + p.val + ' &divide; ' + p.m + ' = ' + p.onePart + '</span>. Then multiply by the bottom: <span class="mono">' + p.onePart + ' &times; ' + p.n + ' = ' + p.whole + '</span>.';
+  }
+}
+// YOU DO
+let ydProblems = [], ydIdx = 0, ydResults = [], ydLevel = 1; const ydTotal = 8;
+function setYouDoLevel(lvl) {
+  ydLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(function(b, i) { b.classList.toggle('active', i + 1 === lvl); });
+  document.getElementById('go-deeper-section').style.display = 'none';
+  startYouDo();
+}
+function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function generateYouDoProblems() {
+  // fraction m/n, one part = g (so val = m*g whole = n*g, both whole numbers)
+  let fracs, parts, contexts;
+  if (ydLevel === 1) { fracs = [[2,3],[3,4],[2,5],[3,5],[2,4],[3,4],[2,3],[4,5]]; parts = [2,3,4,5]; contexts = null; }
+  else if (ydLevel === 2) { fracs = [[2,3],[3,4],[3,5],[4,5],[5,6],[3,8],[7,10],[5,8]]; parts = [3,4,5,6]; contexts = null; }
+  else { fracs = [[2,3],[3,4],[2,5],[3,5],[3,4],[4,5],[2,3],[5,6]]; parts = [3,4,5,6];
+    contexts = ['{X} of a class is {V} children. How many children are in the whole class?',
+                '{X} of a book has been read, which is {V} pages. How many pages are in the whole book?',
+                '{X} of the cars in a car park are red, which is {V} cars. How many cars are there in total?',
+                'A team scored {X} of its season goals before the break, which is {V} goals. How many goals will it score all season?']; }
+  const fs = shuffle(fracs);
+  const out = [];
+  for (let i = 0; i < ydTotal; i++) {
+    const f = fs[i % fs.length]; const m = f[0], n = f[1];
+    const g = parts[Math.floor(Math.random() * parts.length)];
+    const onePart = g; const val = m * g; const whole = n * g;
+    out.push({ m: m, n: n, val: val, onePart: onePart, whole: whole, ctx: contexts ? contexts[Math.floor(Math.random() * contexts.length)] : null });
+  }
+  return out;
+}
+function startYouDo() {
+  ydProblems = generateYouDoProblems(); ydIdx = 0; ydResults = [];
+  document.getElementById('yd-summary').classList.remove('show');
+  document.getElementById('yd-card').style.display = 'block';
+  buildDots('yd-dots', ydTotal); showYouDoProblem();
+}
+function buildDots(containerId, count) {
+  const c = document.getElementById(containerId); c.innerHTML = '';
+  for (let i = 0; i < count; i++) { const d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' current' : ''); d.id = containerId + '-' + i; d.textContent = i + 1; c.appendChild(d); }
+}
+function fracHTML(nu, de) { return '<span class="frac big"><span class="num">' + nu + '</span><span class="den">' + de + '</span></span>'; }
+function showYouDoProblem() {
+  if (ydIdx >= ydTotal) { showYouDoSummary(); return; }
+  const p = ydProblems[ydIdx];
+  const card = document.getElementById('yd-card');
+  let prompt;
+  if (p.ctx) {
+    const xWord = p.m + '/' + p.n;
+    prompt = '<p style="font-size:16px;line-height:1.6;">' + p.ctx.replace('{X}', '<span class="mono">' + xWord + '</span>').replace('{V}', '<span class="mono">' + p.val + '</span>') + '</p>';
+  } else {
+    prompt = '<div style="margin-bottom:10px;">' + fracHTML(p.m, p.n) + ' of a number is <span class="mono" style="font-size:22px;">' + p.val + '</span>. Find the whole.</div>';
+  }
+  card.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Question ' + (ydIdx + 1) + ' of ' + ydTotal + '</div>' +
+    prompt +
+    '<div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:8px;">' +
+      '<div><span style="font-size:15px;">One part (' + p.val + ' &divide; ' + p.m + '):</span> <input type="number" class="ia-input" id="yd-one" placeholder="?"></div>' +
+      '<div><span style="font-size:15px;">The whole (one part &times; ' + p.n + '):</span> <input type="number" class="ia-input" id="yd-ans" placeholder="?"></div>' +
+    '</div>' +
+    '<div style="text-align:center;margin-top:12px;"><button class="check-btn" id="yd-check-btn" onclick="checkYouDo()">Check</button></div>' +
+    '<div class="feedback" id="yd-fb"></div>' +
+    '<button class="btn btn-primary" id="yd-next" style="display:none;margin-top:14px;" onclick="nextYouDo()">Next &rarr;</button>';
+  for (let j = 0; j < ydTotal; j++) { const d = document.getElementById('yd-dots-' + j); if (d) { d.classList.remove('current'); if (j === ydIdx) d.classList.add('current'); } }
+}
+function checkYouDo() {
+  const p = ydProblems[ydIdx];
+  const one = document.getElementById('yd-one'), ans = document.getElementById('yd-ans'), fb = document.getElementById('yd-fb');
+  const ov = parseInt(one.value, 10), avv = parseInt(ans.value, 10);
+  one.disabled = true; ans.disabled = true; document.getElementById('yd-check-btn').disabled = true;
+  const oOK = ov === p.onePart, aOK = avv === p.whole; const correct = oOK && aOK;
+  one.classList.add(oOK ? 'correct' : 'wrong'); ans.classList.add(aOK ? 'correct' : 'wrong');
+  if (correct) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct.</strong> <span class="mono">' + p.val + ' &divide; ' + p.m + ' = ' + p.onePart + '</span>, then <span class="mono">' + p.onePart + ' &times; ' + p.n + ' = ' + p.whole + '</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> One part is <span class="mono">' + p.val + ' &divide; ' + p.m + ' = ' + p.onePart + '</span>, then the whole is <span class="mono">' + p.onePart + ' &times; ' + p.n + ' = ' + p.whole + '</span>.';
+  }
+  ydResults[ydIdx] = correct;
+  const dot = document.getElementById('yd-dots-' + ydIdx); dot.classList.remove('current'); dot.classList.add(correct ? 'green' : 'red');
+  document.getElementById('yd-next').style.display = 'inline-block';
+}
+function nextYouDo() { ydIdx++; showYouDoProblem(); }
+function showYouDoSummary() {
+  document.getElementById('yd-card').style.display = 'none';
+  const correct = ydResults.filter(function(r) { return r; }).length;
+  const scoreEl = document.getElementById('yd-score');
+  scoreEl.textContent = correct + ' / ' + ydTotal;
+  scoreEl.style.color = correct >= 7 ? 'var(--green)' : correct >= 5 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('yd-message').textContent = correct >= 7 ? 'Excellent. Find one part, then build the whole.' : correct >= 5 ? 'Good progress. Always divide by the top number first.' : 'Keep practising. Re-read the I Do examples.';
+  if (correct >= 7) {
+    const gd = document.getElementById('yd-godeeper-btn');
+    gd.classList.remove('locked'); gd.disabled = false; gd.onclick = function() { showGoDeeper(); };
+    gd.innerHTML = '<h3>&#x1F513; Go Deeper: Reverse Reasoning Investigations</h3><p>Explore, test a claim, and justify your reasoning.</p>';
+  }
+  document.getElementById('yd-summary').classList.add('show');
+}
+function showGoDeeper() { document.getElementById('go-deeper-section').style.display = 'block'; document.getElementById('go-deeper-section').scrollIntoView({ behavior: 'smooth' }); }
+function unlockGoDeeper() { alert('Complete this round with 7 or more correct answers to unlock Go Deeper.'); }
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight(); window.addEventListener('resize', setHeaderHeight); startYouDo();
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+</body>
+</html>
