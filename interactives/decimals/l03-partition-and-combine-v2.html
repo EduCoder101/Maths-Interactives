@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 3: Partition and Combine - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+
+    /* Place Value House Colours */
+    --pv-millions: #be185d;
+    --pv-hundred-thousands: #d44d8a;
+    --pv-ten-thousands: #7c3aed;
+    --pv-thousands: #1d4ed8;
+    --pv-hundreds: #0891b2;
+    --pv-tens: #059669;
+    --pv-ones: #65a30d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="reflect"].active::after { background: var(--purple); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); padding: 28px 40px; }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p { font-size: 1.3rem; line-height: 1.6; }
+  .lisc-content li { font-size: 1.2rem; line-height: 1.6; margin-bottom: 6px; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 24px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 16px 0; transition: filter 0.4s ease;
+  }
+
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  .step-row {
+    display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; font-size: 1.2rem; line-height: 1.6;
+  }
+  .step-num {
+    font-weight: 700; min-width: 32px; color: var(--teal); font-size: 1.1rem;
+  }
+  .step-text { flex: 1; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .step-hidden { opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; pointer-events: auto; }
+
+  /* We Do Cards */
+  .we-do-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .we-do-card.answered-correct { border-color: var(--green); }
+  .we-do-card.answered-wrong { border-color: var(--red); }
+  .we-do-card .problem-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .we-do-card .problem-display { font-family: 'Space Mono', monospace; font-size: 36px; font-weight: 700; text-align: center; margin: 16px 0; }
+
+  .answer-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 200px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .answer-input:focus { border-color: var(--teal); }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .feedback {
+    border-radius: 12px; padding: 14px 18px; margin-top: 14px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* Place Value House */
+  .pv-house {
+    display: flex; justify-content: center; gap: 2px; margin: 20px 0;
+    font-family: 'Space Mono', monospace; font-size: 32px; font-weight: 700;
+  }
+  .pv-column {
+    padding: 16px 20px; border: 3px solid; text-align: center;
+    background: white; border-radius: 8px; min-width: 70px;
+  }
+  .pv-column.thousands { border-color: var(--pv-thousands); color: var(--pv-thousands); }
+  .pv-column.hundreds { border-color: var(--pv-hundreds); color: var(--pv-hundreds); }
+  .pv-column.tens { border-color: var(--pv-tens); color: var(--pv-tens); }
+  .pv-column.ones { border-color: var(--pv-ones); color: var(--pv-ones); }
+  .pv-label {
+    font-family: 'Fredoka', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: inherit; margin-top: 8px;
+  }
+
+  /* Practice Section */
+  .practice-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .practice-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+  .practice-input { font-family: 'Space Mono', monospace; font-size: 18px; padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; outline: none; width: 200px; text-align: center; }
+  .practice-input:focus { border-color: var(--teal); }
+
+  /* Go Deeper */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .go-deeper-card.locked { opacity: 0.6; pointer-events: none; }
+  .go-deeper-notice { padding: 16px 20px; background: rgba(255,217,61,0.2); border-left: 4px solid var(--amber); border-radius: 8px; font-size: 1rem; margin-bottom: 20px; }
+
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  /* Reflect */
+  .reflect-prompt-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 40px; text-align: center; border: 2px solid var(--border);
+  }
+  .reflect-prompt-card h2 { font-size: 1.8rem; margin-bottom: 24px; }
+  .reflect-prompt-card .prompt { font-size: 1.3rem; line-height: 1.8; color: #666; margin-bottom: 20px; }
+  .reflect-textarea { width: 100%; min-height: 140px; border: 2px solid var(--border); border-radius: 12px; padding: 16px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .reflect-textarea:focus { border-color: var(--teal); }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card, .we-do-card { padding: 20px 18px; }
+    .pv-house { font-size: 24px; }
+    .pv-column { min-width: 60px; padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Decimals</div>
+  <h1><span>Partition and Combine</span> · Standard and Non-Standard</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="reflect" onclick="goToPhase('Reflect')">Reflect</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Decimal LEGO</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">More Than One Way</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Standard Expanded Form</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Building from Parts</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q1: Expand 0.715</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q2: Build the Decimal</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q3: Non-Standard Partition</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Practice Questions</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reflect</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Reflection</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <div class="lisc-content">
+        <h2>Learning Intention and Success Criteria</h2>
+        <h3>Learning Intention</h3>
+        <p>We are learning to partition decimals into standard expanded form and non-standard combinations.</p>
+
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can write a decimal in expanded notation using tenths, hundredths, and thousandths.</li>
+          <li>I can build a decimal from given parts.</li>
+          <li>I can partition a decimal in a non-standard way.</li>
+          <li>I can explain why a zero placeholder is needed in some partitions.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - Decimal LEGO -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h2>Numbers Are Built from Parts</h2>
+      <p style="margin-bottom: 20px;">Just like LEGO, this number is built from smaller pieces.</p>
+      <div class="equation-box">0.123</div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('hook1')">Reveal the pieces</button>
+      <div id="hook1-reveal" class="step-hidden" data-group="hook1">
+        <p style="margin-top: 20px; font-size: 1.15rem; font-weight: 500; color: #333;">Snap them together:</p>
+        <div style="margin: 20px 0; font-size: 1.2rem; line-height: 1.8;">
+          <div style="color: #3498DB; font-weight: 700;">0.1 (blue block, tenths)</div>
+          <div style="color: #9B5DE5; font-weight: 700;">0.02 (purple block, hundredths)</div>
+          <div style="color: #FF6B6B; font-weight: 700;">0.003 (red block, thousandths)</div>
+        </div>
+        <p style="font-size: 1.15rem; font-weight: 600; margin-top: 16px;"><span class="mono">0.1 + 0.02 + 0.003 = 0.123</span></p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - More Than One Way -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h2>Can We Build It Differently?</h2>
+      <p style="margin-bottom: 20px;">The same number can be broken apart in more than one way:</p>
+      <div style="margin: 24px 0;">
+        <div style="margin: 16px 0;"><strong>Standard way:</strong> <span class="mono" style="font-size: 1.2rem;">0.1 + 0.02 + 0.003 = 0.123</span></div>
+        <div style="margin: 16px 0;"><strong>Non-standard way 1:</strong> <span class="mono" style="font-size: 1.2rem;">0.12 + 0.003 = 0.123</span> (12 hundredths + 3 thousandths)</div>
+        <div style="margin: 16px 0;"><strong>Non-standard way 2:</strong> <span class="mono" style="font-size: 1.2rem;">0.1 + 0.023 = 0.123</span> (1 tenth + 23 thousandths)</div>
+      </div>
+
+      <div class="callout callout-amber" style="margin: 20px 0;">
+        <div class="label">Big Idea</div>
+        <p>There are many ways to break a number apart. Standard expanded form splits every digit. Non-standard lets you group digits differently.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Standard Expanded Notation -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h2>Expanding 0.456</h2>
+
+      <div id="ido-expand-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">4 tenths = <span class="mono">0.4</span></span></div>
+
+        <div class="step-row step-hidden" data-group="idoexp"><span class="step-num">Step 2</span><span class="step-text">5 hundredths = <span class="mono">0.05</span></span></div>
+
+        <div class="step-row step-hidden" data-group="idoexp"><span class="step-num">Step 3</span><span class="step-text">6 thousandths = <span class="mono">0.006</span></span></div>
+
+        <div class="step-row step-hidden" data-group="idoexp"><span class="step-num">Step 4</span><span class="step-text"><span class="mono">0.456 = 0.4 + 0.05 + 0.006</span></span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('idoexp')">Reveal next step</button>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Building from Jumbled Parts -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h2>2 tenths + 3 thousandths = ?</h2>
+
+      <div id="ido-build-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">2 tenths = <span class="mono">0.2</span></span></div>
+
+        <div class="step-row step-hidden" data-group="idobuild"><span class="step-num">Step 2</span><span class="step-text">3 thousandths = <span class="mono">0.003</span></span></div>
+
+        <div class="step-row step-hidden" data-group="idobuild"><span class="step-num">Step 3</span><span class="step-text">What goes in the hundredths place? Nothing! We need a zero placeholder.</span></div>
+
+        <div class="step-row step-hidden" data-group="idobuild"><span class="step-num">Step 4</span><span class="step-text">The answer is <span class="mono">0.203</span>. The zero holds the hundredths place.</span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('idobuild')">Reveal next step</button>
+
+      <div class="callout callout-red" style="margin-top: 20px;">
+        <div class="label">Key Idea</div>
+        <p>When a place value has no part assigned to it, you must fill it with zero.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO - Q1 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h2>Q1: Write 0.715 in expanded form</h2>
+
+      <div class="we-do-card" id="wedo-q1">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q1-a" placeholder="?">
+            <button class="check-btn" onclick="checkQ1()">Check</button>
+          </div>
+          <div id="wedo-q1-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO - Q2 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h2>Q2: 4 tenths + 8 thousandths = ?</h2>
+
+      <div class="we-do-card" id="wedo-q2">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q2-a" placeholder="?">
+            <button class="check-btn" onclick="checkQ2()">Check</button>
+          </div>
+          <div id="wedo-q2-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO - Q3 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h2>Q3: Partition 0.375 into two parts where one part is 0.3</h2>
+
+      <div class="we-do-card" id="wedo-q3">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q3-a" placeholder="?">
+            <button class="check-btn" onclick="checkQ3()">Check</button>
+          </div>
+          <div id="wedo-q3-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: PRACTICE -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h2>Practice Questions</h2>
+      <p style="margin-bottom: 24px;">Work through these questions to deepen your understanding of partitioning and combining decimals.</p>
+
+      <div style="max-height: 800px; overflow-y: auto; padding-right: 16px;">
+        <!-- Q1 -->
+        <div class="practice-card">
+          <h4>Q1</h4>
+          <p>Write 0.842 in expanded form</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-1" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(1, '0.8+0.04+0.002')">Check</button>
+          </div>
+          <div id="prac-1-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="practice-card">
+          <h4>Q2</h4>
+          <p>Write 0.306 in expanded form</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-2" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(2, '0.3+0.006')">Check</button>
+          </div>
+          <div id="prac-2-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="practice-card">
+          <h4>Q3</h4>
+          <p>5 tenths + 2 hundredths + 1 thousandth = ?</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-3" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(3, '0.521')">Check</button>
+          </div>
+          <div id="prac-3-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="practice-card">
+          <h4>Q4</h4>
+          <p>7 tenths + 4 thousandths = ?</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-4" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(4, '0.704')">Check</button>
+          </div>
+          <div id="prac-4-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="practice-card">
+          <h4>Q5</h4>
+          <p>Write 0.9 + 0.06 + 0.001 as a single decimal</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-5" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(5, '0.961')">Check</button>
+          </div>
+          <div id="prac-5-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="practice-card">
+          <h4>Q6</h4>
+          <p>Partition 0.248 so one part is 0.2</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-6" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(6, '0.2+0.048')">Check</button>
+          </div>
+          <div id="prac-6-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="practice-card">
+          <h4>Q7</h4>
+          <p>True or false: 0.3 + 0.07 = 0.37</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-7" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(7, 'true')">Check</button>
+          </div>
+          <div id="prac-7-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="practice-card">
+          <h4>Q8</h4>
+          <p>What is missing? 0.4 + ___ + 0.002 = 0.462</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-8" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(8, '0.06')">Check</button>
+          </div>
+          <div id="prac-8-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: GO DEEPER & REFLECT -->
+  <div class="slide" id="slide-9">
+    <div id="goDeeper" class="go-deeper-card locked">
+      <div id="goDeeperNotice" class="go-deeper-notice">&#128274; Complete all practice questions to unlock Go Deeper tasks.</div>
+      <div id="goDeeperTitle" style="display: none;">
+        <h2>Go Deeper</h2>
+      </div>
+      <div id="goDeeperIntro" style="display: none;">
+        <p>Push your mathematical thinking further with these exploration tasks.</p>
+      </div>
+
+      <div id="goDeeperContent" style="display: none;">
+        <!-- Task 1: Specialising -->
+        <div class="ext-task">
+          <div class="ext-task-label">Specialising</div>
+          <div class="ext-task-prompt">How many different ways can you partition <span class="ext-numbers">0.5</span> into exactly two parts where both parts are decimals with up to 3 decimal places? List at least 5 different ways.</div>
+          <div class="ext-task-sub">Can you find a partition where one part uses thousandths?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p><span class="ext-numbers">0.5 = 0.4 + 0.1</span>. Also <span class="ext-numbers">0.5 = 0.3 + 0.2</span>. <span class="ext-numbers">0.5 = 0.25 + 0.25</span>. <span class="ext-numbers">0.5 = 0.499 + 0.001</span>. <span class="ext-numbers">0.5 = 0.350 + 0.150</span>. Yes, one part uses thousandths: <span class="ext-numbers">0.5 = 0.499 + 0.001</span>. There are actually infinitely many if we allow any combination of decimals. If we just look at pairs of tenths: (0.1, 0.4), (0.2, 0.3). Pairs of hundredths add another 49 possibilities. Pairs of thousandths add hundreds more. The more decimal places we allow, the more ways we can partition.</p>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 2: Conjecturing -->
+        <div class="ext-task">
+          <div class="ext-task-label">Conjecturing</div>
+          <div class="ext-task-prompt">"A decimal in expanded form always has the same number of terms as it has non-zero digits."</div>
+          <div class="ext-task-sub">Always, sometimes, or never true? Test with 0.456, 0.400, and 0.050.</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p><span class="ext-numbers">0.456</span> has 3 non-zero digits and 3 terms: <span class="ext-numbers">0.4 + 0.05 + 0.006</span>. <span class="ext-numbers">0.400</span> has 1 non-zero digit and 1 term: <span class="ext-numbers">0.4</span>. <span class="ext-numbers">0.050</span> has 1 non-zero digit and 1 term: <span class="ext-numbers">0.05</span>. Also test <span class="ext-numbers">0.101</span>: 2 non-zero digits and 2 terms: <span class="ext-numbers">0.1 + 0.001</span>. Seems ALWAYS TRUE. In standard expanded form, each non-zero digit creates exactly one term. Zero digits are skipped. So the number of terms always equals the number of non-zero digits after the decimal.</p>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proved.
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 3: Generalising -->
+        <div class="ext-task">
+          <div class="ext-task-label">Generalising</div>
+          <div class="ext-task-prompt">Write a rule explaining when you need a zero placeholder when combining parts into a decimal. When can you skip the zero?</div>
+          <div class="ext-task-sub">Think about what happens when you add 3 tenths + 5 thousandths versus 3 tenths + 5 hundredths.</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p>3 tenths + 5 hundredths: tenths = 3, hundredths = 5, no gap → <span class="ext-numbers">0.35</span>. No placeholder needed. 3 tenths + 5 thousandths: tenths = 3, hundredths = ?, thousandths = 5. There's a gap at hundredths → need 0 → <span class="ext-numbers">0.305</span>. My rule: you need a zero placeholder whenever there is a "gap" between the given parts. If parts are given for tenths and thousandths but not hundredths, the hundredths must be filled with zero. The zero ensures every digit sits in the right column.</p>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means you are looking for a broad rule or pattern that works across many different examples.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reflect-prompt-card" style="margin-top: 32px;">
+      <h2>Reflection</h2>
+      <div class="prompt">Why might non-standard partitioning be useful for mental addition or subtraction with decimals?</div>
+      <textarea class="reflect-textarea" placeholder="Start typing your reflection..."></textarea>
+    </div>
+
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'Decimal LEGO', section: 'Hook' },
+  { id: 'slide-2', title: 'More Than One Way', section: 'Hook' },
+  { id: 'slide-3', title: 'Standard Expanded Form', section: 'I Do' },
+  { id: 'slide-4', title: 'Building from Parts', section: 'I Do' },
+  { id: 'slide-5', title: 'Q1: Expand 0.715', section: 'We Do' },
+  { id: 'slide-6', title: 'Q2: Build the Decimal', section: 'We Do' },
+  { id: 'slide-7', title: 'Q3: Non-Standard Partition', section: 'We Do' },
+  { id: 'slide-8', title: 'Practice Questions', section: 'Practice' },
+  { id: 'slide-9', title: 'Reflection', section: 'Reflect' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice', 'Reflect': 'reflect'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+}
+
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  if (currentSlide > 0) goToSlide(currentSlide - 1);
+}
+
+function updateNavButtons() {
+  const slideDiv = document.getElementById(slides[currentSlide].id);
+  const nav = slideDiv.querySelector('.slide-nav');
+  if (!nav) return;
+  const btns = nav.querySelectorAll('.nav-btn');
+  const prevBtn = btns[0];
+  const nextBtn = btns[1];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  const counter = nav.querySelector('.slide-counter');
+  if (counter) counter.textContent = `Card ${currentSlide + 1} of ${slides.length}`;
+}
+
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.phase-btn[data-phase="${phase}"]`).classList.add('active');
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  const items = document.querySelectorAll('.sidebar-item');
+  let counter = 0;
+  document.querySelectorAll('.sidebar-section').forEach(section => {
+    section.querySelectorAll('.sidebar-item').forEach((item, idx) => {
+      if (counter === currentSlide) item.classList.add('active');
+      counter++;
+    });
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── STEP REVEALS ──
+var revealState = {};
+
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.add('revealed');
+    revealState[group]++;
+  }
+}
+
+// ── NORMALISE EXPANDED FORM ──
+function normaliseExpandedForm(val) {
+  return val.toLowerCase().trim().replace(/\s+/g, '').replace(/\+\s*/g, '+').split('+').sort().join('+');
+}
+
+// ── WE DO Q1 ──
+function checkQ1() {
+  const input = document.getElementById('wedo-q1-a');
+  const val = input.value.trim().toLowerCase();
+  const fb = document.getElementById('wedo-q1-a-fb');
+  if (!val) { input.focus(); return; }
+  const normalised = normaliseExpandedForm(val);
+  const expected = normaliseExpandedForm('0.7+0.01+0.005');
+  const isCorrect = (normalised === expected);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">0.715 = 0.7 + 0.01 + 0.005</span>. Each digit separated by its place value.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. Each digit needs to be separated by its place value. The answer is <span class="mono">0.7 + 0.01 + 0.005</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q2 ──
+function checkQ2() {
+  const input = document.getElementById('wedo-q2-a');
+  const val = input.value.trim().toLowerCase();
+  const fb = document.getElementById('wedo-q2-a-fb');
+  if (!val) { input.focus(); return; }
+  const cleanVal = val.replace(/\s+/g, '').replace(/[,]/g, '');
+  const isCorrect = (cleanVal === '0.408');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> 4 tenths = <span class="mono">0.4</span>, 8 thousandths = <span class="mono">0.008</span>. The hundredths place needs a zero: <span class="mono">0.408</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. 4 tenths = 0.4, 8 thousandths = 0.008. The hundredths place is empty, so we need a placeholder zero. The answer is <span class="mono">0.408</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q3 ──
+function checkQ3() {
+  const input = document.getElementById('wedo-q3-a');
+  const val = input.value.trim().toLowerCase();
+  const fb = document.getElementById('wedo-q3-a-fb');
+  if (!val) { input.focus(); return; }
+  const normalised = normaliseExpandedForm(val);
+  const expected = normaliseExpandedForm('0.3+0.075');
+  const isCorrect = (normalised === expected);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> <span class="mono">0.375 - 0.3 = 0.075</span>. So <span class="mono">0.375 = 0.3 + 0.075</span> (3 tenths + 75 thousandths).';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. If one part is 0.3, what\'s the other? <span class="mono">0.375 - 0.3 = 0.075</span>. So the answer is <span class="mono">0.3 + 0.075</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── PRACTICE QUESTIONS ──
+var practiceDone = [false, false, false, false, false, false, false, false];
+
+function checkPrac(idx, correct) {
+  const input = document.getElementById('prac-' + idx);
+  const val = input.value.trim();
+  const fb = document.getElementById('prac-' + idx + '-fb');
+  if (!val) { input.focus(); return; }
+
+  var isCorrect = false;
+  var cleanVal = val.toLowerCase().replace(/\s+/g, '');
+  var cleanCorrect = correct.toLowerCase().replace(/\s+/g, '');
+
+  if (idx <= 6) {
+    cleanVal = cleanVal.replace(/\+\s*/g, '+').split('+').sort().join('+');
+    cleanCorrect = cleanCorrect.replace(/\+\s*/g, '+').split('+').sort().join('+');
+  }
+
+  isCorrect = (cleanVal === cleanCorrect);
+
+  var diagnostics = {
+    1: 'Write each digit with its place value: 8 tenths = 0.8, 4 hundredths = 0.04, 2 thousandths = 0.002. So <span class="mono">0.842 = 0.8 + 0.04 + 0.002</span>.',
+    2: 'The 3 is in tenths place (0.3) and the 6 is in thousandths place (0.006). There\'s no hundredths digit, so we skip it. <span class="mono">0.306 = 0.3 + 0.006</span>.',
+    3: 'Tenths + hundredths + thousandths: <span class="mono">0.5 + 0.02 + 0.001 = 0.521</span>.',
+    4: 'Tenths + thousandths means there\'s a gap in the hundredths place. <span class="mono">0.7 + 0.004 = 0.704</span>. Zero holds the hundredths place.',
+    5: '<span class="mono">0.9 + 0.06 + 0.001 = 0.961</span>.',
+    6: 'Subtract the known part from the whole: <span class="mono">0.248 - 0.2 = 0.048</span>. So <span class="mono">0.248 = 0.2 + 0.048</span>.',
+    7: '<span class="mono">0.3 + 0.07 = 0.30 + 0.07 = 0.37</span>. Correct!',
+    8: 'Subtract what we know: <span class="mono">0.462 - 0.4 - 0.002 = 0.06</span>. The missing part is 6 hundredths.'
+  };
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> ' + (diagnostics[idx] || '');
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. ' + (diagnostics[idx] || 'Check your work.');
+  }
+  practiceDone[idx - 1] = true;
+  input.disabled = true;
+  checkAllPracticeDone();
+}
+
+function checkAllPracticeDone() {
+  if (practiceDone.every(d => d === true)) {
+    const gd = document.getElementById('goDeeper');
+    gd.classList.remove('locked');
+    document.getElementById('goDeeperNotice').style.display = 'none';
+    document.getElementById('goDeeperTitle').style.display = 'block';
+    document.getElementById('goDeeperIntro').style.display = 'block';
+    document.getElementById('goDeeperContent').style.display = 'block';
+  }
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  goToSlide(0);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>

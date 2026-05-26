@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 5: Place Value Houses - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+
+    /* Place Value House Colours */
+    --pv-millions: #be185d;
+    --pv-hundred-thousands: #d44d8a;
+    --pv-ten-thousands: #7c3aed;
+    --pv-thousands: #1d4ed8;
+    --pv-hundreds: #0891b2;
+    --pv-tens: #059669;
+    --pv-ones: #65a30d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="reflect"].active::after { background: var(--purple); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); padding: 28px 40px; }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p { font-size: 1.3rem; line-height: 1.6; }
+  .lisc-content li { font-size: 1.2rem; line-height: 1.6; margin-bottom: 6px; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 24px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 16px 0; transition: filter 0.4s ease;
+  }
+
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  .step-row {
+    display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; font-size: 1.2rem; line-height: 1.6;
+  }
+  .step-num {
+    font-weight: 700; min-width: 32px; color: var(--teal); font-size: 1.1rem;
+  }
+  .step-text { flex: 1; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .step-hidden { opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; pointer-events: auto; }
+
+  /* We Do Cards */
+  .we-do-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .we-do-card.answered-correct { border-color: var(--green); }
+  .we-do-card.answered-wrong { border-color: var(--red); }
+  .we-do-card .problem-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .we-do-card .problem-display { font-family: 'Space Mono', monospace; font-size: 36px; font-weight: 700; text-align: center; margin: 16px 0; }
+
+  .answer-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 140px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .answer-input:focus { border-color: var(--teal); }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .feedback {
+    border-radius: 12px; padding: 14px 18px; margin-top: 14px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* Place Value Houses */
+  .pv-houses {
+    display: flex; gap: 12px; justify-content: center; margin: 24px 0; flex-wrap: wrap;
+  }
+  .pv-house {
+    border: 3px solid #333; border-radius: 0 0 12px 12px; overflow: hidden; min-width: 160px;
+  }
+  .pv-house-label {
+    padding: 8px 16px; color: white; text-align: center; font-weight: 700; font-size: 1rem;
+  }
+  .pv-house-rooms {
+    display: flex;
+  }
+  .pv-room {
+    flex: 1; text-align: center; padding: 12px 8px; border-right: 1px solid #e0e0e0; font-weight: 600; font-size: 0.9rem;
+  }
+  .pv-room:last-child { border-right: none; }
+  .pv-room-label {
+    font-size: 0.7rem; color: #666; display: block; margin-bottom: 4px;
+  }
+  .pv-room-digit {
+    font-family: 'Space Mono', monospace; font-size: 1.4rem; font-weight: 700;
+  }
+
+  /* Practice Section */
+  .practice-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .practice-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+  .practice-input { font-family: 'Space Mono', monospace; font-size: 18px; padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; outline: none; width: 120px; text-align: center; }
+  .practice-input:focus { border-color: var(--teal); }
+
+  /* Go Deeper */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .go-deeper-card.locked { opacity: 0.6; pointer-events: none; }
+  .go-deeper-notice { padding: 16px 20px; background: rgba(255,217,61,0.2); border-left: 4px solid var(--amber); border-radius: 8px; font-size: 1rem; margin-bottom: 20px; }
+
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  /* Reflect */
+  .reflect-prompt-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 40px; text-align: center; border: 2px solid var(--border);
+  }
+  .reflect-prompt-card h2 { font-size: 1.8rem; margin-bottom: 24px; }
+  .reflect-prompt-card .prompt { font-size: 1.3rem; line-height: 1.8; color: #666; margin-bottom: 20px; }
+  .reflect-textarea { width: 100%; min-height: 140px; border: 2px solid var(--border); border-radius: 12px; padding: 16px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .reflect-textarea:focus { border-color: var(--teal); }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card, .we-do-card { padding: 20px 18px; }
+    .pv-house { min-width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Number and Place Value</div>
+  <h1><span>Place Value Houses</span> · Grouping in Threes</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="reflect" onclick="goToPhase('Reflect')">Reflect</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">The Pattern of Three</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Meet the Houses</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Reading 2,438,395</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Houses with Zeros</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q1: Name the Value</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q2: Write in Words</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q3: Write the Numeral</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Practice Questions</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reflect</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Reflection</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p><strong>We are learning to use place value houses to read and name numbers into the millions.</strong></p>
+
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can explain that place values are grouped in threes (ones, tens, hundreds) inside each house.</li>
+          <li>I can name the ones house, the thousands house, and the millions house.</li>
+          <li>I can read a number up to millions using the house structure.</li>
+          <li>I can identify the value of any digit in a number up to millions.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 1 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - The Pattern of Three -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h2>Why Do We Group Numbers in Threes?</h2>
+      <p style="margin: 20px 0; text-align: center;">Can you read this number easily?</p>
+      <div class="equation-box">398401</div>
+      <p style="text-align: center; margin-bottom: 20px;">Probably not. Now watch what happens when we group it.</p>
+
+      <button class="step-reveal-btn" onclick="revealGroup('hook1')">Reveal the pattern</button>
+      <div id="hook1-reveal" class="step-hidden" data-group="hook1">
+        <p style="margin-top: 20px; text-align: center; font-size: 1.3rem; font-weight: 600;">398,401</p>
+        <p style="margin-top: 16px; text-align: center; font-size: 1.15rem; line-height: 1.7;">That's three hundred and ninety-eight thousand, four hundred and one.</p>
+        <div class="callout callout-teal">
+          <div class="label">Key Idea</div>
+          <p>Every group of three digits follows the same pattern: hundreds, tens, ones. We call these groups "houses".</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Meet the Houses -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h2>The Place Value Houses</h2>
+      <p style="margin: 20px 0;">Each house has three rooms that follow the same pattern:</p>
+
+      <div class="pv-houses">
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-millions);">Millions</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-thousands);">Thousands</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-ones);">Ones</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin-top: 20px; text-align: center; font-size: 1.1rem;">Every house has the same three rooms: Hundreds, Tens, and Ones. The house name tells you the value.</p>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Reading with Houses -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h2>Let's Read 2,438,395</h2>
+
+      <div class="pv-houses" style="margin-bottom: 24px;">
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-millions);">Millions</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-thousands);">Thousands</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">4</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">3</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">8</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-ones);">Ones</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">3</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">9</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="ido1-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">Start with the millions house. There's just a <strong>2</strong> here, so we say "two million..."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido1"><span class="step-num">Step 2</span><span class="step-text">Move to the thousands house. We read 438 just like a normal three-digit number: "four hundred and thirty-eight thousand..."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido1"><span class="step-num">Step 3</span><span class="step-text">Finally the ones house. Again, read it normally: "three hundred and ninety-five."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido1"><span class="step-num">Step 4</span><span class="step-text">Put it together: <strong>two million, four hundred and thirty-eight thousand, three hundred and ninety-five</strong></span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('ido1')">Reveal next step</button>
+
+      <div class="callout callout-teal" style="margin-top: 20px;">
+        <div class="label">Pattern</div>
+        <p>Inside each house, you just read a normal three-digit number. The house name goes at the end.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Houses with Zeros -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h2>What About 5,030,072?</h2>
+
+      <div class="pv-houses" style="margin-bottom: 24px;">
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-millions);">Millions</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-thousands);">Thousands</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">0</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">3</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-ones);">Ones</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">0</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">7</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="ido2-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">Millions house: just <strong>5</strong>. So "five million..."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido2"><span class="step-num">Step 2</span><span class="step-text">Thousands house: 030. The <strong>0 in hundreds</strong> and <strong>0 in ones</strong> are skipped. We say "thirty thousand..." (not "zero hundred and thirty-zero thousand").</span></div>
+
+        <div class="step-row step-hidden" data-group="ido2"><span class="step-num">Step 3</span><span class="step-text">Ones house: 072. Skip the hundreds <strong>0</strong>. We say "and seventy-two."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido2"><span class="step-num">Step 4</span><span class="step-text">Put it together: <strong>five million, thirty thousand and seventy-two</strong></span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('ido2')">Reveal next step</button>
+
+      <div class="callout callout-red" style="margin-top: 20px;">
+        <div class="label">Key Idea</div>
+        <p>Zeros are still important. They hold places inside the house, but we skip them when reading aloud.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO - Q1 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h2>Q1: What is the value of the 4 in 3,491,587?</h2>
+
+      <div class="pv-houses" style="margin-bottom: 24px;">
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-millions);">Millions</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-thousands);">Thousands</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">4</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">9</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">1</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-ones);">Ones</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">5</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">8</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">7</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="we-do-card" id="wedo-q1">
+        <div style="margin: 20px 0;">
+          <p style="margin-bottom: 16px;">Enter the value of the 4:</p>
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q1-a" placeholder="?">
+            <button class="check-btn" onclick="checkWedoQ1()">Check</button>
+          </div>
+          <div id="wedo-q1-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO - Q2 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h2>Q2: Write 7,206,040 in words</h2>
+
+      <div class="pv-houses" style="margin-bottom: 24px;">
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-millions);">Millions</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">&ndash;</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(190, 24, 93, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">7</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-thousands);">Thousands</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">2</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">0</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(29, 78, 216, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">6</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-house">
+          <div class="pv-house-label" style="background-color: var(--pv-ones);">Ones</div>
+          <div class="pv-house-rooms">
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">H</span>
+              <span class="pv-room-digit">0</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">T</span>
+              <span class="pv-room-digit">4</span>
+            </div>
+            <div class="pv-room" style="background-color: rgba(101, 163, 13, 0.1);">
+              <span class="pv-room-label">O</span>
+              <span class="pv-room-digit">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="we-do-card" id="wedo-q2">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q2-a" placeholder="?" style="width: 100%; max-width: 300px;">
+            <button class="check-btn" onclick="checkWedoQ2()">Check</button>
+          </div>
+          <div id="wedo-q2-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO - Q3 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h2>Q3: Write the numeral</h2>
+
+      <div class="callout callout-teal">
+        <p style="font-size: 1.3rem;"><strong>One million, fifty thousand and nine</strong></p>
+      </div>
+
+      <div class="we-do-card" id="wedo-q3">
+        <div style="margin: 20px 0;">
+          <p style="margin-bottom: 16px;">Write this as a numeral:</p>
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q3-a" placeholder="?">
+            <button class="check-btn" onclick="checkWedoQ3()">Check</button>
+          </div>
+          <div id="wedo-q3-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: PRACTICE -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h3>Practice Questions</h3>
+      <p style="margin-bottom: 24px;">Work through these questions to deepen your understanding of place value houses.</p>
+
+      <div style="max-height: 800px; overflow-y: auto; padding-right: 16px;">
+        <!-- Q1 -->
+        <div class="practice-card">
+          <h4>Q1</h4>
+          <p>What is the value of the 6 in 6,215,830?</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-1" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(1)">Check</button>
+          </div>
+          <div id="prac-1-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="practice-card">
+          <h4>Q2</h4>
+          <p>What is the value of the 9 in 4,092,617?</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-2" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(2)">Check</button>
+          </div>
+          <div id="prac-2-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="practice-card">
+          <h4>Q3</h4>
+          <p>Write 8,304,510 in words.</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-3" placeholder="?" style="width: 100%; max-width: 350px;">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(3)">Check</button>
+          </div>
+          <div id="prac-3-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="practice-card">
+          <h4>Q4</h4>
+          <p>Write 2,060,003 in words.</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-4" placeholder="?" style="width: 100%; max-width: 350px;">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(4)">Check</button>
+          </div>
+          <div id="prac-4-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="practice-card">
+          <h4>Q5</h4>
+          <p>Write "four million, seven hundred and twelve thousand, one hundred and fifty" as a numeral.</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-5" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(5)">Check</button>
+          </div>
+          <div id="prac-5-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="practice-card">
+          <h4>Q6</h4>
+          <p>Write "nine million and twenty-five" as a numeral.</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-6" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(6)">Check</button>
+          </div>
+          <div id="prac-6-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="practice-card">
+          <h4>Q7</h4>
+          <p>How many thousands are in one million?</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-7" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(7)">Check</button>
+          </div>
+          <div id="prac-7-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="practice-card">
+          <h4>Q8</h4>
+          <p>In the number 3,491,587, what does the 9 represent?</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-8" placeholder="?" style="width: 100%; max-width: 200px;">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(8)">Check</button>
+          </div>
+          <div id="prac-8-fb" class="feedback"></div>
+        </div>
+      </div>
+
+      <!-- Go Deeper Section (appears once all practice done) -->
+      <div id="go-deeper-section" class="go-deeper-card locked" style="margin-top: 32px;">
+        <div class="go-deeper-notice">
+          <strong>Locked:</strong> Complete all practice questions to unlock Go Deeper investigations.
+        </div>
+
+        <h2>Go Deeper</h2>
+        <p>What can we discover about how houses help us understand really big numbers?</p>
+
+        <!-- Task 1 -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 1: Specialising</div>
+          <div class="ext-task-prompt">Write the number that has: <span class="ext-numbers">7</span> in the millions, <span class="ext-numbers">0</span> in the hundred-thousands, <span class="ext-numbers">4</span> in the ten-thousands, <span class="ext-numbers">0</span> in the thousands, <span class="ext-numbers">0</span> in the hundreds, <span class="ext-numbers">6</span> in the tens, and <span class="ext-numbers">3</span> in the ones. Now read it aloud. Which houses have zeros you need to skip?</div>
+          <div class="ext-task-sub">Tip: Draw the houses and fill in the digits to help.</div>
+          <textarea class="ext-thinking-area" id="task1-thinking" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Response</div>
+            <p>I placed each digit: <span class="ext-numbers">7,040,063</span>. Let me put that in houses. Millions: <span class="ext-numbers">7</span>. Thousands: <span class="ext-numbers">0, 4, 0</span>. Ones: <span class="ext-numbers">0, 6, 3</span>. Reading: "seven million, forty thousand and sixty-three." In the thousands house I had to skip the hundreds (<span class="ext-numbers">0</span>) and the ones (<span class="ext-numbers">0</span>), reading just "forty thousand." In the ones house I skipped the hundreds (<span class="ext-numbers">0</span>). Three of the seven digits are zeros, but the number still reads fairly smoothly because of the house structure.</p>
+            <div class="mathematician-box">
+              <strong>Mathematician's Box:</strong> Specialising.
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 2 -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 2: Conjecturing</div>
+          <div class="ext-task-prompt">"Every house in a number must have exactly three digits." Is this always true, sometimes true, or never true?</div>
+          <div class="ext-task-sub">Tip: Think about the leftmost house. Does it always have three digits?</div>
+          <textarea class="ext-thinking-area" id="task2-thinking" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Response</div>
+            <p>Let me test. <span class="ext-numbers">2,438,395</span> has houses of <span class="ext-numbers">2 | 438 | 395</span>. The millions house only has <span class="ext-numbers">1</span> digit. What about <span class="ext-numbers">45,200</span>? Houses: <span class="ext-numbers">45 | 200</span>. The thousands house has <span class="ext-numbers">2</span> digits. And <span class="ext-numbers">700</span>? That's just <span class="ext-numbers">700</span> in the ones house, <span class="ext-numbers">3</span> digits. So the rightmost house always has <span class="ext-numbers">3</span> digits and so does the middle house when it exists. But the leftmost house can have <span class="ext-numbers">1, 2</span>, or <span class="ext-numbers">3</span> digits. <span class="ext-numbers">2,438,395</span> has <span class="ext-numbers">1</span> in millions. <span class="ext-numbers">45,200</span> has <span class="ext-numbers">2</span> in thousands. <span class="ext-numbers">398,401</span> has <span class="ext-numbers">3</span> in thousands. So this is SOMETIMES TRUE. Every house except the leftmost must have exactly three digits (otherwise digits would be in the wrong place). But the leftmost house can have <span class="ext-numbers">1, 2</span>, or <span class="ext-numbers">3</span>.</p>
+            <div class="mathematician-box">
+              <strong>Mathematician's Box:</strong> Conjecturing.
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 3 -->
+        <div class="ext-task">
+          <div class="ext-task-label">Task 3: Generalising</div>
+          <div class="ext-task-prompt">Can you write a rule connecting the number of digits in a whole number to how many houses it needs? Test your rule with numbers that have 1 digit, 3 digits, 5 digits, 7 digits, and 9 digits.</div>
+          <div class="ext-task-sub">Tip: Is there a pattern you can describe using division?</div>
+          <textarea class="ext-thinking-area" id="task3-thinking" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">Mathematician's Response</div>
+            <p><span class="ext-numbers">1</span> digit (e.g. <span class="ext-numbers">5</span>): <span class="ext-numbers">1</span> house (ones). <span class="ext-numbers">3</span> digits (e.g. <span class="ext-numbers">842</span>): <span class="ext-numbers">1</span> house (ones). <span class="ext-numbers">5</span> digits (e.g. <span class="ext-numbers">45,200</span>): <span class="ext-numbers">2</span> houses (thousands + ones). <span class="ext-numbers">7</span> digits (e.g. <span class="ext-numbers">2,438,395</span>): <span class="ext-numbers">3</span> houses (millions + thousands + ones). <span class="ext-numbers">9</span> digits (e.g. <span class="ext-numbers">123,456,789</span>): <span class="ext-numbers">3</span> houses, all full.</p>
+            <p>I first thought it might be: houses = digits ÷ <span class="ext-numbers">3</span>. But <span class="ext-numbers">5 ÷ 3 = 1.67</span>, and we need <span class="ext-numbers">2</span> houses. Let me try rounding up. Ceiling of <span class="ext-numbers">1/3 = 1</span>. Ceiling of <span class="ext-numbers">3/3 = 1</span>. Ceiling of <span class="ext-numbers">5/3 = 2</span>. Ceiling of <span class="ext-numbers">7/3 = 3</span>. Ceiling of <span class="ext-numbers">9/3 = 3</span>. That works!</p>
+            <p><strong>My rule: The number of houses equals the number of digits divided by <span class="ext-numbers">3</span>, rounded up.</strong> Or: you get a new house every time you pass a multiple of <span class="ext-numbers">3</span> digits. The ones house holds up to <span class="ext-numbers">3</span> digits, then you need the thousands house for digits <span class="ext-numbers">4</span>–<span class="ext-numbers">6</span>, then the millions house for digits <span class="ext-numbers">7</span>–<span class="ext-numbers">9</span>.</p>
+            <div class="mathematician-box">
+              <strong>Mathematician's Box:</strong> Generalising.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: REFLECT -->
+  <div class="slide" id="slide-9">
+    <div class="reflect-prompt-card">
+      <h2>Reflection</h2>
+      <p class="prompt">How do place value houses make it easier to read very large numbers? Could you read a 9-digit number without grouping it?</p>
+      <textarea class="reflect-textarea" id="reflect-input" placeholder="Start typing your reflection..."></textarea>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── SLIDES CONFIG ──
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'The Pattern of Three', section: 'Hook' },
+  { id: 'slide-2', title: 'Meet the Houses', section: 'Hook' },
+  { id: 'slide-3', title: 'Reading 2,438,395', section: 'I Do' },
+  { id: 'slide-4', title: 'Houses with Zeros', section: 'I Do' },
+  { id: 'slide-5', title: 'Q1: Name the Value', section: 'We Do' },
+  { id: 'slide-6', title: 'Q2: Write in Words', section: 'We Do' },
+  { id: 'slide-7', title: 'Q3: Write the Numeral', section: 'We Do' },
+  { id: 'slide-8', title: 'Practice Questions', section: 'Practice' },
+  { id: 'slide-9', title: 'Reflection', section: 'Reflect' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning',
+  'Hook': 'hook',
+  'I Do': 'ido',
+  'We Do': 'wedo',
+  'Practice': 'practice',
+  'Reflect': 'reflect',
+};
+
+let currentSlide = 0;
+var practiceDone = [false, false, false, false, false, false, false, false];
+
+function goToSlide(idx) {
+  if (idx < 0 || idx >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[idx].id).classList.add('active');
+  currentSlide = idx;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+}
+
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  if (currentSlide > 0) goToSlide(currentSlide - 1);
+}
+
+function updateNavButtons() {
+  const slideDiv = document.getElementById(slides[currentSlide].id);
+  const nav = slideDiv.querySelector('.slide-nav');
+  if (!nav) return;
+  const btns = nav.querySelectorAll('.nav-btn');
+  const prevBtn = btns[0];
+  const nextBtn = btns[1];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  const counter = nav.querySelector('.slide-counter');
+  if (counter) counter.textContent = `Card ${currentSlide + 1} of ${slides.length}`;
+}
+
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.phase-btn[data-phase="${phase}"]`).classList.add('active');
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  let counter = 0;
+  document.querySelectorAll('.sidebar-section').forEach(section => {
+    section.querySelectorAll('.sidebar-item').forEach((item, idx) => {
+      if (counter === currentSlide) item.classList.add('active');
+      counter++;
+    });
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── STEP REVEALS ──
+var revealState = {};
+
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.add('revealed');
+    revealState[group]++;
+  }
+}
+
+// ── NORMALISE ANSWER ──
+function normaliseAnswer(str) {
+  return str.toLowerCase().trim().replace(/,/g, '').replace(/-/g, ' ').replace(/\s+/g, ' ');
+}
+
+// ── WE DO Q1 ──
+function checkWedoQ1() {
+  const input = document.getElementById('wedo-q1-a');
+  const val = input.value.trim();
+  const fb = document.getElementById('wedo-q1-a-fb');
+  if (!val) { input.focus(); return; }
+  const cleanVal = val.replace(/,/g, '');
+  const isCorrect = (cleanVal === '400000');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> The 4 is in the hundreds room of the thousands house. Hundreds of thousands = <span class="mono">400,000</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. The 4 sits in the hundreds room of the thousands house. That means <span class="mono">4 × 100,000 = 400,000</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q2 ──
+function checkWedoQ2() {
+  const input = document.getElementById('wedo-q2-a');
+  const val = input.value.trim();
+  const fb = document.getElementById('wedo-q2-a-fb');
+  if (!val) { input.focus(); return; }
+  const normalised = normaliseAnswer(val);
+  const correct = normaliseAnswer('seven million, two hundred and six thousand and forty');
+  const isCorrect = (normalised === correct);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Well done!</strong> The millions house gives us "seven million", the thousands house reads as "two hundred and six thousand", and the ones house is "and forty".';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote: <span class="mono">' + val + '</span>. Let me break it down: Millions house: <span class="mono">7</span> = seven million. Thousands house: <span class="mono">206</span> = two hundred and six thousand. Ones house: <span class="mono">040</span> = and forty. So: seven million, two hundred and six thousand and forty.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q3 ──
+function checkWedoQ3() {
+  const input = document.getElementById('wedo-q3-a');
+  const val = input.value.trim();
+  const fb = document.getElementById('wedo-q3-a-fb');
+  if (!val) { input.focus(); return; }
+  const cleanVal = val.replace(/,/g, '');
+  const isCorrect = (cleanVal === '1050009');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> One million = <span class="mono">1,000,000</span>. Fifty thousand = <span class="mono">50,000</span>. And nine = <span class="mono">9</span>. So <span class="mono">1,000,000 + 50,000 + 9 = 1,050,009</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. Let\'s break it down: One million = <span class="mono">1,000,000</span>. Fifty thousand = <span class="mono">50,000</span>. And nine = <span class="mono">9</span>. When we add them: <span class="mono">1,050,009</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── PRACTICE QUESTIONS ──
+function checkPrac(idx) {
+  const input = document.getElementById('prac-' + idx);
+  const val = input.value.trim();
+  const fb = document.getElementById('prac-' + idx + '-fb');
+  if (!val) { input.focus(); return; }
+
+  practiceDone[idx - 1] = true;
+
+  var answers = {
+    1: { values: ['6000000', '6,000,000'], text: 'The 6 is in the ones room of the millions house, so it represents 6 millions = <span class="mono">6,000,000</span>.' },
+    2: { values: ['90000', '90,000'], text: 'The 9 is in the tens room of the thousands house, so it represents 9 ten-thousands = <span class="mono">90,000</span>.' },
+    3: {
+      normalised: true,
+      correct: 'eight million three hundred and four thousand five hundred and ten',
+      text: 'Millions house: <span class="mono">8</span> = eight million. Thousands house: <span class="mono">304</span> = three hundred and four thousand. Ones house: <span class="mono">510</span> = five hundred and ten.'
+    },
+    4: {
+      normalised: true,
+      correct: 'two million sixty thousand and three',
+      text: 'Millions house: <span class="mono">2</span> = two million. Thousands house: <span class="mono">060</span> = sixty thousand. Ones house: <span class="mono">003</span> = and three.'
+    },
+    5: { values: ['4712150', '4,712,150'], text: 'Four million = <span class="mono">4,000,000</span>. Seven hundred and twelve thousand = <span class="mono">712,000</span>. One hundred and fifty = <span class="mono">150</span>. Total: <span class="mono">4,712,150</span>.' },
+    6: { values: ['9000025', '9,000,025'], text: 'Nine million = <span class="mono">9,000,000</span>. And twenty-five = <span class="mono">25</span>. Total: <span class="mono">9,000,025</span>.' },
+    7: { values: ['1000', '1,000'], text: '<span class="mono">1,000,000 ÷ 1,000 = 1,000</span>. There are one thousand thousands in one million.' },
+    8: { values: ['90000', '90,000'], text: 'The 9 is in the tens room of the thousands house = <span class="mono">9 × 10,000 = 90,000</span>.' }
+  };
+
+  const ansConfig = answers[idx];
+  let isCorrect = false;
+
+  if (ansConfig.normalised) {
+    const normalised = normaliseAnswer(val);
+    isCorrect = (normalised === ansConfig.correct);
+  } else {
+    const cleanVal = val.replace(/,/g, '');
+    isCorrect = ansConfig.values.includes(cleanVal);
+  }
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> ' + ansConfig.text;
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> ' + ansConfig.text;
+  }
+  input.disabled = true;
+
+  // Check if all practice done
+  if (practiceDone.every(x => x)) {
+    unlockGoDeeper();
+  }
+}
+
+function unlockGoDeeper() {
+  const section = document.getElementById('go-deeper-section');
+  if (section) {
+    section.classList.remove('locked');
+    section.querySelector('.go-deeper-notice').style.display = 'none';
+  }
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>

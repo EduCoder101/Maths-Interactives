@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4: Reading Large Numbers - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+
+    /* Place Value House Colours */
+    --pv-millions: #be185d;
+    --pv-hundred-thousands: #d44d8a;
+    --pv-ten-thousands: #7c3aed;
+    --pv-thousands: #1d4ed8;
+    --pv-hundreds: #0891b2;
+    --pv-tens: #059669;
+    --pv-ones: #65a30d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="reflect"].active::after { background: var(--purple); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); padding: 28px 40px; }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p { font-size: 1.3rem; line-height: 1.6; }
+  .lisc-content li { font-size: 1.2rem; line-height: 1.6; margin-bottom: 6px; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 24px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 16px 0; transition: filter 0.4s ease;
+  }
+
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  .step-row {
+    display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; font-size: 1.2rem; line-height: 1.6;
+  }
+  .step-num {
+    font-weight: 700; min-width: 32px; color: var(--teal); font-size: 1.1rem;
+  }
+  .step-text { flex: 1; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .step-hidden { opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; pointer-events: auto; }
+
+  /* We Do Cards */
+  .we-do-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .we-do-card.answered-correct { border-color: var(--green); }
+  .we-do-card.answered-wrong { border-color: var(--red); }
+  .we-do-card .problem-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .we-do-card .problem-display { font-family: 'Space Mono', monospace; font-size: 36px; font-weight: 700; text-align: center; margin: 16px 0; }
+
+  .answer-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 140px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .answer-input.wide-input {
+    width: 400px; font-family: 'Fredoka', sans-serif; font-size: 18px;
+  }
+  .answer-input:focus { border-color: var(--teal); }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .feedback {
+    border-radius: 12px; padding: 14px 18px; margin-top: 14px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* Practice Section */
+  .practice-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .practice-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+  .practice-input { font-family: 'Space Mono', monospace; font-size: 18px; padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; outline: none; width: 120px; text-align: center; }
+  .practice-input.wide-practice { width: 300px; font-family: 'Fredoka', sans-serif; }
+  .practice-input:focus { border-color: var(--teal); }
+
+  /* Go Deeper */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .go-deeper-card.locked { opacity: 0.6; pointer-events: none; }
+  .go-deeper-notice { padding: 16px 20px; background: rgba(255,217,61,0.2); border-left: 4px solid var(--amber); border-radius: 8px; font-size: 1rem; margin-bottom: 20px; }
+
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  /* Reflect */
+  .reflect-prompt-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 40px; text-align: center; border: 2px solid var(--border);
+  }
+  .reflect-prompt-card h2 { font-size: 1.8rem; margin-bottom: 24px; }
+  .reflect-prompt-card .prompt { font-size: 1.3rem; line-height: 1.8; color: #666; margin-bottom: 20px; }
+  .reflect-textarea { width: 100%; min-height: 140px; border: 2px solid var(--border); border-radius: 12px; padding: 16px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .reflect-textarea:focus { border-color: var(--teal); }
+
+  /* Mastermind Table */
+  .mastermind-table {
+    width: 100%; border-collapse: collapse; margin: 20px 0; font-family: 'Fredoka', sans-serif;
+  }
+  .mastermind-table th, .mastermind-table td {
+    border: 2px solid var(--border); padding: 12px; text-align: center;
+  }
+  .mastermind-table th { background: var(--teal); color: white; font-weight: 700; }
+  .mastermind-table td { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card, .we-do-card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Number and Place Value</div>
+  <h1><span>Reading Large Numbers</span> · Say It, Write It, Know It</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="reflect" onclick="goToPhase('Reflect')">Reflect</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Mastermind Demo</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Your Turn to Play</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Reading 47,382</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Tricky Zeros</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q1: Write in Words</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q2: Write the Numeral</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q3: Spot the Mistake</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Practice Questions</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reflect</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Reflection</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <div class="lisc-content">
+        <h2>Learning Intention and Success Criteria</h2>
+        <h3>Learning Intention</h3>
+        <p>We are learning to read and represent numbers up to tens of thousands.</p>
+
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can read a five-digit number using place value to say it correctly.</li>
+          <li>I can write a number in words when given the numeral.</li>
+          <li>I can write a number as a numeral when given the words.</li>
+          <li>I can identify and correct errors in how numbers are read.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - Mastermind Demo -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h2>Mastermind: Crack the Code</h2>
+      <div class="callout callout-teal">
+        <p>One player secretly writes a number. The other player guesses. After each guess, you get two clues: how many digits are correct, and how many are in the correct place.</p>
+      </div>
+
+      <p style="margin-top: 20px; font-size: 1.15rem; font-weight: 500;">The teacher demonstrates with a 3-digit number on the board:</p>
+      <table class="mastermind-table">
+        <tr>
+          <th>Guess</th>
+          <th>Correct Digits</th>
+          <th>Correct Place</th>
+        </tr>
+        <tr>
+          <td>123</td>
+          <td>1</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>235</td>
+          <td>2</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>572</td>
+          <td>3</td>
+          <td>3</td>
+        </tr>
+      </table>
+
+      <button class="step-reveal-btn" onclick="revealGroup('hook1')">Reveal the answer</button>
+      <div id="hook1-reveal" class="step-hidden" data-group="hook1">
+        <p style="margin-top: 20px; font-size: 1.15rem; font-weight: 500; color: #333;">The secret number was <span class="mono" style="font-size: 1.2rem;">572</span>! The guesser used the clues to narrow it down.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Your Turn -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h2>Your Turn to Play</h2>
+      <p style="margin-bottom: 16px;">Work with a partner. Each write a secret 5-digit number. Take turns guessing. After each guess, tell your partner how many digits are correct and how many are in the correct place.</p>
+
+      <div class="callout callout-amber">
+        <div class="label">Challenge</div>
+        <p>Try using numbers with zeros. They make the game much harder!</p>
+      </div>
+
+      <div class="callout callout-amber" style="margin-top: 20px;">
+        <div class="label">Big Idea</div>
+        <p style="font-size: 1.5rem; line-height: 1.6;">To play Mastermind well, you need to really understand what each digit means and where it belongs. That's place value in action.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Reading 47,382 -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h2>How Do We Read This Number?</h2>
+      <div class="equation-box">47,382</div>
+
+      <div id="ido1-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">Start from the left. The 4 is in the ten-thousands place, so we begin with "forty..."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido1"><span class="step-num">Step 2</span><span class="step-text">The 7 is in the thousands place. Together with the 4, we say "forty-seven thousand..."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido1"><span class="step-num">Step 3</span><span class="step-text">Now the hundreds: the 3 means "three hundred..."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido1"><span class="step-num">Step 4</span><span class="step-text">The 8 is in tens and the 2 is in ones: "eighty-two"</span></div>
+
+        <div class="step-row step-hidden" data-group="ido1"><span class="step-num">Step 5</span><span class="step-text">Put it together: <strong>forty-seven thousand, three hundred and eighty-two</strong></span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('ido1')">Reveal next step</button>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Tricky Zeros -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h2>What Happens When There Are Zeros?</h2>
+      <div class="equation-box">60,508</div>
+
+      <div id="ido2-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">The 6 is in ten-thousands, the 0 is in thousands. We say "sixty thousand" (not "sixty-zero thousand").</span></div>
+
+        <div class="step-row step-hidden" data-group="ido2"><span class="step-num">Step 2</span><span class="step-text">The 5 is in hundreds: "five hundred..."</span></div>
+
+        <div class="step-row step-hidden" data-group="ido2"><span class="step-num">Step 3</span><span class="step-text">The 0 is in tens. We skip it. We don't say "zero tens".</span></div>
+
+        <div class="step-row step-hidden" data-group="ido2"><span class="step-num">Step 4</span><span class="step-text">The 8 is in ones: "and eight"</span></div>
+
+        <div class="step-row step-hidden" data-group="ido2"><span class="step-num">Step 5</span><span class="step-text">Put it together: <strong>sixty thousand, five hundred and eight</strong></span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('ido2')">Reveal next step</button>
+
+      <div class="callout callout-red" style="margin-top: 20px;">
+        <div class="label">Key Idea</div>
+        <p>When a column has zero, we skip it when reading. Zero holds the place, but we don't say it.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO - Q1 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h2>Q1: Write this number in words</h2>
+      <div class="we-do-card" id="wedo-q1">
+        <div class="problem-display"><span class="mono">93,041</span></div>
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input wide-input" type="text" id="wedo-q1-a" placeholder="?">
+            <button class="check-btn" onclick="checkWedoQ1()">Check</button>
+          </div>
+          <div id="wedo-q1-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO - Q2 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h2>Q2: Write the numeral</h2>
+      <div class="callout callout-teal">
+        <p>Seventy-one thousand, two hundred and nine</p>
+      </div>
+
+      <div class="we-do-card" id="wedo-q2">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="number" id="wedo-q2-a" placeholder="?">
+            <button class="check-btn" onclick="checkWedoQ2()">Check</button>
+          </div>
+          <div id="wedo-q2-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO - Q3 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h2>Q3: Is This Reading Correct?</h2>
+      <p style="margin-bottom: 16px; font-size: 1.1rem;">A student reads <span class="mono" style="font-size: 1.2rem;">50,306</span> as "fifty thousand, three hundred and sixty".</p>
+
+      <div class="we-do-card" id="wedo-q3">
+        <div style="margin: 20px 0;">
+          <p style="font-size: 1.1rem; margin-bottom: 12px;"><strong>Is this correct?</strong></p>
+          <div class="answer-row">
+            <input class="answer-input wide-input" type="text" id="wedo-q3-correct" placeholder="?" style="width: 300px;">
+            <button class="check-btn" onclick="checkWedoQ3()">Check</button>
+          </div>
+          <div id="wedo-q3-correct-fb" class="feedback"></div>
+        </div>
+
+        <div style="margin: 20px 0;">
+          <p style="font-size: 1.1rem; margin-bottom: 12px;"><strong>What should it say?</strong></p>
+          <div class="answer-row">
+            <input class="answer-input wide-input" type="text" id="wedo-q3-correct-reading" placeholder="?" style="width: 300px;">
+            <button class="check-btn" onclick="checkWedoQ3Reading()">Check</button>
+          </div>
+          <div id="wedo-q3-reading-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: PRACTICE -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h3>Practice Questions</h3>
+      <p style="margin-bottom: 24px;">Work through these questions to deepen your understanding of reading and writing large numbers.</p>
+
+      <div style="max-height: 800px; overflow-y: auto; padding-right: 16px;">
+        <!-- Q1 -->
+        <div class="practice-card">
+          <h4>Q1</h4>
+          <p>Write <span class="mono">82,417</span> in words</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input wide-practice" type="text" id="prac-1" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(1, 'eighty-two thousand, four hundred and seventeen')">Check</button>
+          </div>
+          <div id="prac-1-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="practice-card">
+          <h4>Q2</h4>
+          <p>Write <span class="mono">40,090</span> in words</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input wide-practice" type="text" id="prac-2" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(2, 'forty thousand and ninety')">Check</button>
+          </div>
+          <div id="prac-2-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="practice-card">
+          <h4>Q3</h4>
+          <p>Write "sixty-five thousand, one hundred and three" as a numeral</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input" type="number" id="prac-3" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPracNumeral(3, 65103)">Check</button>
+          </div>
+          <div id="prac-3-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="practice-card">
+          <h4>Q4</h4>
+          <p>Write "twenty thousand and fifty" as a numeral</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input" type="number" id="prac-4" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPracNumeral(4, 20050)">Check</button>
+          </div>
+          <div id="prac-4-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="practice-card">
+          <h4>Q5</h4>
+          <p>What digit is in the ten-thousands place in <span class="mono">73,961</span>?</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input" type="text" id="prac-5" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPracDigit(5, '7')">Check</button>
+          </div>
+          <div id="prac-5-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="practice-card">
+          <h4>Q6</h4>
+          <p>What digit is in the hundreds place in <span class="mono">50,802</span>?</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input" type="text" id="prac-6" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPracDigit(6, '8')">Check</button>
+          </div>
+          <div id="prac-6-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="practice-card">
+          <h4>Q7</h4>
+          <p>A student writes "thirty-six thousand and twelve" as <span class="mono">3,612</span>. What mistake did they make?</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input wide-practice" type="text" id="prac-7" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(7, 'forgot zero or missing zero')">Check</button>
+          </div>
+          <div id="prac-7-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="practice-card">
+          <h4>Q8</h4>
+          <p>How many zeros does the number "eighty thousand and eight" have?</p>
+          <div style="margin-top: 12px;">
+            <input class="answer-input" type="text" id="prac-8" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPracDigit(8, '3')">Check</button>
+          </div>
+          <div id="prac-8-fb" class="feedback"></div>
+        </div>
+
+        <p style="font-size: 1.05rem; margin-top: 24px; color: #666;">Complete all 8 practice questions to unlock Go Deeper.</p>
+      </div>
+
+      <!-- Go Deeper Section -->
+      <div class="go-deeper-card locked" id="goDeeper" style="margin-top: 32px;">
+        <div class="go-deeper-notice" id="goDeeperNotice">
+          Complete all 8 practice questions to unlock Go Deeper tasks.
+        </div>
+
+        <h2 style="display: none;" id="goDeeperTitle">Go Deeper: Reading Large Numbers Investigations</h2>
+        <p style="display: none;" id="goDeeperIntro">These tasks will push your thinking beyond finding answers. You will explore patterns, make conjectures, and reason like a mathematician.</p>
+
+        <div style="display: none;" id="goDeeperContent">
+          <!-- Task 1: Specialising -->
+          <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">Write three different five-digit numbers that each have exactly two zeros. Read each number aloud. How many words does each number use?</div>
+            <div class="ext-task-sub">Do numbers with zeros in different positions use the same number of words?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I tried <span class="ext-numbers">30,040</span>. Read aloud: "thirty thousand and forty". That's 5 words.</p>
+              <p>Then <span class="ext-numbers">10,500</span>. Read aloud: "ten thousand, five hundred". That's 4 words.</p>
+              <p>Then <span class="ext-numbers">20,007</span>. Read aloud: "twenty thousand and seven". That's 4 words.</p>
+              <p>I also tried <span class="ext-numbers">50,600</span>. Read aloud: "fifty thousand, six hundred". That's 4 words.</p>
+              <p>Interesting! <span class="ext-numbers">30,040</span> used more words (5) because the zero splits the non-zero digits apart with an "and". When both zeros are adjacent (like in <span class="ext-numbers">10,500</span> where they're in tens and ones), I get fewer words. When zeros separate non-zero digits (like in <span class="ext-numbers">30,040</span>), I need more connecting words.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. You are trying specific examples to gather evidence and look for a pattern before making any claims.
+            </div>
+          </div>
+
+          <!-- Task 2: Conjecturing -->
+          <div class="ext-task">
+            <div class="ext-task-label">Conjecturing</div>
+            <div class="ext-task-prompt">"A number with more zeros is always shorter to say than a number with fewer zeros." Is this always true, sometimes true, or never true?</div>
+            <div class="ext-task-sub">Compare numbers with 1 zero, 2 zeros, and 3 zeros. Count the words each time.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>Let me test systematically.</p>
+              <p><strong>1 zero:</strong> <span class="ext-numbers">47,082</span> = "forty-seven thousand and eighty-two" (6 words)</p>
+              <p><strong>2 zeros:</strong> <span class="ext-numbers">40,082</span> = "forty thousand and eighty-two" (5 words). Fewer words! The claim holds so far.</p>
+              <p><strong>3 zeros:</strong> <span class="ext-numbers">40,002</span> = "forty thousand and two" (4 words). Even fewer!</p>
+              <p>But wait: <span class="ext-numbers">10,000</span> has 4 zeros = "ten thousand" (2 words). And <span class="ext-numbers">90,034</span> has 1 zero = "ninety thousand and thirty-four" (5 words). Hmm, that's fewer words than <span class="ext-numbers">47,082</span> with 1 zero.</p>
+              <p>Actually, I think this is <strong>SOMETIMES TRUE</strong>. More zeros generally means fewer words because we skip those places. But the position of the zeros matters. The pattern isn't absolute.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. You are making a claim based on evidence, but you know you need to test it further.
+            </div>
+          </div>
+
+          <!-- Task 3: Generalising -->
+          <div class="ext-task">
+            <div class="ext-task-label">Generalising</div>
+            <div class="ext-task-prompt">Can you write a rule for when you need the word "and" when reading a number? Test your rule with at least 5 different numbers.</div>
+            <div class="ext-task-sub">When does "and" appear, and when is it left out?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I started by listing some numbers and whether they use "and":</p>
+              <p><span class="ext-numbers">47,382</span> = "forty-seven thousand, three hundred AND eighty-two" (has "and")</p>
+              <p><span class="ext-numbers">60,508</span> = "sixty thousand, five hundred AND eight" (has "and")</p>
+              <p><span class="ext-numbers">40,000</span> = "forty thousand" (no "and")</p>
+              <p><span class="ext-numbers">93,041</span> = "ninety-three thousand AND forty-one" (has "and")</p>
+              <p><span class="ext-numbers">20,300</span> = "twenty thousand, three hundred" (no "and")</p>
+              <p>Wait, that last one surprised me. Why is there no "and"? Let me think. 20,300 ends in the hundreds exactly. There are no tens or ones, so no "and."</p>
+              <p>My rule: <strong>Use "and" to connect the tens and ones part only when there are tens or ones to read.</strong> If the number ends in the hundreds exactly (like 20,300), there is no "and". If there are tens or ones after the hundreds, use "and" before them.</p>
+              <p>Testing: <span class="ext-numbers">15,420</span> = "fifteen thousand, four hundred AND twenty" (ones/tens exist, so "and" appears). <span class="ext-numbers">30,700</span> = "thirty thousand, seven hundred" (no tens or ones, so no "and"). My rule works!</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. You are finding the rule that explains the pattern across many examples.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: REFLECT -->
+  <div class="slide" id="slide-9">
+    <div class="reflect-prompt-card">
+      <h2>Reflection</h2>
+      <div class="prompt">Why do you think it matters that we all agree on how to read numbers? What could go wrong if people read numbers differently?</div>
+      <textarea class="reflect-textarea" placeholder="Start typing your reflection..."></textarea>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'Mastermind Demo', section: 'Hook' },
+  { id: 'slide-2', title: 'Your Turn to Play', section: 'Hook' },
+  { id: 'slide-3', title: 'Reading 47,382', section: 'I Do' },
+  { id: 'slide-4', title: 'Tricky Zeros', section: 'I Do' },
+  { id: 'slide-5', title: 'Q1: Write in Words', section: 'We Do' },
+  { id: 'slide-6', title: 'Q2: Write the Numeral', section: 'We Do' },
+  { id: 'slide-7', title: 'Q3: Spot the Mistake', section: 'We Do' },
+  { id: 'slide-8', title: 'Practice Questions', section: 'Practice' },
+  { id: 'slide-9', title: 'Reflection', section: 'Reflect' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice', 'Reflect': 'reflect'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+}
+
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  if (currentSlide > 0) goToSlide(currentSlide - 1);
+}
+
+function updateNavButtons() {
+  const slideDiv = document.getElementById(slides[currentSlide].id);
+  const nav = slideDiv.querySelector('.slide-nav');
+  if (!nav) return;
+  const btns = nav.querySelectorAll('.nav-btn');
+  const prevBtn = btns[0];
+  const nextBtn = btns[1];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  const counter = nav.querySelector('.slide-counter');
+  if (counter) counter.textContent = `Card ${currentSlide + 1} of ${slides.length}`;
+}
+
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.phase-btn[data-phase="${phase}"]`).classList.add('active');
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  const items = document.querySelectorAll('.sidebar-item');
+  let counter = 0;
+  document.querySelectorAll('.sidebar-section').forEach(section => {
+    section.querySelectorAll('.sidebar-item').forEach((item, idx) => {
+      if (counter === currentSlide) item.classList.add('active');
+      counter++;
+    });
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── STEP REVEALS ──
+var revealState = {};
+
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.add('revealed');
+    revealState[group]++;
+  }
+}
+
+// ── NORMALISE TEXT FOR WORD ANSWERS ──
+function normaliseAnswer(text) {
+  return text.trim().toLowerCase().replace(/[\-,\s]+/g, ' ').trim();
+}
+
+// ── WE DO Q1 ──
+function checkWedoQ1() {
+  const input = document.getElementById('wedo-q1-a');
+  const val = input.value.trim();
+  const fb = document.getElementById('wedo-q1-a-fb');
+  if (!val) { input.focus(); return; }
+
+  const normalised = normaliseAnswer(val);
+  const correctAnswers = [
+    normaliseAnswer('ninety-three thousand and forty-one'),
+    normaliseAnswer('ninety-three thousand and forty one'),
+    normaliseAnswer('ninety three thousand and forty one'),
+    normaliseAnswer('ninety three thousand and forty-one')
+  ];
+
+  const isCorrect = correctAnswers.includes(normalised);
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Well done!</strong> 93,041 is read as "ninety-three thousand and forty-one". Notice we skip the hundreds because it is zero.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. 93,041 is read as "ninety-three thousand and forty-one". The 9 is 90 thousand, the 3 is 3 thousand, the 0 in hundreds is skipped, the 4 is forty, and the 1 is one.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q2 ──
+function checkWedoQ2() {
+  const input = document.getElementById('wedo-q2-a');
+  const val = input.value.trim();
+  const fb = document.getElementById('wedo-q2-a-fb');
+  if (!val) { input.focus(); return; }
+
+  const cleanVal = val.replace(/,/g, '');
+  const isCorrect = (cleanVal === '71209');
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> Seventy-one thousand, two hundred and nine is written as 71,209. The zero holds the tens place.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. Seventy-one thousand = 71,000. Two hundred = 200. And nine = 9. So 71,000 + 200 + 9 = 71,209.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q3 ──
+function checkWedoQ3() {
+  const input = document.getElementById('wedo-q3-correct');
+  const val = normaliseAnswer(input.value);
+  const fb = document.getElementById('wedo-q3-correct-fb');
+  if (!input.value.trim()) { input.focus(); return; }
+
+  const correctAnswers = ['no', 'incorrect', 'wrong'];
+  const isCorrect = correctAnswers.includes(val);
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> The student read it wrong. They said "sixty" instead of "and six".';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The student\'s reading is incorrect. They said "fifty thousand, three hundred and sixty" but it should be "fifty thousand, three hundred and six".';
+  }
+  input.disabled = true;
+}
+
+function checkWedoQ3Reading() {
+  const input = document.getElementById('wedo-q3-correct-reading');
+  const val = normaliseAnswer(input.value);
+  const fb = document.getElementById('wedo-q3-reading-fb');
+  if (!input.value.trim()) { input.focus(); return; }
+
+  const correctAnswers = [
+    normaliseAnswer('fifty thousand, three hundred and six'),
+    normaliseAnswer('fifty thousand three hundred and six'),
+    normaliseAnswer('fifty thousand three hundred and six')
+  ];
+
+  const isCorrect = correctAnswers.includes(val);
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> The student read the 06 as "sixty" instead of reading it as "and six". The zero is in the tens place, so there are no tens. The correct reading is "fifty thousand, three hundred and six".';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> 50,306 should be read as "fifty thousand, three hundred and six". The 0 in the tens place means there are no tens to say.';
+  }
+  input.disabled = true;
+}
+
+// ── PRACTICE QUESTIONS ──
+var practiceDone = [false, false, false, false, false, false, false, false];
+
+function checkPrac(idx, correct) {
+  const input = document.getElementById('prac-' + idx);
+  const val = normaliseAnswer(input.value);
+  const fb = document.getElementById('prac-' + idx + '-fb');
+  if (!input.value.trim()) { input.focus(); return; }
+
+  let isCorrect = false;
+  if (idx === 7) {
+    // Q7: flexible check for error spotting
+    const val_lower = input.value.toLowerCase();
+    isCorrect = val_lower.includes('36012') || val_lower.includes('36,012') || val_lower.includes('zero') || val_lower.includes('forgot');
+  } else {
+    isCorrect = val === normaliseAnswer(correct);
+  }
+
+  var diagnostics = {
+    1: 'Eighty-two thousand, four hundred and seventeen.',
+    2: 'Forty thousand and ninety.',
+    7: 'The correct numeral is 36,012. The student wrote 3,612 (three thousand, six hundred and twelve) instead of 36,012 (thirty-six thousand and twelve). "Thirty-six thousand" means 36,000, not 3,600.'
+  };
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> ' + (diagnostics[idx] || '');
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> ' + (diagnostics[idx] || 'Check your answer.');
+  }
+  practiceDone[idx - 1] = true;
+  input.disabled = true;
+  checkAllPracticeDone();
+}
+
+function checkPracNumeral(idx, correct) {
+  const input = document.getElementById('prac-' + idx);
+  const val = input.value.trim().replace(/,/g, '');
+  const fb = document.getElementById('prac-' + idx + '-fb');
+  if (!val) { input.focus(); return; }
+
+  const isCorrect = (parseInt(val) === correct);
+
+  var diagnostics = {
+    3: 'Sixty-five thousand, one hundred and three = 65,103.',
+    4: 'Twenty thousand and fifty = 20,050.'
+  };
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> ' + (diagnostics[idx] || '');
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> ' + (diagnostics[idx] || 'The answer is ' + correct + '.');
+  }
+  practiceDone[idx - 1] = true;
+  input.disabled = true;
+  checkAllPracticeDone();
+}
+
+function checkPracDigit(idx, correct) {
+  const input = document.getElementById('prac-' + idx);
+  const val = input.value.trim();
+  const fb = document.getElementById('prac-' + idx + '-fb');
+  if (!val) { input.focus(); return; }
+
+  const isCorrect = (val === correct);
+
+  var diagnostics = {
+    5: 'In 73,961, the 7 is in the ten-thousands place.',
+    6: 'In 50,802, the 8 is in the hundreds place.',
+    8: 'Eighty thousand and eight = 80,008. It has three zeros: in the thousands, hundreds, and tens places.'
+  };
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> ' + (diagnostics[idx] || '');
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> ' + (diagnostics[idx] || 'The answer is ' + correct + '.');
+  }
+  practiceDone[idx - 1] = true;
+  input.disabled = true;
+  checkAllPracticeDone();
+}
+
+function checkAllPracticeDone() {
+  if (practiceDone.every(d => d === true)) {
+    const gd = document.getElementById('goDeeper');
+    gd.classList.remove('locked');
+    document.getElementById('goDeeperNotice').style.display = 'none';
+    document.getElementById('goDeeperTitle').style.display = 'block';
+    document.getElementById('goDeeperIntro').style.display = 'block';
+    document.getElementById('goDeeperContent').style.display = 'block';
+  }
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  goToSlide(0);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>

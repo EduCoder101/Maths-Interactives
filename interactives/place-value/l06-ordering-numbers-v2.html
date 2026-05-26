@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 6: Ordering Numbers - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+
+    /* Place Value House Colours */
+    --pv-millions: #be185d;
+    --pv-hundred-thousands: #d44d8a;
+    --pv-ten-thousands: #7c3aed;
+    --pv-thousands: #1d4ed8;
+    --pv-hundreds: #0891b2;
+    --pv-tens: #059669;
+    --pv-ones: #65a30d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="reflect"].active::after { background: var(--purple); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); padding: 28px 40px; }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p { font-size: 1.3rem; line-height: 1.6; }
+  .lisc-content li { font-size: 1.2rem; line-height: 1.6; margin-bottom: 6px; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  .step-row {
+    display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; font-size: 1.2rem; line-height: 1.6;
+  }
+  .step-num {
+    font-weight: 700; min-width: 32px; color: var(--teal); font-size: 1.1rem;
+  }
+  .step-text { flex: 1; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .step-hidden { opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; pointer-events: auto; }
+
+  /* Hook Cards */
+  .hook-cards { display: flex; gap: 24px; margin: 20px 0; }
+  .hook-card { flex: 1; background: white; border-radius: 12px; border: 3px solid var(--border); padding: 24px; text-align: center; }
+  .hook-card.ascending { border-color: var(--teal); }
+  .hook-card.descending { border-color: var(--red); }
+  .hook-card .arrow { font-size: 3rem; margin: 16px 0; }
+  .hook-card .label { font-size: 1.4rem; font-weight: 700; margin: 8px 0; }
+  .hook-card .sublabel { font-size: 1.1rem; color: var(--muted); margin: 4px 0; }
+  .hook-card .example { font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: 700; margin-top: 12px; }
+
+  /* We Do Cards */
+  .we-do-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .we-do-card.answered-correct { border-color: var(--green); }
+  .we-do-card.answered-wrong { border-color: var(--red); }
+  .we-do-card .problem-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .we-do-card .problem-display { font-family: 'Space Mono', monospace; font-size: 1.8rem; font-weight: 700; text-align: center; margin: 16px 0; }
+
+  .answer-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 180px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .answer-input:focus { border-color: var(--teal); }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .feedback {
+    border-radius: 12px; padding: 14px 18px; margin-top: 14px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* Place Value House */
+  .pv-house {
+    display: flex; justify-content: center; gap: 2px; margin: 20px 0;
+    font-family: 'Space Mono', monospace; font-size: 32px; font-weight: 700;
+  }
+  .pv-column {
+    padding: 16px 20px; border: 3px solid; text-align: center;
+    background: white; border-radius: 8px; min-width: 70px;
+  }
+  .pv-column.thousands { border-color: var(--pv-thousands); color: var(--pv-thousands); }
+  .pv-column.hundreds { border-color: var(--pv-hundreds); color: var(--pv-hundreds); }
+  .pv-column.tens { border-color: var(--pv-tens); color: var(--pv-tens); }
+  .pv-column.ones { border-color: var(--pv-ones); color: var(--pv-ones); }
+  .pv-label {
+    font-family: 'Fredoka', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: inherit; margin-top: 8px;
+  }
+
+  /* Comparison Section */
+  .comparison-display {
+    display: flex; gap: 24px; justify-content: center; margin: 20px 0;
+    font-family: 'Space Mono', monospace; font-size: 1.6rem; font-weight: 700;
+  }
+  .comparison-number { background: #f8f9fa; padding: 16px 24px; border-radius: 8px; min-width: 140px; text-align: center; }
+
+  /* Practice Section */
+  .practice-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .practice-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+  .practice-input { font-family: 'Space Mono', monospace; font-size: 16px; padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; outline: none; width: 250px; text-align: center; }
+  .practice-input:focus { border-color: var(--teal); }
+
+  /* Go Deeper */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .go-deeper-card.locked { opacity: 0.6; pointer-events: none; }
+  .go-deeper-notice { padding: 16px 20px; background: rgba(255,217,61,0.2); border-left: 4px solid var(--amber); border-radius: 8px; font-size: 1rem; margin-bottom: 20px; }
+
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  /* Reflect */
+  .reflect-prompt-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 40px; text-align: center; border: 2px solid var(--border);
+  }
+  .reflect-prompt-card h2 { font-size: 1.8rem; margin-bottom: 24px; }
+  .reflect-prompt-card .prompt { font-size: 1.3rem; line-height: 1.8; color: #666; margin-bottom: 20px; }
+  .reflect-textarea { width: 100%; min-height: 140px; border: 2px solid var(--border); border-radius: 12px; padding: 16px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .reflect-textarea:focus { border-color: var(--teal); }
+
+  /* Comparison alignment */
+  .numbers-list { font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; margin: 16px 0; text-align: center; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card, .we-do-card { padding: 20px 18px; }
+    .hook-cards { flex-direction: column; }
+    .pv-house { font-size: 24px; }
+    .pv-column { min-width: 60px; padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Number and Place Value</div>
+  <h1><span>Ordering Numbers</span> · From Smallest to Greatest</h1>
+  <a href="../../index.html" class="back-link">← Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="reflect" onclick="goToPhase('Reflect')">Reflect</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Which Way?</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Quick Sort Challenge</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Left-to-Right Strategy</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Different Digit Counts</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q1: Which is Greater?</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q2: Ascending Order</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q3: Descending Order</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Practice Questions</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reflect</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Reflection</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <div class="lisc-content">
+        <h2>Learning Intention and Success Criteria</h2>
+        <h3>Learning Intention</h3>
+        <p>We are learning to arrange numbers in ascending and descending order using place value reasoning.</p>
+
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can explain what ascending and descending order mean.</li>
+          <li>I can compare two numbers by reading their digits from left to right.</li>
+          <li>I can arrange a set of numbers from smallest to largest (ascending).</li>
+          <li>I can arrange a set of numbers from largest to smallest (descending).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - Which Way? -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h2>Ascending or Descending?</h2>
+      <div class="hook-cards">
+        <div class="hook-card ascending">
+          <div class="arrow">↑</div>
+          <div class="label">Ascending</div>
+          <div class="sublabel">smallest → largest</div>
+          <div class="example">12, 45, 89</div>
+        </div>
+        <div class="hook-card descending">
+          <div class="arrow">↓</div>
+          <div class="label">Descending</div>
+          <div class="sublabel">largest → smallest</div>
+          <div class="example">89, 45, 12</div>
+        </div>
+      </div>
+      <p style="margin-top: 20px; text-align: center;">Think of ascending as climbing stairs (going up) and descending as coming back down.</p>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Quick Sort Challenge -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h2>Can You Sort These?</h2>
+      <div class="numbers-list">4,521 | 4,512 | 4,251 | 4,152 | 4,125</div>
+
+      <div class="callout callout-amber">
+        <div class="label">Key Idea</div>
+        <p>These numbers all start with 4. How do you decide the order? You'll need to look carefully at every digit.</p>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('hook2')">Reveal the answer</button>
+      <div id="hook2-reveal" class="step-hidden" data-group="hook2">
+        <p style="margin-top: 20px; font-size: 1.15rem; font-weight: 500;">Ascending order: <span class="mono">4,125 &lt; 4,152 &lt; 4,251 &lt; 4,512 &lt; 4,521</span></p>
+        <p style="margin-top: 12px;">When the leading digits match, move to the next digit to the right and compare.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Comparing Two Numbers -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h2>The Left-to-Right Strategy</h2>
+      <p style="margin-bottom: 16px;">Compare <span class="mono" style="font-size: 1.2rem;">5,451</span> and <span class="mono" style="font-size: 1.2rem;">5,441</span>:</p>
+
+      <div id="ido-strategy-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">Start from the left. Both have <strong>5 in the thousands</strong>. Same, so move right.</span></div>
+
+        <div class="step-row step-hidden" data-group="idostrat"><span class="step-num">Step 2</span><span class="step-text">Both have <strong>4 in the hundreds</strong>. Same again, so move right.</span></div>
+
+        <div class="step-row step-hidden" data-group="idostrat"><span class="step-num">Step 3</span><span class="step-text">Now the tens: one has <strong>5</strong>, the other has <strong>4</strong>. <strong>5 is bigger than 4</strong>, so <span class="mono">5,451 &gt; 5,441</span>.</span></div>
+
+        <div class="step-row step-hidden" data-group="idostrat"><span class="step-num">Step 4</span><span class="step-text">We didn't even need to look at the ones digit.</span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('idostrat')">Reveal next step</button>
+
+      <div class="callout callout-teal" style="margin-top: 20px;">
+        <div class="label">Key Idea</div>
+        <p>Compare digits from left to right. As soon as one digit is bigger, that number is bigger. You can stop there.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Different Digit Counts -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h2>What If Numbers Have Different Lengths?</h2>
+      <p style="margin-bottom: 16px;">Compare <span class="mono" style="font-size: 1.2rem;">987,654</span> and <span class="mono" style="font-size: 1.2rem;">87,654</span>:</p>
+
+      <div id="ido-length-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text"><span class="mono">987,654</span> has <strong>six digits</strong>. <span class="mono">87,654</span> has <strong>five digits</strong>.</span></div>
+
+        <div class="step-row step-hidden" data-group="idolen"><span class="step-num">Step 2</span><span class="step-text">A number with more digits is always bigger (when we're talking about whole numbers).</span></div>
+
+        <div class="step-row step-hidden" data-group="idolen"><span class="step-num">Step 3</span><span class="step-text">So <span class="mono">987,654 &gt; 87,654</span>. We don't even need to compare individual digits.</span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('idolen')">Reveal next step</button>
+
+      <div class="callout callout-red" style="margin-top: 20px;">
+        <div class="label">Key Idea</div>
+        <p>Always check the number of digits first. More digits means a bigger number.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO Q1 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h2>Q1: Compare these two numbers</h2>
+      <div class="numbers-list" style="margin: 20px 0;">362,817 and 362,871</div>
+      <div class="answer-row">
+        <input type="text" id="wedo-q1-a" class="answer-input" placeholder="?">
+        <button class="check-btn" onclick="checkWedoQ1()">Check</button>
+      </div>
+      <div id="wedo-q1-fb" class="feedback"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO Q2 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h2>Q2: Put these in ascending order</h2>
+      <div class="numbers-list" style="margin: 20px 0;">1,305,000 | 1,350,000 | 1,035,000 | 1,503,000 | 1,053,000</div>
+      <div class="answer-row" style="flex-direction: column;">
+        <input type="text" id="wedo-q2-a" class="answer-input" placeholder="?">
+        <button class="check-btn" onclick="checkWedoQ2()">Check</button>
+      </div>
+      <div id="wedo-q2-fb" class="feedback"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO Q3 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h2>Q3: Put these in descending order</h2>
+      <div class="numbers-list" style="margin: 20px 0;">45,982 | 45,829 | 54,982 | 54,829</div>
+      <div class="answer-row" style="flex-direction: column;">
+        <input type="text" id="wedo-q3-a" class="answer-input" placeholder="?">
+        <button class="check-btn" onclick="checkWedoQ3()">Check</button>
+      </div>
+      <div id="wedo-q3-fb" class="feedback"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: PRACTICE -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h2>Practice Questions</h2>
+
+      <!-- Q1 -->
+      <div class="practice-card">
+        <h4>Q1: Put in ascending order: 7,823 | 7,832 | 7,283 | 7,238</h4>
+        <input type="text" id="prac-1" class="practice-input" placeholder="?">
+        <button class="check-btn" onclick="checkPrac(1, '7238,7283,7823,7832')" style="margin-top: 10px;">Check</button>
+        <div id="prac-1-fb" class="feedback"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="practice-card">
+        <h4>Q2: Put in descending order: 521,004 | 512,004 | 521,400 | 512,400</h4>
+        <input type="text" id="prac-2" class="practice-input" placeholder="?">
+        <button class="check-btn" onclick="checkPrac(2, '521400,521004,512400,512004')" style="margin-top: 10px;">Check</button>
+        <div id="prac-2-fb" class="feedback"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="practice-card">
+        <h4>Q3: Which is the smallest: 3,491,000 | 3,419,000 | 3,941,000?</h4>
+        <input type="text" id="prac-3" class="practice-input" placeholder="?">
+        <button class="check-btn" onclick="checkPrac(3, '3419000')" style="margin-top: 10px;">Check</button>
+        <div id="prac-3-fb" class="feedback"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="practice-card">
+        <h4>Q4: Which is the largest: 899,999 | 900,001 | 899,099?</h4>
+        <input type="text" id="prac-4" class="practice-input" placeholder="?">
+        <button class="check-btn" onclick="checkPrac(4, '900001')" style="margin-top: 10px;">Check</button>
+        <div id="prac-4-fb" class="feedback"></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="practice-card">
+        <h4>Q5: True or false: 1,000,000 is greater than 999,999</h4>
+        <input type="text" id="prac-5" class="practice-input" placeholder="?" style="width: 120px;">
+        <button class="check-btn" onclick="checkPrac(5, 'true')" style="margin-top: 10px;">Check</button>
+        <div id="prac-5-fb" class="feedback"></div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="practice-card">
+        <h4>Q6: What is the smallest 6-digit number you can make with digits 3, 0, 7, 1, 5, 9?</h4>
+        <input type="text" id="prac-6" class="practice-input" placeholder="?">
+        <button class="check-btn" onclick="checkPrac(6, '103579')" style="margin-top: 10px;">Check</button>
+        <div id="prac-6-fb" class="feedback"></div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="practice-card">
+        <h4>Q7: What is the largest number you can make with digits 3, 0, 7, 1, 5, 9?</h4>
+        <input type="text" id="prac-7" class="practice-input" placeholder="?">
+        <button class="check-btn" onclick="checkPrac(7, '975310')" style="margin-top: 10px;">Check</button>
+        <div id="prac-7-fb" class="feedback"></div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="practice-card">
+        <h4>Q8: Put in ascending order: 2,000,000 | 200,000 | 20,000 | 2,000,000,000</h4>
+        <input type="text" id="prac-8" class="practice-input" placeholder="?">
+        <button class="check-btn" onclick="checkPrac(8, '20000,200000,2000000,2000000000')" style="margin-top: 10px;">Check</button>
+        <div id="prac-8-fb" class="feedback"></div>
+      </div>
+
+      <!-- GO DEEPER -->
+      <div id="goDeeper" class="go-deeper-card locked">
+        <div id="goDeeperNotice" class="go-deeper-notice">
+          <strong>🔒 Locked</strong> Complete all practice questions to unlock Go Deeper.
+        </div>
+
+        <div id="goDeeperTitle" style="display: none;">
+          <h2>Go Deeper: Ordering Strategies</h2>
+          <p>What strategies help when ordering gets tricky?</p>
+        </div>
+
+        <div id="goDeeperIntro" style="display: none;">
+          <p style="margin-bottom: 20px;"><strong>Investigation thread:</strong> What strategies help when ordering gets tricky?</p>
+        </div>
+
+        <div id="goDeeperContent" style="display: none;">
+          <!-- Task 1 -->
+          <div class="ext-task">
+            <div class="ext-task-label">Task 1: Specialising</div>
+            <div class="ext-task-prompt">Using only the digits <span class="ext-numbers">4</span>, <span class="ext-numbers">4</span>, <span class="ext-numbers">7</span>, <span class="ext-numbers">2</span>, <span class="ext-numbers">0</span>, and <span class="ext-numbers">9</span> (each used exactly once), find the largest possible 6-digit number and the smallest possible 6-digit number. What is the difference between them?</div>
+            <div class="ext-task-sub">Remember: a number cannot start with zero.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="toggleExtModel('ext1')">Show model response</button>
+            <div id="ext1" class="ext-model-response">
+              <div class="model-label">Model Response</div>
+              <p>For the largest, I put digits in descending order: <span class="ext-numbers">9, 7, 4, 4, 2, 0</span> → <span class="ext-numbers">974,420</span>.</p>
+              <p>For the smallest, I need the smallest non-zero digit first: <span class="ext-numbers">2</span>. Then remaining in ascending order: <span class="ext-numbers">0, 4, 4, 7, 9</span> → <span class="ext-numbers">204,479</span>.</p>
+              <p>Difference: <span class="ext-numbers">974,420 - 204,479 = 769,941</span>.</p>
+              <p>I initially tried putting <span class="ext-numbers">0</span> first for smallest but <span class="ext-numbers">044,279</span> isn't a 6-digit number.</p>
+              <div class="mathematician-box">Specialising</div>
+            </div>
+          </div>
+
+          <!-- Task 2 -->
+          <div class="ext-task">
+            <div class="ext-task-label">Task 2: Conjecturing</div>
+            <div class="ext-task-prompt">"If two numbers have the same number of digits and the same first digit, you always need to check every remaining digit to put them in order." Is this always true, sometimes true, or never true?</div>
+            <div class="ext-task-sub">Try pairs of numbers where you can stop early, and pairs where you need to check every digit.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="toggleExtModel('ext2')">Show model response</button>
+            <div id="ext2" class="ext-model-response">
+              <div class="model-label">Model Response</div>
+              <p>Test 1: <span class="ext-numbers">54,321</span> and <span class="ext-numbers">59,876</span>. Same first digit (5). Second digit: <span class="ext-numbers">4</span> vs <span class="ext-numbers">9</span>. I can stop there. <span class="ext-numbers">59,876</span> is bigger. I did NOT need every digit.</p>
+              <p>Test 2: <span class="ext-numbers">55,431</span> and <span class="ext-numbers">55,439</span>. Same first two digits. Third: <span class="ext-numbers">4</span> vs <span class="ext-numbers">4</span>. Fourth: <span class="ext-numbers">3</span> vs <span class="ext-numbers">3</span>. Fifth: <span class="ext-numbers">1</span> vs <span class="ext-numbers">9</span>. I needed to check all five digits.</p>
+              <p>Test 3: <span class="ext-numbers">12,345</span> and <span class="ext-numbers">12,346</span>. Same until the last digit. Needed all five.</p>
+              <p>So it's SOMETIMES TRUE. You only need to check every digit when all the leading digits match. Often you can stop early.</p>
+              <div class="mathematician-box">Conjecturing</div>
+            </div>
+          </div>
+
+          <!-- Task 3 -->
+          <div class="ext-task">
+            <div class="ext-task-label">Task 3: Generalising</div>
+            <div class="ext-task-prompt">Write a set of rules (like a recipe) that someone could follow to put ANY set of numbers in ascending order. Your rules should work for numbers of any size.</div>
+            <div class="ext-task-sub">Test your rules with a tricky set like: <span class="ext-numbers">5,000,000</span> | <span class="ext-numbers">499,999</span> | <span class="ext-numbers">5,000,001</span> | <span class="ext-numbers">50,000</span> | <span class="ext-numbers">5,100,000</span></div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="toggleExtModel('ext3')">Show model response</button>
+            <div id="ext3" class="ext-model-response">
+              <div class="model-label">Model Response</div>
+              <p>My first attempt at rules: (1) Group numbers by digit count. Fewer digits = smaller. (2) Within same digit count, compare from left to right. (3) At each position, the number with the smaller digit goes first. (4) If digits match, move to the next position. (5) If all digits match, the numbers are equal.</p>
+              <p>Testing with the tricky set: <span class="ext-numbers">50,000</span> (5 digits), <span class="ext-numbers">499,999</span> (6 digits), <span class="ext-numbers">5,000,000</span> (7 digits), <span class="ext-numbers">5,000,001</span> (7 digits), <span class="ext-numbers">5,100,000</span> (7 digits).</p>
+              <p>Step 1: <span class="ext-numbers">50,000</span> is smallest (fewest digits). Step 2: <span class="ext-numbers">499,999</span> next (6 digits). Step 3: Three 7-digit numbers remain. Compare left to right: all start with <span class="ext-numbers">5</span>. Second digit: <span class="ext-numbers">0, 0, 1</span>. Two have <span class="ext-numbers">0</span>, one has <span class="ext-numbers">1</span>. So <span class="ext-numbers">5,100,000</span> is largest. Compare <span class="ext-numbers">5,000,000</span> and <span class="ext-numbers">5,000,001</span>: identical until last digit. <span class="ext-numbers">0 &lt; 1</span>. So <span class="ext-numbers">5,000,000 &lt; 5,000,001</span>.</p>
+              <p>Final order: <span class="ext-numbers">50,000, 499,999, 5,000,000, 5,000,001, 5,100,000</span>. My rules work!</p>
+              <div class="mathematician-box">Generalising</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: REFLECT -->
+  <div class="slide" id="slide-9">
+    <div class="reflect-prompt-card">
+      <h2>Reflection</h2>
+      <div class="prompt">A friend says "I just look at the first digit to know which number is bigger." When does this work, and when does it fail?</div>
+      <textarea class="reflect-textarea" placeholder="Start typing your reflection..."></textarea>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'Which Way?', section: 'Hook' },
+  { id: 'slide-2', title: 'Quick Sort Challenge', section: 'Hook' },
+  { id: 'slide-3', title: 'Left-to-Right Strategy', section: 'I Do' },
+  { id: 'slide-4', title: 'Different Digit Counts', section: 'I Do' },
+  { id: 'slide-5', title: 'Q1: Which is Greater?', section: 'We Do' },
+  { id: 'slide-6', title: 'Q2: Ascending Order', section: 'We Do' },
+  { id: 'slide-7', title: 'Q3: Descending Order', section: 'We Do' },
+  { id: 'slide-8', title: 'Practice Questions', section: 'Practice' },
+  { id: 'slide-9', title: 'Reflection', section: 'Reflect' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice', 'Reflect': 'reflect'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+}
+
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  if (currentSlide > 0) goToSlide(currentSlide - 1);
+}
+
+function updateNavButtons() {
+  const slideDiv = document.getElementById(slides[currentSlide].id);
+  const nav = slideDiv.querySelector('.slide-nav');
+  if (!nav) return;
+  const btns = nav.querySelectorAll('.nav-btn');
+  const prevBtn = btns[0];
+  const nextBtn = btns[1];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  const counter = nav.querySelector('.slide-counter');
+  if (counter) counter.textContent = `Card ${currentSlide + 1} of ${slides.length}`;
+}
+
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.phase-btn[data-phase="${phase}"]`).classList.add('active');
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  const items = document.querySelectorAll('.sidebar-item');
+  let counter = 0;
+  document.querySelectorAll('.sidebar-section').forEach(section => {
+    section.querySelectorAll('.sidebar-item').forEach((item, idx) => {
+      if (counter === currentSlide) item.classList.add('active');
+      counter++;
+    });
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── STEP REVEALS ──
+var revealState = {};
+
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.add('revealed');
+    revealState[group]++;
+  }
+}
+
+// ── WE DO QUESTIONS ──
+function parseOrderingInput(input) {
+  return input.trim().split(',').map(s => s.trim().replace(/,/g, '')).filter(s => s);
+}
+
+function checkWedoQ1() {
+  const input = document.getElementById('wedo-q1-a');
+  const val = input.value.trim().toLowerCase();
+  const fb = document.getElementById('wedo-q1-fb');
+  if (!val) { input.focus(); return; }
+  const isCorrect = (val === '362871' || val === '362,871' || val === 'the second one' || val === '362871 is greater' || val === '362,871 is greater');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> Both start with 362,8__. The tens digit decides it: 7 vs 1. Since 7 > 1, the number 362,871 is greater.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. Compare left to right: 3=3, 6=6, 2=2, 8=8. Now tens: 7 vs 1. Since 7 > 1, 362,871 is greater.';
+  }
+  input.disabled = true;
+}
+
+function checkWedoQ2() {
+  const input = document.getElementById('wedo-q2-a');
+  const val = input.value.trim();
+  const fb = document.getElementById('wedo-q2-fb');
+  if (!val) { input.focus(); return; }
+  const nums = parseOrderingInput(val);
+  const correct = ['1035000', '1053000', '1305000', '1350000', '1503000'];
+  const matches = nums.length === 5 && nums.every((n, i) => n.replace(/,/g, '') === correct[i]);
+  if (matches) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Well done!</strong> You compared the millions digits (all 1), then moved to the hundred-thousands to sort them.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The correct ascending order is: <span class="mono">1,035,000, 1,053,000, 1,305,000, 1,350,000, 1,503,000</span>. Compare millions (all 1), then hundred-thousands (0 < 0 < 3 < 3 < 5).';
+  }
+  input.disabled = true;
+}
+
+function checkWedoQ3() {
+  const input = document.getElementById('wedo-q3-a');
+  const val = input.value.trim();
+  const fb = document.getElementById('wedo-q3-fb');
+  if (!val) { input.focus(); return; }
+  const nums = parseOrderingInput(val);
+  const correct = ['54982', '54829', '45982', '45829'];
+  const matches = nums.length === 4 && nums.every((n, i) => n.replace(/,/g, '') === correct[i]);
+  if (matches) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> The ten-thousands digit splits them into two groups (5_ vs 4_), then the hundreds digit decides within each group.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> The correct descending order is: <span class="mono">54,982, 54,829, 45,982, 45,829</span>. Ten-thousands: 5 > 4. Within 5_: 54,982 > 54,829. Within 4_: 45,982 > 45,829.';
+  }
+  input.disabled = true;
+}
+
+// ── PRACTICE QUESTIONS ──
+var practiceDone = [false, false, false, false, false, false, false, false];
+
+function checkPrac(idx, correct) {
+  const input = document.getElementById('prac-' + idx);
+  const val = input.value.trim().toLowerCase();
+  const fb = document.getElementById('prac-' + idx + '-fb');
+  if (!val) { input.focus(); return; }
+
+  const cleanVal = val.replace(/,/g, '');
+  const cleanCorrect = correct.replace(/,/g, '');
+
+  var isCorrect = false;
+
+  // For ordering questions (1, 2, 8): parse comma-separated input
+  if (idx === 1 || idx === 2 || idx === 8) {
+    const parsed = parseOrderingInput(val).map(n => n.replace(/,/g, ''));
+    const correctArr = correct.split(',').map(n => n.replace(/,/g, ''));
+    isCorrect = parsed.length === correctArr.length && parsed.every((n, i) => n === correctArr[i]);
+  } else {
+    isCorrect = (cleanVal === cleanCorrect);
+  }
+
+  var diagnostics = {
+    1: '7,238 &lt; 7,283 (tens: 3 vs 8) &lt; 7,823 (hundreds: 2 vs 8) &lt; 7,832 (tens: 2 vs 3).',
+    2: '52_ vs 51_: 521,400 &gt; 521,004 &gt; 512,400 &gt; 512,004.',
+    3: 'All start with 3,___,000. Compare hundred-thousands: 4 vs 4 vs 9. Then ten-thousands: 9 vs 1. 3,419,000 has the smallest ten-thousands digit.',
+    4: '900,001 has a 9 in hundred-thousands. The others have 8. More digits in the leading position wins.',
+    5: '1,000,000 has 7 digits while 999,999 has 6 digits. A 7-digit number is always greater than a 6-digit number.',
+    6: 'Put the smallest non-zero digit (1) first, then the remaining digits in ascending order: 0, 3, 5, 7, 9. So 103,579.',
+    7: 'Put digits in descending order: 9, 7, 5, 3, 1, 0. So 975,310.',
+    8: 'Different digit counts make this easy: 5 digits &lt; 6 digits &lt; 7 digits &lt; 10 digits.'
+  };
+
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> ' + (diagnostics[idx] || '');
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. The correct answer is <span class="mono">' + correct + '</span>. ' + (diagnostics[idx] || '');
+  }
+  practiceDone[idx - 1] = true;
+  input.disabled = true;
+  checkAllPracticeDone();
+}
+
+function checkAllPracticeDone() {
+  if (practiceDone.every(d => d === true)) {
+    const gd = document.getElementById('goDeeper');
+    gd.classList.remove('locked');
+    document.getElementById('goDeeperNotice').style.display = 'none';
+    document.getElementById('goDeeperTitle').style.display = 'block';
+    document.getElementById('goDeeperIntro').style.display = 'block';
+    document.getElementById('goDeeperContent').style.display = 'block';
+  }
+}
+
+// ── GO DEEPER MODEL RESPONSES ──
+function toggleExtModel(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('visible');
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  goToSlide(0);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>

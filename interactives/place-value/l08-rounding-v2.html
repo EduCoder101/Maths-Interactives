@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 8: Rounding - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+
+    /* Place Value House Colours */
+    --pv-millions: #be185d;
+    --pv-hundred-thousands: #d44d8a;
+    --pv-ten-thousands: #7c3aed;
+    --pv-thousands: #1d4ed8;
+    --pv-hundreds: #0891b2;
+    --pv-tens: #059669;
+    --pv-ones: #65a30d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+  .phase-btn[data-phase="reflect"].active::after { background: var(--purple); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 960px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 48px;
+    border: 2px solid var(--border); margin-bottom: 24px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); padding: 28px 40px; }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content h3 { font-size: 1.4rem; margin-top: 18px; margin-bottom: 8px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p { font-size: 1.3rem; line-height: 1.6; }
+  .lisc-content li { font-size: 1.2rem; line-height: 1.6; margin-bottom: 6px; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 24px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 16px 0; transition: filter 0.4s ease;
+  }
+
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+
+  .callout {
+    border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+    border-left: 5px solid var(--border);
+  }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.1); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+  .callout p { font-size: 1.2rem; line-height: 1.6; margin: 8px 0; }
+
+  .step-row {
+    display: flex; gap: 16px; align-items: flex-start; margin: 14px 0; font-size: 1.2rem; line-height: 1.6;
+  }
+  .step-num {
+    font-weight: 700; min-width: 32px; color: var(--teal); font-size: 1.1rem;
+  }
+  .step-text { flex: 1; }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .step-hidden { opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; pointer-events: auto; }
+
+  /* We Do Cards */
+  .we-do-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .we-do-card.answered-correct { border-color: var(--green); }
+  .we-do-card.answered-wrong { border-color: var(--red); }
+  .we-do-card .problem-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .we-do-card .problem-display { font-family: 'Space Mono', monospace; font-size: 36px; font-weight: 700; text-align: center; margin: 16px 0; }
+
+  .answer-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 140px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .answer-input:focus { border-color: var(--teal); }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .feedback {
+    border-radius: 12px; padding: 14px 18px; margin-top: 14px;
+    display: none; font-size: 15px; line-height: 1.6;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* Number Line */
+  .number-line { display: flex; flex-direction: column; align-items: center; width: 80px; margin: 20px auto; position: relative; }
+  .number-line-track { width: 4px; background: #333; height: 200px; position: relative; }
+  .nl-label { position: absolute; left: 20px; font-weight: 600; font-size: 1.1rem; font-family: 'Space Mono', monospace; }
+  .nl-marker { position: absolute; left: -8px; width: 20px; height: 20px; border-radius: 50%; background: var(--teal); }
+  .nl-marker.top { top: 0; }
+  .nl-marker.bottom { bottom: 0; }
+  .nl-marker.placed { background: var(--orange); }
+  .nl-halfway { position: absolute; left: -30px; right: -30px; height: 2px; border-top: 2px dashed var(--muted); top: 100px; }
+  .nl-halfway-label { position: absolute; left: -100px; top: 95px; font-size: 0.95rem; color: var(--muted); }
+
+  /* Menu Grid */
+  .menu-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0;
+    padding: 16px; background: #f8f9fa; border-radius: 12px;
+  }
+  .menu-item {
+    padding: 12px; background: white; border-radius: 8px; border: 2px solid var(--border);
+    font-size: 1.1rem;
+  }
+
+  /* Practice Section */
+  .practice-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 20px;
+    border: 2px solid var(--border);
+  }
+  .practice-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+  .practice-input { font-family: 'Space Mono', monospace; font-size: 18px; padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; outline: none; width: 120px; text-align: center; }
+  .practice-input:focus { border-color: var(--teal); }
+
+  /* Go Deeper */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .go-deeper-card.locked { opacity: 0.6; pointer-events: none; }
+  .go-deeper-notice { padding: 16px 20px; background: rgba(255,217,61,0.2); border-left: 4px solid var(--amber); border-radius: 8px; font-size: 1rem; margin-bottom: 20px; }
+
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  /* Reflect */
+  .reflect-prompt-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px 40px; text-align: center; border: 2px solid var(--border);
+  }
+  .reflect-prompt-card h2 { font-size: 1.8rem; margin-bottom: 24px; }
+  .reflect-prompt-card .prompt { font-size: 1.3rem; line-height: 1.8; color: #666; margin-bottom: 20px; }
+  .reflect-textarea { width: 100%; min-height: 140px; border: 2px solid var(--border); border-radius: 12px; padding: 16px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .reflect-textarea:focus { border-color: var(--teal); }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    .phase-nav { font-size: 0.85rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card, .we-do-card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Number and Place Value</div>
+  <h1><span>Rounding</span> · Making Numbers Friendly</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+  <button class="phase-btn" data-phase="reflect" onclick="goToPhase('Reflect')">Reflect</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">The Budget Challenge</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">The Number Line Trick</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Rounding to Thousands</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Rounding to Ten-Thousands</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(5)">Q1: Nearest Hundred</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Q2: Nearest Thousand</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q3: Nearest Ten-Thousand</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Practice Questions</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reflect</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Reflection</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <div class="lisc-content">
+        <h2>Learning Intention and Success Criteria</h2>
+        <h3>Learning Intention</h3>
+        <p>We are learning to round numbers to a specified place value.</p>
+
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can identify the two multiples a number sits between when rounding.</li>
+          <li>I can find the halfway point and use it to decide whether to round up or down.</li>
+          <li>I can round numbers to the nearest ten, hundred, thousand, or ten-thousand.</li>
+          <li>I can explain why rounding is useful for estimation.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - The Budget Challenge -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h2>You've Got $12. What Would You Buy?</h2>
+      <p style="margin-bottom: 16px;">Imagine you're standing in the queue with these items:</p>
+
+      <div class="menu-grid">
+        <div class="menu-item"><strong>Chicken Nuggets</strong><br>$6.95</div>
+        <div class="menu-item"><strong>Juice Box</strong><br>$2.15</div>
+        <div class="menu-item"><strong>Cookie</strong><br>$1.80</div>
+        <div class="menu-item"><strong>Fruit Cup</strong><br>$3.40</div>
+        <div class="menu-item"><strong>Sandwich</strong><br>$4.75</div>
+        <div class="menu-item"><strong>Apple</strong><br>$0.50</div>
+      </div>
+
+      <p style="margin: 20px 0; font-size: 1.15rem;">Which items can you buy without going over $12?</p>
+
+      <div class="callout callout-amber">
+        <div class="label">Quick Maths</div>
+        <p>Most people don't add $6.95 + $2.15 exactly. They round: $7 + $2 = $9. That leaves about $3. Rounding makes numbers friendly.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - The Number Line Trick -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h2>How Do We Decide: Up or Down?</h2>
+
+      <p style="margin: 20px 0; font-size: 1.1rem;"><strong>First example: $6.95</strong></p>
+      <div style="display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin: 20px 0;">
+        <div>
+          <div class="number-line">
+            <div class="number-line-track">
+              <div class="nl-label nl-label-top" style="top: 0; left: 20px;">$7</div>
+              <div class="nl-label nl-label-mid" style="top: 95px; left: -40px;">$6.50</div>
+              <div class="nl-label nl-label-bot" style="bottom: 0; left: 20px;">$6</div>
+              <div class="nl-marker top"></div>
+              <div class="nl-marker placed" style="top: 20px;"></div>
+              <div class="nl-halfway"></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; padding-top: 20px;">
+          <p style="font-size: 1.1rem; line-height: 1.7;">$6.95 is above the halfway mark ($6.50), so it rounds <strong>UP to $7</strong>.</p>
+        </div>
+      </div>
+
+      <p style="margin: 30px 0 20px 0; font-size: 1.1rem;"><strong>Second example: $2.15</strong></p>
+      <div style="display: flex; gap: 40px; justify-content: center; align-items: flex-start; margin: 20px 0;">
+        <div>
+          <div class="number-line">
+            <div class="number-line-track">
+              <div class="nl-label nl-label-top" style="top: 0; left: 20px;">$3</div>
+              <div class="nl-label nl-label-mid" style="top: 95px; left: -40px;">$2.50</div>
+              <div class="nl-label nl-label-bot" style="bottom: 0; left: 20px;">$2</div>
+              <div class="nl-marker bottom"></div>
+              <div class="nl-marker placed" style="top: 165px;"></div>
+              <div class="nl-halfway"></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; padding-top: 20px;">
+          <p style="font-size: 1.1rem; line-height: 1.7;">$2.15 is below the halfway mark ($2.50), so it rounds <strong>DOWN to $2</strong>.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-teal" style="margin-top: 28px;">
+        <div class="label">The Rule</div>
+        <p>At the halfway point or above, round up. Below the halfway point, round down.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Rounding to Thousands -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h2>Round 10,342 to the Nearest Thousand</h2>
+
+      <div id="ido-thousands-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">Find the two thousands: <span class="mono">10,342</span> sits between <span class="mono">10,000</span> and <span class="mono">11,000</span>.</span></div>
+
+        <div class="step-row step-hidden" data-group="idothous"><span class="step-num">Step 2</span><span class="step-text">Find the halfway point: <span class="mono">10,500</span>.</span></div>
+
+        <div class="step-row step-hidden" data-group="idothous"><span class="step-num">Step 3</span><span class="step-text">Is <span class="mono">10,342</span> above or below <span class="mono">10,500</span>? Below.</span></div>
+
+        <div class="step-row step-hidden" data-group="idothous"><span class="step-num">Step 4</span><span class="step-text">So <span class="mono">10,342</span> rounds <strong>DOWN to 10,000</strong>.</span></div>
+
+        <div class="step-row step-hidden" data-group="idothous"><span class="step-num">Step 5</span><span class="step-text">Quick check: look at the hundreds digit (3). Since 3 &lt; 5, round down. Confirmed!</span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('idothous')">Reveal next step</button>
+
+      <div class="callout callout-teal" style="margin-top: 20px;">
+        <div class="label">Shortcut</div>
+        <p>Just look at the digit immediately to the right of the rounding place. If it's 0, 1, 2, 3, or 4, round down. If it's 5, 6, 7, 8, or 9, round up.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Rounding to Ten-Thousands -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h2>Round 467,800 to the Nearest Ten-Thousand</h2>
+
+      <div id="ido-tenthous-steps" style="margin: 24px 0;">
+        <div class="step-row"><span class="step-num">Step 1</span><span class="step-text">The rounding place is ten-thousands. The digit there is 6 (in <span class="mono">467,800</span>).</span></div>
+
+        <div class="step-row step-hidden" data-group="idotenthous"><span class="step-num">Step 2</span><span class="step-text">The two ten-thousands it sits between: <span class="mono">460,000</span> and <span class="mono">470,000</span>.</span></div>
+
+        <div class="step-row step-hidden" data-group="idotenthous"><span class="step-num">Step 3</span><span class="step-text">Look at the digit to the right of ten-thousands: that's 7 (the thousands digit).</span></div>
+
+        <div class="step-row step-hidden" data-group="idotenthous"><span class="step-num">Step 4</span><span class="step-text">7 >= 5, so round <strong>UP</strong>.</span></div>
+
+        <div class="step-row step-hidden" data-group="idotenthous"><span class="step-num">Step 5</span><span class="step-text"><span class="mono">467,800</span> rounds to <span class="mono">470,000</span>.</span></div>
+      </div>
+
+      <button class="step-reveal-btn" onclick="revealGroup('idotenthous')">Reveal next step</button>
+
+      <div class="callout callout-red" style="margin-top: 20px;">
+        <div class="label">Key Idea</div>
+        <p>When rounding, look at the digit one place to the right. That digit is the "decider".</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WE DO - Q1 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h2>Q1: Round 8,374 to the nearest hundred</h2>
+      <p style="margin-bottom: 20px;">What is <span class="mono" style="font-size: 1.2rem;">8,374</span> rounded to the nearest hundred?</p>
+
+      <div class="we-do-card" id="wedo-q1">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q1-a" placeholder="?">
+            <button class="check-btn" onclick="checkQ1()">Check</button>
+          </div>
+          <div id="wedo-q1-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WE DO - Q2 -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h2>Q2: Round 563,219 to the nearest thousand</h2>
+      <p style="margin-bottom: 20px;">What is <span class="mono" style="font-size: 1.2rem;">563,219</span> rounded to the nearest thousand?</p>
+
+      <div class="we-do-card" id="wedo-q2">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q2-a" placeholder="?">
+            <button class="check-btn" onclick="checkQ2()">Check</button>
+          </div>
+          <div id="wedo-q2-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO - Q3 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h2>Q3: Round 1,250,000 to the nearest ten-thousand</h2>
+      <p style="margin-bottom: 20px;">What is <span class="mono" style="font-size: 1.2rem;">1,250,000</span> rounded to the nearest ten-thousand?</p>
+
+      <div class="we-do-card" id="wedo-q3">
+        <div style="margin: 20px 0;">
+          <div class="answer-row">
+            <input class="answer-input" type="text" id="wedo-q3-a" placeholder="?">
+            <button class="check-btn" onclick="checkQ3()">Check</button>
+          </div>
+          <div id="wedo-q3-a-fb" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: PRACTICE -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h3>Practice Questions</h3>
+      <p style="margin-bottom: 24px;">Work through these questions to practise your rounding skills.</p>
+
+      <div style="max-height: 800px; overflow-y: auto; padding-right: 16px;">
+        <!-- Q1 -->
+        <div class="practice-card">
+          <h4>Q1</h4>
+          <p>Round <span class="mono">4,827</span> to the nearest ten</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-1" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(1, '4830')">Check</button>
+          </div>
+          <div id="prac-1-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="practice-card">
+          <h4>Q2</h4>
+          <p>Round <span class="mono">4,827</span> to the nearest hundred</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-2" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(2, '4800')">Check</button>
+          </div>
+          <div id="prac-2-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="practice-card">
+          <h4>Q3</h4>
+          <p>Round <span class="mono">4,827</span> to the nearest thousand</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-3" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(3, '5000')">Check</button>
+          </div>
+          <div id="prac-3-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="practice-card">
+          <h4>Q4</h4>
+          <p>Round <span class="mono">356,742</span> to the nearest ten-thousand</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-4" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(4, '360000')">Check</button>
+          </div>
+          <div id="prac-4-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="practice-card">
+          <h4>Q5</h4>
+          <p>Round <span class="mono">1,849,500</span> to the nearest hundred-thousand</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-5" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(5, '1800000')">Check</button>
+          </div>
+          <div id="prac-5-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="practice-card">
+          <h4>Q6</h4>
+          <p>Round <span class="mono">2,500,000</span> to the nearest million</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-6" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(6, '3000000')">Check</button>
+          </div>
+          <div id="prac-6-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="practice-card">
+          <h4>Q7</h4>
+          <p>Round <span class="mono">995</span> to the nearest ten</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-7" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(7, '1000')">Check</button>
+          </div>
+          <div id="prac-7-fb" class="feedback"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="practice-card">
+          <h4>Q8: Estimation</h4>
+          <p>Estimate <span class="mono">4,872 + 3,156</span> by rounding both to the nearest thousand first.</p>
+          <div style="margin-top: 12px;">
+            <input class="practice-input" type="text" id="prac-8" placeholder="?">
+            <button class="check-btn" style="margin-left: 8px;" onclick="checkPrac(8, '8000')">Check</button>
+          </div>
+          <div id="prac-8-fb" class="feedback"></div>
+        </div>
+
+        <p style="font-size: 1.05rem; margin-top: 24px; color: #666;">Complete all 8 questions to unlock Go Deeper tasks.</p>
+      </div>
+
+      <!-- Go Deeper Section -->
+      <div class="go-deeper-card locked" id="goDeeper" style="margin-top: 32px;">
+        <div class="go-deeper-notice" id="goDeeperNotice">
+          Complete all 8 practice questions to unlock Go Deeper tasks.
+        </div>
+
+        <h2 style="display: none;" id="goDeeperTitle">Go Deeper: Rounding Investigations</h2>
+        <p style="display: none;" id="goDeeperIntro">These tasks will push your thinking beyond finding answers. You will explore, make conjectures, and reason like a mathematician.</p>
+
+        <div style="display: none;" id="goDeeperContent">
+          <!-- Task 1: Specialising -->
+          <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">Find three different numbers that all round to <span class="ext-numbers">7,000</span> when rounded to the nearest thousand. What is the smallest possible number that rounds to <span class="ext-numbers">7,000</span>? What is the largest?</div>
+            <div class="ext-task-sub">Think carefully about the boundaries. What number is exactly halfway?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I need numbers where the thousands digit rounds to 7. That means they must be between <span class="ext-numbers">6,500</span> and <span class="ext-numbers">7,499</span> (inclusive).</p>
+              <p>Let me try: <span class="ext-numbers">6,500</span> rounds up to <span class="ext-numbers">7,000</span>. <span class="ext-numbers">7,000</span> stays at <span class="ext-numbers">7,000</span>. <span class="ext-numbers">7,499</span> rounds down to <span class="ext-numbers">7,000</span>. What about <span class="ext-numbers">7,500</span>? That rounds UP to <span class="ext-numbers">8,000</span>.</p>
+              <p>So the range is <span class="ext-numbers">6,500</span> to <span class="ext-numbers">7,499</span>. Three examples: <span class="ext-numbers">6,723</span>, <span class="ext-numbers">7,000</span>, <span class="ext-numbers">7,321</span>. The smallest is <span class="ext-numbers">6,500</span> and the largest is <span class="ext-numbers">7,499</span>. I first thought the largest might be <span class="ext-numbers">7,500</span>, but <span class="ext-numbers">7,500</span> rounds to <span class="ext-numbers">8,000</span>, not <span class="ext-numbers">7,000</span>.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+            </div>
+          </div>
+
+          <!-- Task 2: Conjecturing -->
+          <div class="ext-task">
+            <div class="ext-task-label">Conjecturing</div>
+            <div class="ext-task-prompt">"When you round a number twice (e.g. first to the nearest ten, then to the nearest hundred), you always get the same result as rounding directly to the nearest hundred." Is this always true, sometimes true, or never true?</div>
+            <div class="ext-task-sub">Try it with numbers like <span class="ext-numbers">449</span>, <span class="ext-numbers">450</span>, <span class="ext-numbers">451</span>, and <span class="ext-numbers">350</span>.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>Let me test this systematically with the numbers suggested.</p>
+              <p>Test 1: <span class="ext-numbers">449</span>. Round to nearest ten: <span class="ext-numbers">450</span>. Round <span class="ext-numbers">450</span> to nearest hundred: <span class="ext-numbers">500</span>. Round <span class="ext-numbers">449</span> directly to nearest hundred: <span class="ext-numbers">400</span> (since 4 &lt; 5). DIFFERENT!</p>
+              <p>Test 2: <span class="ext-numbers">350</span>. Round to nearest ten: <span class="ext-numbers">350</span> (already exact). Round to nearest hundred: <span class="ext-numbers">400</span>. Directly: <span class="ext-numbers">400</span>. Same.</p>
+              <p>Test 3: <span class="ext-numbers">451</span>. Round to nearest ten: <span class="ext-numbers">450</span>. Round to nearest hundred: <span class="ext-numbers">500</span>. Directly: <span class="ext-numbers">500</span> (5 >= 5). Same.</p>
+              <p>Test 4: <span class="ext-numbers">245</span>. Round to nearest ten: <span class="ext-numbers">250</span>. Round to nearest hundred: <span class="ext-numbers">300</span>. Directly: <span class="ext-numbers">200</span> (4 &lt; 5). DIFFERENT again!</p>
+              <p>So this is SOMETIMES TRUE. Double rounding can give a different answer when the first rounding pushes a digit from below 5 to exactly 5.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proven.
+            </div>
+          </div>
+
+          <!-- Task 3: Generalising -->
+          <div class="ext-task">
+            <div class="ext-task-label">Generalising</div>
+            <div class="ext-task-prompt">How many whole numbers round to <span class="ext-numbers">500</span> when rounded to the nearest hundred? How many round to <span class="ext-numbers">5,000</span> when rounded to the nearest thousand? Can you write a general rule?</div>
+            <div class="ext-task-sub">Count carefully. Don't forget to check both boundaries.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>For <span class="ext-numbers">500</span> (nearest hundred): the range is <span class="ext-numbers">450</span> to <span class="ext-numbers">549</span>. Let me count: <span class="ext-numbers">549 - 450 + 1 = 100</span> numbers.</p>
+              <p>For <span class="ext-numbers">5,000</span> (nearest thousand): the range is <span class="ext-numbers">4,500</span> to <span class="ext-numbers">5,499</span>. That's <span class="ext-numbers">5,499 - 4,500 + 1 = 1,000</span> numbers.</p>
+              <p>I see a pattern! For rounding to nearest hundred: 100 numbers map to each result. For rounding to nearest thousand: 1,000 numbers. My rule: when rounding to the nearest [power of ten], exactly [that power of ten] different whole numbers will round to any given result.</p>
+              <p>Rounding to nearest 10 results in 10 numbers each. Rounding to nearest 100 results in 100 numbers each. Rounding to nearest 1,000 results in 1,000 numbers each.</p>
+              <p>Note: The number 0 is a special case (only 50 numbers round to 0), but for all other rounding targets in the middle, the rule holds perfectly.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means you are looking at several specific examples to discover a pattern or rule that works beyond those examples.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: REFLECT -->
+  <div class="slide" id="slide-9">
+    <div class="reflect-prompt-card">
+      <h2>Reflection</h2>
+      <div class="prompt">When would rounding be a bad idea? Can you think of a situation where you would want the exact number instead?</div>
+      <textarea class="reflect-textarea" placeholder="Start typing your reflection..."></textarea>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 10</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'The Budget Challenge', section: 'Hook' },
+  { id: 'slide-2', title: 'The Number Line Trick', section: 'Hook' },
+  { id: 'slide-3', title: 'Rounding to Thousands', section: 'I Do' },
+  { id: 'slide-4', title: 'Rounding to Ten-Thousands', section: 'I Do' },
+  { id: 'slide-5', title: 'Q1: Nearest Hundred', section: 'We Do' },
+  { id: 'slide-6', title: 'Q2: Nearest Thousand', section: 'We Do' },
+  { id: 'slide-7', title: 'Q3: Nearest Ten-Thousand', section: 'We Do' },
+  { id: 'slide-8', title: 'Practice Questions', section: 'Practice' },
+  { id: 'slide-9', title: 'Reflection', section: 'Reflect' },
+];
+
+const sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice', 'Reflect': 'reflect'
+};
+
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+}
+
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() {
+  if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  if (currentSlide > 0) goToSlide(currentSlide - 1);
+}
+
+function updateNavButtons() {
+  const slideDiv = document.getElementById(slides[currentSlide].id);
+  const nav = slideDiv.querySelector('.slide-nav');
+  if (!nav) return;
+  const btns = nav.querySelectorAll('.nav-btn');
+  const prevBtn = btns[0];
+  const nextBtn = btns[1];
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  const counter = nav.querySelector('.slide-counter');
+  if (counter) counter.textContent = `Card ${currentSlide + 1} of ${slides.length}`;
+}
+
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.phase-btn[data-phase="${phase}"]`).classList.add('active');
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  const items = document.querySelectorAll('.sidebar-item');
+  let counter = 0;
+  document.querySelectorAll('.sidebar-section').forEach(section => {
+    section.querySelectorAll('.sidebar-item').forEach((item, idx) => {
+      if (counter === currentSlide) item.classList.add('active');
+      counter++;
+    });
+  });
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  sidebar.classList.toggle('collapsed');
+  main.classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── STEP REVEALS ──
+var revealState = {};
+
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.add('revealed');
+    revealState[group]++;
+  }
+}
+
+// ── WE DO Q1 ──
+function checkQ1() {
+  const input = document.getElementById('wedo-q1-a');
+  const val = input.value.trim().replace(/,/g, '');
+  const fb = document.getElementById('wedo-q1-a-fb');
+  if (!val) { input.focus(); return; }
+  const isCorrect = (val === '8400');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> The hundreds digit is 3. The decider (tens digit) is 7. Since 7 >= 5, round up: <span class="mono">8,400</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. The hundreds digit is 3. Look at the tens digit: 7. Since 7 >= 5, we round UP from <span class="mono">8,300</span> to <span class="mono">8,400</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q2 ──
+function checkQ2() {
+  const input = document.getElementById('wedo-q2-a');
+  const val = input.value.trim().replace(/,/g, '');
+  const fb = document.getElementById('wedo-q2-a-fb');
+  if (!val) { input.focus(); return; }
+  const isCorrect = (val === '563000');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> The thousands digit is 3. The decider (hundreds digit) is 2. Since 2 < 5, round down: <span class="mono">563,000</span>.';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. The thousands digit is 3. Look to the right: the hundreds digit is 2. Since 2 < 5, round DOWN: <span class="mono">563,000</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── WE DO Q3 ──
+function checkQ3() {
+  const input = document.getElementById('wedo-q3-a');
+  const val = input.value.trim().replace(/,/g, '');
+  const fb = document.getElementById('wedo-q3-a-fb');
+  if (!val) { input.focus(); return; }
+  const isCorrect = (val === '1250000');
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> The ten-thousands digit is 5. The decider (thousands digit) is 0. Since 0 < 5, round down: <span class="mono">1,250,000</span>. The number stays the same!';
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. The ten-thousands digit is 5. The decider is the thousands digit: 0. Since 0 < 5, round DOWN: <span class="mono">1,250,000</span>.';
+  }
+  input.disabled = true;
+}
+
+// ── PRACTICE QUESTIONS ──
+var practiceDone = [false, false, false, false, false, false, false, false];
+
+function checkPrac(idx, correct) {
+  const input = document.getElementById('prac-' + idx);
+  const val = input.value.trim();
+  const fb = document.getElementById('prac-' + idx + '-fb');
+  if (!val) { input.focus(); return; }
+  const cleanVal = val.replace(/,/g, '');
+  const cleanCorrect = correct.replace(/,/g, '');
+  const isCorrect = (cleanVal === cleanCorrect);
+  var diagnostics = {
+    1: 'The ones digit is 7. Since 7 >= 5, round up from <span class="mono">4,820</span> to <span class="mono">4,830</span>.',
+    2: 'The tens digit is 2. Since 2 < 5, round down from <span class="mono">4,800</span> to <span class="mono">4,800</span>.',
+    3: 'The hundreds digit is 8. Since 8 >= 5, round up from <span class="mono">4,000</span> to <span class="mono">5,000</span>.',
+    4: 'The thousands digit is 6. Since 6 >= 5, round up from <span class="mono">350,000</span> to <span class="mono">360,000</span>.',
+    5: 'The ten-thousands digit is 4. Since 4 < 5, round down: <span class="mono">1,800,000</span>.',
+    6: 'The hundred-thousands digit is 5. Since 5 >= 5, round up from <span class="mono">2,000,000</span> to <span class="mono">3,000,000</span>.',
+    7: 'The ones digit is 5. Since 5 >= 5, round up from <span class="mono">990</span> to <span class="mono">1,000</span>. Notice the answer crosses into thousands!',
+    8: '<span class="mono">4,872</span> rounds to <span class="mono">5,000</span> (8 >= 5). <span class="mono">3,156</span> rounds to <span class="mono">3,000</span> (1 < 5). Estimate: <span class="mono">5,000 + 3,000 = 8,000</span>.'
+  };
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<strong>Correct!</strong> ' + (diagnostics[idx] || '');
+  } else {
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<strong>Not quite.</strong> You wrote <span class="mono">' + val + '</span>. The correct answer is <span class="mono">' + correct + '</span>. ' + (diagnostics[idx] || '');
+  }
+  practiceDone[idx - 1] = true;
+  input.disabled = true;
+  checkAllPracticeDone();
+}
+
+function checkAllPracticeDone() {
+  if (practiceDone.every(d => d === true)) {
+    const gd = document.getElementById('goDeeper');
+    gd.classList.remove('locked');
+    document.getElementById('goDeeperNotice').style.display = 'none';
+    document.getElementById('goDeeperTitle').style.display = 'block';
+    document.getElementById('goDeeperIntro').style.display = 'block';
+    document.getElementById('goDeeperContent').style.display = 'block';
+  }
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  goToSlide(0);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+
+</body>
+</html>
