@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractions Extension: Multiplying a Fraction by a Whole Number</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa; --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b; --orange: #FF8400; --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #2ECC71; --green-dark: #1a9c51; --purple: #9B5DE5; --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72; --border: #f1f5f9; --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px; --green-light: #e8f8e8; --red-light: #fff4f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; line-height: 1.6; }
+  .topbar { display: flex; align-items: center; justify-content: flex-end; padding: 12px 24px; }
+  .back-link { color: var(--teal-dark); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .container { max-width: 880px; margin: 0 auto; padding: 8px 22px 80px; }
+  .page-header { text-align: center; margin-bottom: 24px; }
+  .page-header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; }
+  .page-header h1 { font-size: 2.4rem; font-weight: 700; margin: 4px 0; }
+  .page-header h1 span { color: var(--purple); }
+  .page-header .subtitle { font-size: 1.15rem; color: var(--muted); font-weight: 500; }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; border: 2px solid var(--border); margin-bottom: 22px; }
+  .card h2 { font-size: 1.6rem; font-weight: 700; }
+  .card p, .card li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+
+  .collapse-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); margin-bottom: 22px; overflow: hidden; }
+  .collapse-card.lisc { border-top: 5px solid var(--teal); }
+  .collapse-card.learn { border-top: 5px solid var(--purple); }
+  .collapse-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 20px 30px; font-size: 1.35rem; font-weight: 700; user-select: none; }
+  .collapse-head .toggle-icon { font-size: 1rem; color: var(--muted); transition: transform 0.3s; }
+  .collapse-head.open .toggle-icon { transform: rotate(180deg); }
+  .collapse-body { display: none; padding: 0 30px 26px; }
+  .collapse-body.open { display: block; animation: fadeIn 0.3s ease; }
+  .collapse-body h3 { font-size: 1.2rem; margin: 14px 0 6px; } .collapse-body h3:first-child { margin-top: 0; }
+  .collapse-body p, .collapse-body li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+  .collapse-body ul { padding-left: 26px; } .collapse-body ul li { margin-bottom: 6px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-weight: 700; line-height: 1.05; margin: 0 3px; }
+  .frac .num { display: block; padding: 0 6px; border-bottom: 2px solid currentColor; }
+  .frac .den { display: block; padding: 0 6px; }
+  .frac.big { font-size: 1.7rem; }
+  .mixed { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
+  .mixed .whole { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mixed.big .whole { font-size: 1.7rem; }
+  .op-sym { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem; color: var(--muted); }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 18px 0 0; border-left: 5px solid var(--border); }
+  .callout.callout-amber { background: rgba(255,217,61,0.14); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+  .callout p { font-size: 1.05rem; line-height: 1.55; margin: 0; }
+
+  .worked { background: #faf7ff; border: 2px solid #ece3ff; border-radius: 16px; padding: 20px 24px; margin-top: 16px; }
+  .worked .we-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+  .bar-wrap { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; align-items: center; margin: 16px 0 6px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar-cap { font-size: 0.92rem; color: var(--muted); }
+  .we-step { margin: 12px 0; opacity: 0; max-height: 0; transition: opacity 0.4s ease; overflow: hidden; }
+  .we-step.show { opacity: 1; max-height: 520px; }
+  .we-step .step-tag { display: inline-block; background: var(--purple); color: #fff; font-size: 0.8rem; font-weight: 700; border-radius: 8px; padding: 2px 9px; margin-right: 10px; }
+  .we-head { font-size: 1.08rem; font-weight: 700; margin: 12px 0 6px; }
+  .we-line { font-size: 1.05rem; line-height: 1.6; margin: 5px 0 5px 36px; color: #3a4453; }
+  .reveal-btn { background: var(--blue); color: #fff; border: none; border-radius: 30px; padding: 11px 26px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+  .reveal-btn:hover:not(:disabled) { background: var(--blue-dark); transform: translateY(-2px); }
+  .reveal-btn:disabled { background: #ccc; cursor: default; }
+  .seg-reveal { opacity: 0; transition: opacity 0.45s ease; } .seg-reveal.show { opacity: 1; }
+
+  .level-bar { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 9px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); } .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); } .level-btn.l4 { background: var(--orange); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.22); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+  .level-hint { text-align: center; font-size: 0.98rem; color: var(--muted); margin-bottom: 14px; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 24px; height: 24px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .q-counter { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .q-prompt { font-size: 1.2rem; line-height: 1.6; margin-bottom: 16px; }
+  .solve-row { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 10px 0 6px; }
+  .solve-row .equals { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem; }
+  .frac-input { display: inline-flex; flex-direction: column; align-items: center; }
+  .frac-input input { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.4rem; width: 66px; text-align: center; border: 2px solid var(--border); border-radius: 12px; padding: 7px; outline: none; transition: all 0.2s; background: white; }
+  .frac-input input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .frac-input .frac-input-bar { width: 66px; height: 3px; background: var(--text); margin: 6px 0; border-radius: 2px; }
+  .frac-input input.correct { border-color: var(--green); background: var(--green-light); }
+  .frac-input input.wrong { border-color: var(--red); background: var(--red-light); }
+  .mixed-input { display: inline-flex; align-items: center; gap: 10px; }
+  .num-box { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.5rem; width: 60px; height: 56px; text-align: center; border: 2px solid var(--border); border-radius: 12px; outline: none; background: white; transition: all 0.2s; }
+  .num-box:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .num-box.correct { border-color: var(--green); background: var(--green-light); }
+  .num-box.wrong { border-color: var(--red); background: var(--red-light); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover:not(:disabled) { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.45; cursor: default; }
+
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 16px; display: none; font-size: 1.05rem; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback .soln { margin-top: 10px; color: #2c3a30; }
+  .feedback .soln-line { margin: 3px 0; line-height: 1.5; }
+
+  .btn { border: none; border-radius: 30px; padding: 11px 26px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 14px; }
+  .btn-primary { background: var(--teal); color: white; } .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .next-btn { background: var(--blue); color: white; } .next-btn:hover { background: var(--blue-dark); transform: translateY(-2px); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; text-align: center; display: none; margin-top: 18px; border: 2px solid var(--border); }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-card h3 { font-size: 1.4rem; margin-bottom: 6px; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 46px; font-weight: 700; }
+
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 18px 22px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 18px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.7rem; font-weight: 700; margin-bottom: 10px; }
+  .go-deeper-card > p { font-size: 1.1rem; line-height: 1.6; color: var(--muted); margin-bottom: 18px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.12rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 0.98rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 84px; border: 2px solid var(--border); border-radius: 12px; padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 9px 22px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 14px; background: white; border-radius: 12px; padding: 16px 20px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 14px 18px; margin-top: 14px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    .container { padding: 8px 14px 60px; } .page-header h1 { font-size: 1.8rem; }
+    .card, .collapse-head, .collapse-body { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="eyebrow">Year 5 Fractions Extension</div>
+    <h1>Multiplying a Fraction by a <span>Whole Number</span></h1>
+    <div class="subtitle">From repeated addition to a quick rule</div>
+  </div>
+
+  <div class="collapse-card lisc learning-card">
+    <div class="collapse-head" onclick="toggleCollapse(this)">
+      <span>Learning Intention and Success Criteria</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body">
+      <h3>Learning Intention</h3>
+      <p>We are learning to multiply a fraction by a whole number, and to understand why the rule works.</p>
+      <h3>Success Criteria</h3>
+      <ul>
+        <li>I can see multiplying by a whole number as repeated addition.</li>
+        <li>I can multiply the numerator by the whole number and keep the denominator.</li>
+        <li>I can simplify the answer and write it as a mixed numeral.</li>
+        <li>I can solve worded problems that need this skill.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="collapse-card learn">
+    <div class="collapse-head open" onclick="toggleCollapse(this)">
+      <span>Learn this skill</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body open">
+      <p>Multiplying a fraction by a whole number just means adding that fraction over and over. Three lots of <span class="frac"><span class="num">3</span><span class="den">4</span></span> is <span class="frac"><span class="num">3</span><span class="den">4</span></span> added three times. The shortcut is to <strong>multiply the numerator by the whole number</strong> and keep the same denominator. Then simplify and write it as a mixed numeral if it is more than one.</p>
+
+      <div class="worked">
+        <div class="we-title">Worked example: <span class="frac"><span class="num">3</span><span class="den">4</span></span> <span class="op-sym">&times;</span> <span class="mono">3</span></div>
+        <div class="bar-wrap" id="learn-bars"></div>
+        <div class="we-step" id="we-step-1">
+          <div class="we-head"><span class="step-tag">1</span>Multiplying is repeated addition.</div>
+          <div class="we-line"><span class="mono">3/4 + 3/4 + 3/4</span>, which is three groups of three quarters.</div>
+        </div>
+        <div class="we-step" id="we-step-2">
+          <div class="we-head"><span class="step-tag">2</span>Count the pieces, or use the rule.</div>
+          <div class="we-line">There are <span class="mono">9</span> quarters in total, so <span class="mono">9/4</span>.</div>
+          <div class="we-line">Rule: multiply the numerator by the whole. <span class="mono">3 &times; 3 = 9</span>, kept over <span class="mono">4</span>.</div>
+        </div>
+        <div class="we-step" id="we-step-3">
+          <div class="we-head"><span class="step-tag">3</span>Write it as a mixed numeral.</div>
+          <div class="we-line"><span class="mono">9/4</span> = <span class="mixed"><span class="whole">2</span><span class="frac"><span class="num">1</span><span class="den">4</span></span></span>.</div>
+        </div>
+        <button class="reveal-btn" id="learn-btn" onclick="nextLearn()">See it as repeated addition &rarr;</button>
+      </div>
+
+      <div class="callout callout-amber">
+        <div class="label">Watch the size</div>
+        <p>A whole number times a proper fraction can be smaller than the whole number. For example <span class="frac"><span class="num">2</span><span class="den">3</span></span> <span class="op-sym">&times;</span> <span class="mono">4</span> is <span class="frac"><span class="num">8</span><span class="den">3</span></span>, which is <span class="mixed"><span class="whole">2</span><span class="frac"><span class="num">2</span><span class="den">3</span></span></span>, less than <span class="mono">4</span>. Taking a fraction of something less than a whole each time keeps the total down.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Practice</h2>
+    <p style="color:var(--muted); margin:6px 0 16px;">Choose a level. Give every answer in its simplest form (use <span class="mono">0</span> for the whole if it is less than one).</p>
+
+    <div class="level-bar">
+      <button class="level-btn l1 active" onclick="setLevel(1)">Level 1: Unit fractions</button>
+      <button class="level-btn l2" onclick="setLevel(2)">Level 2: Any fraction</button>
+      <button class="level-btn l3" onclick="setLevel(3)">Level 3: Bigger answers</button>
+      <button class="level-btn l4" onclick="setLevel(4)">Level 4: Word problems</button>
+    </div>
+    <div class="level-hint" id="level-hint"></div>
+
+    <div class="dot-counter" id="dots"></div>
+    <div id="practice-card"></div>
+
+    <div class="summary-card" id="summary">
+      <h3>Round complete</h3>
+      <div class="summary-score" id="summary-score"></div>
+      <p id="summary-message" style="font-size:1.05rem; color:var(--muted); margin:8px 0 4px;"></p>
+      <div><button class="btn btn-primary" onclick="startPractice()">New questions</button></div>
+    </div>
+
+    <button class="go-deeper-level-btn locked" id="godeeper-btn" onclick="lockedMessage()" disabled>
+      <h3><span id="lock-icon">&#x1F512;</span> Go Deeper: Multiplying Investigations</h3>
+      <p id="godeeper-desc">Score 6 or more in a round to unlock.</p>
+    </button>
+  </div>
+
+  <div id="go-deeper-section" style="display:none;">
+    <div class="go-deeper-card">
+      <h2>Go Deeper: Multiplying Investigations</h2>
+      <p>These tasks push your thinking beyond getting the answer. Explore, test claims, and reason like a mathematician.</p>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Specialising</div>
+        <div class="ext-task-prompt">Work out <span class="ext-numbers">2/3 &times; 3</span>, <span class="ext-numbers">3/4 &times; 4</span>, and <span class="ext-numbers">2/5 &times; 5</span>.</div>
+        <div class="ext-task-sub">What happens when the whole number you multiply by is the same as the denominator?</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p><span class="ext-numbers">2/3 &times; 3 = 6/3 = 2</span>. <span class="ext-numbers">3/4 &times; 4 = 12/4 = 3</span>. <span class="ext-numbers">2/5 &times; 5 = 10/5 = 2</span>.</p>
+          <p>Each time the answer is a whole number, and it is exactly the numerator I started with. That makes sense: multiplying by the denominator gives the numerator on top and the denominator on the bottom, and a number over itself is one whole. So the whole number left is just the numerator.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>specialising</em>. You tried chosen examples to expose a neat special case.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Justifying</div>
+        <div class="ext-task-prompt">A student says: "Multiplying always makes a number bigger, so <span class="ext-numbers">2/3 &times; 4</span> must be more than <span class="ext-numbers">4</span>."</div>
+        <div class="ext-task-sub">Is the student right? Justify your answer.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>I worked it out: <span class="ext-numbers">2/3 &times; 4 = 8/3 = 2 2/3</span>. That is less than <span class="ext-numbers">4</span>, not more. So the student is wrong.</p>
+          <p>The idea "multiplying always makes bigger" only holds when you multiply by a number bigger than one. Here <span class="ext-numbers">2/3</span> is less than one whole, so taking <span class="ext-numbers">2/3</span> of <span class="ext-numbers">4</span> gives less than <span class="ext-numbers">4</span>. Multiplying by a number between <span class="ext-numbers">0</span> and <span class="ext-numbers">1</span> always makes the result smaller.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>justifying</em>. You tested the claim and explained the condition under which it fails.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Generalising</div>
+        <div class="ext-task-prompt">Write a rule for <span class="ext-numbers">a/b &times; n</span>, and say exactly when the answer is a whole number.</div>
+        <div class="ext-task-sub">Explain why your rule works.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>My rule: <span class="ext-numbers">a/b &times; n = (a &times; n)/b</span>. You multiply the numerator by the whole number and keep the denominator. It works because <span class="ext-numbers">n</span> lots of <span class="ext-numbers">a</span> pieces is <span class="ext-numbers">a &times; n</span> pieces, each still a <span class="ext-numbers">1/b</span> piece.</p>
+          <p>The answer is a whole number exactly when <span class="ext-numbers">b</span> divides into <span class="ext-numbers">a &times; n</span> with no remainder. For example with <span class="ext-numbers">3/4</span>, I need <span class="ext-numbers">4</span> to divide <span class="ext-numbers">3n</span>, which happens when <span class="ext-numbers">n</span> is a multiple of <span class="ext-numbers">4</span>.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>generalising</em>. You turned the pattern into a rule with letters and stated exactly when a whole number appears.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleCollapse(head) { head.classList.toggle('open'); head.nextElementSibling.classList.toggle('open'); }
+function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = b; b = a % b; a = t; } return a; }
+function reduce(n, d) { var g = gcd(n, d) || 1; return { n: n / g, d: d / g }; }
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function pick(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function coprimeNum(d) { var n; do { n = pick(1, d - 1); } while (gcd(n, d) !== 1); return n; }
+function fHtml(n, d, big) { return '<span class="frac' + (big ? ' big' : '') + '"><span class="num">' + n + '</span><span class="den">' + d + '</span></span>'; }
+function mixedHtml(w, n, d, big) { return '<span class="mixed' + (big ? ' big' : '') + '"><span class="whole">' + w + '</span>' + fHtml(n, d, big) + '</span>'; }
+function ansHtml(a, big) { return a.w > 0 ? mixedHtml(a.w, a.n, a.d, big) : fHtml(a.n, a.d, big); }
+
+// ---------- LEARN: three quarter-bars (3/4 each), reveal repeated addition ----------
+function quarterBar(shaded) {
+  var W = 132, H = 50, segs = 4, sw = W / segs;
+  var svg = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="bar with ' + shaded + ' of 4 quarters shaded">';
+  for (var i = 0; i < segs; i++) svg += '<rect x="' + (i * sw) + '" y="0" width="' + sw + '" height="' + H + '" fill="' + (i < shaded ? 'rgba(78,205,196,0.85)' : '#f3eefe') + '"/>';
+  for (var c = 1; c < segs; c++) svg += '<line x1="' + (c * sw) + '" y1="0" x2="' + (c * sw) + '" y2="' + H + '" stroke="#7b5fc0" stroke-width="1.4"/>';
+  svg += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="none" stroke="#7b5fc0" stroke-width="2.5"/></svg>';
+  return svg;
+}
+function buildLearnBars() {
+  document.getElementById('learn-bars').innerHTML =
+    '<div class="bar-col">' + quarterBar(3) + '<div class="bar-cap">3/4</div></div>' +
+    '<div class="bar-col seg-reveal" id="grp2"><div class="op-sym">+</div></div>' +
+    '<div class="bar-col seg-reveal" id="grp2b">' + quarterBar(3) + '<div class="bar-cap">3/4</div></div>' +
+    '<div class="bar-col seg-reveal" id="grp3"><div class="op-sym">+</div></div>' +
+    '<div class="bar-col seg-reveal" id="grp3b">' + quarterBar(3) + '<div class="bar-cap">3/4</div></div>';
+}
+var learnStep = 0;
+function nextLearn() {
+  learnStep++;
+  var btn = document.getElementById('learn-btn');
+  if (learnStep === 1) {
+    document.getElementById('we-step-1').classList.add('show');
+    ['grp2','grp2b','grp3','grp3b'].forEach(function(id){ document.getElementById(id).classList.add('show'); });
+    btn.textContent = 'Use the rule →';
+  } else if (learnStep === 2) { document.getElementById('we-step-2').classList.add('show'); btn.textContent = 'Write as a mixed numeral →'; }
+  else if (learnStep === 3) { document.getElementById('we-step-3').classList.add('show'); btn.disabled = true; btn.textContent = 'Now you try below'; }
+}
+
+// ---------- PRACTICE ENGINE ----------
+function mulAns(n, d, k) { var N = n * k, red = reduce(N, d), w = Math.floor(red.n / red.d), rem = red.n % red.d; return { n: n, d: d, k: k, prod: N, redN: red.n, redD: red.d, ans: { w: w, n: rem, d: red.d } }; }
+function genL1() { while (true) { var d = rnd([2,3,4,5,6,8]), k = pick(2,5); if ((k % d) === 0) continue; return mulAns(1, d, k); } }
+function genL2() { while (true) { var d = rnd([3,4,5,6,8]), n = coprimeNum(d), k = pick(2,4); if (n === 1) continue; if ((n*k) % d === 0) continue; return mulAns(n, d, k); } }
+function genL3() { while (true) { var d = rnd([3,4,5,6,8,10]), n = coprimeNum(d), k = pick(3,6); if ((n*k) % d === 0) continue; if (n*k <= d) continue; return mulAns(n, d, k); } }
+var wordPool = [
+  { n:3,d:4,k:3, ctx:"A recipe uses 3/4 cup of sugar. You make it 3 times. How much sugar is needed in total?" },
+  { n:2,d:5,k:4, ctx:"Each lap of a track is 2/5 km. You run 4 laps. What distance do you run?" },
+  { n:5,d:6,k:4, ctx:"A jar holds 5/6 of a litre. How much juice is in 4 full jars?" },
+  { n:3,d:8,k:5, ctx:"Each parcel weighs 3/8 kg. What do 5 parcels weigh in total?" },
+  { n:2,d:3,k:5, ctx:"You read for 2/3 of an hour each day for 5 days. How long did you read in total?" },
+  { n:5,d:8,k:3, ctx:"A ribbon piece is 5/8 m long. What is the total length of 3 pieces?" },
+  { n:1,d:3,k:7, ctx:"Each cup needs 1/3 cup of oats. How many cups of oats for 7 cups?" },
+  { n:3,d:4,k:6, ctx:"Each step is 3/4 of a metre. How far is 6 steps?" }
+];
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+var levelHints = {
+  1: 'A unit fraction times a whole number. Multiply the top by the whole.',
+  2: 'Any fraction times a whole number. Simplify the answer.',
+  3: 'Bigger whole numbers, so most answers are mixed numerals.',
+  4: 'Read the problem, write the multiplication, then work it out.'
+};
+
+var level = 1, problems = [], idx = 0, results = [], total = 8;
+
+function setLevel(n) {
+  level = n;
+  document.querySelectorAll('.level-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+  startPractice();
+}
+function startPractice() {
+  document.getElementById('level-hint').textContent = levelHints[level];
+  problems = []; total = 8;
+  if (level === 1) { for (var i=0;i<8;i++) problems.push(genL1()); }
+  else if (level === 2) { for (var j=0;j<8;j++) problems.push(genL2()); }
+  else if (level === 3) { for (var k=0;k<8;k++) problems.push(genL3()); }
+  else { problems = shuffle(wordPool).map(function(w){ var p = mulAns(w.n,w.d,w.k); p.ctx = w.ctx; return p; }); total = problems.length; }
+  idx = 0; results = [];
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('go-deeper-section').style.display = 'none';
+  buildDots();
+  showProblem();
+}
+function buildDots() {
+  var c = document.getElementById('dots'); c.innerHTML = '';
+  for (var i = 0; i < total; i++) { var d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' current' : ''); d.id = 'dot-' + i; d.textContent = i + 1; c.appendChild(d); }
+}
+function mixedInputHtml() {
+  return '<div class="mixed-input"><input class="num-box" id="ans-w" aria-label="whole number" placeholder="?">' +
+    '<div class="frac-input"><input type="number" id="ans-num" aria-label="numerator" placeholder="?"><div class="frac-input-bar"></div><input type="number" id="ans-den" aria-label="denominator" placeholder="?"></div></div>';
+}
+function showProblem() {
+  if (idx >= total) { showSummary(); return; }
+  var p = problems[idx];
+  var checkBtn = '<button class="check-btn" id="check-btn" onclick="checkInput()">Check</button>';
+  var expr = p.ctx ? '' : fHtml(p.n, p.d, true) + ' <span class="op-sym">&times;</span> <span class="mono" style="font-size:1.5rem;">' + p.k + '</span> <span class="equals">=</span> ';
+  var html = '<div class="q-counter">Question ' + (idx + 1) + ' of ' + total + '</div>' +
+    '<div class="q-prompt">' + (p.ctx ? p.ctx : 'Work out the answer.') + '</div>' +
+    '<div class="solve-row">' + expr + mixedInputHtml() + checkBtn + '</div>' +
+    '<div class="feedback" id="feedback"></div>' +
+    '<button class="btn next-btn" id="next-btn" style="display:none;" onclick="nextProblem()">Next question &rarr;</button>';
+  document.getElementById('practice-card').innerHTML = html;
+  var first = document.getElementById('ans-w'); if (first) first.focus();
+  ['ans-w','ans-num','ans-den'].forEach(function(id){ var e = document.getElementById(id); if (e) e.addEventListener('keydown', function(ev){ if (ev.key === 'Enter') checkInput(); }); });
+}
+function line(html) { return '<div class="soln-line">' + html + '</div>'; }
+function solutionMul(p) {
+  var out = line('Multiply the numerator by the whole number: <span class="mono">' + p.n + ' &times; ' + p.k + ' = ' + p.prod + '</span>, kept over <span class="mono">' + p.d + '</span>, giving <span class="mono">' + p.prod + '/' + p.d + '</span>.');
+  if (p.prod !== p.redN || p.d !== p.redD) out += line('Simplify: <span class="mono">' + p.prod + '/' + p.d + ' = ' + p.redN + '/' + p.redD + '</span>.');
+  out += line('Answer in simplest form: ' + ansHtml(p.ans) + '.');
+  return out;
+}
+function checkInput() {
+  var p = problems[idx];
+  var wEl = document.getElementById('ans-w'), nEl = document.getElementById('ans-num'), dEl = document.getElementById('ans-den');
+  if (wEl.value === '' || nEl.value === '' || dEl.value === '') return;
+  var w = parseInt(wEl.value,10), nu = parseInt(nEl.value,10), de = parseInt(dEl.value,10);
+  var correct = (w === p.ans.w && nu === p.ans.n && de === p.ans.d);
+  [wEl,nEl,dEl].forEach(function(e){ e.disabled = true; e.classList.add(correct?'correct':'wrong'); });
+  document.getElementById('check-btn').disabled = true;
+  var given = (isNaN(w)?'(blank)':w) + ' ' + (isNaN(nu)?'(blank)':nu) + '/' + (isNaN(de)?'(blank)':de);
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (correct?'correct':'incorrect');
+  fb.innerHTML = '<strong>' + (correct?'Correct.':'Not quite.') + '</strong> ' + (correct?'':'You answered <span class="mono">' + given + '</span>. ') + '<div class="soln">' + solutionMul(p) + '</div>';
+  results[idx] = correct;
+  var dot = document.getElementById('dot-' + idx); dot.classList.remove('current'); dot.classList.add(correct ? 'green' : 'red');
+  var nb = document.getElementById('next-btn'); nb.style.display = 'inline-block'; nb.focus();
+}
+function nextProblem() { idx++; if (idx < total) { var d = document.getElementById('dot-' + idx); if (d) d.classList.add('current'); } showProblem(); }
+function showSummary() {
+  document.getElementById('practice-card').innerHTML = '';
+  var score = results.filter(function(r){ return r; }).length;
+  var sc = document.getElementById('summary-score');
+  sc.textContent = score + ' / ' + total;
+  sc.style.color = score >= 6 ? 'var(--green)' : score >= 4 ? 'var(--amber-dark)' : 'var(--red)';
+  document.getElementById('summary-message').textContent = score >= 6 ? 'Strong work. You are multiplying by whole numbers confidently.' : 'Good effort. Check the working on any you missed, then try a new round.';
+  document.getElementById('summary').classList.add('show');
+  if (score >= 6) unlockGoDeeper();
+}
+function unlockGoDeeper() {
+  var btn = document.getElementById('godeeper-btn');
+  btn.classList.remove('locked'); btn.disabled = false;
+  document.getElementById('lock-icon').innerHTML = '&#x1F513;';
+  document.getElementById('godeeper-desc').textContent = 'Unlocked. Explore, reason, and think like a mathematician.';
+  btn.onclick = openGoDeeper;
+}
+function openGoDeeper() { var s = document.getElementById('go-deeper-section'); s.style.display = 'block'; s.scrollIntoView({ behavior: 'smooth' }); }
+function lockedMessage() { alert('Score 6 or more in a round to unlock Go Deeper.'); }
+
+document.addEventListener('DOMContentLoaded', function() { buildLearnBars(); startPractice(); });
+</script>
+</body>
+</html>

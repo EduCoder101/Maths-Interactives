@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractions Extension: Multiplying a Fraction by a Fraction</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa; --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b; --orange: #FF8400; --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #2ECC71; --green-dark: #1a9c51; --purple: #9B5DE5; --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72; --border: #f1f5f9; --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px; --green-light: #e8f8e8; --red-light: #fff4f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; line-height: 1.6; }
+  .topbar { display: flex; align-items: center; justify-content: flex-end; padding: 12px 24px; }
+  .back-link { color: var(--teal-dark); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .container { max-width: 880px; margin: 0 auto; padding: 8px 22px 80px; }
+  .page-header { text-align: center; margin-bottom: 24px; }
+  .page-header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; }
+  .page-header h1 { font-size: 2.4rem; font-weight: 700; margin: 4px 0; }
+  .page-header h1 span { color: var(--purple); }
+  .page-header .subtitle { font-size: 1.15rem; color: var(--muted); font-weight: 500; }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; border: 2px solid var(--border); margin-bottom: 22px; }
+  .card h2 { font-size: 1.6rem; font-weight: 700; }
+  .card p, .card li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+
+  .collapse-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); margin-bottom: 22px; overflow: hidden; }
+  .collapse-card.lisc { border-top: 5px solid var(--teal); }
+  .collapse-card.learn { border-top: 5px solid var(--purple); }
+  .collapse-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 20px 30px; font-size: 1.35rem; font-weight: 700; user-select: none; }
+  .collapse-head .toggle-icon { font-size: 1rem; color: var(--muted); transition: transform 0.3s; }
+  .collapse-head.open .toggle-icon { transform: rotate(180deg); }
+  .collapse-body { display: none; padding: 0 30px 26px; }
+  .collapse-body.open { display: block; animation: fadeIn 0.3s ease; }
+  .collapse-body h3 { font-size: 1.2rem; margin: 14px 0 6px; } .collapse-body h3:first-child { margin-top: 0; }
+  .collapse-body p, .collapse-body li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+  .collapse-body ul { padding-left: 26px; } .collapse-body ul li { margin-bottom: 6px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-weight: 700; line-height: 1.05; margin: 0 3px; }
+  .frac .num { display: block; padding: 0 6px; border-bottom: 2px solid currentColor; }
+  .frac .den { display: block; padding: 0 6px; }
+  .frac.big { font-size: 1.7rem; }
+  .mixed { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
+  .mixed .whole { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mixed.big .whole { font-size: 1.7rem; }
+  .op-sym { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem; color: var(--muted); }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 18px 0 0; border-left: 5px solid var(--border); }
+  .callout.callout-amber { background: rgba(255,217,61,0.14); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+  .callout p { font-size: 1.05rem; line-height: 1.55; margin: 0; }
+
+  .worked { background: #faf7ff; border: 2px solid #ece3ff; border-radius: 16px; padding: 20px 24px; margin-top: 16px; }
+  .worked .we-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+  .am-wrap { display: flex; justify-content: center; margin: 14px 0 6px; }
+  .am-reveal { opacity: 0; transition: opacity 0.5s ease; } .am-reveal.show { opacity: 1; }
+  .we-step { margin: 12px 0; opacity: 0; max-height: 0; transition: opacity 0.4s ease; overflow: hidden; }
+  .we-step.show { opacity: 1; max-height: 520px; }
+  .we-step .step-tag { display: inline-block; background: var(--purple); color: #fff; font-size: 0.8rem; font-weight: 700; border-radius: 8px; padding: 2px 9px; margin-right: 10px; }
+  .we-head { font-size: 1.08rem; font-weight: 700; margin: 12px 0 6px; }
+  .we-line { font-size: 1.05rem; line-height: 1.6; margin: 5px 0 5px 36px; color: #3a4453; }
+  .reveal-btn { background: var(--blue); color: #fff; border: none; border-radius: 30px; padding: 11px 26px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+  .reveal-btn:hover:not(:disabled) { background: var(--blue-dark); transform: translateY(-2px); }
+  .reveal-btn:disabled { background: #ccc; cursor: default; }
+
+  .level-bar { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 9px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); } .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); } .level-btn.l4 { background: var(--orange); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.22); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+  .level-hint { text-align: center; font-size: 0.98rem; color: var(--muted); margin-bottom: 14px; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 24px; height: 24px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .q-counter { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .q-prompt { font-size: 1.2rem; line-height: 1.6; margin-bottom: 16px; }
+  .solve-row { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 10px 0 6px; }
+  .solve-row .equals { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem; }
+  .frac-input { display: inline-flex; flex-direction: column; align-items: center; }
+  .frac-input input { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.4rem; width: 66px; text-align: center; border: 2px solid var(--border); border-radius: 12px; padding: 7px; outline: none; transition: all 0.2s; background: white; }
+  .frac-input input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .frac-input .frac-input-bar { width: 66px; height: 3px; background: var(--text); margin: 6px 0; border-radius: 2px; }
+  .frac-input input.correct { border-color: var(--green); background: var(--green-light); }
+  .frac-input input.wrong { border-color: var(--red); background: var(--red-light); }
+  .mixed-input { display: inline-flex; align-items: center; gap: 10px; }
+  .num-box { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.5rem; width: 60px; height: 56px; text-align: center; border: 2px solid var(--border); border-radius: 12px; outline: none; background: white; transition: all 0.2s; }
+  .num-box:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .num-box.correct { border-color: var(--green); background: var(--green-light); }
+  .num-box.wrong { border-color: var(--red); background: var(--red-light); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover:not(:disabled) { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.45; cursor: default; }
+
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 16px; display: none; font-size: 1.05rem; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback .soln { margin-top: 10px; color: #2c3a30; }
+  .feedback .soln-line { margin: 3px 0; line-height: 1.5; }
+
+  .btn { border: none; border-radius: 30px; padding: 11px 26px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 14px; }
+  .btn-primary { background: var(--teal); color: white; } .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .next-btn { background: var(--blue); color: white; } .next-btn:hover { background: var(--blue-dark); transform: translateY(-2px); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; text-align: center; display: none; margin-top: 18px; border: 2px solid var(--border); }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-card h3 { font-size: 1.4rem; margin-bottom: 6px; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 46px; font-weight: 700; }
+
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 18px 22px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 18px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.7rem; font-weight: 700; margin-bottom: 10px; }
+  .go-deeper-card > p { font-size: 1.1rem; line-height: 1.6; color: var(--muted); margin-bottom: 18px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.12rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 0.98rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 84px; border: 2px solid var(--border); border-radius: 12px; padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 9px 22px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 14px; background: white; border-radius: 12px; padding: 16px 20px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 14px 18px; margin-top: 14px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    .container { padding: 8px 14px 60px; } .page-header h1 { font-size: 1.8rem; }
+    .card, .collapse-head, .collapse-body { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="eyebrow">Year 5 Fractions Extension</div>
+    <h1>Multiplying a Fraction by a <span>Fraction</span></h1>
+    <div class="subtitle">Use the area model to see why it works</div>
+  </div>
+
+  <div class="collapse-card lisc learning-card">
+    <div class="collapse-head" onclick="toggleCollapse(this)">
+      <span>Learning Intention and Success Criteria</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body">
+      <h3>Learning Intention</h3>
+      <p>We are learning to multiply two fractions, and to use the area model to understand why we multiply the numerators and the denominators.</p>
+      <h3>Success Criteria</h3>
+      <ul>
+        <li>I can multiply two fractions by multiplying the tops and the bottoms.</li>
+        <li>I can use an area model to show what the answer means.</li>
+        <li>I can simplify the answer and handle a mixed numeral.</li>
+        <li>I can explain why multiplying by a fraction less than one makes the amount smaller.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="collapse-card learn">
+    <div class="collapse-head open" onclick="toggleCollapse(this)">
+      <span>Learn this skill</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body open">
+      <p>The word "of" means multiply. To work out <span class="frac"><span class="num">2</span><span class="den">3</span></span> of <span class="frac"><span class="num">3</span><span class="den">4</span></span>, picture one whole square. Shade <span class="frac"><span class="num">3</span><span class="den">4</span></span> of it one way, and <span class="frac"><span class="num">2</span><span class="den">3</span></span> of it the other way. The part shaded <strong>both</strong> ways is the answer.</p>
+
+      <div class="worked">
+        <div class="we-title">Worked example: <span class="frac"><span class="num">2</span><span class="den">3</span></span> <span class="op-sym">&times;</span> <span class="frac"><span class="num">3</span><span class="den">4</span></span></div>
+        <div class="am-wrap" id="learn-area"></div>
+        <div class="we-step" id="we-step-1">
+          <div class="we-head"><span class="step-tag">1</span>Shade the first fraction across.</div>
+          <div class="we-line">Split the width into <span class="mono">3</span> and shade <span class="mono">2</span> columns: that is <span class="frac"><span class="num">2</span><span class="den">3</span></span> across.</div>
+        </div>
+        <div class="we-step" id="we-step-2">
+          <div class="we-head"><span class="step-tag">2</span>Shade the second fraction down.</div>
+          <div class="we-line">Split the height into <span class="mono">4</span> and shade <span class="mono">3</span> rows: that is <span class="frac"><span class="num">3</span><span class="den">4</span></span> down.</div>
+          <div class="we-line">The overlap, shaded twice, is the product.</div>
+        </div>
+        <div class="we-step" id="we-step-3">
+          <div class="we-head"><span class="step-tag">3</span>Count the cells.</div>
+          <div class="we-line">Overlap: <span class="mono">2</span> columns by <span class="mono">3</span> rows = <span class="mono">6</span> cells. Whole square: <span class="mono">3 &times; 4 = 12</span> cells.</div>
+          <div class="we-line">So <span class="frac"><span class="num">2</span><span class="den">3</span></span> <span class="op-sym">&times;</span> <span class="frac"><span class="num">3</span><span class="den">4</span></span> = <span class="frac"><span class="num">6</span><span class="den">12</span></span> = <span class="frac"><span class="num">1</span><span class="den">2</span></span>.</div>
+        </div>
+        <button class="reveal-btn" id="learn-btn" onclick="nextLearn()">Shade across &rarr;</button>
+      </div>
+
+      <div class="callout callout-amber">
+        <div class="label">The rule, and the size</div>
+        <p>Multiply the numerators and multiply the denominators: <span class="mono">2 &times; 3 = 6</span> over <span class="mono">3 &times; 4 = 12</span>. The area model shows why the bottom multiplies: cutting both ways makes <span class="mono">12</span> small cells. Notice the answer is smaller than both fractions, because taking a fraction of a fraction takes only part of a part.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Practice</h2>
+    <p style="color:var(--muted); margin:6px 0 16px;">Choose a level. Give every answer in its simplest form.</p>
+
+    <div class="level-bar">
+      <button class="level-btn l1 active" onclick="setLevel(1)">Level 1: Unit fractions</button>
+      <button class="level-btn l2" onclick="setLevel(2)">Level 2: Any fractions</button>
+      <button class="level-btn l3" onclick="setLevel(3)">Level 3: Mixed numerals</button>
+      <button class="level-btn l4" onclick="setLevel(4)">Level 4: Word problems</button>
+    </div>
+    <div class="level-hint" id="level-hint"></div>
+
+    <div class="dot-counter" id="dots"></div>
+    <div id="practice-card"></div>
+
+    <div class="summary-card" id="summary">
+      <h3>Round complete</h3>
+      <div class="summary-score" id="summary-score"></div>
+      <p id="summary-message" style="font-size:1.05rem; color:var(--muted); margin:8px 0 4px;"></p>
+      <div><button class="btn btn-primary" onclick="startPractice()">New questions</button></div>
+    </div>
+
+    <button class="go-deeper-level-btn locked" id="godeeper-btn" onclick="lockedMessage()" disabled>
+      <h3><span id="lock-icon">&#x1F512;</span> Go Deeper: Multiplying Investigations</h3>
+      <p id="godeeper-desc">Score 6 or more in a round to unlock.</p>
+    </button>
+  </div>
+
+  <div id="go-deeper-section" style="display:none;">
+    <div class="go-deeper-card">
+      <h2>Go Deeper: Multiplying Investigations</h2>
+      <p>These tasks push your thinking beyond getting the answer. Explore, test claims, and reason like a mathematician.</p>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Specialising</div>
+        <div class="ext-task-prompt">Work out <span class="ext-numbers">1/2 &times; 1/2</span>, then <span class="ext-numbers">1/2 &times; 1/3</span>, then <span class="ext-numbers">1/2 &times; 1/4</span>.</div>
+        <div class="ext-task-sub">What happens to the answer as the second fraction gets smaller? Why?</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p><span class="ext-numbers">1/2 &times; 1/2 = 1/4</span>, <span class="ext-numbers">1/2 &times; 1/3 = 1/6</span>, <span class="ext-numbers">1/2 &times; 1/4 = 1/8</span>.</p>
+          <p>The answers get smaller: <span class="ext-numbers">1/4</span>, <span class="ext-numbers">1/6</span>, <span class="ext-numbers">1/8</span>. That makes sense, because I am taking half of a smaller and smaller piece each time. Half of a small thing is tinier than half of a big thing. I also spotted that half of <span class="ext-numbers">1/n</span> is <span class="ext-numbers">1/(2n)</span>.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>specialising</em>. You used ordered examples to see how the answer changes.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Justifying</div>
+        <div class="ext-task-prompt">A student thinks multiplying two fractions should make them bigger, the way adding does. They expect <span class="ext-numbers">1/2 &times; 1/2</span> to be about <span class="ext-numbers">1</span>.</div>
+        <div class="ext-task-sub">Is multiplying two fractions the same as adding them? Explain using a picture or the area model.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>Adding gives <span class="ext-numbers">1/2 + 1/2 = 1</span>. Multiplying gives <span class="ext-numbers">1/2 &times; 1/2 = 1/4</span>. They are not the same at all.</p>
+          <p>The area model shows why: <span class="ext-numbers">1/2 &times; 1/2</span> means half OF a half. I shade half the square one way, then half the other way, and the overlap is just one of the four small squares, which is <span class="ext-numbers">1/4</span>. Taking a part of a part makes things smaller, while adding joins amounts together.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>justifying</em>. You used a model to explain why multiplying and adding behave differently.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Generalising</div>
+        <div class="ext-task-prompt">Explain, using the area model, why <span class="ext-numbers">a/b &times; c/d = (a &times; c)/(b &times; d)</span>.</div>
+        <div class="ext-task-sub">Say what each multiplication on the right means in the picture.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>I split the square into <span class="ext-numbers">b</span> columns one way and <span class="ext-numbers">d</span> rows the other way. That makes <span class="ext-numbers">b &times; d</span> small cells in total, which is the denominator.</p>
+          <p>I shade <span class="ext-numbers">a</span> of the columns and <span class="ext-numbers">c</span> of the rows. The overlap is <span class="ext-numbers">a</span> columns by <span class="ext-numbers">c</span> rows, so <span class="ext-numbers">a &times; c</span> cells, which is the numerator. So the answer is <span class="ext-numbers">(a &times; c)</span> cells out of <span class="ext-numbers">(b &times; d)</span>.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>generalising</em>. You explained the rule with letters by linking each part to the picture.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleCollapse(head) { head.classList.toggle('open'); head.nextElementSibling.classList.toggle('open'); }
+function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = b; b = a % b; a = t; } return a; }
+function reduce(n, d) { var g = gcd(n, d) || 1; return { n: n / g, d: d / g }; }
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function pick(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function coprimeNum(d) { var n; do { n = pick(1, d - 1); } while (gcd(n, d) !== 1); return n; }
+function fHtml(n, d, big) { return '<span class="frac' + (big ? ' big' : '') + '"><span class="num">' + n + '</span><span class="den">' + d + '</span></span>'; }
+function mixedHtml(w, n, d, big) { return '<span class="mixed' + (big ? ' big' : '') + '"><span class="whole">' + w + '</span>' + fHtml(n, d, big) + '</span>'; }
+function ansHtml(a, big) { return a.w > 0 ? mixedHtml(a.w, a.n, a.d, big) : fHtml(a.n, a.d, big); }
+
+// ---------- LEARN: area model for 2/3 x 3/4 ----------
+function buildAreaModel() {
+  var S = 230, cols = 3, rows = 4, cw = S / cols, rh = S / rows, shCols = 2, shRows = 3;
+  var svg = '<svg width="' + (S + 4) + '" height="' + (S + 4) + '" viewBox="-2 -2 ' + (S + 4) + ' ' + (S + 4) + '" role="img" aria-label="area model for two thirds times three quarters">';
+  svg += '<rect x="0" y="0" width="' + S + '" height="' + S + '" fill="#f3eefe" stroke="#7b5fc0" stroke-width="2.5"/>';
+  // teal columns (2/3 across)
+  svg += '<g class="am-reveal" id="am-cols"><rect x="0" y="0" width="' + (shCols * cw) + '" height="' + S + '" fill="rgba(78,205,196,0.55)"/>';
+  for (var c = 1; c < cols; c++) svg += '<line x1="' + (c * cw) + '" y1="0" x2="' + (c * cw) + '" y2="' + S + '" stroke="#7b5fc0" stroke-width="1.6"/>';
+  svg += '</g>';
+  // amber rows (3/4 down)
+  svg += '<g class="am-reveal" id="am-rows"><rect x="0" y="0" width="' + S + '" height="' + (shRows * rh) + '" fill="rgba(255,184,0,0.45)"/>';
+  for (var r = 1; r < rows; r++) svg += '<line x1="0" y1="' + (r * rh) + '" x2="' + S + '" y2="' + (r * rh) + '" stroke="#7b5fc0" stroke-width="1.6"/>';
+  svg += '</g>';
+  // product outline
+  svg += '<g class="am-reveal" id="am-prod"><rect x="0" y="0" width="' + (shCols * cw) + '" height="' + (shRows * rh) + '" fill="none" stroke="#1a9c51" stroke-width="4"/>' +
+         '<text x="' + (shCols * cw / 2) + '" y="' + (shRows * rh / 2 + 6) + '" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="20" fill="#0a3820">6/12</text></g>';
+  svg += '<rect x="0" y="0" width="' + S + '" height="' + S + '" fill="none" stroke="#7b5fc0" stroke-width="2.5"/>';
+  svg += '</svg>';
+  document.getElementById('learn-area').innerHTML = svg;
+}
+var learnStep = 0;
+function nextLearn() {
+  learnStep++;
+  var btn = document.getElementById('learn-btn');
+  if (learnStep === 1) { document.getElementById('we-step-1').classList.add('show'); document.getElementById('am-cols').classList.add('show'); btn.textContent = 'Shade down →'; }
+  else if (learnStep === 2) { document.getElementById('we-step-2').classList.add('show'); document.getElementById('am-rows').classList.add('show'); btn.textContent = 'Count the cells →'; }
+  else if (learnStep === 3) { document.getElementById('we-step-3').classList.add('show'); document.getElementById('am-prod').classList.add('show'); btn.disabled = true; btn.textContent = 'Now you try below'; }
+}
+
+// ---------- PRACTICE ENGINE ----------
+function mulFrac(n1, d1, n2, d2) { var pN = n1 * n2, pD = d1 * d2, r = reduce(pN, pD); return { n1: n1, d1: d1, n2: n2, d2: d2, prodN: pN, prodD: pD, redN: r.n, redD: r.d, ans: { w: Math.floor(r.n / r.d), n: r.n % r.d, d: r.d } }; }
+function genL1() { var b = rnd([2,3,4,5,6]), d = rnd([2,3,4,5,6]); var p = mulFrac(1, b, 1, d); p.ansType = 'fraction'; return p; }
+function genL2() { var b = rnd([2,3,4,5,6]), d = rnd([2,3,4,5,6]), n = coprimeNum(b), c = coprimeNum(d); var p = mulFrac(n, b, c, d); p.ansType = 'fraction'; return p; }
+function genL3() { while (true) { var W = pick(1,2), b = rnd([2,3,4]), w = coprimeNum(b), d = rnd([2,3,4]), c = coprimeNum(d); var p = mulFrac(W*b + w, b, c, d); if (p.ans.n < 1) continue; p.ansType = 'mixed'; p.W = W; p.wn = w; p.wd = b; return p; } }
+var wordPool = [
+  { f:[3,4,2,3], ctx:"A recipe needs 3/4 cup of flour. You make 2/3 of the recipe. How much flour do you use?" },
+  { f:[1,2,3,4], ctx:"A tank is 3/4 full. You use half of what is in it. What fraction of a full tank did you use?" },
+  { f:[2,3,1,2], ctx:"You have 2/3 of a cake and eat 1/2 of that. What fraction of a whole cake did you eat?" },
+  { f:[4,5,3,4], ctx:"A garden is 4/5 of an acre. You plant 3/4 of the garden. What fraction of an acre is planted?" },
+  { f:[3,2,1,2], ctx:"A jug holds 1 and 1/2 litres. You pour out half of it. How much did you pour out?" },
+  { f:[2,5,5,6], ctx:"A ribbon is 5/6 m long. You use 2/5 of it. What length did you use?" },
+  { f:[3,8,4,5], ctx:"A field is 4/5 of a hectare. You mow 3/8 of the field. What fraction of a hectare is mown?" },
+  { f:[5,4,2,3], ctx:"A wall takes 1 and 1/4 tins of paint per coat. You do 2/3 of a coat. How many tins do you use?" }
+];
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+var levelHints = {
+  1: 'Two unit fractions. Multiply the tops (always 1) and the bottoms.',
+  2: 'Any two fractions. Multiply tops, multiply bottoms, then simplify.',
+  3: 'A mixed numeral times a fraction. Change the mixed numeral to an improper fraction first.',
+  4: 'The word "of" means multiply. Find the two fractions and multiply them.'
+};
+
+var level = 1, problems = [], idx = 0, results = [], total = 8;
+
+function setLevel(n) {
+  level = n;
+  document.querySelectorAll('.level-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+  startPractice();
+}
+function startPractice() {
+  document.getElementById('level-hint').textContent = levelHints[level];
+  problems = []; total = 8;
+  if (level === 1) { for (var i=0;i<8;i++) problems.push(genL1()); }
+  else if (level === 2) { for (var j=0;j<8;j++) problems.push(genL2()); }
+  else if (level === 3) { for (var k=0;k<8;k++) problems.push(genL3()); }
+  else { problems = shuffle(wordPool).map(function(w){ var p = mulFrac(w.f[0],w.f[1],w.f[2],w.f[3]); p.ansType = 'mixed'; p.ctx = w.ctx; return p; }); total = problems.length; }
+  idx = 0; results = [];
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('go-deeper-section').style.display = 'none';
+  buildDots();
+  showProblem();
+}
+function buildDots() {
+  var c = document.getElementById('dots'); c.innerHTML = '';
+  for (var i = 0; i < total; i++) { var d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' current' : ''); d.id = 'dot-' + i; d.textContent = i + 1; c.appendChild(d); }
+}
+function fracInputHtml() { return '<div class="frac-input"><input type="number" id="ans-num" aria-label="numerator" placeholder="?"><div class="frac-input-bar"></div><input type="number" id="ans-den" aria-label="denominator" placeholder="?"></div>'; }
+function mixedInputHtml() { return '<div class="mixed-input"><input class="num-box" id="ans-w" aria-label="whole number" placeholder="?"><div class="frac-input"><input type="number" id="ans-num" aria-label="numerator" placeholder="?"><div class="frac-input-bar"></div><input type="number" id="ans-den" aria-label="denominator" placeholder="?"></div></div>'; }
+function showProblem() {
+  if (idx >= total) { showSummary(); return; }
+  var p = problems[idx];
+  var checkBtn = '<button class="check-btn" id="check-btn" onclick="checkInput()">Check</button>';
+  var firstFactor = (p.W !== undefined) ? mixedHtml(p.W, p.wn, p.wd, true) : fHtml(p.n1, p.d1, true);
+  var expr = p.ctx ? '' : firstFactor + ' <span class="op-sym">&times;</span> ' + fHtml(p.n2, p.d2, true) + ' <span class="equals">=</span> ';
+  var inputHtml = p.ansType === 'mixed' ? mixedInputHtml() : fracInputHtml();
+  var html = '<div class="q-counter">Question ' + (idx + 1) + ' of ' + total + '</div>' +
+    '<div class="q-prompt">' + (p.ctx ? p.ctx : 'Work out the answer.') + '</div>' +
+    '<div class="solve-row">' + expr + inputHtml + checkBtn + '</div>' +
+    '<div class="feedback" id="feedback"></div>' +
+    '<button class="btn next-btn" id="next-btn" style="display:none;" onclick="nextProblem()">Next question &rarr;</button>';
+  document.getElementById('practice-card').innerHTML = html;
+  var first = document.getElementById(p.ansType === 'mixed' ? 'ans-w' : 'ans-num'); if (first) first.focus();
+  ['ans-w','ans-num','ans-den'].forEach(function(id){ var e = document.getElementById(id); if (e) e.addEventListener('keydown', function(ev){ if (ev.key === 'Enter') checkInput(); }); });
+}
+function line(html) { return '<div class="soln-line">' + html + '</div>'; }
+function solutionMul(p) {
+  var out = '';
+  if (p.W !== undefined) out += line('Write ' + mixedHtml(p.W, p.wn, p.wd) + ' as ' + fHtml(p.n1, p.d1) + '.');
+  out += line('Multiply the numerators: <span class="mono">' + p.n1 + ' &times; ' + p.n2 + ' = ' + p.prodN + '</span>. Multiply the denominators: <span class="mono">' + p.d1 + ' &times; ' + p.d2 + ' = ' + p.prodD + '</span>.');
+  out += line('That gives <span class="mono">' + p.prodN + '/' + p.prodD + '</span>.');
+  if (p.prodN !== p.redN || p.prodD !== p.redD) out += line('Simplify: <span class="mono">' + p.prodN + '/' + p.prodD + ' = ' + p.redN + '/' + p.redD + '</span>.');
+  out += line('Answer in simplest form: ' + ansHtml(p.ans) + '.');
+  return out;
+}
+function checkInput() {
+  var p = problems[idx], correct, given;
+  if (p.ansType === 'mixed') {
+    var wEl = document.getElementById('ans-w'), nEl = document.getElementById('ans-num'), dEl = document.getElementById('ans-den');
+    if (wEl.value === '' || nEl.value === '' || dEl.value === '') return;
+    var w = parseInt(wEl.value,10), nu = parseInt(nEl.value,10), de = parseInt(dEl.value,10);
+    correct = (w === p.ans.w && nu === p.ans.n && de === p.ans.d);
+    [wEl,nEl,dEl].forEach(function(e){ e.disabled = true; e.classList.add(correct?'correct':'wrong'); });
+    given = (isNaN(w)?'(blank)':w) + ' ' + (isNaN(nu)?'(blank)':nu) + '/' + (isNaN(de)?'(blank)':de);
+  } else {
+    var nEl2 = document.getElementById('ans-num'), dEl2 = document.getElementById('ans-den');
+    if (nEl2.value === '' || dEl2.value === '') return;
+    var an = parseInt(nEl2.value,10), ad = parseInt(dEl2.value,10);
+    correct = (an === p.ans.n && ad === p.ans.d);
+    [nEl2,dEl2].forEach(function(e){ e.disabled = true; e.classList.add(correct?'correct':'wrong'); });
+    given = (isNaN(an)?'(blank)':an) + '/' + (isNaN(ad)?'(blank)':ad);
+  }
+  document.getElementById('check-btn').disabled = true;
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (correct?'correct':'incorrect');
+  fb.innerHTML = '<strong>' + (correct?'Correct.':'Not quite.') + '</strong> ' + (correct?'':'You answered <span class="mono">' + given + '</span>. ') + '<div class="soln">' + solutionMul(p) + '</div>';
+  results[idx] = correct;
+  var dot = document.getElementById('dot-' + idx); dot.classList.remove('current'); dot.classList.add(correct ? 'green' : 'red');
+  var nb = document.getElementById('next-btn'); nb.style.display = 'inline-block'; nb.focus();
+}
+function nextProblem() { idx++; if (idx < total) { var d = document.getElementById('dot-' + idx); if (d) d.classList.add('current'); } showProblem(); }
+function showSummary() {
+  document.getElementById('practice-card').innerHTML = '';
+  var score = results.filter(function(r){ return r; }).length;
+  var sc = document.getElementById('summary-score');
+  sc.textContent = score + ' / ' + total;
+  sc.style.color = score >= 6 ? 'var(--green)' : score >= 4 ? 'var(--amber-dark)' : 'var(--red)';
+  document.getElementById('summary-message').textContent = score >= 6 ? 'Strong work. You are multiplying fractions confidently.' : 'Good effort. Check the working on any you missed, then try a new round.';
+  document.getElementById('summary').classList.add('show');
+  if (score >= 6) unlockGoDeeper();
+}
+function unlockGoDeeper() {
+  var btn = document.getElementById('godeeper-btn');
+  btn.classList.remove('locked'); btn.disabled = false;
+  document.getElementById('lock-icon').innerHTML = '&#x1F513;';
+  document.getElementById('godeeper-desc').textContent = 'Unlocked. Explore, reason, and think like a mathematician.';
+  btn.onclick = openGoDeeper;
+}
+function openGoDeeper() { var s = document.getElementById('go-deeper-section'); s.style.display = 'block'; s.scrollIntoView({ behavior: 'smooth' }); }
+function lockedMessage() { alert('Score 6 or more in a round to unlock Go Deeper.'); }
+
+document.addEventListener('DOMContentLoaded', function() { buildAreaModel(); startPractice(); });
+</script>
+</body>
+</html>

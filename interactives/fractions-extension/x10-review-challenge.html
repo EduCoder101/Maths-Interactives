@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractions Extension: Review and the Fraction Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa; --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b; --orange: #FF8400; --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #2ECC71; --green-dark: #1a9c51; --purple: #9B5DE5; --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72; --border: #f1f5f9; --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px; --green-light: #e8f8e8; --red-light: #fff4f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; line-height: 1.6; }
+  .topbar { display: flex; align-items: center; justify-content: flex-end; padding: 12px 24px; }
+  .back-link { color: var(--teal-dark); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .container { max-width: 880px; margin: 0 auto; padding: 8px 22px 80px; }
+  .page-header { text-align: center; margin-bottom: 24px; }
+  .page-header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; }
+  .page-header h1 { font-size: 2.4rem; font-weight: 700; margin: 4px 0; }
+  .page-header h1 span { color: var(--purple); }
+  .page-header .subtitle { font-size: 1.15rem; color: var(--muted); font-weight: 500; }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; border: 2px solid var(--border); margin-bottom: 22px; }
+  .card h2 { font-size: 1.6rem; font-weight: 700; }
+  .card p, .card li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+
+  .collapse-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); margin-bottom: 22px; overflow: hidden; }
+  .collapse-card.lisc { border-top: 5px solid var(--teal); }
+  .collapse-card.learn { border-top: 5px solid var(--purple); }
+  .collapse-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 20px 30px; font-size: 1.35rem; font-weight: 700; user-select: none; }
+  .collapse-head .toggle-icon { font-size: 1rem; color: var(--muted); transition: transform 0.3s; }
+  .collapse-head.open .toggle-icon { transform: rotate(180deg); }
+  .collapse-body { display: none; padding: 0 30px 26px; }
+  .collapse-body.open { display: block; animation: fadeIn 0.3s ease; }
+  .collapse-body h3 { font-size: 1.2rem; margin: 14px 0 6px; } .collapse-body h3:first-child { margin-top: 0; }
+  .collapse-body p, .collapse-body li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+  .collapse-body ul { padding-left: 26px; } .collapse-body ul li { margin-bottom: 6px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-weight: 700; line-height: 1.05; margin: 0 3px; }
+  .frac .num { display: block; padding: 0 6px; border-bottom: 2px solid currentColor; }
+  .frac .den { display: block; padding: 0 6px; }
+  .frac.big { font-size: 1.7rem; }
+  .mixed { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
+  .mixed .whole { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .mixed.big .whole { font-size: 1.7rem; }
+  .op-sym { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem; color: var(--muted); }
+
+  .reminder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .reminder { background: #faf7ff; border: 2px solid #ece3ff; border-radius: 12px; padding: 12px 16px; font-size: 1rem; }
+  .reminder strong { color: var(--purple); }
+  @media (max-width: 600px) { .reminder-grid { grid-template-columns: 1fr; } }
+
+  .level-bar { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 9px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); } .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); } .level-btn.l4 { background: var(--orange); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.22); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+  .level-hint { text-align: center; font-size: 0.98rem; color: var(--muted); margin-bottom: 14px; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 24px; height: 24px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .q-counter { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .q-prompt { font-size: 1.2rem; line-height: 1.65; margin-bottom: 16px; }
+  .solve-row { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 10px 0 6px; }
+  .solve-row .equals { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem; }
+  .ans-label { font-size: 1.05rem; font-weight: 600; color: var(--muted); }
+  .frac-input { display: inline-flex; flex-direction: column; align-items: center; }
+  .frac-input input { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.4rem; width: 66px; text-align: center; border: 2px solid var(--border); border-radius: 12px; padding: 7px; outline: none; transition: all 0.2s; background: white; }
+  .frac-input input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .frac-input .frac-input-bar { width: 66px; height: 3px; background: var(--text); margin: 6px 0; border-radius: 2px; }
+  .frac-input input.correct { border-color: var(--green); background: var(--green-light); }
+  .frac-input input.wrong { border-color: var(--red); background: var(--red-light); }
+  .mixed-input { display: inline-flex; align-items: center; gap: 10px; }
+  .num-box { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.5rem; width: 60px; height: 56px; text-align: center; border: 2px solid var(--border); border-radius: 12px; outline: none; background: white; transition: all 0.2s; }
+  .num-box:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .num-box.correct { border-color: var(--green); background: var(--green-light); }
+  .num-box.wrong { border-color: var(--red); background: var(--red-light); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover:not(:disabled) { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.45; cursor: default; }
+
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 16px; display: none; font-size: 1.05rem; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback .soln { margin-top: 10px; color: #2c3a30; }
+  .feedback .soln-line { margin: 3px 0; line-height: 1.5; }
+
+  .btn { border: none; border-radius: 30px; padding: 11px 26px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 14px; }
+  .btn-primary { background: var(--teal); color: white; } .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .next-btn { background: var(--blue); color: white; } .next-btn:hover { background: var(--blue-dark); transform: translateY(-2px); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; text-align: center; display: none; margin-top: 18px; border: 2px solid var(--border); }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-card h3 { font-size: 1.4rem; margin-bottom: 6px; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 46px; font-weight: 700; }
+
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 18px 22px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 18px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.7rem; font-weight: 700; margin-bottom: 10px; }
+  .go-deeper-card > p { font-size: 1.1rem; line-height: 1.6; color: var(--muted); margin-bottom: 18px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.12rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 0.98rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 84px; border: 2px solid var(--border); border-radius: 12px; padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 9px 22px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 14px; background: white; border-radius: 12px; padding: 16px 20px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 14px 18px; margin-top: 14px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    .container { padding: 8px 14px 60px; } .page-header h1 { font-size: 1.8rem; }
+    .card, .collapse-head, .collapse-body { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="eyebrow">Year 5 Fractions Extension</div>
+    <h1>Review and the <span>Fraction Challenge</span></h1>
+    <div class="subtitle">Bring every skill together</div>
+  </div>
+
+  <div class="collapse-card lisc learning-card">
+    <div class="collapse-head" onclick="toggleCollapse(this)">
+      <span>Learning Intention and Success Criteria</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body">
+      <h3>Learning Intention</h3>
+      <p>We are applying everything from the Fractions Extension across a mixed challenge.</p>
+      <h3>Success Criteria</h3>
+      <ul>
+        <li>I can simplify, compare and convert fractions.</li>
+        <li>I can add, subtract, multiply and divide fractions and mixed numerals.</li>
+        <li>I can choose the right method for a worded problem.</li>
+        <li>I can explain and justify my reasoning.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="collapse-card learn">
+    <div class="collapse-head open" onclick="toggleCollapse(this)">
+      <span>Quick reminders</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body open">
+      <p>No new skills here, just everything you have learned. Use these reminders if you get stuck, then take on the challenge levels.</p>
+      <div class="reminder-grid">
+        <div class="reminder"><strong>Simplify:</strong> divide top and bottom by their highest common factor.</div>
+        <div class="reminder"><strong>Compare:</strong> rewrite over a common denominator, then compare numerators.</div>
+        <div class="reminder"><strong>Mixed numeral:</strong> divide the top by the bottom for the whole and remainder.</div>
+        <div class="reminder"><strong>Add and subtract:</strong> common denominator first, then carry or borrow whole numbers.</div>
+        <div class="reminder"><strong>Multiply:</strong> multiply the tops and multiply the bottoms.</div>
+        <div class="reminder"><strong>Divide:</strong> multiply by the reciprocal (flip the second fraction).</div>
+      </div>
+      <div style="margin-top:14px; font-size:1.05rem; color:#3a4453;">Always give your answer in its simplest form, and write a mixed numeral if it is more than one whole.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Challenge</h2>
+    <p style="color:var(--muted); margin:6px 0 16px;">Pick a level. Read the instruction above each question, work it out, and check to see the full working. Use <span class="mono">0</span> for the whole if the answer is less than one.</p>
+
+    <div class="level-bar">
+      <button class="level-btn l1 active" onclick="setLevel(1)">Level 1: Warm up</button>
+      <button class="level-btn l2" onclick="setLevel(2)">Level 2: Operations</button>
+      <button class="level-btn l3" onclick="setLevel(3)">Level 3: Boss problems</button>
+      <button class="level-btn l4" onclick="setLevel(4)">Level 4: Everything</button>
+    </div>
+    <div class="level-hint" id="level-hint"></div>
+
+    <div class="dot-counter" id="dots"></div>
+    <div id="practice-card"></div>
+
+    <div class="summary-card" id="summary">
+      <h3>Round complete</h3>
+      <div class="summary-score" id="summary-score"></div>
+      <p id="summary-message" style="font-size:1.05rem; color:var(--muted); margin:8px 0 4px;"></p>
+      <div><button class="btn btn-primary" onclick="startPractice()">New questions</button></div>
+    </div>
+
+    <button class="go-deeper-level-btn locked" id="godeeper-btn" onclick="lockedMessage()" disabled>
+      <h3><span id="lock-icon">&#x1F512;</span> Go Deeper: Final Reasoning</h3>
+      <p id="godeeper-desc">Score 6 or more in a round to unlock.</p>
+    </button>
+  </div>
+
+  <div id="go-deeper-section" style="display:none;">
+    <div class="go-deeper-card">
+      <h2>Go Deeper: Final Reasoning</h2>
+      <p>These tasks pull your fraction thinking together. Explore, test claims, and reason like a mathematician.</p>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Conjecturing</div>
+        <div class="ext-task-prompt">Pick any fraction, say <span class="ext-numbers">2/3</span>. Multiply it by <span class="ext-numbers">3/4</span>, then divide the result by <span class="ext-numbers">3/4</span>.</div>
+        <div class="ext-task-sub">What do you get back? Does this always happen? Make a claim and test it with another fraction.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p><span class="ext-numbers">2/3 &times; 3/4 = 1/2</span>. Then <span class="ext-numbers">1/2 &divide; 3/4 = 1/2 &times; 4/3 = 4/6 = 2/3</span>. I got back to <span class="ext-numbers">2/3</span>.</p>
+          <p>My claim: multiplying then dividing by the same fraction takes you back to the start. I tested it with <span class="ext-numbers">1/5</span>: <span class="ext-numbers">1/5 &times; 3/4 = 3/20</span>, then <span class="ext-numbers">3/20 &divide; 3/4 = 3/20 &times; 4/3 = 12/60 = 1/5</span>. It works again. Dividing undoes multiplying.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. You made a claim from a pattern and tested it.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Justifying</div>
+        <div class="ext-task-prompt">Put these in order from smallest to largest, and explain how you decided: <span class="ext-numbers">2/3</span>, <span class="ext-numbers">3/5</span>, <span class="ext-numbers">5/8</span>.</div>
+        <div class="ext-task-sub">Can you decide using benchmarks before doing any common denominators?</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>All three are just over <span class="ext-numbers">1/2</span>, so benchmarks alone are not enough. I used a common denominator of <span class="ext-numbers">120</span>: <span class="ext-numbers">2/3 = 80/120</span>, <span class="ext-numbers">3/5 = 72/120</span>, <span class="ext-numbers">5/8 = 75/120</span>.</p>
+          <p>So in order: <span class="ext-numbers">3/5</span> (<span class="ext-numbers">72</span>), then <span class="ext-numbers">5/8</span> (<span class="ext-numbers">75</span>), then <span class="ext-numbers">2/3</span> (<span class="ext-numbers">80</span>). The common denominator settled it cleanly when benchmarks could not.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>justifying</em>. You chose a method that proves the order beyond doubt.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Generalising</div>
+        <div class="ext-task-prompt">You have learned to multiply by a fraction (makes smaller) and divide by a fraction (makes bigger), when the fraction is less than one.</div>
+        <div class="ext-task-sub">Write a clear rule about when an operation makes a number bigger or smaller, covering multiplying and dividing by fractions.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>Multiplying by a number bigger than <span class="ext-numbers">1</span> makes a number bigger; multiplying by a number between <span class="ext-numbers">0</span> and <span class="ext-numbers">1</span> makes it smaller. Dividing is the opposite: dividing by a number bigger than <span class="ext-numbers">1</span> makes it smaller, and dividing by a number between <span class="ext-numbers">0</span> and <span class="ext-numbers">1</span> makes it bigger.</p>
+          <p>The dividing line is the number <span class="ext-numbers">1</span>. Multiplying or dividing by exactly <span class="ext-numbers">1</span> leaves a number unchanged, because one whole group is the original amount.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>generalising</em>. You stated one rule covering many cases, with <span class="ext-numbers">1</span> as the key boundary.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleCollapse(head) { head.classList.toggle('open'); head.nextElementSibling.classList.toggle('open'); }
+function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = b; b = a % b; a = t; } return a; }
+function reduceF(n, d) { var g = gcd(n, d) || 1; return { n: n / g, d: d / g }; }
+function lcm(a, b) { return a / gcd(a, b) * b; }
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function pick(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function coprimeNum(d) { var n; do { n = pick(1, d - 1); } while (gcd(n, d) !== 1); return n; }
+function fHtml(n, d, big) { return '<span class="frac' + (big ? ' big' : '') + '"><span class="num">' + n + '</span><span class="den">' + d + '</span></span>'; }
+function mixedHtml(w, n, d, big) { return '<span class="mixed' + (big ? ' big' : '') + '"><span class="whole">' + w + '</span>' + fHtml(n, d, big) + '</span>'; }
+function ansHtml(a, big) { return a.w > 0 ? mixedHtml(a.w, a.n, a.d, big) : fHtml(a.n, a.d, big); }
+function line(html) { return '<div class="soln-line">' + html + '</div>'; }
+function fracAns(n, d) { var r = reduceF(n, d); return { type: 'fraction', n: r.n, d: r.d }; }
+function mixedAns(N, D) { var r = reduceF(N, D); return { type: 'mixed', w: Math.floor(r.n / r.d), n: r.n % r.d, d: r.d }; }
+
+// ---------- GENERATORS (each returns a unified problem) ----------
+var bases = [[1,2],[1,3],[2,3],[1,4],[3,4],[1,5],[2,5],[3,5],[4,5],[1,6],[5,6],[3,8],[5,8],[7,8],[5,12],[7,12]];
+function genSimplify() {
+  var base, k;
+  do { base = rnd(bases); k = pick(2,5); } while (base[1] * k > 60);
+  var n = base[0] * k, d = base[1] * k;
+  return { task: 'Simplify this fraction.', lhs: fHtml(n, d, true), ans: fracAns(base[0], base[1]), trueVal: n / d,
+    sol: [ 'The HCF of ' + n + ' and ' + d + ' is ' + k + '.', 'Divide both by ' + k + ': ' + base[0] + '/' + base[1] + '.' ] };
+}
+function genConv() {
+  var d, w, r; do { d = rnd([2,3,4,5,6]); w = pick(1,4); r = pick(1, d-1); } while (gcd(r, d) !== 1);
+  var n = w * d + r;
+  return { task: 'Write this improper fraction as a mixed numeral.', lhs: fHtml(n, d, true), ans: { type:'mixed', w:w, n:r, d:d }, trueVal: n / d,
+    sol: [ n + ' &divide; ' + d + ' = ' + w + ' remainder ' + r + '.', 'So it is ' + w + ' and ' + r + '/' + d + '.' ] };
+}
+function genMul() {
+  var b = rnd([2,3,4,5]), d = rnd([2,3,4,5]), n1 = coprimeNum(b), n2 = coprimeNum(d);
+  var pN = n1 * n2, pD = b * d, r = reduceF(pN, pD);
+  return { task: 'Multiply.', lhs: fHtml(n1, b, true) + ' <span class="op-sym">&times;</span> ' + fHtml(n2, d, true), ans: fracAns(pN, pD), trueVal: pN / pD,
+    sol: [ 'Multiply tops and bottoms: ' + n1 + '&times;' + n2 + ' = ' + pN + ', ' + b + '&times;' + d + ' = ' + pD + '.', 'That is ' + pN + '/' + pD + (pN !== r.n ? ' = ' + r.n + '/' + r.d : '') + '.' ] };
+}
+function genDivW() {
+  var b = rnd([2,3,4,5]), a = coprimeNum(b), n = pick(2,5);
+  var D = b * n, r = reduceF(a, D);
+  return { task: 'Divide.', lhs: fHtml(a, b, true) + ' <span class="op-sym">&divide;</span> <span class="mono" style="font-size:1.5rem;">' + n + '</span>', ans: fracAns(a, D), trueVal: a / D,
+    sol: [ 'Keep the top, multiply the bottom by ' + n + ': ' + a + '/' + D + '.', (a !== r.n ? 'Simplify: ' + r.n + '/' + r.d + '.' : 'It is already in simplest form.') ] };
+}
+function genAdd() {
+  var pairs = [[2,4],[2,3],[3,4],[2,6],[4,8],[3,6],[5,10],[4,6]];
+  while (true) {
+    var pr = rnd(pairs), d1 = pr[0], d2 = pr[1];
+    var n1 = coprimeNum(d1), n2 = coprimeNum(d2);
+    var L = lcm(d1, d2), num = n1 * (L / d1) + n2 * (L / d2);
+    if (num % L === 0) continue;
+    return { task: 'Add.', lhs: fHtml(n1, d1, true) + ' <span class="op-sym">+</span> ' + fHtml(n2, d2, true), ans: mixedAns(num, L), trueVal: num / L,
+      sol: [ 'Common denominator ' + L + ': ' + (n1 * (L/d1)) + '/' + L + ' + ' + (n2 * (L/d2)) + '/' + L + ' = ' + num + '/' + L + '.', 'In simplest form that is the answer shown.' ] };
+  }
+}
+
+// fraction RPN for boss word problems
+function fop(a, b, t) {
+  if (t === '+') return reduceF(a.n * b.d + b.n * a.d, a.d * b.d);
+  if (t === '-') return reduceF(a.n * b.d - b.n * a.d, a.d * b.d);
+  if (t === '*') return reduceF(a.n * b.n, a.d * b.d);
+  return reduceF(a.n * b.d, a.d * b.n);
+}
+function evalCalc(calc) {
+  var st = [];
+  for (var i = 0; i < calc.length; i++) {
+    var tok = calc[i];
+    if (Object.prototype.toString.call(tok) === '[object Array]') st.push({ n: tok[1], d: tok[2] });
+    else { var b = st.pop(), a = st.pop(); st.push(fop(a, b, tok)); }
+  }
+  return st[0];
+}
+var bossRaw = [
+  { ctx:"A jug holds 7/8 of a litre. You drink 1/2 a litre, then refill by 1/4 of a litre. How much is in the jug now?", calc:[['f',7,8],['f',1,2],'-',['f',1,4],'+'], sol:["7/8 &minus; 1/2 = 3/8, then + 1/4 = 5/8."] },
+  { ctx:"Three friends eat 1/4, 1/3 and 1/6 of a cake. How much is left?", calc:[['f',1,1],['f',1,4],['f',1,3],'+',['f',1,6],'+','-'], sol:["Eaten 1/4 + 1/3 + 1/6 = 9/12. Left 1 &minus; 9/12 = 1/4."] },
+  { ctx:"What is half of the sum of 2/3 and 3/4?", calc:[['f',2,3],['f',3,4],'+',['f',1,2],'*'], sol:["2/3 + 3/4 = 17/12. Half of that is 17/24."] },
+  { ctx:"You pour 3/4 of a litre equally into 3 cups, then drink 2 cups. How much did you drink?", calc:[['f',3,4],['f',3,1],'/',['f',2,1],'*'], sol:["Each cup 3/4 &divide; 3 = 1/4. Two cups = 1/2 litre."] },
+  { ctx:"A plank is 2 1/2 m. You cut off 3/4 m, then 5/6 m. How much is left?", calc:[['f',5,2],['f',3,4],'-',['f',5,6],'-'], sol:["5/2 = 30/12. 30/12 &minus; 9/12 &minus; 10/12 = 11/12 m."] },
+  { ctx:"You make 1 1/2 lots of a mix. Each lot is 1/2 cup juice and 1/4 cup water. How much liquid in total?", calc:[['f',1,2],['f',1,4],'+',['f',3,2],'*'], sol:["One lot 3/4 cup. 1 1/2 &times; 3/4 = 9/8 = 1 1/8 cups."] }
+];
+function genBoss(raw) {
+  var fr = evalCalc(raw.calc);
+  var r = reduceF(fr.n, fr.d);
+  var ans = { type: 'mixed', w: Math.floor(r.n / r.d), n: r.n % r.d, d: r.d };
+  return { task: raw.ctx, lhs: '', ctx: true, ans: ans, trueVal: fr.n / fr.d, sol: raw.sol };
+}
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+var warmGens = [genSimplify, genConv];
+var opGens = [genMul, genDivW, genAdd];
+var allGens = [genSimplify, genConv, genMul, genDivW, genAdd];
+var levelHints = {
+  1: 'A warm up: simplifying and converting to mixed numerals.',
+  2: 'Operations: multiply, divide and add.',
+  3: 'Boss problems: multi-step worded challenges.',
+  4: 'Everything mixed together. Read the instruction on each one.'
+};
+
+var level = 1, problems = [], idx = 0, results = [], total = 8;
+
+function setLevel(n) {
+  level = n;
+  document.querySelectorAll('.level-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+  startPractice();
+}
+function startPractice() {
+  document.getElementById('level-hint').textContent = levelHints[level];
+  problems = [];
+  if (level === 3) {
+    problems = shuffle(bossRaw).map(genBoss); total = problems.length;
+  } else {
+    total = 8;
+    var gens = level === 1 ? warmGens : (level === 2 ? opGens : allGens);
+    for (var i = 0; i < total; i++) problems.push(rnd(gens)());
+    if (level === 4) { problems[total - 1] = genBoss(rnd(bossRaw)); problems[total - 2] = genBoss(rnd(bossRaw)); }
+  }
+  idx = 0; results = [];
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('go-deeper-section').style.display = 'none';
+  buildDots();
+  showProblem();
+}
+function buildDots() {
+  var c = document.getElementById('dots'); c.innerHTML = '';
+  for (var i = 0; i < total; i++) { var d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' current' : ''); d.id = 'dot-' + i; d.textContent = i + 1; c.appendChild(d); }
+}
+function inputFor(p) {
+  if (p.ans.type === 'fraction') return '<div class="frac-input"><input type="number" id="ans-num" aria-label="numerator" placeholder="?"><div class="frac-input-bar"></div><input type="number" id="ans-den" aria-label="denominator" placeholder="?"></div>';
+  return '<div class="mixed-input"><input class="num-box" id="ans-w" aria-label="whole number" placeholder="?"><div class="frac-input"><input type="number" id="ans-num" aria-label="numerator" placeholder="?"><div class="frac-input-bar"></div><input type="number" id="ans-den" aria-label="denominator" placeholder="?"></div></div>';
+}
+function showProblem() {
+  if (idx >= total) { showSummary(); return; }
+  var p = problems[idx];
+  var checkBtn = '<button class="check-btn" id="check-btn" onclick="checkInput()">Check</button>';
+  var lhsPart = p.lhs ? (p.lhs + ' <span class="equals">=</span> ') : '<span class="ans-label">Answer:</span> ';
+  var html = '<div class="q-counter">Question ' + (idx + 1) + ' of ' + total + '</div>' +
+    '<div class="q-prompt">' + p.task + '</div>' +
+    '<div class="solve-row">' + lhsPart + inputFor(p) + checkBtn + '</div>' +
+    '<div class="feedback" id="feedback"></div>' +
+    '<button class="btn next-btn" id="next-btn" style="display:none;" onclick="nextProblem()">Next question &rarr;</button>';
+  document.getElementById('practice-card').innerHTML = html;
+  var first = document.getElementById(p.ans.type === 'fraction' ? 'ans-num' : 'ans-w'); if (first) first.focus();
+  ['ans-w','ans-num','ans-den'].forEach(function(id){ var e = document.getElementById(id); if (e) e.addEventListener('keydown', function(ev){ if (ev.key === 'Enter') checkInput(); }); });
+}
+function solution(p) {
+  var out = '';
+  for (var i = 0; i < p.sol.length; i++) out += line(p.sol[i]);
+  out += line('Answer: ' + ansHtml(p.ans) + '.');
+  return out;
+}
+function checkInput() {
+  var p = problems[idx], correct, given;
+  if (p.ans.type === 'fraction') {
+    var nEl = document.getElementById('ans-num'), dEl = document.getElementById('ans-den');
+    if (nEl.value === '' || dEl.value === '') return;
+    var an = parseInt(nEl.value,10), ad = parseInt(dEl.value,10);
+    correct = (an === p.ans.n && ad === p.ans.d);
+    [nEl,dEl].forEach(function(e){ e.disabled = true; e.classList.add(correct?'correct':'wrong'); });
+    given = (isNaN(an)?'(blank)':an) + '/' + (isNaN(ad)?'(blank)':ad);
+  } else {
+    var wEl = document.getElementById('ans-w'), nEl2 = document.getElementById('ans-num'), dEl2 = document.getElementById('ans-den');
+    if (wEl.value === '' || nEl2.value === '' || dEl2.value === '') return;
+    var w = parseInt(wEl.value,10), nu = parseInt(nEl2.value,10), de = parseInt(dEl2.value,10);
+    correct = (w === p.ans.w && nu === p.ans.n && de === p.ans.d);
+    [wEl,nEl2,dEl2].forEach(function(e){ e.disabled = true; e.classList.add(correct?'correct':'wrong'); });
+    given = (isNaN(w)?'(blank)':w) + ' ' + (isNaN(nu)?'(blank)':nu) + '/' + (isNaN(de)?'(blank)':de);
+  }
+  document.getElementById('check-btn').disabled = true;
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (correct?'correct':'incorrect');
+  fb.innerHTML = '<strong>' + (correct?'Correct.':'Not quite.') + '</strong> ' + (correct?'':'You answered <span class="mono">' + given + '</span>. ') + '<div class="soln">' + solution(p) + '</div>';
+  results[idx] = correct;
+  var dot = document.getElementById('dot-' + idx); dot.classList.remove('current'); dot.classList.add(correct ? 'green' : 'red');
+  var nb = document.getElementById('next-btn'); nb.style.display = 'inline-block'; nb.focus();
+}
+function nextProblem() { idx++; if (idx < total) { var d = document.getElementById('dot-' + idx); if (d) d.classList.add('current'); } showProblem(); }
+function showSummary() {
+  document.getElementById('practice-card').innerHTML = '';
+  var score = results.filter(function(r){ return r; }).length;
+  var sc = document.getElementById('summary-score');
+  sc.textContent = score + ' / ' + total;
+  sc.style.color = score >= 6 ? 'var(--green)' : score >= 4 ? 'var(--amber-dark)' : 'var(--red)';
+  document.getElementById('summary-message').textContent = score >= 6 ? 'Outstanding. You have mastered the Fractions Extension.' : 'Good effort. Read the worked solutions, then take on a new round.';
+  document.getElementById('summary').classList.add('show');
+  if (score >= 6) unlockGoDeeper();
+}
+function unlockGoDeeper() {
+  var btn = document.getElementById('godeeper-btn');
+  btn.classList.remove('locked'); btn.disabled = false;
+  document.getElementById('lock-icon').innerHTML = '&#x1F513;';
+  document.getElementById('godeeper-desc').textContent = 'Unlocked. Explore, reason, and think like a mathematician.';
+  btn.onclick = openGoDeeper;
+}
+function openGoDeeper() { var s = document.getElementById('go-deeper-section'); s.style.display = 'block'; s.scrollIntoView({ behavior: 'smooth' }); }
+function lockedMessage() { alert('Score 6 or more in a round to unlock Go Deeper.'); }
+
+document.addEventListener('DOMContentLoaded', function() { startPractice(); });
+</script>
+</body>
+</html>

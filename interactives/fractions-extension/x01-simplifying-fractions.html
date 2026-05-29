@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractions Extension: Simplifying Fractions</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4; --teal-dark: #38b2aa; --amber: #FFD93D; --amber-dark: #e0b030;
+    --red: #FF6B6B; --red-dark: #c0392b; --orange: #FF8400; --blue: #3498DB; --blue-dark: #2176ae;
+    --green: #2ECC71; --green-dark: #1a9c51; --purple: #9B5DE5; --cream: #FFF8F0; --card-bg: #ffffff;
+    --text: #2D3436; --muted: #636E72; --border: #f1f5f9; --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px; --green-light: #e8f8e8; --red-light: #fff4f4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; line-height: 1.6; }
+  .topbar { display: flex; align-items: center; justify-content: flex-end; padding: 12px 24px; }
+  .back-link { color: var(--teal-dark); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .container { max-width: 880px; margin: 0 auto; padding: 8px 22px 80px; }
+  .page-header { text-align: center; margin-bottom: 24px; }
+  .page-header .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--teal-dark); text-transform: uppercase; }
+  .page-header h1 { font-size: 2.4rem; font-weight: 700; margin: 4px 0; }
+  .page-header h1 span { color: var(--purple); }
+  .page-header .subtitle { font-size: 1.15rem; color: var(--muted); font-weight: 500; }
+
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; border: 2px solid var(--border); margin-bottom: 22px; }
+  .card h2 { font-size: 1.6rem; font-weight: 700; }
+  .card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+  .card ul { padding-left: 26px; } .card ul li { margin-bottom: 8px; }
+
+  /* Collapsible cards (LISC + Learn) */
+  .collapse-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 2px solid var(--border); margin-bottom: 22px; overflow: hidden; }
+  .collapse-card.lisc { border-top: 5px solid var(--teal); }
+  .collapse-card.learn { border-top: 5px solid var(--purple); }
+  .collapse-head { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 20px 30px; font-size: 1.35rem; font-weight: 700; user-select: none; }
+  .collapse-head .toggle-icon { font-size: 1rem; color: var(--muted); transition: transform 0.3s; }
+  .collapse-head.open .toggle-icon { transform: rotate(180deg); }
+  .collapse-body { display: none; padding: 0 30px 26px; }
+  .collapse-body.open { display: block; animation: fadeIn 0.3s ease; }
+  .collapse-body h3 { font-size: 1.2rem; margin: 14px 0 6px; } .collapse-body h3:first-child { margin-top: 0; }
+  .collapse-body p, .collapse-body li { font-size: 1.1rem; line-height: 1.7; color: #3a4453; }
+  .collapse-body ul { padding-left: 26px; } .collapse-body ul li { margin-bottom: 6px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-weight: 700; line-height: 1.05; margin: 0 3px; }
+  .frac .num { display: block; padding: 0 6px; border-bottom: 2px solid currentColor; }
+  .frac .den { display: block; padding: 0 6px; }
+  .frac.big { font-size: 1.9rem; }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 18px 0 0; border-left: 5px solid var(--border); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.14); border-left-color: var(--amber); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+  .callout p { font-size: 1.05rem; line-height: 1.55; margin: 0; }
+
+  /* Worked example */
+  .worked { background: #faf7ff; border: 2px solid #ece3ff; border-radius: 16px; padding: 20px 24px; margin-top: 16px; }
+  .worked .we-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+  .bar-wrap { display: flex; flex-direction: column; align-items: center; margin: 16px 0 8px; }
+  .we-step { margin: 12px 0; opacity: 0; max-height: 0; transition: opacity 0.4s ease; overflow: hidden; }
+  .we-step.show { opacity: 1; max-height: 520px; }
+  .we-step .step-tag { display: inline-block; background: var(--purple); color: #fff; font-size: 0.8rem; font-weight: 700; border-radius: 8px; padding: 2px 9px; margin-right: 10px; }
+  .we-head { font-size: 1.08rem; font-weight: 700; margin: 12px 0 6px; }
+  .we-line { font-size: 1.05rem; line-height: 1.6; margin: 5px 0 5px 36px; color: #3a4453; }
+  .reveal-btn { background: var(--blue); color: #fff; border: none; border-radius: 30px; padding: 11px 26px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+  .reveal-btn:hover:not(:disabled) { background: var(--blue-dark); transform: translateY(-2px); }
+  .reveal-btn:disabled { background: #ccc; cursor: default; }
+  .grp-line { stroke: var(--purple); stroke-width: 4; opacity: 0; transition: opacity 0.45s ease; }
+  .grp-line.show { opacity: 1; }
+
+  /* Practice */
+  .level-bar { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+  .level-btn { border: none; border-radius: 30px; padding: 9px 18px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: white; }
+  .level-btn.l1 { background: var(--teal); } .level-btn.l2 { background: var(--red); }
+  .level-btn.l3 { background: var(--purple); } .level-btn.l4 { background: var(--orange); }
+  .level-btn.active { box-shadow: 0 4px 16px rgba(0,0,0,0.22); transform: scale(1.05); }
+  .level-btn:not(.active) { opacity: 0.5; }
+  .level-hint { text-align: center; font-size: 0.98rem; color: var(--muted); margin-bottom: 14px; }
+
+  .dot-counter { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dot { width: 24px; height: 24px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s ease; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+
+  .q-counter { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .q-prompt { font-size: 1.2rem; line-height: 1.6; margin-bottom: 16px; }
+  .solve-row { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 10px 0 6px; }
+  .solve-row .equals { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.9rem; }
+  .frac-input { display: inline-flex; flex-direction: column; align-items: center; }
+  .frac-input input { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.5rem; width: 78px; text-align: center; border: 2px solid var(--border); border-radius: 12px; padding: 8px; outline: none; transition: all 0.2s; background: white; }
+  .frac-input input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(78,205,196,0.2); }
+  .frac-input .frac-input-bar { width: 78px; height: 3px; background: var(--text); margin: 6px 0; border-radius: 2px; }
+  .frac-input input.correct { border-color: var(--green); background: var(--green-light); }
+  .frac-input input.wrong { border-color: var(--red); background: var(--red-light); }
+  .check-btn { background: var(--teal); color: white; border: none; border-radius: 14px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .check-btn:hover:not(:disabled) { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.45; cursor: default; }
+
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 16px; display: none; font-size: 1.05rem; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback .soln { margin-top: 10px; color: #2c3a30; }
+  .feedback .soln-line { margin: 3px 0; line-height: 1.5; }
+
+  .btn { border: none; border-radius: 30px; padding: 11px 26px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 14px; }
+  .btn-primary { background: var(--teal); color: white; } .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .next-btn { background: var(--blue); color: white; } .next-btn:hover { background: var(--blue-dark); transform: translateY(-2px); }
+
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; text-align: center; display: none; margin-top: 18px; border: 2px solid var(--border); }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-card h3 { font-size: 1.4rem; margin-bottom: 6px; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 46px; font-weight: 700; }
+
+  /* Go Deeper */
+  .go-deeper-level-btn { display: block; width: 100%; text-align: left; padding: 18px 22px; background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s; margin-top: 18px; }
+  .go-deeper-level-btn h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 14px; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 30px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.7rem; font-weight: 700; margin-bottom: 10px; }
+  .go-deeper-card > p { font-size: 1.1rem; line-height: 1.6; color: var(--muted); margin-bottom: 18px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.12rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 0.98rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 84px; border: 2px solid var(--border); border-radius: 12px; padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 9px 22px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 14px; background: white; border-radius: 12px; padding: 16px 20px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 14px 18px; margin-top: 14px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    .container { padding: 8px 14px 60px; } .page-header h1 { font-size: 1.8rem; }
+    .card, .collapse-head, .collapse-body { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="eyebrow">Year 5 Fractions Extension</div>
+    <h1>Simplifying <span>Fractions</span></h1>
+    <div class="subtitle">Write any fraction in its lowest terms</div>
+  </div>
+
+  <!-- LISC (collapsible, starts collapsed). learning-card class is the canonical LISC marker. -->
+  <div class="collapse-card lisc learning-card">
+    <div class="collapse-head" onclick="toggleCollapse(this)">
+      <span>Learning Intention and Success Criteria</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body">
+      <h3>Learning Intention</h3>
+      <p>We are learning to simplify a fraction by dividing the numerator and denominator by their highest common factor.</p>
+      <h3>Success Criteria</h3>
+      <ul>
+        <li>I can find the highest common factor of two numbers.</li>
+        <li>I can simplify a fraction to its lowest terms.</li>
+        <li>I can tell when a fraction is already in its lowest terms.</li>
+        <li>I can use simplifying to answer worded problems.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- LEARN (collapsible, open by default) -->
+  <div class="collapse-card learn">
+    <div class="collapse-head open" onclick="toggleCollapse(this)">
+      <span>Learn this skill</span>
+      <span class="toggle-icon">&#9660;</span>
+    </div>
+    <div class="collapse-body open">
+      <p>A fraction is in its <strong>lowest terms</strong> (or simplest form) when the numerator and denominator share no common factor except <span class="mono">1</span>. To simplify, you divide the top and the bottom by the <strong>same</strong> number. The quickest way is to divide by their <strong>highest common factor</strong> (HCF), the largest number that divides into both. The fraction keeps the same value, it is just written with smaller numbers.</p>
+
+      <div class="worked">
+        <div class="we-title">Worked example: simplify <span class="frac"><span class="num">18</span><span class="den">24</span></span></div>
+        <div class="bar-wrap" id="learn-bar"></div>
+        <div class="we-step" id="we-step-1">
+          <div class="we-head"><span class="step-tag">1</span>Find the highest common factor.</div>
+          <div class="we-line">Factors of <span class="mono">18</span>: <span class="mono">1, 2, 3, 6, 9, 18</span></div>
+          <div class="we-line">Factors of <span class="mono">24</span>: <span class="mono">1, 2, 3, 4, 6, 8, 12, 24</span></div>
+          <div class="we-line">The largest in both lists is <span class="mono">6</span>, so the HCF is <span class="mono">6</span>.</div>
+        </div>
+        <div class="we-step" id="we-step-2">
+          <div class="we-head"><span class="step-tag">2</span>Divide the top and bottom by the HCF.</div>
+          <div class="we-line"><span class="mono">18 &divide; 6 = 3</span></div>
+          <div class="we-line"><span class="mono">24 &divide; 6 = 4</span></div>
+          <div class="we-line">On the bar, the 24 pieces group into 4 equal parts, and 3 are shaded.</div>
+        </div>
+        <div class="we-step" id="we-step-3">
+          <div class="we-head"><span class="step-tag">3</span>Write the answer and check it.</div>
+          <div class="we-line"><span class="frac"><span class="num">18</span><span class="den">24</span></span> = <span class="frac"><span class="num">3</span><span class="den">4</span></span></div>
+          <div class="we-line"><span class="mono">3</span> and <span class="mono">4</span> share no common factor except <span class="mono">1</span>, so it is in lowest terms.</div>
+        </div>
+        <button class="reveal-btn" id="learn-btn" onclick="nextLearn()">Find the HCF &rarr;</button>
+      </div>
+
+      <div class="callout callout-amber">
+        <div class="label">Another way</div>
+        <p>If you cannot spot the HCF, divide by any common factor and repeat. For <span class="frac"><span class="num">18</span><span class="den">24</span></span>: divide by <span class="mono">2</span> to get <span class="frac"><span class="num">9</span><span class="den">12</span></span>, then by <span class="mono">3</span> to get <span class="frac"><span class="num">3</span><span class="den">4</span></span>. You reach the same answer.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRACTICE -->
+  <div class="card">
+    <h2>Practice</h2>
+    <p style="color:var(--muted); margin:6px 0 16px;">Choose a level, then simplify each fraction to its lowest terms. Every question shows the full working when you check it.</p>
+
+    <div class="level-bar">
+      <button class="level-btn l1 active" onclick="setLevel(1)">Level 1: Starter</button>
+      <button class="level-btn l2" onclick="setLevel(2)">Level 2: Bigger HCFs</button>
+      <button class="level-btn l3" onclick="setLevel(3)">Level 3: Challenge</button>
+      <button class="level-btn l4" onclick="setLevel(4)">Level 4: Word problems</button>
+    </div>
+    <div class="level-hint" id="level-hint"></div>
+
+    <div class="dot-counter" id="dots"></div>
+    <div id="practice-card"></div>
+
+    <div class="summary-card" id="summary">
+      <h3>Round complete</h3>
+      <div class="summary-score" id="summary-score"></div>
+      <p id="summary-message" style="font-size:1.05rem; color:var(--muted); margin:8px 0 4px;"></p>
+      <div>
+        <button class="btn btn-primary" onclick="startPractice()">New questions</button>
+      </div>
+    </div>
+
+    <button class="go-deeper-level-btn locked" id="godeeper-btn" onclick="lockedMessage()" disabled>
+      <h3><span id="lock-icon">&#x1F512;</span> Go Deeper: Simplifying Investigations</h3>
+      <p id="godeeper-desc">Score 6 or more in a round to unlock.</p>
+    </button>
+  </div>
+
+  <!-- GO DEEPER -->
+  <div id="go-deeper-section" style="display:none;">
+    <div class="go-deeper-card">
+      <h2>Go Deeper: Simplifying Investigations</h2>
+      <p>These tasks push your thinking beyond getting the answer. Explore, test claims, and reason like a mathematician.</p>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Specialising</div>
+        <div class="ext-task-prompt">Simplify <span class="ext-numbers">6/8</span>, <span class="ext-numbers">9/12</span> and <span class="ext-numbers">75/100</span> to their lowest terms.</div>
+        <div class="ext-task-sub">What do you notice about the three answers? What does that tell you about the three starting fractions?</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>I simplified each one. <span class="ext-numbers">6/8</span>: HCF is <span class="ext-numbers">2</span>, so <span class="ext-numbers">3/4</span>. <span class="ext-numbers">9/12</span>: HCF is <span class="ext-numbers">3</span>, so <span class="ext-numbers">3/4</span>. <span class="ext-numbers">75/100</span>: HCF is <span class="ext-numbers">25</span>, so <span class="ext-numbers">3/4</span>.</p>
+          <p>All three gave <span class="ext-numbers">3/4</span>. At first I thought that was a coincidence, but it cannot be. If they all simplify to the same fraction, they must all be the <strong>same amount</strong>. They are equivalent fractions, just written with different sized pieces. Simplifying is a way of finding the one simplest name they all share.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means working through specific examples to notice a pattern before making any claim.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Justifying</div>
+        <div class="ext-task-prompt">A student says: "To simplify any fraction, you just keep dividing the top and bottom by <span class="ext-numbers">2</span> until you cannot any more."</div>
+        <div class="ext-task-sub">Is this always, sometimes, or never true? Justify your answer with examples.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>I tried <span class="ext-numbers">8/24</span> first. Divide by <span class="ext-numbers">2</span>: <span class="ext-numbers">4/12</span>. By <span class="ext-numbers">2</span> again: <span class="ext-numbers">2/6</span>. By <span class="ext-numbers">2</span> again: <span class="ext-numbers">1/3</span>. That worked, so I almost said "always".</p>
+          <p>Then I tried <span class="ext-numbers">9/12</span>. Both numbers are not even, so I cannot divide by <span class="ext-numbers">2</span> at all, yet it still simplifies to <span class="ext-numbers">3/4</span> by dividing by <span class="ext-numbers">3</span>. So the rule breaks.</p>
+          <p>The answer is <strong>sometimes</strong>. Dividing by <span class="ext-numbers">2</span> only works while both numbers are even. To simplify <em>any</em> fraction you must divide by whatever common factor the numbers actually share, not just <span class="ext-numbers">2</span>.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>justifying</em>. A single counterexample is enough to show a claim is not always true.</div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Generalising</div>
+        <div class="ext-task-prompt">A fraction <span class="ext-numbers">n/d</span> is already in its simplest form.</div>
+        <div class="ext-task-sub">What can you say about the numbers <span class="ext-numbers">n</span> and <span class="ext-numbers">d</span>? Write a rule that is always true.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>I looked at simplest fractions I knew: <span class="ext-numbers">3/4</span>, <span class="ext-numbers">2/5</span>, <span class="ext-numbers">5/6</span>, <span class="ext-numbers">7/10</span>. I checked the factors of each pair. <span class="ext-numbers">3</span> and <span class="ext-numbers">4</span> share only <span class="ext-numbers">1</span>. <span class="ext-numbers">5</span> and <span class="ext-numbers">6</span> share only <span class="ext-numbers">1</span>.</p>
+          <p>So my rule is: a fraction is in its simplest form exactly when the HCF of the numerator and denominator is <span class="ext-numbers">1</span>. Another way to say it: <span class="ext-numbers">n</span> and <span class="ext-numbers">d</span> share no common factor except <span class="ext-numbers">1</span>. If they shared anything bigger, I could still divide by it, so it would not yet be simplest.</p>
+        </div>
+        <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>generalising</em>. That means writing one rule that holds for every fraction, not just the examples you tried.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleCollapse(head) {
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// ---------- LEARN: build the 24-piece bar and stage the reveal ----------
+function buildLearnBar() {
+  var W = 480, H = 56, segs = 24, sw = W / segs, shaded = 18;
+  var svg = '<svg width="' + W + '" height="' + (H + 26) + '" viewBox="0 0 ' + W + ' ' + (H + 26) + '" role="img" aria-label="bar split into 24 with 18 shaded">';
+  for (var i = 0; i < segs; i++) {
+    var fill = i < shaded ? 'rgba(78,205,196,0.85)' : '#f3eefe';
+    svg += '<rect x="' + (i * sw) + '" y="0" width="' + sw + '" height="' + H + '" fill="' + fill + '" stroke="#cdbff0" stroke-width="1"/>';
+  }
+  svg += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="none" stroke="#7b5fc0" stroke-width="2.5"/>';
+  // group lines every 6 pieces (HCF = 6 -> 4 groups), hidden until step 2
+  for (var g = 1; g < 4; g++) {
+    svg += '<line class="grp-line" id="grp-' + g + '" x1="' + (g * 6 * sw) + '" y1="-3" x2="' + (g * 6 * sw) + '" y2="' + (H + 3) + '"/>';
+  }
+  svg += '<text x="' + (W / 2) + '" y="' + (H + 20) + '" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="14" fill="#636E72" id="bar-cap">18 of 24 pieces shaded</text>';
+  svg += '</svg>';
+  document.getElementById('learn-bar').innerHTML = svg;
+}
+var learnStep = 0;
+function nextLearn() {
+  learnStep++;
+  var btn = document.getElementById('learn-btn');
+  if (learnStep === 1) {
+    document.getElementById('we-step-1').classList.add('show');
+    btn.textContent = 'Divide top and bottom →';
+  } else if (learnStep === 2) {
+    document.getElementById('we-step-2').classList.add('show');
+    document.getElementById('grp-1').classList.add('show');
+    document.getElementById('grp-2').classList.add('show');
+    document.getElementById('grp-3').classList.add('show');
+    document.getElementById('bar-cap').textContent = '4 equal groups, 3 shaded';
+    btn.textContent = 'Write the answer →';
+  } else if (learnStep === 3) {
+    document.getElementById('we-step-3').classList.add('show');
+    btn.disabled = true;
+    btn.textContent = 'Now you try below';
+  }
+}
+
+// ---------- PRACTICE ENGINE ----------
+function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = b; b = a % b; a = t; } return a; }
+
+var basesProper = [
+  [1,2],[1,3],[2,3],[1,4],[3,4],[1,5],[2,5],[3,5],[4,5],
+  [1,6],[5,6],[1,8],[3,8],[5,8],[7,8],[2,9],[4,9],[5,9],[7,9],
+  [1,10],[3,10],[7,10],[9,10],[5,12],[7,12],[11,12]
+];
+var basesImproper = [
+  [3,2],[4,3],[5,3],[5,4],[7,4],[6,5],[7,5],[8,5],[9,5],[7,6],[9,8],[11,8],[10,7]
+];
+var wordPool = [
+  { part:18, total:24, ctx:"In a class of 24 students, 18 walk to school. Write the fraction who walk, in lowest terms." },
+  { part:8,  total:12, ctx:"A pizza was cut into 12 slices and 8 were eaten. What fraction was eaten, in lowest terms?" },
+  { part:30, total:50, ctx:"Maya read 30 of the 50 pages of her book. What fraction has she read, in lowest terms?" },
+  { part:16, total:40, ctx:"A bag holds 40 counters and 16 are red. What fraction are red, in lowest terms?" },
+  { part:45, total:60, ctx:"A film lasted 45 minutes of a 60-minute slot. What fraction of the slot was that, in lowest terms?" },
+  { part:14, total:21, ctx:"A netball team won 14 of its 21 games. Write the fraction won, in lowest terms." },
+  { part:24, total:36, ctx:"24 of the 36 eggs in a tray were brown. What fraction were brown, in lowest terms?" },
+  { part:35, total:42, ctx:"35 of the 42 seats on a bus were taken. What fraction were taken, in lowest terms?" }
+];
+function rnd(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pick(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function makeQ(base, k){ return { type:'simplify', n:base[0]*k, d:base[1]*k, sn:base[0], sd:base[1], hcf:k }; }
+
+function genSimplify(level) {
+  var base, k;
+  if (level === 1) {
+    var p1 = basesProper.filter(function(b){ return b[1] <= 6; });
+    while (true) { base = rnd(p1); k = pick(2,4); if (base[1]*k <= 24) return makeQ(base, k); }
+  } else if (level === 2) {
+    var p2 = basesProper.filter(function(b){ return b[1] >= 3 && b[1] <= 12; });
+    while (true) { base = rnd(p2); k = pick(2,6); if (base[1]*k <= 60 && base[1]*k >= 12) return makeQ(base, k); }
+  } else {
+    if (Math.random() < 0.4) { base = rnd(basesProper); return makeQ(base, 1); }
+    while (true) { base = rnd(basesImproper); k = pick(2,5); if (base[1]*k <= 48) return makeQ(base, k); }
+  }
+}
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+var levelHints = {
+  1: 'Small fractions with a small common factor. Spot it and divide.',
+  2: 'Larger numbers. Find the highest common factor to simplify in one step.',
+  3: 'Watch out: some are improper fractions, and some are already in lowest terms.',
+  4: 'Read the problem, write the fraction, then simplify it.'
+};
+
+var level = 1, problems = [], idx = 0, results = [], total = 8;
+
+function setLevel(n) {
+  level = n;
+  document.querySelectorAll('.level-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.level-btn.l' + n).classList.add('active');
+  startPractice();
+}
+function startPractice() {
+  document.getElementById('level-hint').textContent = levelHints[level];
+  problems = [];
+  if (level === 4) {
+    problems = shuffle(wordPool).slice(0, total).map(function(w){
+      var g = gcd(w.part, w.total);
+      return { type:'word', part:w.part, total:w.total, ctx:w.ctx, sn:w.part/g, sd:w.total/g, hcf:g };
+    });
+    total = problems.length;
+  } else {
+    total = 8;
+    for (var i = 0; i < total; i++) problems.push(genSimplify(level));
+  }
+  idx = 0; results = [];
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('go-deeper-section').style.display = 'none';
+  buildDots();
+  showProblem();
+}
+function buildDots() {
+  var c = document.getElementById('dots'); c.innerHTML = '';
+  for (var i = 0; i < total; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = 'dot-' + i; d.textContent = i + 1; c.appendChild(d);
+  }
+}
+function showProblem() {
+  if (idx >= total) { showSummary(); return; }
+  var p = problems[idx];
+  var fracInput =
+    '<div class="frac-input">' +
+      '<input type="number" id="ans-num" aria-label="numerator" placeholder="?">' +
+      '<div class="frac-input-bar"></div>' +
+      '<input type="number" id="ans-den" aria-label="denominator" placeholder="?">' +
+    '</div>';
+  var checkBtn = '<button class="check-btn" id="check-btn" onclick="checkAnswer()">Check</button>';
+  var promptHtml, solveInner;
+  if (p.type === 'simplify') {
+    promptHtml = 'Simplify this fraction to its lowest terms.';
+    solveInner =
+      '<span class="frac big"><span class="num">' + p.n + '</span><span class="den">' + p.d + '</span></span>' +
+      '<span class="equals">=</span>' + fracInput + checkBtn;
+  } else {
+    promptHtml = p.ctx;
+    solveInner = fracInput + checkBtn;
+  }
+  document.getElementById('practice-card').innerHTML =
+    '<div class="q-counter">Question ' + (idx + 1) + ' of ' + total + '</div>' +
+    '<div class="q-prompt">' + promptHtml + '</div>' +
+    '<div class="solve-row">' + solveInner + '</div>' +
+    '<div class="feedback" id="feedback"></div>' +
+    '<button class="btn next-btn" id="next-btn" style="display:none;" onclick="nextProblem()">Next question &rarr;</button>';
+  var ni = document.getElementById('ans-num');
+  ni.focus();
+  [ni, document.getElementById('ans-den')].forEach(function(input){
+    input.addEventListener('keydown', function(e){ if (e.key === 'Enter') checkAnswer(); });
+  });
+}
+function line(html) { return '<div class="soln-line">' + html + '</div>'; }
+function solutionText(p) {
+  if (p.type === 'word') {
+    return line(p.part + ' out of ' + p.total + ' is <span class="mono">' + p.part + '/' + p.total + '</span>.') +
+           line('HCF of <span class="mono">' + p.part + '</span> and <span class="mono">' + p.total + '</span> is <span class="mono">' + p.hcf + '</span>.') +
+           line('Divide both by <span class="mono">' + p.hcf + '</span>, giving <span class="mono">' + p.sn + '/' + p.sd + '</span>.');
+  }
+  if (p.hcf === 1) {
+    return line('<span class="mono">' + p.n + '/' + p.d + '</span> is already in lowest terms.') +
+           line('The only common factor of <span class="mono">' + p.n + '</span> and <span class="mono">' + p.d + '</span> is <span class="mono">1</span>.');
+  }
+  return line('HCF of <span class="mono">' + p.n + '</span> and <span class="mono">' + p.d + '</span> is <span class="mono">' + p.hcf + '</span>.') +
+         line('<span class="mono">' + p.n + ' &divide; ' + p.hcf + ' = ' + p.sn + '</span>') +
+         line('<span class="mono">' + p.d + ' &divide; ' + p.hcf + ' = ' + p.sd + '</span>') +
+         line('So <span class="mono">' + p.n + '/' + p.d + ' = ' + p.sn + '/' + p.sd + '</span>.');
+}
+function checkAnswer() {
+  var p = problems[idx];
+  var numEl = document.getElementById('ans-num'), denEl = document.getElementById('ans-den');
+  if (numEl.value === '' || denEl.value === '') return;
+  var an = parseInt(numEl.value, 10), ad = parseInt(denEl.value, 10);
+  var correct = (an === p.sn && ad === p.sd);
+  numEl.disabled = true; denEl.disabled = true;
+  document.getElementById('check-btn').disabled = true;
+  numEl.classList.add(correct ? 'correct' : 'wrong');
+  denEl.classList.add(correct ? 'correct' : 'wrong');
+  var given = (isNaN(an) ? '(blank)' : an) + '/' + (isNaN(ad) ? '(blank)' : ad);
+  var fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (correct ? 'correct' : 'incorrect');
+  fb.innerHTML = '<strong>' + (correct ? 'Correct.' : 'Not quite.') + '</strong> ' +
+    (correct ? '' : 'You answered <span class="mono">' + given + '</span>. ') +
+    '<div class="soln">' + solutionText(p) + '</div>';
+  results[idx] = correct;
+  var dot = document.getElementById('dot-' + idx);
+  dot.classList.remove('current'); dot.classList.add(correct ? 'green' : 'red');
+  document.getElementById('next-btn').style.display = 'inline-block';
+  document.getElementById('next-btn').focus();
+}
+function nextProblem() {
+  idx++;
+  if (idx < total) { var d = document.getElementById('dot-' + idx); if (d) d.classList.add('current'); }
+  showProblem();
+}
+function showSummary() {
+  document.getElementById('practice-card').innerHTML = '';
+  var score = results.filter(function(r){ return r; }).length;
+  var sc = document.getElementById('summary-score');
+  sc.textContent = score + ' / ' + total;
+  sc.style.color = score >= 6 ? 'var(--green)' : score >= 4 ? 'var(--amber-dark)' : 'var(--red)';
+  document.getElementById('summary-message').textContent = score >= 6
+    ? 'Strong work. You are simplifying confidently.'
+    : 'Good effort. Check the working on any you missed, then try a new round.';
+  document.getElementById('summary').classList.add('show');
+  if (score >= 6) unlockGoDeeper();
+}
+function unlockGoDeeper() {
+  var btn = document.getElementById('godeeper-btn');
+  btn.classList.remove('locked'); btn.disabled = false;
+  document.getElementById('lock-icon').innerHTML = '&#x1F513;';
+  document.getElementById('godeeper-desc').textContent = 'Unlocked. Explore, reason, and think like a mathematician.';
+  btn.onclick = openGoDeeper;
+}
+function openGoDeeper() {
+  var s = document.getElementById('go-deeper-section');
+  s.style.display = 'block';
+  s.scrollIntoView({ behavior: 'smooth' });
+}
+function lockedMessage() { alert('Score 6 or more in a round to unlock Go Deeper.'); }
+
+document.addEventListener('DOMContentLoaded', function() {
+  buildLearnBar();
+  startPractice();
+});
+</script>
+</body>
+</html>
