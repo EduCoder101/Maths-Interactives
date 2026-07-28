@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Fraction Machine: Decimals to Fractions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #3498DB;
+            --level3-color: #9B5DE5;
+            --level4-color: #FF6B6B;
+            --flash-color: #FF8400;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: transparent;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            background: var(--bg-cream);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        .bg-shapes {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .bg-shape { position: absolute; border-radius: 50%; opacity: 0.1; }
+        .bg-shape-1 { width: 250px; height: 250px; background: var(--primary-accent); top: -80px; right: -50px; }
+        .bg-shape-2 { width: 180px; height: 180px; background: var(--level4-color); bottom: 10%; left: -50px; }
+        .bg-shape-3 { width: 120px; height: 120px; background: var(--flash-color); top: 50%; right: 5%; }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 1240px; margin: 0 auto; padding: 1.5rem 2rem;
+        }
+
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- Landing header ---------- */
+        .landing-header { text-align: center; margin-bottom: 1.5rem; }
+        .landing-header h1 {
+            font-size: clamp(1.9rem, 5vw, 2.4rem);
+            font-weight: 700; color: var(--text-dark);
+            margin-bottom: 0.3rem; letter-spacing: -0.5px;
+        }
+        .landing-header h1 span { color: var(--primary-accent); }
+        .landing-header .subtitle { font-size: 1.1rem; color: var(--text-light); font-weight: 500; }
+
+        .header-equation {
+            display: inline-flex; align-items: center; gap: 0.9rem;
+            margin-top: 1rem; background: white; border-radius: 16px;
+            padding: 0.8rem 1.6rem; box-shadow: var(--card-shadow);
+        }
+        .header-equation .he-dec {
+            font-family: 'Space Mono', monospace; font-weight: 700;
+            font-size: 1.6rem; color: var(--text-dark);
+        }
+        .header-equation .he-eq { font-size: 1.3rem; color: var(--text-light); font-weight: 600; }
+        .he-frac { display: inline-flex; flex-direction: column; align-items: center; }
+        .he-frac .top {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.15rem;
+            color: var(--primary-accent); border-bottom: 3px solid var(--text-dark);
+            padding: 0 0.5rem 0.1rem; line-height: 1.2;
+        }
+        .he-frac .bot {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.15rem;
+            color: var(--primary-accent); padding-top: 0.1rem; line-height: 1.2;
+        }
+
+        /* ---------- LISC card ---------- */
+        .learning-card {
+            background: white; border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--primary-accent);
+            padding: 0; margin: 1.5rem auto; max-width: 100%; overflow: hidden;
+        }
+        .learning-card h2 {
+            cursor: pointer; padding: 1.2rem 1.5rem; margin: 0;
+            font-size: 1.1rem; font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .learning-card h2:hover { background: #f8f9fa; }
+        .toggle-icon { transition: transform 0.3s ease; font-size: 0.8rem; }
+        .learning-content { display: none; padding: 0 1.5rem 1.5rem; }
+        .learning-content.open { display: block; }
+        .learning-content h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+        .learning-content p { font-size: 0.95rem; line-height: 1.6; margin: 0; color: var(--text-dark); }
+        .success-criteria { list-style: none; padding: 0; margin: 0; }
+        .success-criteria li {
+            padding: 0.4rem 0 0.4rem 1.5rem; position: relative;
+            font-size: 0.95rem; line-height: 1.5; color: var(--text-dark);
+        }
+        .success-criteria li::before {
+            content: '\2713'; position: absolute; left: 0;
+            color: var(--primary-accent); font-weight: 700;
+        }
+
+        /* ---------- Worked example card (collapsible) ---------- */
+        .worked-card {
+            background: white; border-radius: 20px; box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--level2-color);
+            padding: 0; margin: 1.5rem auto; max-width: 100%; overflow: hidden;
+        }
+        .worked-card h2 {
+            cursor: pointer; padding: 1.2rem 1.5rem; margin: 0;
+            font-size: 1.1rem; font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .worked-card h2:hover { background: #f8f9fa; }
+        .worked-content { display: none; padding: 0 1.5rem 1.5rem; }
+        .worked-content.open { display: block; }
+        .worked-steps { display: flex; flex-direction: column; gap: 1.1rem; margin-top: 1rem; }
+        .worked-step { display: flex; gap: 0.9rem; align-items: flex-start; }
+        .worked-step-num {
+            flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+            background: var(--level2-color); color: white; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+        }
+        .worked-step p { font-size: 0.95rem; line-height: 1.6; color: var(--text-dark); }
+
+        /* ---------- The Conversion Machine ---------- */
+        .machine-card {
+            background: white; border-radius: 20px; padding: 2rem 2.5rem;
+            box-shadow: var(--card-shadow); margin: 1.5rem auto; max-width: 100%;
+            border-top: 5px solid var(--primary-accent);
+        }
+
+        .machine-stage {
+            display: flex; align-items: center; justify-content: center;
+            gap: clamp(1.5rem, 5vw, 4.5rem); flex-wrap: wrap; margin-bottom: 1.2rem;
+        }
+        .machine-card > h2 { font-size: 1.25rem; color: var(--text-dark); margin-bottom: 0.4rem; }
+        .machine-card > .machine-intro { color: var(--text-light); font-size: 0.95rem; margin-bottom: 1.2rem; line-height: 1.5; }
+
+        .machine-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.4rem; }
+        .machine-chip {
+            border: 2px solid var(--text-light); background: white; color: var(--text-dark);
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1rem;
+            border-radius: 999px; padding: 0.45rem 1.1rem; cursor: pointer; transition: all 0.2s;
+        }
+        .machine-chip:hover { transform: translateY(-2px); border-color: var(--primary-accent); }
+        .machine-chip.on { background: var(--primary-accent); border-color: var(--primary-accent); color: white; }
+
+        .pv-chart { display: flex; justify-content: center; gap: 4px; }
+        .pv-col { display: flex; flex-direction: column; align-items: stretch; min-width: 86px; }
+        .pv-col.pv-point { min-width: 30px; }
+        .pv-head {
+            font-size: 0.78rem; font-weight: 600; text-align: center;
+            color: var(--text-light); padding: 0.45rem 0.3rem;
+            background: #f1f5f9; border-radius: 10px 10px 0 0;
+            transition: all 0.35s;
+        }
+        .pv-cell {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem;
+            text-align: center; padding: 0.55rem 0.3rem; background: white;
+            border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 10px 10px;
+            min-height: 62px; color: var(--text-dark); transition: all 0.35s;
+        }
+        .pv-col.pv-point .pv-head { background: transparent; color: transparent; }
+        .pv-col.pv-point .pv-cell { border: none; background: transparent; font-size: 1.7rem; }
+        .pv-col .pv-digit { opacity: 0; transition: opacity 0.4s; }
+        .pv-col.filled .pv-digit { opacity: 1; }
+        .pv-col.spotlight .pv-head { background: var(--primary-accent); color: white; }
+        .pv-col.spotlight .pv-cell { border-color: var(--primary-accent); background: #e8f8f5; }
+
+        .machine-result {
+            display: flex; align-items: center; justify-content: center; gap: 1.2rem;
+            flex-wrap: wrap; min-height: 96px;
+        }
+        .machine-dec {
+            font-family: 'Space Mono', monospace; font-weight: 700;
+            font-size: 2rem; color: var(--text-dark);
+        }
+        .machine-arrow { font-size: 1.5rem; font-weight: 700; color: var(--text-light); }
+        .machine-whole {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 2rem;
+            color: var(--text-dark); opacity: 0; transition: opacity 0.4s;
+        }
+        .machine-whole.show { opacity: 1; }
+        .machine-frac { display: flex; flex-direction: column; align-items: center; }
+        .machine-frac .mf-num, .machine-frac .mf-den {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem;
+            min-width: 88px; text-align: center; padding: 0.15rem 0.5rem;
+            border-radius: 8px; color: #cbd5e1; background: #f8fafc; transition: all 0.4s;
+        }
+        .machine-frac .mf-num { margin-bottom: 0.35rem; }
+        .machine-frac .mf-bar { width: 100%; height: 4px; background: var(--text-dark); border-radius: 2px; }
+        .machine-frac .mf-den { margin-top: 0.35rem; }
+        .machine-frac .mf-num.show, .machine-frac .mf-den.show {
+            color: var(--primary-accent); background: #e8f8f5;
+        }
+
+        .machine-caption {
+            text-align: center; font-size: 1rem; color: var(--text-dark);
+            min-height: 3.2em; line-height: 1.6; margin-bottom: 1rem;
+        }
+        .machine-caption strong { font-weight: 700; }
+
+        .machine-btn-row { display: flex; justify-content: center; }
+        .machine-btn {
+            background: var(--level2-color); color: white; border: none; border-radius: 30px;
+            padding: 10px 26px; font-family: 'Fredoka', sans-serif; font-size: 0.98rem;
+            font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .machine-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.35); }
+        .machine-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .machine-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 1rem; }
+        .machine-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #e2e8f0; transition: all 0.3s;
+        }
+        .machine-dot.active { background: var(--primary-accent); transform: scale(1.3); }
+        .machine-dot.visited { background: #a7e8e2; }
+
+        /* ---------- Level grid ---------- */
+        .level-section-title { font-size: 1.15rem; margin: 1.5rem 0 1rem; color: var(--text-dark); }
+        .level-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .level-btn {
+            background: white; border: none; border-radius: 16px; padding: 1.25rem;
+            cursor: pointer; box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left; position: relative; overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+        }
+        .level-btn::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+        }
+        .level-btn.level-1::before { background: var(--level1-color); }
+        .level-btn.level-2::before { background: var(--level2-color); }
+        .level-btn.level-3::before { background: var(--level3-color); }
+        .level-btn.level-4::before { background: var(--level4-color); }
+        .level-btn.flash-card::before { background: var(--flash-color); }
+        .level-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .level-btn h3 { font-size: 1.05rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .level-btn p { font-size: 0.85rem; color: var(--text-light); line-height: 1.35; }
+        .level-meta {
+            display: flex; gap: 0.75rem; margin-top: 0.5rem;
+            font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-light);
+        }
+
+        .go-deeper-level-btn {
+            grid-column: 1 / -1;
+            background: white; border: none; border-radius: 16px; padding: 1.25rem;
+            cursor: pointer; box-shadow: var(--card-shadow);
+            transition: all 0.3s; text-align: left; position: relative; overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+        }
+        .go-deeper-level-btn::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--primary-accent);
+        }
+        .go-deeper-level-btn h3 { font-size: 1.05rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .go-deeper-level-btn p { font-size: 0.85rem; color: var(--text-light); }
+        .go-deeper-level-btn.locked { opacity: 0.6; cursor: not-allowed; }
+        .go-deeper-level-btn:not(.locked):hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+
+        /* ---------- Buttons ---------- */
+        .back-btn {
+            background: white; border: 2px solid var(--text-light); color: var(--text-dark);
+            padding: 0.6rem 1.2rem; border-radius: 10px; cursor: pointer;
+            font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 600;
+            margin-bottom: 1.5rem; transition: all 0.2s;
+        }
+        .back-btn:hover { transform: translateY(-2px); border-color: var(--text-dark); }
+        .home-btn {
+            background: var(--primary-accent); border: 2px solid var(--primary-accent);
+            border-radius: 10px; padding: 0.6rem 1.2rem; cursor: pointer;
+            font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 600;
+            color: white; display: inline-flex; align-items: center; gap: 0.4rem;
+            transition: all 0.2s ease; text-decoration: none;
+        }
+        .home-btn:hover { background: #3db8b0; border-color: #3db8b0; transform: translateY(-2px); }
+
+        .btn {
+            flex: 1; padding: 0.85rem; border: none; border-radius: 12px; cursor: pointer;
+            font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary-accent); color: white; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3); }
+        .btn-secondary { background: white; color: var(--text-dark); border: 2px solid var(--text-light); }
+        .btn-secondary:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--text-dark); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .button-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+
+        /* ---------- Question page ---------- */
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .question-progress { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--text-light); }
+
+        .progress-tracker {
+            background: white; border-radius: 16px; padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+        }
+        .progress-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+        .progress-circle {
+            width: 40px; height: 40px; border-radius: 50%; border: 3px solid #E0E0E0;
+            background: white; display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700;
+            color: var(--text-light); cursor: pointer; transition: all 0.2s; position: relative;
+        }
+        .progress-circle:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .progress-circle.current { border-color: var(--primary-accent); border-width: 4px; color: var(--primary-accent); }
+        .progress-circle.correct { background: var(--correct-color); border-color: var(--correct-color); color: white; }
+        .progress-circle.incorrect { background: var(--incorrect-color); border-color: var(--incorrect-color); color: white; }
+
+        .question-card {
+            background: white; border-radius: 20px; padding: 2rem;
+            box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary-accent);
+        }
+        .question-card.level-1 { border-top-color: var(--level1-color); }
+        .question-card.level-2 { border-top-color: var(--level2-color); }
+        .question-card.level-3 { border-top-color: var(--level3-color); }
+        .question-card.level-4 { border-top-color: var(--level4-color); }
+        .question-label {
+            font-size: 0.85rem; font-weight: 600; color: var(--text-light);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;
+        }
+        .question-text { font-size: 1.15rem; color: var(--text-dark); margin-bottom: 1.5rem; line-height: 1.6; }
+        .question-text .q-num { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+        /* Fraction answer input */
+        .fraction-answer { display: flex; align-items: center; justify-content: center; gap: 1.2rem; margin: 1.5rem 0; }
+        .whole-wrap { display: none; flex-direction: column; align-items: center; gap: 0.4rem; }
+        .whole-wrap.visible { display: flex; }
+        .whole-wrap label, .frac-stack-label { font-size: 0.75rem; font-weight: 600; color: var(--text-light); }
+        .whole-input {
+            width: 74px; padding: 0.6rem; text-align: center;
+            font-family: 'Space Mono', monospace; font-size: 1.3rem; font-weight: 700;
+            border: 2px solid #E0E0E0; border-radius: 10px; transition: all 0.2s;
+        }
+        .frac-stack { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+        .frac-input {
+            width: 110px; padding: 0.6rem; text-align: center;
+            font-family: 'Space Mono', monospace; font-size: 1.3rem; font-weight: 700;
+            border: 2px solid #E0E0E0; border-radius: 10px; transition: all 0.2s;
+        }
+        .frac-bar { width: 120px; height: 4px; background: var(--text-dark); border-radius: 2px; }
+        .whole-input:focus, .frac-input:focus {
+            outline: none; border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.15);
+        }
+        .whole-input.correct, .frac-input.correct { border-color: var(--correct-color); background: #E8F5E9; }
+        .whole-input.incorrect, .frac-input.incorrect { border-color: var(--incorrect-color); background: #FFEBEE; }
+
+        /* Hints */
+        .hint-row { display: flex; justify-content: center; margin-top: 0.5rem; }
+        .hint-btn {
+            background: white; border: 2px dashed var(--text-light); color: var(--text-light);
+            border-radius: 10px; padding: 0.5rem 1.1rem; cursor: pointer;
+            font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .hint-btn:hover:not(:disabled) { border-color: var(--primary-accent); color: var(--primary-accent); }
+        .hint-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .hint-box {
+            display: none; background: linear-gradient(135deg, #FFF8E7, #FFF3D6);
+            border-left: 4px solid #F4C430; border-radius: 12px;
+            padding: 1rem; margin-top: 1rem; font-size: 0.92rem;
+            color: var(--text-dark); line-height: 1.6;
+        }
+        .hint-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+
+        .feedback-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-radius: 12px; padding: 1rem; margin-top: 1rem;
+            display: none; border-left: 4px solid #2196F3;
+        }
+        .feedback-box.visible { display: block; animation: slideDown 0.3s ease-out; }
+        .feedback-box.correct { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-left-color: var(--correct-color); }
+        .feedback-box.incorrect { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border-left-color: var(--incorrect-color); }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .feedback-box h4 {
+            font-size: 0.9rem; color: var(--text-dark); margin-bottom: 0.5rem;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+        .feedback-box.correct h4::before { content: "\2713"; color: var(--correct-color); font-size: 1.3rem; }
+        .feedback-box.incorrect h4::before { content: "\2717"; color: var(--incorrect-color); font-size: 1.3rem; }
+        .feedback-box p { color: var(--text-dark); font-size: 0.92rem; line-height: 1.6; }
+        .feedback-box .fb-num { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+        /* ---------- Fraction Flash ---------- */
+        .flash-mode-select {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem; max-width: 760px; margin: 0 auto 1.5rem;
+        }
+        .flash-mode-btn {
+            background: white; border: none; border-radius: 16px; padding: 1.5rem;
+            cursor: pointer; box-shadow: var(--card-shadow); text-align: left;
+            font-family: 'Fredoka', sans-serif; position: relative; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .flash-mode-btn::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--flash-color);
+        }
+        .flash-mode-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .flash-mode-btn h3 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 0.4rem; }
+        .flash-mode-btn p { font-size: 0.88rem; color: var(--text-light); line-height: 1.5; }
+        .flash-mode-btn .fm-num { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--text-dark); }
+
+        .flash-header { text-align: center; margin-bottom: 1.5rem; }
+        .flash-header h2 { font-size: 1.6rem; color: var(--text-dark); }
+        .flash-header h2 span { color: var(--flash-color); }
+        .flash-header p { color: var(--text-light); font-size: 0.95rem; margin-top: 0.3rem; }
+
+        .flash-scoreboard {
+            display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+        }
+        .flash-stat {
+            background: white; border-radius: 14px; padding: 0.7rem 1.4rem;
+            box-shadow: var(--card-shadow); text-align: center; min-width: 110px;
+        }
+        .flash-stat .fs-label {
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-light);
+        }
+        .flash-stat .fs-value {
+            font-family: 'Space Mono', monospace; font-weight: 700;
+            font-size: 1.4rem; color: var(--text-dark);
+        }
+        .flash-stat.streak .fs-value { color: var(--flash-color); }
+
+        .flash-card-main {
+            background: white; border-radius: 20px; padding: 2rem;
+            box-shadow: var(--card-shadow); border-top: 5px solid var(--flash-color);
+            text-align: center; margin-bottom: 1.5rem;
+        }
+        .flash-prompt-label {
+            font-size: 0.85rem; font-weight: 600; color: var(--text-light);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem;
+        }
+        .flash-prompt {
+            display: flex; align-items: center; justify-content: center; gap: 1rem;
+            min-height: 110px; margin-bottom: 1.5rem;
+        }
+        .flash-prompt .fp-dec { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 3rem; color: var(--text-dark); }
+        .flash-prompt .fp-eq { font-size: 2rem; font-weight: 600; color: var(--text-light); }
+        .flash-prompt .fp-q { font-size: 3rem; font-weight: 700; color: var(--flash-color); }
+        .fp-frac { display: inline-flex; flex-direction: column; align-items: center; }
+        .fp-frac .top {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 2rem;
+            color: var(--text-dark); border-bottom: 4px solid var(--text-dark);
+            padding: 0 0.6rem 0.15rem; line-height: 1.2;
+        }
+        .fp-frac .bot {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 2rem;
+            color: var(--text-dark); padding-top: 0.15rem; line-height: 1.2;
+        }
+
+        .flash-options {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.9rem; max-width: 640px; margin: 0 auto;
+        }
+        .flash-opt {
+            background: white; border: 3px solid #e2e8f0; border-radius: 14px;
+            padding: 1rem 0.5rem; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; min-height: 92px;
+            font-family: 'Fredoka', sans-serif;
+        }
+        .flash-opt:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--flash-color); }
+        .flash-opt:disabled { cursor: not-allowed; }
+        .flash-opt.correct { border-color: var(--correct-color); background: #E8F5E9; }
+        .flash-opt.incorrect { border-color: var(--incorrect-color); background: #FFEBEE; }
+        .flash-opt .fo-dec { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.5rem; color: var(--text-dark); }
+        .fo-frac { display: inline-flex; flex-direction: column; align-items: center; }
+        .fo-frac .top {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.2rem;
+            color: var(--text-dark); border-bottom: 3px solid var(--text-dark);
+            padding: 0 0.45rem 0.1rem; line-height: 1.2;
+        }
+        .fo-frac .bot {
+            font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.2rem;
+            color: var(--text-dark); padding-top: 0.1rem; line-height: 1.2;
+        }
+
+        .flash-feedback {
+            min-height: 2.2em; margin-top: 1.2rem; font-size: 1rem;
+            color: var(--text-dark); line-height: 1.5;
+        }
+        .flash-feedback .fb-num { font-family: 'Space Mono', monospace; font-weight: 700; }
+        .flash-next-row { display: flex; justify-content: center; margin-top: 1rem; }
+        .flash-next-btn {
+            background: var(--flash-color); color: white; border: none; border-radius: 30px;
+            padding: 10px 28px; font-family: 'Fredoka', sans-serif; font-size: 0.98rem;
+            font-weight: 600; cursor: pointer; transition: all 0.2s; visibility: hidden;
+        }
+        .flash-next-btn.visible { visibility: visible; }
+        .flash-next-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,132,0,0.35); }
+
+        /* ---------- Completion ---------- */
+        .completion-page { text-align: center; padding: 2rem 0; }
+        .completion-icon {
+            width: 84px; height: 84px; border-radius: 50%;
+            background: var(--correct-color); color: white;
+            font-size: 2.6rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.2rem;
+        }
+        .completion-page h2 { font-size: 1.8rem; color: var(--text-dark); margin-bottom: 1rem; }
+        .completion-page > p { font-size: 1.1rem; color: var(--text-light); margin-bottom: 2rem; }
+        .score-display {
+            background: white; border-radius: 16px; padding: 1.5rem;
+            box-shadow: var(--card-shadow); margin: 2rem auto; max-width: 400px;
+        }
+        .score-row {
+            display: flex; justify-content: space-between; padding: 0.75rem 0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .score-row:last-child { border-bottom: none; font-weight: 700; font-size: 1.1rem; }
+        .score-label { color: var(--text-light); }
+        .score-value { font-family: 'Space Mono', monospace; color: var(--text-dark); }
+
+        /* ---------- Go Deeper ---------- */
+        .go-deeper-card {
+            background: white; border-radius: 20px; box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--primary-accent);
+            padding: 2rem; margin: 1.5rem auto; max-width: 100%;
+        }
+        .go-deeper-card > h2 { font-size: 1.3rem; color: var(--text-dark); margin-bottom: 0.5rem; }
+        .go-deeper-card > p { color: var(--text-light); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .ext-task {
+            background: #f0fdfa; border-left: 4px solid var(--primary-accent);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+        .ext-task-label {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; color: #0d9488; margin-bottom: 0.6rem;
+        }
+        .ext-task-prompt { font-size: 1rem; color: var(--text-dark); line-height: 1.6; margin-bottom: 0.6rem; }
+        .ext-task-sub { font-style: italic; font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.9rem; }
+        .ext-thinking-area {
+            width: 100%; min-height: 96px; border: 2px solid #cbd5e1; border-radius: 10px;
+            padding: 0.8rem; font-family: 'Fredoka', sans-serif; font-size: 0.92rem;
+            resize: vertical; margin-bottom: 0.9rem; color: var(--text-dark);
+        }
+        .ext-thinking-area:focus { outline: none; border-color: var(--primary-accent); }
+        .ext-reveal-btn {
+            background: white; border: 2px solid var(--primary-accent); color: var(--primary-accent);
+            border-radius: 10px; padding: 0.55rem 1.1rem; cursor: pointer;
+            font-family: 'Fredoka', sans-serif; font-size: 0.85rem; font-weight: 600;
+            transition: all 0.2s; margin-bottom: 0.9rem;
+        }
+        .ext-reveal-btn:hover { background: var(--primary-accent); color: white; }
+        .ext-model-response {
+            display: none; background: white; border-radius: 12px;
+            padding: 1.2rem; border: 1px solid #e0e0e0; margin-bottom: 0.9rem;
+        }
+        .ext-model-response.visible { display: block; }
+        .ext-model-response p { font-size: 0.92rem; line-height: 1.65; color: var(--text-dark); margin-bottom: 0.7rem; }
+        .ext-model-response p:last-child { margin-bottom: 0; }
+        .model-label {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; color: #0d9488; margin-bottom: 0.6rem;
+        }
+        .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+        .mathematician-box {
+            border: 2px dashed var(--primary-accent); border-radius: 12px; padding: 1rem;
+            background: linear-gradient(135deg, #f0fdfa 0%, #e8f8f5 100%);
+            font-size: 0.9rem; line-height: 1.6; color: var(--text-dark);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 1.25rem; }
+            .landing-header h1 { font-size: 1.8rem; }
+            .level-grid { grid-template-columns: 1fr; }
+            .pv-col { min-width: 62px; }
+            .pv-cell { font-size: 1.3rem; min-height: 52px; }
+            .machine-dec { font-size: 1.5rem; }
+            .machine-frac .mf-num, .machine-frac .mf-den { font-size: 1.3rem; min-width: 68px; }
+            .progress-circle { width: 36px; height: 36px; font-size: 0.75rem; }
+            .progress-tracker { padding: 0.75rem 1rem; }
+            .flash-prompt .fp-dec, .flash-prompt .fp-q { font-size: 2.2rem; }
+            .fp-frac .top, .fp-frac .bot { font-size: 1.5rem; }
+            .fraction-answer { gap: 0.8rem; }
+            .frac-input { width: 92px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="bg-shapes">
+            <div class="bg-shape bg-shape-1"></div>
+            <div class="bg-shape bg-shape-2"></div>
+            <div class="bg-shape bg-shape-3"></div>
+        </div>
+
+        <div class="container">
+
+            <!-- ==================== LANDING PAGE ==================== -->
+            <div id="landing-page" class="page active">
+                <div class="landing-header">
+                    <h1>The <span>Fraction</span> Machine</h1>
+                    <p class="subtitle">Turn any decimal into a fraction with place value</p>
+                    <div class="header-equation" aria-hidden="true">
+                        <span class="he-dec" id="hero-dec">0.75</span>
+                        <span class="he-eq">=</span>
+                        <span class="he-frac"><span class="top" id="hero-num">3</span><span class="bot" id="hero-den">4</span></span>
+                    </div>
+                </div>
+
+                <!-- LISC -->
+                <div class="learning-card">
+                    <h2 onclick="toggleLearningSection()">
+                        Learning Intention &amp; Success Criteria
+                        <span class="toggle-icon" id="learningToggle">&#9660;</span>
+                    </h2>
+                    <div class="learning-content" id="learningContent">
+                        <h3>Learning Intention</h3>
+                        <p>We are learning to convert decimals to fractions using place value.</p>
+                        <h3>Success Criteria</h3>
+                        <ul class="success-criteria">
+                            <li>I can name the place value of the final digit in a decimal.</li>
+                            <li>I can use the place value of the final digit as the denominator of my fraction.</li>
+                            <li>I can write the decimal digits as the numerator of my fraction.</li>
+                            <li>I can recognise common decimals such as 0.25 and 0.5 as simplified fractions.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Worked example -->
+                <div class="worked-card">
+                    <h2 onclick="toggleWorkedSection()">
+                        Worked example: converting 0.29
+                        <span class="toggle-icon" id="workedToggle">&#9660;</span>
+                    </h2>
+                    <div class="worked-content" id="workedContent">
+                        <div class="worked-steps">
+                            <div class="worked-step">
+                                <div class="worked-step-num">1</div>
+                                <p>Write <strong>0.29</strong> in a place value chart. The <strong>2</strong> sits in the tenths column and the <strong>9</strong> sits in the hundredths column.</p>
+                            </div>
+                            <div class="worked-step">
+                                <div class="worked-step-num">2</div>
+                                <p>Find the column of the <em>final</em> digit. The <strong>9</strong> is in the <strong>hundredths</strong> column, so we are counting hundredths.</p>
+                            </div>
+                            <div class="worked-step">
+                                <div class="worked-step-num">3</div>
+                                <p>The place value of the final digit becomes the denominator. Hundredths means the denominator is <strong>100</strong>.</p>
+                            </div>
+                            <div class="worked-step">
+                                <div class="worked-step-num">4</div>
+                                <p>The decimal digits become the numerator. We have <strong>29</strong> hundredths, so <strong>0.29</strong> = <strong>29</strong>/<strong>100</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- The Conversion Machine -->
+                <div class="machine-card">
+                    <h2>The Conversion Machine</h2>
+                    <p class="machine-intro">Pick a decimal, then run the machine one step at a time. Watch how the place value chart tells you exactly which fraction to write.</p>
+                    <div class="machine-chips" id="machine-chips"></div>
+                    <div class="machine-dots" id="machine-dots">
+                        <div class="machine-dot"></div>
+                        <div class="machine-dot"></div>
+                        <div class="machine-dot"></div>
+                        <div class="machine-dot"></div>
+                    </div>
+                    <div class="machine-stage">
+                        <div class="pv-chart" id="pv-chart">
+                            <div class="pv-col" id="pvc-ones">
+                                <div class="pv-head">Ones</div>
+                                <div class="pv-cell"><span class="pv-digit" id="pvd-ones"></span></div>
+                            </div>
+                            <div class="pv-col pv-point">
+                                <div class="pv-head">.</div>
+                                <div class="pv-cell">.</div>
+                            </div>
+                            <div class="pv-col" id="pvc-tenths">
+                                <div class="pv-head">tenths</div>
+                                <div class="pv-cell"><span class="pv-digit" id="pvd-tenths"></span></div>
+                            </div>
+                            <div class="pv-col" id="pvc-hundredths">
+                                <div class="pv-head">hundredths</div>
+                                <div class="pv-cell"><span class="pv-digit" id="pvd-hundredths"></span></div>
+                            </div>
+                            <div class="pv-col" id="pvc-thousandths">
+                                <div class="pv-head">thousandths</div>
+                                <div class="pv-cell"><span class="pv-digit" id="pvd-thousandths"></span></div>
+                            </div>
+                        </div>
+                        <div class="machine-result">
+                            <span class="machine-dec" id="machine-dec">0.7</span>
+                            <span class="machine-arrow">&#8594;</span>
+                            <span class="machine-whole" id="machine-whole"></span>
+                            <span class="machine-frac">
+                                <span class="mf-num" id="machine-num">?</span>
+                                <span class="mf-bar"></span>
+                                <span class="mf-den" id="machine-den">?</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="machine-caption" id="machine-caption">Ready when you are. Press the button to feed the digits into the chart.</div>
+                    <div class="machine-btn-row">
+                        <button class="machine-btn" id="machine-btn" onclick="machineStepForward()">Write the digits in the chart</button>
+                    </div>
+                </div>
+
+                <!-- Levels -->
+                <h3 class="level-section-title">Choose Your Level</h3>
+                <div class="level-grid">
+                    <button class="level-btn level-1" onclick="startLevel(1)">
+                        <h3>Level 1: Read the Chart</h3>
+                        <p>Tenths and hundredths, straight off the place value chart</p>
+                        <div class="level-meta"><span>8 questions</span></div>
+                    </button>
+                    <button class="level-btn level-2" onclick="startLevel(2)">
+                        <h3>Level 2: The Tricky Ones</h3>
+                        <p>Sneaky zeros, thousandths, and decimals greater than 1</p>
+                        <div class="level-meta"><span>8 questions</span></div>
+                    </button>
+                    <button class="level-btn level-3" onclick="startLevel(3)">
+                        <h3>Level 3: Worded Problems</h3>
+                        <p>Spot the decimal hiding in a real situation and convert it</p>
+                        <div class="level-meta"><span>8 questions</span></div>
+                    </button>
+                    <button class="level-btn level-4" onclick="startLevel(4)">
+                        <h3>Level 4: Simplify It</h3>
+                        <p>Convert common decimals, then write them in simplest form</p>
+                        <div class="level-meta"><span>8 questions</span></div>
+                    </button>
+                    <button class="level-btn flash-card" onclick="startFlash()" style="grid-column: 1 / -1;">
+                        <h3>Fraction Flash</h3>
+                        <p>Speed round. Choose your deck: straight place value matches, or the simplified pairs every mathematician knows by heart. 0.25 and 1/4 should feel like the same number wearing different clothes.</p>
+                        <div class="level-meta"><span>2 decks</span><span>12 cards each</span><span>Build your best streak</span></div>
+                    </button>
+                    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+                        <h3><span class="lock-icon" style="font-size:1.3rem;">&#128274;</span> Go Deeper: Decimal and Fraction Investigations</h3>
+                        <p>Complete Level 4 to unlock</p>
+                    </button>
+                </div>
+
+                <!-- Go Deeper section -->
+                <div class="go-deeper-card" id="go-deeper-section" style="display:none;">
+                    <h2>&#128275; Go Deeper: Decimal and Fraction Investigations</h2>
+                    <p>These tasks will push your thinking beyond finding answers. You'll explore, make conjectures, and reason like a mathematician.</p>
+
+                    <!-- TASK 1: Specialising -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Specialising</div>
+                        <div class="ext-task-prompt">
+                            Use the place value method to convert <span class="ext-numbers">0.5</span>, <span class="ext-numbers">0.50</span> and <span class="ext-numbers">0.500</span> to fractions. Then simplify each fraction as far as you can.
+                        </div>
+                        <div class="ext-task-sub">What do you notice about the three fractions before simplifying? And after?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>I started with <span class="ext-numbers">0.5</span>. The final digit is in the tenths column, so I wrote <span class="ext-numbers">5</span>/<span class="ext-numbers">10</span>. Then <span class="ext-numbers">0.50</span>: the final digit is in the hundredths column, so I wrote <span class="ext-numbers">50</span>/<span class="ext-numbers">100</span>. And <span class="ext-numbers">0.500</span> gave me <span class="ext-numbers">500</span>/<span class="ext-numbers">1000</span>.</p>
+                            <p>At first I thought I had made a mistake, because the three fractions looked completely different. Three different numerators, three different denominators. But then I simplified. <span class="ext-numbers">5</span>/<span class="ext-numbers">10</span> divides by <span class="ext-numbers">5</span> to give <span class="ext-numbers">1</span>/<span class="ext-numbers">2</span>. <span class="ext-numbers">50</span>/<span class="ext-numbers">100</span> divides by <span class="ext-numbers">50</span> to give <span class="ext-numbers">1</span>/<span class="ext-numbers">2</span>. And <span class="ext-numbers">500</span>/<span class="ext-numbers">1000</span> divides by <span class="ext-numbers">500</span> to give <span class="ext-numbers">1</span>/<span class="ext-numbers">2</span>.</p>
+                            <p>All three decimals are the same number in disguise. The place value method gives different-looking fractions, but simplifying reveals they were <span class="ext-numbers">1</span>/<span class="ext-numbers">2</span> all along.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+                        </div>
+                    </div>
+
+                    <!-- TASK 2: Conjecturing -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Conjecturing</div>
+                        <div class="ext-task-prompt">
+                            "Adding a zero to the end of a decimal changes its value."
+                        </div>
+                        <div class="ext-task-sub">Is this always true, sometimes true, or never true? Test it with at least three decimals of your own, then write your conjecture with the evidence that supports it.</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>My first instinct was "of course it changes the value, the number looks longer". So I tested it. I took <span class="ext-numbers">0.2</span> and added a zero to get <span class="ext-numbers">0.20</span>. As fractions: <span class="ext-numbers">2</span>/<span class="ext-numbers">10</span> and <span class="ext-numbers">20</span>/<span class="ext-numbers">100</span>. Are they equal? If I multiply the top and bottom of <span class="ext-numbers">2</span>/<span class="ext-numbers">10</span> by <span class="ext-numbers">10</span>, I get exactly <span class="ext-numbers">20</span>/<span class="ext-numbers">100</span>. Equal.</p>
+                            <p>I tried <span class="ext-numbers">0.35</span> and <span class="ext-numbers">0.350</span>: that is <span class="ext-numbers">35</span>/<span class="ext-numbers">100</span> and <span class="ext-numbers">350</span>/<span class="ext-numbers">1000</span>, and multiplying top and bottom by <span class="ext-numbers">10</span> again shows they match. Then <span class="ext-numbers">1.4</span> and <span class="ext-numbers">1.40</span>: the same thing happened.</p>
+                            <p>My conjecture: <strong>never true</strong>. Adding a zero to the end multiplies the numerator by <span class="ext-numbers">10</span> and the denominator by <span class="ext-numbers">10</span> at the same time, and doing the same thing to the top and bottom of a fraction never changes its value. But I noticed something important on the way: it is a different story if the zero goes in the <em>middle</em>. <span class="ext-numbers">0.25</span> and <span class="ext-numbers">0.205</span> are definitely not equal, because the digits have moved to new columns.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proved.
+                        </div>
+                    </div>
+
+                    <!-- TASK 3: Justifying -->
+                    <div class="ext-task">
+                        <div class="ext-task-label">Justifying</div>
+                        <div class="ext-task-prompt">
+                            A student converts two decimals and says: "<span class="ext-numbers">0.25</span> = <span class="ext-numbers">25</span>/<span class="ext-numbers">100</span> and <span class="ext-numbers">0.4</span> = <span class="ext-numbers">4</span>/<span class="ext-numbers">10</span>. Since <span class="ext-numbers">25</span> is bigger than <span class="ext-numbers">4</span>, that proves <span class="ext-numbers">0.25</span> is bigger than <span class="ext-numbers">0.4</span>."
+                        </div>
+                        <div class="ext-task-sub">Both conversions are correct, but the conclusion is wrong. Where exactly does the reasoning break, and how could the student fix it?</div>
+                        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+                        <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+                        <div class="ext-model-response">
+                            <div class="model-label">A mathematician's response</div>
+                            <p>I checked the two conversions first, and the student is right about both: <span class="ext-numbers">0.25</span> really is <span class="ext-numbers">25</span>/<span class="ext-numbers">100</span> and <span class="ext-numbers">0.4</span> really is <span class="ext-numbers">4</span>/<span class="ext-numbers">10</span>. So for a moment the argument looked convincing, because <span class="ext-numbers">25</span> is certainly bigger than <span class="ext-numbers">4</span>.</p>
+                            <p>Then I spotted the problem: the student compared the numerators while ignoring the denominators. Hundredths and tenths are different-sized pieces. Having <span class="ext-numbers">25</span> tiny pieces is not automatically more than <span class="ext-numbers">4</span> big pieces. It is like saying <span class="ext-numbers">25</span> cents is more money than <span class="ext-numbers">4</span> dollars.</p>
+                            <p>The fix is to make the pieces the same size before comparing. <span class="ext-numbers">4</span>/<span class="ext-numbers">10</span> is the same as <span class="ext-numbers">40</span>/<span class="ext-numbers">100</span>. Now both fractions count hundredths, and <span class="ext-numbers">40</span> hundredths beats <span class="ext-numbers">25</span> hundredths. So <span class="ext-numbers">0.4</span> is bigger than <span class="ext-numbers">0.25</span>, which the place value chart confirms: <span class="ext-numbers">4</span> tenths beats <span class="ext-numbers">2</span> tenths before we even look at the hundredths.</p>
+                        </div>
+                        <div class="mathematician-box">
+                            <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just checking whether an answer is right, you are examining whether the <em>reason given</em> is correct. A right answer with a wrong reason is still a problem in mathematics.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; text-align: center;">
+                    <a href="index.html" class="home-btn">&#8592; Back to Maths Hub</a>
+                </div>
+            </div>
+
+            <!-- ==================== QUESTION PAGE ==================== -->
+            <div id="question-page" class="page">
+                <div class="question-header">
+                    <button class="back-btn" onclick="goToLanding()">&#8592; Back</button>
+                    <div class="question-progress">
+                        Question <span id="current-q">1</span> / <span id="total-q">8</span>
+                    </div>
+                </div>
+
+                <div class="progress-tracker">
+                    <div class="progress-grid" id="progress-grid"></div>
+                </div>
+
+                <div id="question-card" class="question-card">
+                    <div class="question-label" id="question-label">Question 1</div>
+                    <div class="question-text" id="question-text"></div>
+
+                    <div class="fraction-answer">
+                        <div class="whole-wrap" id="whole-wrap">
+                            <label for="whole-input">Wholes</label>
+                            <input type="text" id="whole-input" class="whole-input" inputmode="numeric" autocomplete="off">
+                        </div>
+                        <div class="frac-stack">
+                            <span class="frac-stack-label">Your fraction</span>
+                            <input type="text" id="num-input" class="frac-input" inputmode="numeric" autocomplete="off" aria-label="Numerator">
+                            <div class="frac-bar"></div>
+                            <input type="text" id="den-input" class="frac-input" inputmode="numeric" autocomplete="off" aria-label="Denominator">
+                        </div>
+                    </div>
+
+                    <div class="hint-row">
+                        <button class="hint-btn" id="hint-btn" onclick="showHint()">Show Hint (3 left)</button>
+                    </div>
+                    <div class="hint-box" id="hint-box"></div>
+
+                    <div id="feedback-box" class="feedback-box">
+                        <h4 id="feedback-title">Correct!</h4>
+                        <p id="feedback-text"></p>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="btn btn-secondary" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+                        <button class="btn btn-secondary" id="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== FRACTION FLASH PAGE ==================== -->
+            <div id="flash-page" class="page">
+                <button class="back-btn" onclick="goToLanding()">&#8592; Back</button>
+                <div class="flash-header">
+                    <h2>Fraction <span>Flash</span></h2>
+                    <p id="flash-subtitle">Choose your deck to begin.</p>
+                </div>
+
+                <!-- Deck chooser -->
+                <div class="flash-mode-select" id="flash-mode-select">
+                    <button class="flash-mode-btn" onclick="startFlashRound('place')">
+                        <h3>Place Value Deck</h3>
+                        <p>Match decimals with their fraction straight off the place value chart. No simplifying needed: <span class="fm-num">0.27</span> matches <span class="fm-num">27/100</span>.</p>
+                    </button>
+                    <button class="flash-mode-btn" onclick="startFlashRound('simplified')">
+                        <h3>Simplified Deck</h3>
+                        <p>The famous pairs in simplest form, worth knowing by heart: <span class="fm-num">0.25</span> matches <span class="fm-num">1/4</span>.</p>
+                    </button>
+                </div>
+
+                <div id="flash-round" style="display:none;">
+                <div class="flash-scoreboard">
+                    <div class="flash-stat">
+                        <div class="fs-label">Score</div>
+                        <div class="fs-value" id="flash-score">0</div>
+                    </div>
+                    <div class="flash-stat streak">
+                        <div class="fs-label">Streak</div>
+                        <div class="fs-value" id="flash-streak">0</div>
+                    </div>
+                    <div class="flash-stat">
+                        <div class="fs-label">Best streak</div>
+                        <div class="fs-value" id="flash-best">0</div>
+                    </div>
+                </div>
+                <div class="flash-card-main">
+                    <div class="flash-prompt-label" id="flash-prompt-label">Which fraction matches?</div>
+                    <div class="flash-prompt" id="flash-prompt"></div>
+                    <div class="flash-options" id="flash-options"></div>
+                    <div class="flash-feedback" id="flash-feedback"></div>
+                    <div class="flash-next-row">
+                        <button class="flash-next-btn" id="flash-next-btn" onclick="flashNext()">Next card &#8594;</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- ==================== COMPLETION PAGE ==================== -->
+            <div id="completion-page" class="page completion-page">
+                <div class="completion-icon">&#10003;</div>
+                <h2 id="completion-heading">Fantastic Work!</h2>
+                <p id="completion-message">You've completed this level!</p>
+
+                <div class="score-display">
+                    <div class="score-row">
+                        <span class="score-label">Questions Answered:</span>
+                        <span class="score-value" id="score-total">8</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Correct:</span>
+                        <span class="score-value" id="score-correct" style="color: var(--correct-color);">0</span>
+                    </div>
+                    <div class="score-row">
+                        <span class="score-label">Success Rate:</span>
+                        <span class="score-value" id="score-percentage">0%</span>
+                    </div>
+                </div>
+
+                <div id="completion-extra" style="margin-bottom: 1.5rem;"></div>
+
+                <button class="btn btn-primary" onclick="goToLanding()" style="max-width: 300px; margin: 0 auto; display: block;">Back to the Machine</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="results-to-sheet.js?v=2"></script>
+    <script>
+        /* ==================== QUESTION DATA ==================== */
+        /* Every answer verified programmatically before shipping. */
+        var questions = {
+            1: [
+                { decStr: "0.7", prompt: "Convert <span class='q-num'>0.7</span> to a fraction.", whole: 0, num: 7, den: 10, place: "tenths",
+                  hints: ["Say it aloud using place value: zero point seven is seven ...?", "The final digit 7 sits in the tenths column, so the denominator is 10.", "Seven tenths. Write 7 on top and 10 on the bottom."] },
+                { decStr: "0.3", prompt: "Convert <span class='q-num'>0.3</span> to a fraction.", whole: 0, num: 3, den: 10, place: "tenths",
+                  hints: ["Which column does the 3 sit in?", "The 3 is in the tenths column, so the denominator is 10.", "Three tenths: 3 over 10."] },
+                { decStr: "0.9", prompt: "Convert <strong>zero point nine</strong> to a fraction. Write the decimal in a place value chart first if it helps.", whole: 0, num: 9, den: 10, place: "tenths",
+                  hints: ["Zero point nine as digits is 0.9.", "The final digit 9 is in the tenths column, so the denominator is 10.", "Nine tenths: 9 over 10."] },
+                { decStr: "0.1", prompt: "Convert <span class='q-num'>0.1</span> to a fraction.", whole: 0, num: 1, den: 10, place: "tenths",
+                  hints: ["Which column does the 1 sit in?", "The 1 is in the tenths column, so the denominator is 10.", "One tenth: 1 over 10."] },
+                { decStr: "0.73", prompt: "Convert <span class='q-num'>0.73</span> to a fraction.", whole: 0, num: 73, den: 100, place: "hundredths",
+                  hints: ["The final digit is the 3. Which column is it in?", "The 3 is in the hundredths column, so the denominator is 100.", "Read all the decimal digits together: 73 hundredths, so 73 over 100."] },
+                { decStr: "0.46", prompt: "Convert <span class='q-num'>0.46</span> to a fraction.", whole: 0, num: 46, den: 100, place: "hundredths",
+                  hints: ["The final digit is the 6. Which column is it in?", "The 6 is in the hundredths column, so the denominator is 100.", "46 hundredths: 46 over 100."] },
+                { decStr: "0.21", prompt: "Convert <strong>zero point two one</strong> to a fraction.", whole: 0, num: 21, den: 100, place: "hundredths",
+                  hints: ["Zero point two one as digits is 0.21.", "The final digit 1 is in the hundredths column, so the denominator is 100.", "21 hundredths: 21 over 100."] },
+                { decStr: "0.99", prompt: "Convert <span class='q-num'>0.99</span> to a fraction.", whole: 0, num: 99, den: 100, place: "hundredths",
+                  hints: ["The final digit is in which column?", "The final 9 is in the hundredths column, so the denominator is 100.", "99 hundredths: 99 over 100."] }
+            ],
+            2: [
+                { decStr: "0.07", prompt: "Convert <span class='q-num'>0.07</span> to a fraction. Careful: what is that zero doing?", whole: 0, num: 7, den: 100, place: "hundredths",
+                  hints: ["Put 0.07 in a place value chart. What sits in the tenths column?", "There are 0 tenths and 7 hundredths. The final digit is in the hundredths column, so the denominator is 100.", "Seven hundredths: 7 over 100. The zero holds the tenths place but is not written in the numerator."] },
+                { decStr: "0.40", prompt: "Convert <span class='q-num'>0.40</span> to a fraction.", whole: 0, num: 40, den: 100, place: "hundredths",
+                  hints: ["The final digit is the 0. Which column is it in?", "The final 0 is in the hundredths column, so read the number as hundredths.", "40 hundredths: 40 over 100. (4 over 10 is the same amount, so it also counts.)"] },
+                { decStr: "0.05", prompt: "Convert <span class='q-num'>0.05</span> to a fraction.", whole: 0, num: 5, den: 100, place: "hundredths",
+                  hints: ["How many tenths are there? How many hundredths?", "0 tenths and 5 hundredths. The denominator is 100.", "Five hundredths: 5 over 100."] },
+                { decStr: "0.007", prompt: "Convert <span class='q-num'>0.007</span> to a fraction. This one goes one column further.", whole: 0, num: 7, den: 1000, place: "thousandths",
+                  hints: ["The chart has a column after hundredths. What is it called?", "The 7 is in the thousandths column, so the denominator is 1000.", "Seven thousandths: 7 over 1000."] },
+                { decStr: "0.121", prompt: "Convert <span class='q-num'>0.121</span> to a fraction.", whole: 0, num: 121, den: 1000, place: "thousandths",
+                  hints: ["The final digit 1 is in which column?", "It is in the thousandths column, so the denominator is 1000.", "Read all three decimal digits together: 121 thousandths, so 121 over 1000."] },
+                { decStr: "1.3", prompt: "Convert <span class='q-num'>1.3</span> to a mixed number. Use the wholes box.", whole: 1, num: 3, den: 10, place: "tenths",
+                  hints: ["There is a 1 before the decimal point. That is a whole one, and it goes in the wholes box.", "The 3 is in the tenths column, so the fraction part is tenths.", "1 whole and 3 tenths: write 1 in the wholes box and 3 over 10."] },
+                { decStr: "1.47", prompt: "Convert <span class='q-num'>1.47</span> to a mixed number.", whole: 1, num: 47, den: 100, place: "hundredths",
+                  hints: ["How many wholes? Then deal with the decimal part on its own.", "The decimal part is 0.47, and the final digit is in the hundredths column.", "1 whole and 47 hundredths: 1 in the wholes box, 47 over 100."] },
+                { decStr: "2.09", prompt: "Convert <span class='q-num'>2.09</span> to a mixed number. Watch the zero.", whole: 2, num: 9, den: 100, place: "hundredths",
+                  hints: ["There are 2 wholes. Now look at 0.09 on its own.", "0 tenths and 9 hundredths, so the fraction part is 9 hundredths.", "2 wholes and 9 hundredths: 2 in the wholes box, 9 over 100."] }
+            ],
+            3: [
+                { decStr: "0.9", prompt: "Maya ran <span class='q-num'>0.9</span> of a kilometre before stopping for a rest. What fraction of a kilometre did she run?", whole: 0, num: 9, den: 10, place: "tenths",
+                  hints: ["Find the decimal in the story: 0.9.", "The 9 is in the tenths column, so the denominator is 10.", "Nine tenths of a kilometre: 9 over 10."] },
+                { decStr: "0.33", prompt: "A juice bottle holds <span class='q-num'>0.33</span> of a litre. What fraction of a litre is that?", whole: 0, num: 33, den: 100, place: "hundredths",
+                  hints: ["The decimal in the story is 0.33.", "The final 3 is in the hundredths column, so the denominator is 100.", "33 hundredths of a litre: 33 over 100."] },
+                { decStr: "0.47", prompt: "Tom's tablet shows <span class='q-num'>0.47</span> of a full charge. What fraction of a full charge is left?", whole: 0, num: 47, den: 100, place: "hundredths",
+                  hints: ["The decimal is 0.47.", "The 7 is in the hundredths column, so the denominator is 100.", "47 hundredths of a charge: 47 over 100."] },
+                { decStr: "0.03", prompt: "A rain gauge collected <span class='q-num'>0.03</span> of a metre of rain in April. What fraction of a metre fell?", whole: 0, num: 3, den: 100, place: "hundredths",
+                  hints: ["Careful, this one has a sneaky zero. Put 0.03 in a chart.", "0 tenths and 3 hundredths, so the denominator is 100.", "Three hundredths of a metre: 3 over 100."] },
+                { decStr: "0.6", prompt: "Ella ate <span class='q-num'>0.6</span> of her pizza. What fraction of the pizza did she eat?", whole: 0, num: 6, den: 10, place: "tenths",
+                  hints: ["The decimal is 0.6.", "The 6 is in the tenths column, so the denominator is 10.", "Six tenths of the pizza: 6 over 10."] },
+                { decStr: "0.125", prompt: "A snail travelled <span class='q-num'>0.125</span> of a metre in one minute. What fraction of a metre did it travel?", whole: 0, num: 125, den: 1000, place: "thousandths",
+                  hints: ["Three decimal digits means the chart goes all the way to thousandths.", "The final 5 is in the thousandths column, so the denominator is 1000.", "125 thousandths of a metre: 125 over 1000."] },
+                { decStr: "1.09", prompt: "Liam's sunflower measures <span class='q-num'>1.09</span> metres. Write its height as a mixed number of metres.", whole: 1, num: 9, den: 100, place: "hundredths",
+                  hints: ["There is 1 whole metre. Now convert 0.09 on its own.", "0 tenths and 9 hundredths, so the fraction part is 9 hundredths.", "1 whole and 9 hundredths: 1 in the wholes box, 9 over 100."] },
+                { decStr: "0.55", prompt: "A relay team finished their race in <span class='q-num'>0.55</span> of a minute. What fraction of a minute is that?", whole: 0, num: 55, den: 100, place: "hundredths",
+                  hints: ["The decimal is 0.55.", "The final 5 is in the hundredths column, so the denominator is 100.", "55 hundredths of a minute: 55 over 100."] }
+            ],
+            4: [
+                { decStr: "0.5", prompt: "Convert <span class='q-num'>0.5</span> to a fraction in its <strong>simplest form</strong>.", whole: 0, num: 1, den: 2, place: "tenths", rawNum: 5, rawDen: 10,
+                  hints: ["Start with the place value read-off: 5 tenths is 5 over 10.", "Both 5 and 10 can be divided by 5.", "5 over 10 simplifies to 1 over 2."] },
+                { decStr: "0.25", prompt: "Convert <span class='q-num'>0.25</span> to a fraction in its <strong>simplest form</strong>.", whole: 0, num: 1, den: 4, place: "hundredths", rawNum: 25, rawDen: 100,
+                  hints: ["Start with 25 hundredths: 25 over 100.", "Both 25 and 100 can be divided by 25.", "25 over 100 simplifies to 1 over 4. This is a quarter!"] },
+                { decStr: "0.75", prompt: "Convert <span class='q-num'>0.75</span> to a fraction in its <strong>simplest form</strong>.", whole: 0, num: 3, den: 4, place: "hundredths", rawNum: 75, rawDen: 100,
+                  hints: ["Start with 75 hundredths: 75 over 100.", "Both 75 and 100 can be divided by 25.", "75 over 100 simplifies to 3 over 4. Three quarters."] },
+                { decStr: "0.2", prompt: "Convert <span class='q-num'>0.2</span> to a fraction in its <strong>simplest form</strong>.", whole: 0, num: 1, den: 5, place: "tenths", rawNum: 2, rawDen: 10,
+                  hints: ["Start with 2 tenths: 2 over 10.", "Both 2 and 10 can be divided by 2.", "2 over 10 simplifies to 1 over 5. One fifth."] },
+                { decStr: "0.8", prompt: "Convert <span class='q-num'>0.8</span> to a fraction in its <strong>simplest form</strong>.", whole: 0, num: 4, den: 5, place: "tenths", rawNum: 8, rawDen: 10,
+                  hints: ["Start with 8 tenths: 8 over 10.", "Both 8 and 10 can be divided by 2.", "8 over 10 simplifies to 4 over 5. Four fifths."] },
+                { decStr: "0.05", prompt: "Convert <span class='q-num'>0.05</span> to a fraction in its <strong>simplest form</strong>.", whole: 0, num: 1, den: 20, place: "hundredths", rawNum: 5, rawDen: 100,
+                  hints: ["Start with 5 hundredths: 5 over 100.", "Both 5 and 100 can be divided by 5.", "5 over 100 simplifies to 1 over 20."] },
+                { decStr: "0.6", prompt: "Convert <span class='q-num'>0.6</span> to a fraction in its <strong>simplest form</strong>.", whole: 0, num: 3, den: 5, place: "tenths", rawNum: 6, rawDen: 10,
+                  hints: ["Start with 6 tenths: 6 over 10.", "Both 6 and 10 can be divided by 2.", "6 over 10 simplifies to 3 over 5. Three fifths."] },
+                { decStr: "0.10", prompt: "Convert <span class='q-num'>0.10</span> to a fraction in its <strong>simplest form</strong>. Think carefully about what this decimal is worth.", whole: 0, num: 1, den: 10, place: "hundredths", rawNum: 10, rawDen: 100,
+                  hints: ["The place value read-off gives 10 hundredths: 10 over 100.", "Both 10 and 100 can be divided by 10.", "10 over 100 simplifies to 1 over 10. So 0.10 and 0.1 are the same amount."] }
+            ]
+        };
+
+        var levelNames = {
+            1: "Read the Chart",
+            2: "The Tricky Ones",
+            3: "Worded Problems",
+            4: "Simplify It"
+        };
+
+        var levelRequiresSimplest = { 1: false, 2: false, 3: false, 4: true };
+
+        /* ==================== HERO EQUATION ROTATION ==================== */
+        var heroPairs = [
+            ["0.75", "3", "4"], ["0.5", "1", "2"], ["0.25", "1", "4"],
+            ["0.2", "1", "5"], ["0.9", "9", "10"], ["0.05", "1", "20"]
+        ];
+        var heroIndex = 0;
+        setInterval(function () {
+            heroIndex = (heroIndex + 1) % heroPairs.length;
+            var p = heroPairs[heroIndex];
+            document.getElementById('hero-dec').textContent = p[0];
+            document.getElementById('hero-num').textContent = p[1];
+            document.getElementById('hero-den').textContent = p[2];
+        }, 3200);
+
+        /* ==================== COLLAPSIBLES ==================== */
+        function toggleLearningSection() {
+            var content = document.getElementById('learningContent');
+            var toggle = document.getElementById('learningToggle');
+            content.classList.toggle('open');
+            toggle.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+        function toggleWorkedSection() {
+            var content = document.getElementById('workedContent');
+            var toggle = document.getElementById('workedToggle');
+            content.classList.toggle('open');
+            toggle.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        /* ==================== THE CONVERSION MACHINE ==================== */
+        var machineExamples = [
+            { decStr: "0.7",   whole: 0, decDigits: "7",   num: "7",   den: "10",   place: "tenths",      placeCol: "pvc-tenths" },
+            { decStr: "0.29",  whole: 0, decDigits: "29",  num: "29",  den: "100",  place: "hundredths",  placeCol: "pvc-hundredths" },
+            { decStr: "0.03",  whole: 0, decDigits: "03",  num: "3",   den: "100",  place: "hundredths",  placeCol: "pvc-hundredths" },
+            { decStr: "0.161", whole: 0, decDigits: "161", num: "161", den: "1000", place: "thousandths", placeCol: "pvc-thousandths" },
+            { decStr: "1.3",   whole: 1, decDigits: "3",   num: "3",   den: "10",   place: "tenths",      placeCol: "pvc-tenths" }
+        ];
+        var machineIndex = 0;
+        var machineStep = 0;
+
+        var machineBtnLabels = [
+            "Write the digits in the chart",
+            "Find the final digit's column",
+            "Use that place as the denominator",
+            "Write the digits as the numerator"
+        ];
+
+        function buildMachineChips() {
+            var row = document.getElementById('machine-chips');
+            row.innerHTML = '';
+            machineExamples.forEach(function (ex, i) {
+                var chip = document.createElement('button');
+                chip.className = 'machine-chip' + (i === machineIndex ? ' on' : '');
+                chip.textContent = ex.decStr;
+                chip.onclick = function () { selectMachineExample(i); };
+                row.appendChild(chip);
+            });
+        }
+
+        function selectMachineExample(i) {
+            machineIndex = i;
+            machineStep = 0;
+            buildMachineChips();
+            resetMachineDisplay();
+        }
+
+        function resetMachineDisplay() {
+            var ex = machineExamples[machineIndex];
+            document.getElementById('machine-dec').textContent = ex.decStr;
+            ['pvc-ones', 'pvc-tenths', 'pvc-hundredths', 'pvc-thousandths'].forEach(function (id) {
+                document.getElementById(id).classList.remove('filled', 'spotlight');
+            });
+            document.getElementById('pvd-ones').textContent = '';
+            document.getElementById('pvd-tenths').textContent = '';
+            document.getElementById('pvd-hundredths').textContent = '';
+            document.getElementById('pvd-thousandths').textContent = '';
+            var numEl = document.getElementById('machine-num');
+            var denEl = document.getElementById('machine-den');
+            numEl.textContent = '?'; denEl.textContent = '?';
+            numEl.classList.remove('show'); denEl.classList.remove('show');
+            var wholeEl = document.getElementById('machine-whole');
+            wholeEl.textContent = ''; wholeEl.classList.remove('show');
+            document.getElementById('machine-caption').innerHTML = 'Ready when you are. Press the button to feed the digits into the chart.';
+            var btn = document.getElementById('machine-btn');
+            btn.textContent = machineBtnLabels[0];
+            btn.disabled = false;
+            updateMachineDots();
+        }
+
+        function updateMachineDots() {
+            var dots = document.querySelectorAll('#machine-dots .machine-dot');
+            dots.forEach(function (dot, i) {
+                dot.classList.remove('active', 'visited');
+                if (i === machineStep - 1) dot.classList.add('active');
+                else if (i < machineStep - 1) dot.classList.add('visited');
+            });
+        }
+
+        function machineStepForward() {
+            var ex = machineExamples[machineIndex];
+            machineStep++;
+            var caption = document.getElementById('machine-caption');
+            var btn = document.getElementById('machine-btn');
+
+            if (machineStep === 1) {
+                document.getElementById('pvd-ones').textContent = String(ex.whole);
+                document.getElementById('pvc-ones').classList.add('filled');
+                var d = ex.decDigits;
+                document.getElementById('pvd-tenths').textContent = d.length > 0 ? d[0] : '';
+                if (d.length > 0) document.getElementById('pvc-tenths').classList.add('filled');
+                document.getElementById('pvd-hundredths').textContent = d.length > 1 ? d[1] : '';
+                if (d.length > 1) document.getElementById('pvc-hundredths').classList.add('filled');
+                document.getElementById('pvd-thousandths').textContent = d.length > 2 ? d[2] : '';
+                if (d.length > 2) document.getElementById('pvc-thousandths').classList.add('filled');
+                caption.innerHTML = 'Each digit gets exactly one column. Every column to the right of the point is worth ten times less than the one before it.';
+            } else if (machineStep === 2) {
+                document.getElementById(ex.placeCol).classList.add('spotlight');
+                caption.innerHTML = 'The final digit lands in the <strong>' + ex.place + '</strong> column. That column names the size of the pieces we are counting.';
+            } else if (machineStep === 3) {
+                var denEl = document.getElementById('machine-den');
+                denEl.textContent = ex.den;
+                denEl.classList.add('show');
+                caption.innerHTML = ex.place.charAt(0).toUpperCase() + ex.place.slice(1) + ' means pieces worth one ' + ex.place.slice(0, -1) + ' each, so the denominator is <strong>' + ex.den + '</strong>.';
+            } else if (machineStep === 4) {
+                var numEl = document.getElementById('machine-num');
+                numEl.textContent = ex.num;
+                numEl.classList.add('show');
+                var sentence;
+                if (ex.whole > 0) {
+                    var wholeEl = document.getElementById('machine-whole');
+                    wholeEl.textContent = ex.whole;
+                    wholeEl.classList.add('show');
+                    sentence = 'The whole number stays out the front. <strong>' + ex.decStr + '</strong> is ' + ex.whole + ' whole and ' + ex.num + ' ' + ex.place + ': <strong>' + ex.whole + ' and ' + ex.num + '/' + ex.den + '</strong>.';
+                } else {
+                    sentence = 'Read the decimal digits as one number: <strong>' + ex.num + '</strong> ' + ex.place + '. So <strong>' + ex.decStr + ' = ' + ex.num + '/' + ex.den + '</strong>.';
+                    if (ex.decDigits.charAt(0) === '0') {
+                        sentence += ' Notice the leading zero holds a place in the chart but is not written in the numerator.';
+                    }
+                }
+                caption.innerHTML = sentence;
+                btn.disabled = true;
+                btn.textContent = 'Pick another decimal above to run it again';
+            }
+            if (machineStep < 4) {
+                btn.textContent = machineBtnLabels[machineStep];
+            }
+            updateMachineDots();
+        }
+
+        /* ==================== LEVEL QUESTION ENGINE ==================== */
+        var currentLevel = 1;
+        var currentQuestion = 0;
+        var correctCount = 0;
+        var attemptedCount = 0;
+        var answered = false;
+        var questionStatus = [];
+        var initialQuestionResult = [];
+        var isRevisionRound = false;
+        var revisionIndices = [];
+        var hintLevel = 0;
+        var maxHints = 3;
+        var level4Completed = false;
+
+        function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function goToLanding() { showPage('landing-page'); }
+
+        function startLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            correctCount = 0;
+            attemptedCount = 0;
+            isRevisionRound = false;
+            revisionIndices = [];
+            createProgressTracker();
+            loadQuestion();
+            showPage('question-page');
+        }
+
+        function createProgressTracker() {
+            var progressGrid = document.getElementById('progress-grid');
+            progressGrid.innerHTML = '';
+            if (!isRevisionRound) {
+                var total = questions[currentLevel].length;
+                questionStatus = new Array(total).fill(null);
+                initialQuestionResult = new Array(total).fill(null);
+            }
+            var totalQuestions = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
+            for (var i = 0; i < totalQuestions; i++) {
+                var circle = document.createElement('div');
+                circle.className = 'progress-circle';
+                circle.textContent = i + 1;
+                circle.id = 'progress-' + i;
+                circle.onclick = (function (idx) { return function () { jumpToQuestion(idx); }; })(i);
+                progressGrid.appendChild(circle);
+            }
+            updateProgressTracker();
+        }
+
+        function updateProgressTracker() {
+            var totalQuestions = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
+            for (var i = 0; i < totalQuestions; i++) {
+                var circle = document.getElementById('progress-' + i);
+                if (!circle) continue;
+                var actualIndex = isRevisionRound ? revisionIndices[i] : i;
+                circle.classList.remove('current', 'correct', 'incorrect');
+                if (i === currentQuestion) circle.classList.add('current');
+                if (questionStatus[actualIndex] === 'correct') circle.classList.add('correct');
+                else if (questionStatus[actualIndex] === 'incorrect') circle.classList.add('incorrect');
+            }
+        }
+
+        function jumpToQuestion(questionIndex) {
+            var actualIdx = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            if (answered && questionStatus[actualIdx] === null) {
+                questionStatus[actualIdx] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIdx] === null) {
+                    initialQuestionResult[actualIdx] = 'incorrect';
+                }
+            }
+            currentQuestion = questionIndex;
+            loadQuestion();
+        }
+
+        function fracSpan(num, den) {
+            return "<span class='fb-num'>" + num + "/" + den + "</span>";
+        }
+
+        function loadQuestion() {
+            var actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            answered = !isRevisionRound && questionStatus[actualIndex] !== null;
+            var q = questions[currentLevel][actualIndex];
+            var card = document.getElementById('question-card');
+            card.className = 'question-card level-' + currentLevel;
+
+            var totalInRound = isRevisionRound ? revisionIndices.length : questions[currentLevel].length;
+            document.getElementById('question-label').textContent = isRevisionRound
+                ? ('Revision. Question ' + (currentQuestion + 1) + ' of ' + totalInRound)
+                : ('Level ' + currentLevel + ': ' + levelNames[currentLevel]);
+            document.getElementById('question-text').innerHTML = q.prompt;
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('total-q').textContent = totalInRound;
+
+            var wholeWrap = document.getElementById('whole-wrap');
+            var wholeInput = document.getElementById('whole-input');
+            var numInput = document.getElementById('num-input');
+            var denInput = document.getElementById('den-input');
+
+            wholeWrap.classList.toggle('visible', q.whole > 0);
+            wholeInput.value = ''; numInput.value = ''; denInput.value = '';
+            [wholeInput, numInput, denInput].forEach(function (el) { el.classList.remove('correct', 'incorrect'); el.disabled = false; });
+
+            hintLevel = 0;
+            var hintBtn = document.getElementById('hint-btn');
+            hintBtn.disabled = false;
+            hintBtn.textContent = 'Show Hint (3 left)';
+            var hintBox = document.getElementById('hint-box');
+            hintBox.classList.remove('visible');
+            hintBox.innerHTML = '';
+
+            document.getElementById('feedback-box').classList.remove('visible', 'correct', 'incorrect');
+
+            if (answered) {
+                fillCorrectAnswer(q);
+                showFeedback(questionStatus[actualIndex] === 'correct', q);
+            }
+
+            document.getElementById('check-btn').disabled = answered;
+            document.getElementById('reveal-btn').disabled = answered;
+            document.getElementById('next-btn').disabled = !answered;
+
+            updateProgressTracker();
+            if (!answered) numInput.focus();
+        }
+
+        function fillCorrectAnswer(q) {
+            var wholeInput = document.getElementById('whole-input');
+            var numInput = document.getElementById('num-input');
+            var denInput = document.getElementById('den-input');
+            if (q.whole > 0) wholeInput.value = q.whole;
+            numInput.value = q.num;
+            denInput.value = q.den;
+            [wholeInput, numInput, denInput].forEach(function (el) { el.disabled = true; });
+        }
+
+        function showHint() {
+            if (answered) return;
+            var actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            var q = questions[currentLevel][actualIndex];
+            if (hintLevel >= maxHints) return;
+            var hintBox = document.getElementById('hint-box');
+            var existing = hintBox.innerHTML;
+            hintBox.innerHTML = existing + (existing ? '<br>' : '') + '<strong>Hint ' + (hintLevel + 1) + ':</strong> ' + q.hints[hintLevel];
+            hintBox.classList.add('visible');
+            hintLevel++;
+            var hintBtn = document.getElementById('hint-btn');
+            if (hintLevel >= maxHints) {
+                hintBtn.disabled = true;
+                hintBtn.textContent = 'No hints left';
+            } else {
+                hintBtn.textContent = 'Show Hint (' + (maxHints - hintLevel) + ' left)';
+            }
+        }
+
+        function parseBox(value) {
+            var t = value.trim();
+            if (t === '') return { blank: true, value: 0, valid: true };
+            if (!/^\d+$/.test(t)) return { blank: false, value: 0, valid: false };
+            return { blank: false, value: parseInt(t, 10), valid: true };
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+            var actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            var q = questions[currentLevel][actualIndex];
+
+            var wholeBox = parseBox(document.getElementById('whole-input').value);
+            var numBox = parseBox(document.getElementById('num-input').value);
+            var denBox = parseBox(document.getElementById('den-input').value);
+
+            var feedbackBox = document.getElementById('feedback-box');
+            var feedbackTitle = document.getElementById('feedback-title');
+            var feedbackText = document.getElementById('feedback-text');
+
+            if (numBox.blank || denBox.blank) {
+                feedbackBox.classList.remove('correct');
+                feedbackBox.classList.add('incorrect', 'visible');
+                feedbackTitle.textContent = 'Not quite ready';
+                feedbackText.innerHTML = 'One of your fraction boxes is (blank). Fill in both the numerator (top) and denominator (bottom) before checking.';
+                return;
+            }
+            if (!wholeBox.valid || !numBox.valid || !denBox.valid) {
+                feedbackBox.classList.remove('correct');
+                feedbackBox.classList.add('incorrect', 'visible');
+                feedbackTitle.textContent = 'Whole numbers only';
+                feedbackText.innerHTML = 'Each box should contain a whole number with no other symbols. For example, write <span class="fb-num">7</span> on top and <span class="fb-num">10</span> on the bottom.';
+                return;
+            }
+            if (denBox.value === 0) {
+                feedbackBox.classList.remove('correct');
+                feedbackBox.classList.add('incorrect', 'visible');
+                feedbackTitle.textContent = 'Not quite';
+                feedbackText.innerHTML = 'A fraction cannot have <span class="fb-num">0</span> as its denominator. The denominator tells us the size of the pieces, and it comes from the place value column.';
+                return;
+            }
+
+            /* Exact value comparison with integers: (w*d + n) * D  vs  (W*D + N) * d */
+            var studentTotal = (wholeBox.value * denBox.value + numBox.value) * q.den;
+            var targetTotal = (q.whole * q.den + q.num) * denBox.value;
+            var valueMatch = studentTotal === targetTotal;
+
+            var isCorrect = false;
+            if (valueMatch && levelRequiresSimplest[currentLevel]) {
+                isCorrect = gcd(numBox.value, denBox.value) === 1 && wholeBox.value === q.whole;
+            } else {
+                isCorrect = valueMatch;
+            }
+
+            var wholeInput = document.getElementById('whole-input');
+            var numInput = document.getElementById('num-input');
+            var denInput = document.getElementById('den-input');
+            [numInput, denInput].forEach(function (el) { el.classList.add(isCorrect ? 'correct' : 'incorrect'); });
+            if (q.whole > 0) wholeInput.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+            if (isCorrect) correctCount++;
+            attemptedCount++;
+            answered = true;
+            questionStatus[actualIndex] = isCorrect ? 'correct' : 'incorrect';
+            if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                initialQuestionResult[actualIndex] = isCorrect ? 'correct' : 'incorrect';
+            }
+
+            showFeedback(isCorrect, q, { whole: wholeBox.value, num: numBox.value, den: denBox.value, valueMatch: valueMatch });
+            updateProgressTracker();
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function buildCorrectString(q) {
+            if (q.whole > 0) return "<span class='fb-num'>" + q.whole + "</span> and " + fracSpan(q.num, q.den);
+            return fracSpan(q.num, q.den);
+        }
+
+        function buildStudentString(s) {
+            if (s.whole > 0) return "<span class='fb-num'>" + s.whole + "</span> and " + fracSpan(s.num, s.den);
+            return fracSpan(s.num, s.den);
+        }
+
+        function showFeedback(isCorrect, q, student) {
+            var feedbackBox = document.getElementById('feedback-box');
+            var feedbackTitle = document.getElementById('feedback-title');
+            var feedbackText = document.getElementById('feedback-text');
+            feedbackBox.classList.remove('correct', 'incorrect');
+
+            var decHtml = "<span class='fb-num'>" + q.decStr + "</span>";
+            var canonical;
+            if (levelRequiresSimplest[currentLevel]) {
+                canonical = decHtml + ' is ' + fracSpan(q.rawNum, q.rawDen) + ' by place value, which simplifies to ' + buildCorrectString(q) + '.';
+            } else if (q.whole > 0) {
+                canonical = decHtml + ' is ' + "<span class='fb-num'>" + q.whole + "</span>" + ' whole and <span class="fb-num">' + q.num + '</span> ' + q.place + ', so ' + buildCorrectString(q) + '.';
+            } else {
+                canonical = decHtml + ' is <span class="fb-num">' + q.num + '</span> ' + q.place + ', so ' + buildCorrectString(q) + '.';
+            }
+
+            if (isCorrect) {
+                feedbackBox.classList.add('correct');
+                feedbackTitle.textContent = 'Correct!';
+                var msg = canonical;
+                if (student && (student.num !== q.num || student.den !== q.den || student.whole !== q.whole)) {
+                    msg = 'You wrote ' + buildStudentString(student) + ', which is equivalent. ' + canonical;
+                }
+                feedbackText.innerHTML = msg;
+            } else {
+                feedbackBox.classList.add('incorrect');
+                feedbackTitle.textContent = 'Not quite';
+                var diagnosis = '';
+                if (student) {
+                    var youAnswered = 'You answered ' + buildStudentString(student) + '. ';
+                    if (student.valueMatch && levelRequiresSimplest[currentLevel]) {
+                        var g = gcd(student.num, student.den);
+                        diagnosis = youAnswered + 'That fraction is equivalent, but it is not in simplest form. Both <span class="fb-num">' + student.num + '</span> and <span class="fb-num">' + student.den + '</span> can be divided by <span class="fb-num">' + g + '</span>. ' + canonical;
+                    } else if (student.den === q.den * 10 || (q.den >= 100 && student.den === q.den / 10)) {
+                        diagnosis = youAnswered + 'Check which column the final digit sits in. The final digit of ' + decHtml + ' is in the ' + q.place + ' column, so the denominator is <span class="fb-num">' + q.den + '</span>. ' + canonical;
+                    } else if (q.whole > 0 && student.whole !== q.whole) {
+                        diagnosis = youAnswered + 'Remember the digits before the decimal point are whole ones and stay out the front. ' + canonical;
+                    } else {
+                        diagnosis = youAnswered + canonical;
+                    }
+                } else {
+                    diagnosis = canonical;
+                }
+                feedbackText.innerHTML = diagnosis;
+            }
+            feedbackBox.classList.add('visible');
+        }
+
+        function revealAnswer() {
+            if (answered) return;
+            var actualIndex = isRevisionRound ? revisionIndices[currentQuestion] : currentQuestion;
+            var q = questions[currentLevel][actualIndex];
+            fillCorrectAnswer(q);
+            answered = true;
+            attemptedCount++;
+            if (questionStatus[actualIndex] === null) {
+                questionStatus[actualIndex] = 'incorrect';
+                if (!isRevisionRound && initialQuestionResult[actualIndex] === null) {
+                    initialQuestionResult[actualIndex] = 'incorrect';
+                }
+            }
+            showFeedback(false, q, null);
+            document.getElementById('feedback-title').textContent = 'Answer revealed';
+            updateProgressTracker();
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('reveal-btn').disabled = true;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (isRevisionRound) {
+                if (currentQuestion >= revisionIndices.length) showCompletionPage();
+                else loadQuestion();
+                return;
+            }
+            if (currentQuestion >= questions[currentLevel].length) {
+                var incorrectIndices = questions[currentLevel].map(function (_, i) { return i; })
+                    .filter(function (i) { return questionStatus[i] === 'incorrect'; });
+                if (incorrectIndices.length === 0) showCompletionPage();
+                else startRevisionRound(incorrectIndices);
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function startRevisionRound(incorrectIndices) {
+            isRevisionRound = true;
+            revisionIndices = incorrectIndices;
+            currentQuestion = 0;
+            createProgressTracker();
+            loadQuestion();
+        }
+
+        function showCompletionPage() {
+            var percentage = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
+            document.getElementById('completion-heading').textContent = 'Fantastic Work!';
+            document.getElementById('completion-message').textContent =
+                "You've completed Level " + currentLevel + ': ' + levelNames[currentLevel];
+            document.getElementById('score-total').textContent = attemptedCount;
+            document.getElementById('score-correct').textContent = correctCount;
+            document.getElementById('score-percentage').textContent = percentage + '%';
+
+            var extra = document.getElementById('completion-extra');
+            extra.innerHTML = '';
+            if (currentLevel === 4 && !level4Completed) {
+                level4Completed = true;
+                unlockGoDeeper();
+            }
+            if (currentLevel === 4) {
+                extra.innerHTML = '<button class="btn btn-primary" onclick="goToLanding(); openGoDeeper();" style="max-width: 340px; margin: 0 auto; display: block;">Go Deeper is unlocked. Investigate</button>';
+            }
+
+            if (typeof submitResult === 'function') {
+                var initialScore = initialQuestionResult.filter(function (s) { return s === 'correct'; }).length;
+                var qData = typeof buildQuestionData === 'function' ? buildQuestionData(initialQuestionResult, questions[currentLevel].length) : [];
+                submitResult('decimals-to-fractions', 'The Fraction Machine', initialScore, questions[currentLevel].length, 'Level ' + currentLevel + ': ' + levelNames[currentLevel], qData);
+            }
+            showPage('completion-page');
+        }
+
+        /* ==================== GO DEEPER ==================== */
+        function unlockGoDeeper() {
+            var card = document.getElementById('go-deeper-card');
+            if (card) {
+                card.classList.remove('locked');
+                card.disabled = false;
+                card.querySelector('.lock-icon').innerHTML = '&#128275;';
+                card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+            }
+        }
+
+        function openGoDeeper() {
+            var section = document.getElementById('go-deeper-section');
+            section.style.display = 'block';
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /* ==================== FRACTION FLASH ==================== */
+        /* Every pair and every distractor verified: no distractor equals the correct value. */
+
+        /* Place Value Deck: fractions exactly as read off the chart, no simplifying */
+        var flashDeckPlace = [
+            { dec: "0.3",   num: 3,   den: 10,   fracDis: [[3,100],[1,3],[3,1000]],      decDis: ["0.03","3.0","0.13"] },
+            { dec: "0.7",   num: 7,   den: 10,   fracDis: [[7,100],[1,7],[7,1000]],      decDis: ["0.07","7.0","0.17"] },
+            { dec: "0.9",   num: 9,   den: 10,   fracDis: [[9,100],[1,9],[9,1000]],      decDis: ["0.09","9.0","0.19"] },
+            { dec: "0.1",   num: 1,   den: 10,   fracDis: [[1,100],[10,10],[1,1000]],    decDis: ["0.01","1.0","0.11"] },
+            { dec: "0.27",  num: 27,  den: 100,  fracDis: [[27,10],[27,1000],[2,7]],     decDis: ["2.7","0.027","0.207"] },
+            { dec: "0.03",  num: 3,   den: 100,  fracDis: [[3,10],[30,100],[3,1000]],    decDis: ["0.3","0.003","0.33"] },
+            { dec: "0.51",  num: 51,  den: 100,  fracDis: [[51,10],[51,1000],[5,1]],     decDis: ["5.1","0.051","0.501"] },
+            { dec: "0.07",  num: 7,   den: 100,  fracDis: [[7,10],[70,100],[7,1000]],    decDis: ["0.7","0.007","0.77"] },
+            { dec: "0.99",  num: 99,  den: 100,  fracDis: [[99,10],[9,9],[99,1000]],     decDis: ["9.9","0.099","0.909"] },
+            { dec: "0.13",  num: 13,  den: 100,  fracDis: [[13,10],[1,3],[13,1000]],     decDis: ["1.3","0.013","0.103"] },
+            { dec: "0.009", num: 9,   den: 1000, fracDis: [[9,100],[9,10],[900,1000]],   decDis: ["0.09","0.9","0.019"] },
+            { dec: "0.121", num: 121, den: 1000, fracDis: [[121,100],[12,1],[121,10]],   decDis: ["1.21","0.0121","0.211"] }
+        ];
+
+        /* Simplified Deck: the common equivalents worth knowing by heart */
+        var flashDeckSimplified = [
+            { dec: "0.5",  num: 1, den: 2,   fracDis: [[1,5],[5,100],[2,5]],   decDis: ["0.2","0.12","1.2"] },
+            { dec: "0.25", num: 1, den: 4,   fracDis: [[2,5],[1,25],[25,10]],  decDis: ["0.4","0.14","2.5"] },
+            { dec: "0.75", num: 3, den: 4,   fracDis: [[7,5],[3,40],[75,10]],  decDis: ["0.34","0.43","7.5"] },
+            { dec: "0.1",  num: 1, den: 10,  fracDis: [[1,100],[1,5],[10,1]],  decDis: ["0.01","1.0","0.11"] },
+            { dec: "0.2",  num: 1, den: 5,   fracDis: [[1,2],[2,100],[2,5]],   decDis: ["0.5","0.02","0.15"] },
+            { dec: "0.4",  num: 2, den: 5,   fracDis: [[1,4],[4,100],[2,4]],   decDis: ["0.25","0.04","0.52"] },
+            { dec: "0.6",  num: 3, den: 5,   fracDis: [[6,100],[3,6],[5,3]],   decDis: ["0.35","0.06","0.53"] },
+            { dec: "0.8",  num: 4, den: 5,   fracDis: [[8,100],[1,8],[5,4]],   decDis: ["0.45","0.08","0.54"] },
+            { dec: "0.3",  num: 3, den: 10,  fracDis: [[1,3],[3,100],[3,5]],   decDis: ["0.13","0.03","3.1"] },
+            { dec: "0.9",  num: 9, den: 10,  fracDis: [[9,100],[1,9],[10,9]],  decDis: ["0.09","9.1","0.19"] },
+            { dec: "0.05", num: 1, den: 20,  fracDis: [[1,2],[5,10],[1,5]],    decDis: ["0.5","0.2","0.02"] },
+            { dec: "0.01", num: 1, den: 100, fracDis: [[1,10],[1,1000],[10,100]], decDis: ["0.1","0.001","1.0"] }
+        ];
+
+        var flashModes = {
+            place: { deck: flashDeckPlace, name: "Place Value Deck" },
+            simplified: { deck: flashDeckSimplified, name: "Simplified Deck" }
+        };
+        var flashMode = 'place';
+        var flashDeck = flashDeckSimplified;
+        var flashOrder = [];
+        var flashIndex = 0;
+        var flashScore = 0;
+        var flashStreak = 0;
+        var flashBestStreaks = { place: 0, simplified: 0 };
+        var flashAnswered = false;
+
+        function shuffle(arr) {
+            var a = arr.slice();
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+            }
+            return a;
+        }
+
+        function fracHtml(num, den, small) {
+            var cls = small ? 'fo-frac' : 'fp-frac';
+            return "<span class='" + cls + "'><span class='top'>" + num + "</span><span class='bot'>" + den + "</span></span>";
+        }
+
+        function startFlash() {
+            document.getElementById('flash-mode-select').style.display = 'grid';
+            document.getElementById('flash-round').style.display = 'none';
+            document.getElementById('flash-subtitle').textContent = 'Choose your deck to begin.';
+            showPage('flash-page');
+        }
+
+        function startFlashRound(mode) {
+            flashMode = mode;
+            flashDeck = flashModes[mode].deck;
+            flashOrder = shuffle(flashDeck.map(function (_, i) { return i; }))
+                .map(function (i) { return { card: i, toFraction: Math.random() < 0.5 }; });
+            flashIndex = 0;
+            flashScore = 0;
+            flashStreak = 0;
+            updateFlashScoreboard();
+            document.getElementById('flash-mode-select').style.display = 'none';
+            document.getElementById('flash-round').style.display = 'block';
+            loadFlashCard();
+            showPage('flash-page');
+        }
+
+        function updateFlashScoreboard() {
+            document.getElementById('flash-score').textContent = flashScore;
+            document.getElementById('flash-streak').textContent = flashStreak;
+            document.getElementById('flash-best').textContent = flashBestStreaks[flashMode];
+        }
+
+        function loadFlashCard() {
+            flashAnswered = false;
+            var entry = flashOrder[flashIndex];
+            var card = flashDeck[entry.card];
+            document.getElementById('flash-subtitle').innerHTML =
+                flashModes[flashMode].name + '. Card <span style="font-family:\'Space Mono\',monospace;">' + (flashIndex + 1) + '</span> of <span style="font-family:\'Space Mono\',monospace;">' + flashOrder.length + '</span>';
+            document.getElementById('flash-feedback').innerHTML = '';
+            document.getElementById('flash-next-btn').classList.remove('visible');
+
+            var prompt = document.getElementById('flash-prompt');
+            var label = document.getElementById('flash-prompt-label');
+            var optionsWrap = document.getElementById('flash-options');
+            optionsWrap.innerHTML = '';
+
+            var options;
+            if (entry.toFraction) {
+                label.textContent = 'Which fraction matches?';
+                prompt.innerHTML = "<span class='fp-dec'>" + card.dec + "</span><span class='fp-eq'>=</span><span class='fp-q'>?</span>";
+                options = [{ html: fracHtml(card.num, card.den, true), correct: true }];
+                card.fracDis.forEach(function (d) {
+                    options.push({ html: fracHtml(d[0], d[1], true), correct: false });
+                });
+            } else {
+                label.textContent = 'Which decimal matches?';
+                prompt.innerHTML = fracHtml(card.num, card.den, false) + "<span class='fp-eq'>=</span><span class='fp-q'>?</span>";
+                options = [{ html: "<span class='fo-dec'>" + card.dec + "</span>", correct: true }];
+                card.decDis.forEach(function (d) {
+                    options.push({ html: "<span class='fo-dec'>" + d + "</span>", correct: false });
+                });
+            }
+
+            shuffle(options).forEach(function (opt) {
+                var btn = document.createElement('button');
+                btn.className = 'flash-opt';
+                btn.innerHTML = opt.html;
+                btn.dataset.correct = opt.correct ? '1' : '0';
+                btn.onclick = function () { answerFlash(btn, opt.correct); };
+                optionsWrap.appendChild(btn);
+            });
+        }
+
+        function answerFlash(btn, correct) {
+            if (flashAnswered) return;
+            flashAnswered = true;
+            var entry = flashOrder[flashIndex];
+            var card = flashDeck[entry.card];
+            var buttons = document.querySelectorAll('#flash-options .flash-opt');
+            buttons.forEach(function (b) { b.disabled = true; });
+
+            var feedback = document.getElementById('flash-feedback');
+            var pairText = "<span class='fb-num'>" + card.dec + "</span> and <span class='fb-num'>" + card.num + "/" + card.den + "</span> are the same number";
+
+            if (correct) {
+                btn.classList.add('correct');
+                flashScore++;
+                flashStreak++;
+                if (flashStreak > flashBestStreaks[flashMode]) flashBestStreaks[flashMode] = flashStreak;
+                feedback.innerHTML = 'Yes. ' + pairText + '.';
+            } else {
+                btn.classList.add('incorrect');
+                buttons.forEach(function (b) {
+                    if (b.dataset.correct === '1') b.classList.add('correct');
+                });
+                flashStreak = 0;
+                feedback.innerHTML = 'Not this one. ' + pairText + '. Worth memorising!';
+            }
+            updateFlashScoreboard();
+            document.getElementById('flash-next-btn').classList.add('visible');
+            document.getElementById('flash-next-btn').textContent =
+                flashIndex + 1 >= flashOrder.length ? 'See your results' : 'Next card →';
+        }
+
+        function flashNext() {
+            flashIndex++;
+            if (flashIndex >= flashOrder.length) {
+                showFlashCompletion();
+            } else {
+                loadFlashCard();
+            }
+        }
+
+        function showFlashCompletion() {
+            var percentage = Math.round((flashScore / flashOrder.length) * 100);
+            var deckName = flashModes[flashMode].name;
+            var otherMode = flashMode === 'place' ? 'simplified' : 'place';
+            document.getElementById('completion-heading').textContent = 'Flash Round Complete!';
+            document.getElementById('completion-message').textContent =
+                deckName + ' finished. Your best streak in this deck is ' + flashBestStreaks[flashMode] + ' in a row.';
+            document.getElementById('score-total').textContent = flashOrder.length;
+            document.getElementById('score-correct').textContent = flashScore;
+            document.getElementById('score-percentage').textContent = percentage + '%';
+            var extra = document.getElementById('completion-extra');
+            extra.innerHTML =
+                '<button class="btn btn-primary" onclick="startFlashRound(\'' + flashMode + '\')" style="max-width: 300px; margin: 0 auto 0.75rem; display: block;">Play the ' + deckName + ' again</button>' +
+                '<button class="btn btn-secondary" onclick="startFlashRound(\'' + otherMode + '\')" style="max-width: 300px; margin: 0 auto; display: block;">Try the ' + flashModes[otherMode].name + '</button>';
+            if (typeof submitResult === 'function') {
+                submitResult('decimals-to-fractions', 'The Fraction Machine', flashScore, flashOrder.length, 'Fraction Flash: ' + deckName, []);
+            }
+            showPage('completion-page');
+        }
+
+        /* ==================== ENTER KEY ==================== */
+        document.addEventListener('DOMContentLoaded', function () {
+            buildMachineChips();
+            resetMachineDisplay();
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Enter') return;
+                if (e.target && e.target.tagName === 'TEXTAREA') return;
+                var questionPage = document.getElementById('question-page');
+                if (!questionPage.classList.contains('active')) return;
+                var nextBtn = document.getElementById('next-btn');
+                var checkBtn = document.getElementById('check-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    e.preventDefault();
+                    nextBtn.click();
+                } else if (checkBtn && !checkBtn.disabled) {
+                    e.preventDefault();
+                    checkBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
