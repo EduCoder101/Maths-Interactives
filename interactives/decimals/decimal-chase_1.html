@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Chase: Higher or Lower</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --level3-color: #9B5DE5;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+            --gold: #F7B731;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--bg-cream);
+            min-height: 100%;
+        }
+
+        .container { max-width: 700px; margin: 0 auto; padding: 1.5rem; }
+
+        .home-btn {
+            background: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 10px;
+            padding: 0.55rem 1.1rem;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .home-btn:hover { background: #3db8b0; border-color: #3db8b0; transform: translateY(-2px); }
+
+        .landing-header { text-align: center; margin-bottom: 1.5rem; }
+
+        .landing-header h1 {
+            font-size: clamp(1.7rem, 5vw, 2.3rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .landing-header h1 span { color: var(--primary-accent); }
+
+        .landing-header .subtitle { font-size: 1.05rem; color: var(--text-light); font-weight: 500; }
+
+        /* ── LISC ── */
+        .learning-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--primary-accent);
+            margin: 1.5rem auto;
+            overflow: hidden;
+        }
+
+        .learning-card h2 {
+            cursor: pointer;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .learning-card h2:hover { background: #f8f9fa; }
+        .toggle-icon { transition: transform 0.3s ease; font-size: 0.8rem; }
+        .learning-content { display: none; padding: 0 1.5rem 1.5rem; }
+        .learning-content.open { display: block; }
+        .learning-content h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--text-dark); }
+        .learning-content p { font-size: 0.95rem; line-height: 1.6; color: var(--text-dark); }
+        .success-criteria { list-style: none; }
+        .success-criteria li {
+            padding: 0.4rem 0 0.4rem 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+        }
+        .success-criteria li::before {
+            content: '\2713';
+            position: absolute;
+            left: 0;
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+
+        /* ── HOW TO PLAY ── */
+        .howto-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid #FFD93D;
+            padding: 1.5rem;
+            margin: 1.5rem auto;
+        }
+
+        .howto-card h2 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 0.75rem; }
+        .howto-steps { display: flex; flex-direction: column; gap: 0.6rem; }
+        .howto-step { display: flex; gap: 0.7rem; align-items: flex-start; }
+        .howto-num {
+            background: #FFD93D;
+            color: var(--text-dark);
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        .howto-step p { font-size: 0.92rem; line-height: 1.55; color: var(--text-dark); }
+
+        /* ── SETTINGS ── */
+        .settings-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--text-light);
+            padding: 1.5rem;
+            margin: 1.5rem auto;
+        }
+
+        .settings-card h2 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 1rem; }
+
+        .slider-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .slider-row:last-child { margin-bottom: 0; }
+        .slider-label { font-size: 0.92rem; font-weight: 600; color: var(--text-dark); min-width: 170px; }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 140px;
+            accent-color: var(--primary-accent);
+            height: 6px;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            min-width: 52px;
+            text-align: right;
+        }
+
+        /* ── LEVEL GRID ── */
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .level-btn {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .level-btn::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px; }
+        .level-btn.l1::before { background: var(--level1-color); }
+        .level-btn.l2::before { background: var(--level2-color); }
+        .level-btn.l3::before { background: var(--level3-color); }
+
+        .level-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .level-btn h3 { font-size: 1.05rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+        .level-btn p { font-size: 0.85rem; color: var(--text-light); line-height: 1.35; }
+        .level-meta { margin-top: 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-light); }
+
+        /* ══════════════ GAME OVERLAY ══════════════ */
+        #game-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            background: #0f0f1a;
+        }
+
+        #game-overlay.active { display: block; }
+
+        /* HUD */
+        #game-hud {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 9100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 1.1rem;
+            background: rgba(15,15,26,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .hud-back-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #8892a4;
+            padding: 0.38rem 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .hud-back-btn:hover { border-color: var(--primary-accent); color: var(--primary-accent); }
+
+        .hud-level-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            color: #8892a4;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hud-stat { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+        .hud-lbl { font-size: 0.6rem; color: #8892a4; text-transform: uppercase; letter-spacing: 0.4px; }
+
+        .hud-timer {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f0f0f0;
+            min-width: 3rem;
+            text-align: center;
+            transition: color 0.3s;
+        }
+        .hud-timer.urgent { color: #FF6B6B; animation: pulseRed 0.5s ease-in-out infinite; }
+        @keyframes pulseRed { 0%,100%{opacity:1} 50%{opacity:0.55} }
+
+        .lives-row { display: flex; gap: 0.3rem; align-items: center; }
+        .life-dot {
+            width: 13px; height: 13px;
+            border-radius: 50%;
+            background: #FF6B6B;
+            box-shadow: 0 0 6px rgba(255,107,107,0.6);
+            transition: all 0.3s;
+        }
+        .life-dot.lost { background: rgba(255,255,255,0.12); box-shadow: none; transform: scale(0.8); }
+
+        .round-pips { display: flex; gap: 0.3rem; align-items: center; }
+        .round-pip {
+            width: 11px; height: 11px;
+            border-radius: 50%;
+            border: 2px solid rgba(78,205,196,0.3);
+            background: transparent;
+            transition: all 0.3s;
+        }
+        .round-pip.won { background: #2ecc71; border-color: #2ecc71; box-shadow: 0 0 7px rgba(46,204,113,0.6); }
+        .round-pip.lost { background: #FF6B6B; border-color: #FF6B6B; }
+        .round-pip.current { border-color: var(--primary-accent); background: rgba(78,205,196,0.25); }
+
+        .hud-slider-group { display: flex; flex-direction: column; gap: 0.1rem; align-items: center; }
+        .hud-slider-group input[type="range"] { width: 90px; min-width: 0; height: 4px; }
+
+        /* Prompt banner */
+        #prompt-banner {
+            position: fixed;
+            top: 64px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9080;
+            background: rgba(15,15,26,0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(78,205,196,0.35);
+            border-radius: 16px;
+            padding: 0.6rem 1.4rem;
+            font-size: 1.05rem;
+            color: #f0f0f0;
+            text-align: center;
+            max-width: 92vw;
+            transition: border-color 0.3s;
+        }
+
+        #prompt-banner .prompt-word-higher { color: #2ecc71; font-weight: 700; }
+        #prompt-banner .prompt-word-lower { color: #FF6B6B; font-weight: 700; }
+        #prompt-banner .prompt-value { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--gold); }
+
+        /* Arena */
+        #game-arena {
+            position: fixed;
+            inset: 0;
+            top: 58px;
+            overflow: hidden;
+        }
+
+        .chase-tile {
+            position: absolute;
+            background: #1a1a2e;
+            border: 2px solid rgba(78,205,196,0.25);
+            border-radius: 11px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: #f0f0f0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            will-change: transform;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .chase-tile:hover { border-color: var(--primary-accent); box-shadow: 0 0 14px rgba(78,205,196,0.45); z-index: 10; }
+
+        .chase-tile.chosen {
+            border-color: var(--gold);
+            color: var(--gold);
+            box-shadow: 0 0 18px rgba(247,183,49,0.65);
+            z-index: 15;
+        }
+
+        .chase-tile.correct-flash {
+            animation: correctFlash 0.6s ease-out forwards;
+            pointer-events: none;
+            z-index: 20;
+        }
+        @keyframes correctFlash {
+            0% { transform: scale(1); background: #2ecc71; border-color: #2ecc71; color: #0f0f1a; }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1.1); background: #2ecc71; border-color: #2ecc71; color: #0f0f1a; opacity: 0.9; }
+        }
+
+        .chase-tile.wrong-shake { animation: wrongShake 0.38s ease-out; }
+        @keyframes wrongShake {
+            0% { transform: translateX(0); border-color: #e74c3c; box-shadow: 0 0 18px rgba(231,76,60,0.7); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .chase-tile.valid-reveal {
+            border-color: #2ecc71;
+            box-shadow: 0 0 16px rgba(46,204,113,0.6);
+            z-index: 18;
+        }
+
+        /* Result strip (after each pick) */
+        #result-strip {
+            position: fixed;
+            bottom: 1.1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9090;
+            background: rgba(15,15,26,0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 0.55rem 1.3rem;
+            font-size: 0.95rem;
+            color: #f0f0f0;
+            text-align: center;
+            max-width: 92vw;
+            display: none;
+        }
+
+        #result-strip.visible { display: block; animation: stripIn 0.25s ease-out; }
+        #result-strip.good { border-color: rgba(46,204,113,0.55); }
+        #result-strip.bad { border-color: rgba(231,76,60,0.55); }
+        @keyframes stripIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+        #result-strip .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+        /* Countdown */
+        #game-countdown {
+            position: fixed;
+            inset: 0;
+            z-index: 9200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,10,20,0.9);
+            backdrop-filter: blur(8px);
+        }
+        #game-countdown.active { display: flex; }
+        .count-num {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(5rem, 18vw, 11rem);
+            font-weight: 700;
+            color: var(--primary-accent);
+            text-shadow: 0 0 40px rgba(78,205,196,0.6);
+            animation: countPop 0.9s ease-out;
+        }
+        @keyframes countPop {
+            0% { transform: scale(2.2); opacity: 0; }
+            30% { transform: scale(0.9); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.7); opacity: 0; }
+        }
+
+        /* Result overlay */
+        #game-result {
+            position: fixed;
+            inset: 0;
+            z-index: 9300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,10,20,0.85);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem;
+        }
+        #game-result.active { display: flex; animation: fadeInOv 0.3s ease-out; }
+        @keyframes fadeInOv { from{opacity:0} to{opacity:1} }
+
+        .result-card {
+            background: #1a1a2e;
+            border: 1px solid rgba(78,205,196,0.25);
+            border-radius: 22px;
+            padding: 2.2rem 1.75rem;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            color: #f0f0f0;
+        }
+
+        .result-title { font-size: 1.7rem; font-weight: 700; margin-bottom: 0.45rem; }
+        .result-sub { font-size: 0.95rem; color: #8892a4; margin-bottom: 1.4rem; line-height: 1.5; }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.4rem;
+            background: rgba(0,0,0,0.25);
+            border-radius: 12px;
+            padding: 0.9rem;
+        }
+        .stat-val { font-family: 'Space Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--primary-accent); }
+        .stat-lbl { font-size: 0.68rem; color: #8892a4; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 0.2rem; }
+
+        .ov-btn-row { display: flex; gap: 0.7rem; }
+        .ov-btn {
+            flex: 1;
+            padding: 0.78rem;
+            border: none;
+            border-radius: 11px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ov-primary { background: var(--primary-accent); color: #0f0f1a; }
+        .ov-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(78,205,196,0.4); }
+        .ov-secondary { background: rgba(255,255,255,0.07); color: #f0f0f0; border: 1px solid rgba(255,255,255,0.1); }
+        .ov-secondary:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
+
+        @media (max-width: 600px) {
+            .hud-slider-group { display: none; }
+            #prompt-banner { font-size: 0.9rem; top: 100px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div style="text-align: right; margin-bottom: 1rem;">
+        <a href="../../index.html" class="home-btn">Home</a>
+    </div>
+
+    <div class="landing-header">
+        <h1>Decimal <span>Chase</span></h1>
+        <p class="subtitle">Pick a decimal. Then chase down one that is higher or lower, before time runs out.</p>
+    </div>
+
+    <div class="learning-card">
+        <h2 onclick="toggleLearningSection()">
+            Learning Intention &amp; Success Criteria
+            <span class="toggle-icon" id="learningToggle">&#9660;</span>
+        </h2>
+        <div class="learning-content" id="learningContent">
+            <h3>Learning Intention</h3>
+            <p>We are learning to compare decimals that are very close in value by using place value.</p>
+            <h3>Success Criteria</h3>
+            <ul class="success-criteria">
+                <li>I can read decimals with up to five decimal places.</li>
+                <li>I can decide which of two close decimals is higher or lower.</li>
+                <li>I can find a decimal that is higher or lower than a target, even under time pressure.</li>
+                <li>I can explain my comparison using place value columns.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="howto-card">
+        <h2>How to play</h2>
+        <div class="howto-steps">
+            <div class="howto-step">
+                <div class="howto-num">1</div>
+                <p>Decimals float around the screen. They are all very close in value, so look carefully.</p>
+            </div>
+            <div class="howto-step">
+                <div class="howto-num">2</div>
+                <p>Tap any decimal to pick it. It turns gold.</p>
+            </div>
+            <div class="howto-step">
+                <div class="howto-num">3</div>
+                <p>The game then tells you to tap a decimal that is <strong>higher</strong> or <strong>lower</strong> than your pick. Find one before the timer runs out.</p>
+            </div>
+            <div class="howto-step">
+                <div class="howto-num">4</div>
+                <p>A wrong tap costs a life. You have 3 lives and 5 rounds. Good luck.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <h2>Game settings</h2>
+        <div class="slider-row">
+            <span class="slider-label">Speed of the decimals</span>
+            <input type="range" id="speed-slider" min="0.3" max="2" step="0.1" value="1" oninput="updateSettings()">
+            <span class="slider-value" id="speed-value">1.0x</span>
+        </div>
+        <div class="slider-row">
+            <span class="slider-label">Decimals on screen</span>
+            <input type="range" id="count-slider" min="6" max="24" step="1" value="12" oninput="updateSettings()">
+            <span class="slider-value" id="count-value">12</span>
+        </div>
+    </div>
+
+    <div class="level-grid">
+        <button class="level-btn l1" onclick="startGame(1)">
+            <h3>Level 1: Hundredths</h3>
+            <p>Decimals to 2 places, close together</p>
+            <div class="level-meta">5 rounds &middot; 20s each &middot; 3 lives</div>
+        </button>
+        <button class="level-btn l2" onclick="startGame(2)">
+            <h3>Level 2: Thousandths</h3>
+            <p>Decimals to 3 places, closer still</p>
+            <div class="level-meta">5 rounds &middot; 15s each &middot; 3 lives</div>
+        </button>
+        <button class="level-btn l3" onclick="startGame(3)">
+            <h3>Level 3: Five Places</h3>
+            <p>Decimals to 4 and 5 places, almost identical</p>
+            <div class="level-meta">5 rounds &middot; 15s each &middot; 3 lives</div>
+        </button>
+    </div>
+
+</div>
+
+<!-- ══════════════ GAME OVERLAY ══════════════ -->
+<div id="game-overlay">
+    <div id="game-hud" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+            <button class="hud-back-btn" onclick="quitGame()">&larr; Back</button>
+            <span class="hud-level-label" id="hud-level-label">Level 1</span>
+        </div>
+        <div style="display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap;">
+            <div class="hud-stat">
+                <div class="round-pips" id="round-pips"></div>
+                <div class="hud-lbl">Rounds</div>
+            </div>
+            <div class="hud-stat">
+                <div class="hud-timer" id="hud-timer">20</div>
+                <div class="hud-lbl">Time</div>
+            </div>
+            <div class="hud-stat">
+                <div class="lives-row" id="lives-row"></div>
+                <div class="hud-lbl">Lives</div>
+            </div>
+            <div class="hud-slider-group">
+                <input type="range" id="hud-speed-slider" min="0.3" max="2" step="0.1" value="1" oninput="hudSpeedChange()" title="Speed of the decimals">
+                <div class="hud-lbl">Speed <span id="hud-speed-value" style="font-family:'Space Mono',monospace;">1.0x</span></div>
+            </div>
+            <div class="hud-slider-group">
+                <input type="range" id="hud-count-slider" min="6" max="24" step="1" value="12" oninput="hudCountChange()" title="Decimals on screen from the next round">
+                <div class="hud-lbl">Tiles <span id="hud-count-value" style="font-family:'Space Mono',monospace;">12</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="prompt-banner" style="display:none;"></div>
+    <div id="game-arena"></div>
+    <div id="result-strip"></div>
+
+    <div id="game-countdown">
+        <div class="count-num" id="count-num">3</div>
+    </div>
+
+    <div id="game-result">
+        <div class="result-card">
+            <div class="result-title" id="result-title">Well played!</div>
+            <div class="result-sub" id="result-sub"></div>
+            <div class="stat-row">
+                <div>
+                    <div class="stat-val" id="stat-rounds">0/5</div>
+                    <div class="stat-lbl">Rounds won</div>
+                </div>
+                <div>
+                    <div class="stat-val" id="stat-mistakes">0</div>
+                    <div class="stat-lbl">Mistakes</div>
+                </div>
+            </div>
+            <div class="ov-btn-row">
+                <button class="ov-btn ov-secondary" onclick="quitGame()">&larr; Levels</button>
+                <button class="ov-btn ov-primary" onclick="restartGame()">Play again</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════
+const settings = { speedMult: 1, tileCount: 12 };
+
+function updateSettings() {
+    settings.speedMult = parseFloat(document.getElementById('speed-slider').value);
+    settings.tileCount = parseInt(document.getElementById('count-slider').value, 10);
+    document.getElementById('speed-value').textContent = settings.speedMult.toFixed(1) + 'x';
+    document.getElementById('count-value').textContent = settings.tileCount;
+    syncHudSliders();
+}
+
+function syncHudSliders() {
+    document.getElementById('hud-speed-slider').value = settings.speedMult;
+    document.getElementById('hud-count-slider').value = settings.tileCount;
+    document.getElementById('hud-speed-value').textContent = settings.speedMult.toFixed(1) + 'x';
+    document.getElementById('hud-count-value').textContent = settings.tileCount;
+}
+
+function hudSpeedChange() {
+    settings.speedMult = parseFloat(document.getElementById('hud-speed-slider').value);
+    document.getElementById('hud-speed-value').textContent = settings.speedMult.toFixed(1) + 'x';
+    document.getElementById('speed-slider').value = settings.speedMult;
+    document.getElementById('speed-value').textContent = settings.speedMult.toFixed(1) + 'x';
+}
+
+function hudCountChange() {
+    settings.tileCount = parseInt(document.getElementById('hud-count-slider').value, 10);
+    document.getElementById('hud-count-value').textContent = settings.tileCount;
+    document.getElementById('count-slider').value = settings.tileCount;
+    document.getElementById('count-value').textContent = settings.tileCount;
+}
+
+function toggleLearningSection() {
+    const content = document.getElementById('learningContent');
+    const toggle = document.getElementById('learningToggle');
+    content.classList.toggle('open');
+    toggle.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+// ═══════════════════════════════════════════
+//  LEVEL CONFIGS
+// ═══════════════════════════════════════════
+const LEVEL_CONFIGS = {
+    1: { label: 'Level 1: Hundredths',  dps: [2],    spread: 0.09,  time: 20, baseSpeed: 0.45 },
+    2: { label: 'Level 2: Thousandths', dps: [3],    spread: 0.02,  time: 15, baseSpeed: 0.6  },
+    3: { label: 'Level 3: Five Places', dps: [4, 5], spread: 0.003, time: 15, baseSpeed: 0.75 },
+};
+
+const TOTAL_ROUNDS = 5;
+const MAX_LIVES = 3;
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let currentLevel = 1;
+let config = null;
+let lives = MAX_LIVES;
+let round = 0;               // 0-indexed
+let roundResults = [];       // 'won' | 'lost' per round
+let mistakes = 0;
+let timeLeft = 20;
+let timerInt = null;
+let animId = null;
+let tiles = [];
+let gamePhase = 'idle';      // 'pick1' | 'pick2' | 'idle'
+let chosenTile = null;
+let wantHigher = true;
+let gameActive = false;
+
+// ═══════════════════════════════════════════
+//  VALUE GENERATION
+//  Distinct decimals clustered close together.
+// ═══════════════════════════════════════════
+function generateValues(levelConf, count) {
+    let spread = levelConf.spread;
+    const values = [];      // { num, str }
+    const used = new Set();
+    let attempts = 0;
+
+    const base = 0.15 + Math.random() * 0.7;
+
+    while (values.length < count) {
+        attempts++;
+        if (attempts > 400) { spread *= 1.7; attempts = 0; }
+
+        const dp = levelConf.dps[Math.floor(Math.random() * levelConf.dps.length)];
+        let v = base + (Math.random() - 0.5) * 2 * spread;
+        v = Math.min(0.9999, Math.max(0.0001, v));
+        const str = v.toFixed(dp);
+        const num = parseFloat(str);
+
+        if (num <= 0 || num >= 1) continue;
+        if (used.has(num)) continue;
+
+        used.add(num);
+        values.push({ num, str });
+    }
+    return values;
+}
+
+// ═══════════════════════════════════════════
+//  GAME FLOW
+// ═══════════════════════════════════════════
+function startGame(level) {
+    currentLevel = level;
+    config = LEVEL_CONFIGS[level];
+    lives = MAX_LIVES;
+    round = 0;
+    roundResults = [];
+    mistakes = 0;
+    syncHudSliders();
+
+    document.getElementById('game-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('game-result').classList.remove('active');
+    document.getElementById('game-hud').style.display = 'none';
+    document.getElementById('hud-level-label').textContent = config.label;
+
+    startRound();
+}
+
+function startRound() {
+    gamePhase = 'idle';
+    chosenTile = null;
+    timeLeft = config.time;
+    renderHUD();
+    hideStrip();
+    hidePrompt();
+    buildTiles();
+    doCountdown(() => beginRound());
+}
+
+function beginRound() {
+    document.getElementById('game-hud').style.display = 'flex';
+    gameActive = true;
+    gamePhase = 'pick1';
+    showPrompt('Tap any decimal to pick your first number');
+    updateTimerDisplay();
+
+    timerInt = setInterval(() => {
+        if (!gameActive) return;
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) handleTimeout();
+    }, 1000);
+
+    function loop() {
+        if (!gameActive) return;
+        moveTiles();
+        animId = requestAnimationFrame(loop);
+    }
+    loop();
+}
+
+function stopRound() {
+    gameActive = false;
+    if (timerInt) { clearInterval(timerInt); timerInt = null; }
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+}
+
+function quitGame() {
+    stopRound();
+    document.getElementById('game-overlay').classList.remove('active');
+    document.getElementById('game-result').classList.remove('active');
+    document.getElementById('game-countdown').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function restartGame() {
+    document.getElementById('game-result').classList.remove('active');
+    startGame(currentLevel);
+}
+
+// ═══════════════════════════════════════════
+//  HUD
+// ═══════════════════════════════════════════
+function renderHUD() {
+    const livesRow = document.getElementById('lives-row');
+    livesRow.innerHTML = '';
+    for (let i = 0; i < MAX_LIVES; i++) {
+        const d = document.createElement('div');
+        d.className = 'life-dot' + (i >= lives ? ' lost' : '');
+        d.id = 'life-' + i;
+        livesRow.appendChild(d);
+    }
+
+    const pips = document.getElementById('round-pips');
+    pips.innerHTML = '';
+    for (let i = 0; i < TOTAL_ROUNDS; i++) {
+        const p = document.createElement('div');
+        p.className = 'round-pip'
+            + (roundResults[i] === 'won' ? ' won' : '')
+            + (roundResults[i] === 'lost' ? ' lost' : '')
+            + (i === round && roundResults[i] === undefined ? ' current' : '');
+        pips.appendChild(p);
+    }
+}
+
+function updateTimerDisplay() {
+    const el = document.getElementById('hud-timer');
+    el.textContent = Math.max(0, timeLeft);
+    el.classList.toggle('urgent', timeLeft <= 5);
+}
+
+function loseLife() {
+    mistakes++;
+    lives = Math.max(0, lives - 1);
+    for (let i = 0; i < MAX_LIVES; i++) {
+        const d = document.getElementById('life-' + i);
+        if (d) d.classList.toggle('lost', i >= lives);
+    }
+    if (lives <= 0) {
+        roundResults[round] = 'lost';
+        endGame();
+        return true;
+    }
+    return false;
+}
+
+// ═══════════════════════════════════════════
+//  PROMPT + RESULT STRIP
+// ═══════════════════════════════════════════
+function showPrompt(html) {
+    const b = document.getElementById('prompt-banner');
+    b.innerHTML = html;
+    b.style.display = 'block';
+}
+
+function hidePrompt() { document.getElementById('prompt-banner').style.display = 'none'; }
+
+function showStrip(html, good) {
+    const s = document.getElementById('result-strip');
+    s.innerHTML = html;
+    s.className = good ? 'good visible' : 'bad visible';
+    s.classList.add('visible');
+}
+
+function hideStrip() {
+    const s = document.getElementById('result-strip');
+    s.className = '';
+    s.innerHTML = '';
+}
+
+function monoSpan(v) { return '<span class="mono">' + v + '</span>'; }
+
+// ═══════════════════════════════════════════
+//  TILES
+// ═══════════════════════════════════════════
+function buildTiles() {
+    const arena = document.getElementById('game-arena');
+    arena.innerHTML = '';
+    tiles = [];
+
+    const count = settings.tileCount;
+    const values = generateValues(config, count);
+
+    const aW = window.innerWidth;
+    const aH = window.innerHeight - 60;
+
+    const fs = count <= 8 ? 1.3 : count <= 14 ? 1.1 : count <= 19 ? 1.0 : 0.9;
+
+    values.forEach(({ num, str }) => {
+        const el = document.createElement('div');
+        el.className = 'chase-tile';
+        el.textContent = str;
+        el.style.fontSize = fs + 'rem';
+        el.style.padding = fs >= 1 ? '0.55rem 0.95rem' : '0.45rem 0.75rem';
+
+        const tW = Math.max(70, str.length * fs * 11 + 26);
+        const tH = fs >= 1 ? 44 : 38;
+        const x = Math.random() * Math.max(0, aW - tW);
+        const y = Math.random() * Math.max(0, aH - tH);
+        const angle = Math.random() * Math.PI * 2;
+        const spd = config.baseSpeed * (0.7 + Math.random() * 0.6);
+
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        const tObj = { el, x, y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, num, str, w: tW, h: tH, removed: false };
+        el.addEventListener('click', () => handleTileClick(tObj));
+        arena.appendChild(el);
+        tiles.push(tObj);
+    });
+}
+
+function moveTiles() {
+    const aW = window.innerWidth;
+    const aH = window.innerHeight - 60;
+    const m = settings.speedMult;
+
+    tiles.forEach(t => {
+        if (t.removed) return;
+        t.x += t.vx * m;
+        t.y += t.vy * m;
+
+        if (t.x < 0) { t.x = 0; t.vx = Math.abs(t.vx); }
+        if (t.y < 0) { t.y = 0; t.vy = Math.abs(t.vy); }
+        if (t.x + t.w > aW) { t.x = aW - t.w; t.vx = -Math.abs(t.vx); }
+        if (t.y + t.h > aH) { t.y = aH - t.h; t.vy = -Math.abs(t.vy); }
+
+        t.el.style.left = t.x + 'px';
+        t.el.style.top = t.y + 'px';
+    });
+}
+
+// ═══════════════════════════════════════════
+//  CLICK HANDLING
+// ═══════════════════════════════════════════
+function handleTileClick(t) {
+    if (!gameActive || t.removed) return;
+
+    if (gamePhase === 'pick1') {
+        chosenTile = t;
+        t.el.classList.add('chosen');
+        gamePhase = 'pick2';
+
+        // Decide higher or lower so that at least one valid answer exists
+        const others = tiles.filter(x => x !== t && !x.removed);
+        const higherCount = others.filter(x => x.num > t.num).length;
+        const lowerCount = others.filter(x => x.num < t.num).length;
+        if (higherCount === 0) wantHigher = false;
+        else if (lowerCount === 0) wantHigher = true;
+        else wantHigher = Math.random() < 0.5;
+
+        const word = wantHigher
+            ? '<span class="prompt-word-higher">HIGHER</span>'
+            : '<span class="prompt-word-lower">LOWER</span>';
+        showPrompt('You picked <span class="prompt-value">' + t.str + '</span>. Now tap a decimal that is ' + word);
+        hideStrip();
+        return;
+    }
+
+    if (gamePhase === 'pick2') {
+        if (t === chosenTile) return;
+
+        const isCorrect = wantHigher ? (t.num > chosenTile.num) : (t.num < chosenTile.num);
+        const symbol = t.num > chosenTile.num ? '&gt;' : t.num < chosenTile.num ? '&lt;' : '=';
+
+        if (isCorrect) {
+            gamePhase = 'idle';
+            t.el.classList.add('correct-flash');
+            chosenTile.el.classList.add('correct-flash');
+            roundResults[round] = 'won';
+            showStrip('Correct. ' + monoSpan(t.str) + ' ' + symbol + ' ' + monoSpan(chosenTile.str), true);
+            stopRound();
+            setTimeout(() => advanceRound(), 1600);
+        } else {
+            t.el.classList.add('wrong-shake');
+            t.el.addEventListener('animationend', () => t.el.classList.remove('wrong-shake'), { once: true });
+            const need = wantHigher ? 'higher' : 'lower';
+            showStrip('You tapped ' + monoSpan(t.str) + ', but ' + monoSpan(t.str) + ' ' + symbol + ' ' + monoSpan(chosenTile.str) + '. You need one that is ' + need + '. Keep looking.', false);
+            loseLife();
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+//  TIMEOUT
+// ═══════════════════════════════════════════
+function handleTimeout() {
+    stopRound();
+    roundResults[round] = 'lost';
+    renderHUD();
+
+    if (gamePhase === 'pick2' && chosenTile) {
+        // Reveal the valid answers briefly
+        const valid = tiles.filter(x => x !== chosenTile && !x.removed &&
+            (wantHigher ? x.num > chosenTile.num : x.num < chosenTile.num));
+        valid.forEach(x => x.el.classList.add('valid-reveal'));
+        const need = wantHigher ? 'higher' : 'lower';
+        showStrip('Time is up. The green decimals were all ' + need + ' than ' + monoSpan(chosenTile.str) + '.', false);
+    } else {
+        showStrip('Time is up. Tap a decimal sooner next time.', false);
+    }
+
+    const gameOver = loseLife();
+    if (!gameOver) setTimeout(() => advanceRound(), 2600);
+}
+
+// ═══════════════════════════════════════════
+//  ROUND / GAME END
+// ═══════════════════════════════════════════
+function advanceRound() {
+    round++;
+    if (round >= TOTAL_ROUNDS) {
+        endGame();
+    } else {
+        startRound();
+    }
+}
+
+function endGame() {
+    stopRound();
+    hidePrompt();
+    hideStrip();
+
+    const won = roundResults.filter(r => r === 'won').length;
+    const title = document.getElementById('result-title');
+    const sub = document.getElementById('result-sub');
+
+    if (lives <= 0) {
+        title.textContent = 'Out of lives!';
+        sub.textContent = 'Those decimals were close. Have another go.';
+    } else if (won === TOTAL_ROUNDS) {
+        title.textContent = 'Perfect game!';
+        sub.textContent = 'You won all ' + TOTAL_ROUNDS + ' rounds. Try a harder level or turn the speed up.';
+    } else {
+        title.textContent = 'Game over';
+        sub.textContent = 'You won ' + won + ' of ' + TOTAL_ROUNDS + ' rounds.';
+    }
+
+    document.getElementById('stat-rounds').textContent = won + '/' + TOTAL_ROUNDS;
+    document.getElementById('stat-mistakes').textContent = mistakes;
+    document.getElementById('game-result').classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+//  COUNTDOWN
+// ═══════════════════════════════════════════
+function doCountdown(cb) {
+    const cdEl = document.getElementById('game-countdown');
+    cdEl.classList.add('active');
+    let count = 3;
+    const numEl = document.getElementById('count-num');
+    numEl.textContent = count;
+    numEl.style.animation = 'none';
+    numEl.offsetHeight;
+    numEl.style.animation = '';
+
+    function tick() {
+        count--;
+        if (count <= 0) {
+            numEl.textContent = 'GO!';
+            numEl.style.animation = 'none';
+            numEl.offsetHeight;
+            numEl.style.animation = '';
+            setTimeout(() => {
+                cdEl.classList.remove('active');
+                cb();
+            }, 700);
+        } else {
+            numEl.textContent = count;
+            numEl.style.animation = 'none';
+            numEl.offsetHeight;
+            numEl.style.animation = '';
+            setTimeout(tick, 900);
+        }
+    }
+    setTimeout(tick, 900);
+}
+
+updateSettings();
+</script>
+</body>
+</html>
