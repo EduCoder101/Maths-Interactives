@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equivalent Fractions Trainer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #FF6B6B;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+            --blue: #3498DB;
+            --amber: #FFD93D;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--bg-cream);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        .page-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 0.5rem;
+        }
+
+        .page-header h1 {
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 700;
+        }
+
+        .page-header p {
+            color: var(--text-light);
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            margin-top: 0.3rem;
+        }
+
+        /* ---------- Level tabs ---------- */
+        .level-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            max-width: 700px;
+            margin: 1.5rem auto 0;
+        }
+
+        .level-tab {
+            flex: 1;
+            max-width: 340px;
+            background: white;
+            border: 3px solid #dfe6e9;
+            border-radius: 16px;
+            padding: 0.7rem 1rem;
+            font-family: 'Fredoka', sans-serif;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        }
+
+        .level-tab h3 { font-size: 1.05rem; font-weight: 700; }
+        .level-tab p { font-size: 0.85rem; color: var(--text-light); margin-top: 0.1rem; }
+
+        .level-tab:hover { transform: translateY(-2px); }
+
+        .level-tab.active.tab-l1 {
+            border-color: var(--level1-color);
+            background: #e8f8f5;
+        }
+
+        .level-tab.active.tab-l2 {
+            border-color: var(--level2-color);
+            background: #fdeeee;
+        }
+
+        /* ---------- Score bar ---------- */
+        .score-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--amber);
+            margin: 1.5rem auto;
+            max-width: 700px;
+            padding: 1.1rem 1.5rem;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .score-label { font-weight: 600; font-size: 1.05rem; }
+
+        .score-value {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .score-time {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text-light);
+        }
+
+        .score-time::before {
+            content: 'Time ';
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .score-goal-msg {
+            font-weight: 600;
+            color: var(--correct-color);
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .progress-track {
+            margin-top: 0.8rem;
+            height: 14px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .milestone-tick {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: rgba(45,52,54,0.25);
+            z-index: 1;
+        }
+
+        .milestone-labels {
+            position: relative;
+            height: 1.1rem;
+            margin-top: 0.15rem;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .milestone-labels span { position: absolute; transform: translateX(-50%); }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary-accent), #38b2aa);
+            border-radius: 10px;
+            transition: width 0.4s ease, background 0.3s ease;
+        }
+
+        .progress-fill.l2 {
+            background: linear-gradient(90deg, var(--level2-color), #e05252);
+        }
+
+        /* ---------- Question card ---------- */
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--level1-color);
+            margin: 1.5rem auto;
+            max-width: 700px;
+            padding: 2rem 1.5rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .question-card.l2 { border-top-color: var(--level2-color); }
+
+        .question-instruction {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .fraction-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(0.5rem, 2vw, 1rem);
+            flex-wrap: wrap;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .frac {
+            display: inline-flex;
+            align-items: flex-end;
+            gap: 5px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.4rem, 4vw, 1.9rem);
+        }
+
+        .frac-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .frac .num { padding: 0 0.5rem 0.15rem; }
+
+        .frac .den {
+            padding: 0.15rem 0.5rem 0;
+            border-top: 3px solid var(--text-dark);
+        }
+
+        .mult-chip {
+            display: none;
+            font-size: 0.55em;
+            background: #eaf4fb;
+            color: var(--blue);
+            border-radius: 8px;
+            padding: 0.1em 0.45em;
+            margin-bottom: 0.15em;
+            white-space: nowrap;
+        }
+
+        .mult-chip.visible {
+            display: inline-block;
+            animation: popIn 0.35s ease;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            70% { transform: scale(1.15); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .op {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+        }
+
+        .input-frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-frac input {
+            width: 74px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+            text-align: center;
+            border: 3px solid #dfe6e9;
+            border-radius: 12px;
+            padding: 0.3rem 0.2rem;
+            color: var(--text-dark);
+            background: white;
+            outline: none;
+            transition: border-color 0.2s ease, background 0.2s ease;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .input-frac input::-webkit-outer-spin-button,
+        .input-frac input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-frac input:focus { border-color: var(--primary-accent); }
+
+        .input-frac input:disabled {
+            background: #f1f5f9;
+            border-color: #e8edf0;
+            cursor: not-allowed;
+        }
+
+        .input-frac .frac-bar {
+            width: 74px;
+            height: 3px;
+            background: var(--text-dark);
+            margin: 0.35rem 0;
+            border-radius: 2px;
+        }
+
+        .input-frac input.correct {
+            border-color: var(--correct-color);
+            background: #eafaf1;
+            color: var(--correct-color);
+        }
+
+        .input-frac input.wrong {
+            border-color: var(--incorrect-color);
+            background: #fdecea;
+            color: var(--incorrect-color);
+            animation: shake 0.35s ease;
+        }
+
+        .sum-group { display: none; align-items: center; gap: clamp(0.5rem, 2vw, 1rem); }
+        .sum-group.visible { display: flex; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- Feedback + hint ---------- */
+        .feedback-box {
+            display: none;
+            margin: 1.4rem auto 0;
+            max-width: 560px;
+            border-radius: 12px;
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback-box.visible { display: block; }
+
+        .feedback-box.fb-wrong {
+            background: #fdecea;
+            border-left: 4px solid var(--incorrect-color);
+        }
+
+        .feedback-box.fb-progress {
+            background: #eafaf1;
+            border-left: 4px solid var(--correct-color);
+        }
+
+        .feedback-box.fb-success {
+            background: #eafaf1;
+            border-left: 4px solid var(--correct-color);
+            font-weight: 600;
+        }
+
+        .mono {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+        }
+
+        .question-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .hint-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: none;
+            background: var(--blue);
+            color: white;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+        }
+
+        .hint-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(52,152,219,0.4); }
+
+        .next-btn {
+            display: none;
+            background: var(--primary-accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.7rem 1.8rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(78,205,196,0.35);
+        }
+
+        .next-btn.visible { display: inline-block; }
+        .next-btn:hover { transform: translateY(-2px); }
+
+        .hint-box {
+            display: none;
+            margin: 1.2rem auto 0;
+            max-width: 560px;
+            background: #eaf4fb;
+            border-left: 4px solid var(--blue);
+            border-radius: 12px;
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .hint-box.visible { display: block; }
+
+        /* ---------- Goal celebration ---------- */
+        .goal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(45,52,54,0.55);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .goal-overlay.visible { display: flex; }
+
+        .goal-modal {
+            background: white;
+            border-radius: 20px;
+            border-top: 5px solid var(--amber);
+            box-shadow: var(--card-shadow);
+            max-width: 440px;
+            width: 100%;
+            padding: 2rem 1.7rem;
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .goal-modal h2 { font-size: 1.5rem; margin-bottom: 0.6rem; }
+
+        .goal-modal p { color: var(--text-light); line-height: 1.6; margin-bottom: 1.3rem; }
+
+        .goal-modal button {
+            background: var(--primary-accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.7rem 1.6rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .goal-modal button:hover { transform: translateY(-2px); }
+
+        @media (max-width: 600px) {
+            .input-frac input { width: 60px; }
+            .input-frac .frac-bar { width: 60px; }
+            .question-card { padding: 1.5rem 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <h1>Equivalent Fractions Trainer</h1>
+        <p>Give both fractions the same denominator.</p>
+    </div>
+
+    <!-- Level tabs -->
+    <div class="level-tabs">
+        <button class="level-tab tab-l1 active" id="tab-l1" onclick="setLevel(1)">
+            <h3>Level 1</h3>
+            <p>Convert the fractions</p>
+        </button>
+        <button class="level-tab tab-l2" id="tab-l2" onclick="setLevel(2)">
+            <h3>Level 2</h3>
+            <p>Convert, then add</p>
+        </button>
+    </div>
+
+    <!-- Score -->
+    <div class="score-card">
+        <div class="score-row">
+            <span class="score-label" id="scoreLabel">Level 1 Score</span>
+            <span class="score-goal-msg" id="goalMsg">Goal reached! Keep going.</span>
+            <span class="score-time" id="scoreTime">0:00</span>
+            <span class="score-value"><span id="scoreCount">0</span> / <span id="scoreTarget">20</span></span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="milestone-tick" style="left: 40%;"></div>
+            <div class="milestone-tick" style="left: 70%;"></div>
+        </div>
+        <div class="milestone-labels">
+            <span style="left: 40%;">20</span>
+            <span style="left: 70%;">35</span>
+            <span style="left: 100%; transform: translateX(-100%);">50</span>
+        </div>
+    </div>
+
+    <!-- Question -->
+    <div class="question-card" id="questionCard">
+        <p class="question-instruction" id="instruction">First, give both fractions the same denominator. Press Enter after each box.</p>
+        <div class="fraction-row" id="fractionRow">
+            <div class="frac">
+                <div class="frac-stack">
+                    <span class="num" id="q-num1"></span>
+                    <span class="den" id="q-den1"></span>
+                </div>
+                <span class="mult-chip" id="mult1"></span>
+            </div>
+            <span class="op">+</span>
+            <div class="frac">
+                <div class="frac-stack">
+                    <span class="num" id="q-num2"></span>
+                    <span class="den" id="q-den2"></span>
+                </div>
+                <span class="mult-chip" id="mult2"></span>
+            </div>
+            <span class="op">=</span>
+            <div class="input-frac">
+                <input type="number" id="in-num1" inputmode="numeric" aria-label="First numerator" disabled>
+                <div class="frac-bar"></div>
+                <input type="number" id="in-den1" inputmode="numeric" aria-label="First denominator">
+            </div>
+            <span class="op">+</span>
+            <div class="input-frac">
+                <input type="number" id="in-num2" inputmode="numeric" aria-label="Second numerator" disabled>
+                <div class="frac-bar"></div>
+                <input type="number" id="in-den2" inputmode="numeric" aria-label="Second denominator">
+            </div>
+            <div class="sum-group" id="sumGroup">
+                <span class="op">=</span>
+                <div class="input-frac">
+                    <input type="number" id="in-sum-num" inputmode="numeric" aria-label="Total numerator" disabled>
+                    <div class="frac-bar"></div>
+                    <input type="number" id="in-sum-den" inputmode="numeric" aria-label="Total denominator" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="feedback-box" id="feedbackBox"></div>
+        <div class="hint-box" id="hintBox"></div>
+
+        <div class="question-controls">
+            <button class="hint-btn" id="hintBtn" onclick="showHint()" title="Show a hint">?</button>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next question</button>
+        </div>
+    </div>
+
+    <!-- Goal celebration overlay -->
+    <div class="goal-overlay" id="goalOverlay">
+        <div class="goal-modal">
+            <h2 id="goalTitle">50 points. You did it!</h2>
+            <p id="goalText"></p>
+            <span id="goalButtons"></span>
+        </div>
+    </div>
+
+    <script>
+        // ---------- Utilities ----------
+        function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+        function lcm(a, b) { return a * b / gcd(a, b); }
+        function randPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function mono(n) { return '<span class="mono">' + n + '</span>'; }
+
+        // ---------- Question pool ----------
+        // Pairs of denominators, LCD always 24 or less.
+        var DEN_PAIRS = [
+            [2,4],[2,6],[2,8],[2,10],[2,12],[3,6],[3,9],[3,12],[4,8],[4,12],[5,10],[6,12],
+            [2,3],[2,5],[2,9],[3,4],[3,5],[3,8],[4,5],
+            [4,6],[6,8],[6,9],[4,10],[8,12]
+        ];
+
+        var MILESTONES = [20, 35, 50];
+
+        var state = {
+            q: null,
+            level: 1,
+            scores: { 1: 0, 2: 0 },
+            goal: 50,
+            goalReached: { 1: false, 2: false },
+            lastPairKey: '',
+            timing: {
+                1: { totalMs: 0, runningSince: null, splits: {} },
+                2: { totalMs: 0, runningSince: null, splits: {} }
+            }
+        };
+
+        // ---------- Timer ----------
+        function elapsedMs(level) {
+            var t = state.timing[level];
+            return t.totalMs + (t.runningSince ? Date.now() - t.runningSince : 0);
+        }
+
+        function startTimerIfNeeded() {
+            var t = state.timing[state.level];
+            if (t.runningSince === null && !state.goalReached[state.level]) {
+                t.runningSince = Date.now();
+            }
+        }
+
+        function pauseTimer(level) {
+            var t = state.timing[level];
+            if (t.runningSince !== null) {
+                t.totalMs += Date.now() - t.runningSince;
+                t.runningSince = null;
+            }
+        }
+
+        function formatTime(ms) {
+            var totalSec = Math.floor(ms / 1000);
+            var m = Math.floor(totalSec / 60);
+            var s = totalSec % 60;
+            return m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        function updateTimeDisplay() {
+            document.getElementById('scoreTime').textContent = formatTime(elapsedMs(state.level));
+        }
+
+        setInterval(updateTimeDisplay, 500);
+
+        function makeQuestion() {
+            var pair, key, tries = 0;
+            do {
+                pair = randPick(DEN_PAIRS).slice();
+                if (Math.random() < 0.5) pair.reverse();
+                key = pair[0] + '-' + pair[1];
+                tries++;
+            } while (key === state.lastPairKey && tries < 10);
+            state.lastPairKey = key;
+
+            var d1 = pair[0], d2 = pair[1];
+            var L = lcm(d1, d2);
+            var n1 = randInt(1, d1 - 1);
+            var n2 = randInt(1, d2 - 1);
+            // Avoid showing two identical fractions
+            if (n1 * d2 === n2 * d1) { n2 = (n2 % (d2 - 1)) + 1; }
+
+            return {
+                n1: n1, d1: d1, n2: n2, d2: d2,
+                L: L,
+                m1: L / d1, m2: L / d2,
+                t1: n1 * (L / d1), t2: n2 * (L / d2)
+            };
+        }
+
+        // ---------- Rendering ----------
+        var inputs = {
+            num1: document.getElementById('in-num1'),
+            den1: document.getElementById('in-den1'),
+            num2: document.getElementById('in-num2'),
+            den2: document.getElementById('in-den2'),
+            sumNum: document.getElementById('in-sum-num'),
+            sumDen: document.getElementById('in-sum-den')
+        };
+
+        function renderQuestion() {
+            var q = state.q;
+            document.getElementById('q-num1').textContent = q.n1;
+            document.getElementById('q-den1').textContent = q.d1;
+            document.getElementById('q-num2').textContent = q.n2;
+            document.getElementById('q-den2').textContent = q.d2;
+
+            for (var k in inputs) {
+                inputs[k].value = '';
+                inputs[k].classList.remove('correct', 'wrong');
+                inputs[k].readOnly = false;
+                inputs[k].disabled = true;
+            }
+            inputs.den1.disabled = false;
+            inputs.den2.disabled = false;
+
+            ['mult1', 'mult2'].forEach(function (id) {
+                var chip = document.getElementById(id);
+                chip.classList.remove('visible');
+                chip.textContent = '';
+            });
+
+            document.getElementById('sumGroup').classList.toggle('visible', state.level === 2);
+
+            hideFeedback();
+            hideHint();
+            document.getElementById('nextBtn').classList.remove('visible');
+            document.getElementById('instruction').textContent = 'First, give both fractions the same denominator. Press Enter after each box.';
+            inputs.den1.focus();
+        }
+
+        function nextQuestion() {
+            state.q = makeQuestion();
+            renderQuestion();
+        }
+
+        function setLevel(level) {
+            if (state.level === level) return;
+            pauseTimer(state.level);
+            state.level = level;
+            document.getElementById('tab-l1').classList.toggle('active', level === 1);
+            document.getElementById('tab-l2').classList.toggle('active', level === 2);
+            document.getElementById('questionCard').classList.toggle('l2', level === 2);
+            document.getElementById('progressFill').classList.toggle('l2', level === 2);
+            document.getElementById('scoreLabel').textContent = 'Level ' + level + ' Score';
+            updateScore();
+            updateTimeDisplay();
+            nextQuestion();
+        }
+
+        // ---------- Feedback ----------
+        function showFeedback(type, html) {
+            var box = document.getElementById('feedbackBox');
+            box.className = 'feedback-box visible ' + type;
+            box.innerHTML = html;
+        }
+
+        function hideFeedback() {
+            var box = document.getElementById('feedbackBox');
+            box.className = 'feedback-box';
+            box.innerHTML = '';
+        }
+
+        function hideHint() {
+            var box = document.getElementById('hintBox');
+            box.classList.remove('visible');
+            box.innerHTML = '';
+        }
+
+        function denFeedback(entered, q) {
+            if (entered <= 0) {
+                return 'You answered ' + mono(entered) + '. You need a whole number that both ' + mono(q.d1) + ' and ' + mono(q.d2) + ' go into.';
+            }
+            var into1 = entered % q.d1 === 0;
+            var into2 = entered % q.d2 === 0;
+            if (into1 && into2) {
+                return 'You answered ' + mono(entered) + '. Both ' + mono(q.d1) + ' and ' + mono(q.d2) + ' do go into ' + mono(entered) + ', but there is a smaller number they both go into. Find the lowest one.';
+            }
+            if (!into1 && !into2) {
+                return 'You answered ' + mono(entered) + '. But neither ' + mono(q.d1) + ' nor ' + mono(q.d2) + ' goes into ' + mono(entered) + '. Try counting up in ' + mono(Math.max(q.d1, q.d2)) + 's.';
+            }
+            var bad = into1 ? q.d2 : q.d1;
+            return 'You answered ' + mono(entered) + '. But ' + mono(bad) + ' does not go into ' + mono(entered) + ', so the denominator ' + mono(bad) + ' cannot become ' + mono(entered) + 'ths.';
+        }
+
+        function numFeedback(entered, n, d, m, L, t) {
+            if (m === 1) {
+                return 'You answered ' + mono(entered) + '. The denominator ' + mono(d) + ' did not change, so the numerator ' + mono(n) + ' does not change either.';
+            }
+            if (entered === n) {
+                return 'You answered ' + mono(entered) + ', keeping the numerator the same. But the denominator was multiplied by ' + mono(m) + '. Whatever you do to the bottom, you must do to the top.';
+            }
+            if (entered === n + (L - d)) {
+                return 'You answered ' + mono(entered) + '. It looks like you added ' + mono(L - d) + ' because the denominator went up by ' + mono(L - d) + '. Equivalent fractions are made by multiplying, not adding. Multiply ' + mono(n) + ' by ' + mono(m) + '.';
+            }
+            return 'You answered ' + mono(entered) + '. The denominator ' + mono(d) + ' was multiplied by ' + mono(m) + ' to get ' + mono(L) + ', so the numerator ' + mono(n) + ' must also be multiplied by ' + mono(m) + '.';
+        }
+
+        function sumNumFeedback(entered, q) {
+            var total = q.t1 + q.t2;
+            if (entered === q.n1 + q.n2 && q.n1 + q.n2 !== total) {
+                return 'You answered ' + mono(entered) + '. It looks like you added the original numerators ' + mono(q.n1) + ' and ' + mono(q.n2) + ', but those were different sized pieces. Add the new numerators ' + mono(q.t1) + ' and ' + mono(q.t2) + '.';
+            }
+            if (total > q.L && entered === total - q.L) {
+                return 'You answered ' + mono(entered) + '. It looks like you started turning it into a mixed number. Keep it as an improper fraction: put all the pieces on top.';
+            }
+            return 'You answered ' + mono(entered) + '. The pieces are the same size now, so just add the numerators: ' + mono(q.t1) + ' + ' + mono(q.t2) + '.';
+        }
+
+        function sumDenFeedback(entered, q) {
+            if (entered === q.L * 2) {
+                return 'You answered ' + mono(entered) + '. It looks like you added the two denominators. When you add fractions, the pieces stay the same size, so the denominator stays as ' + mono(q.L) + '.';
+            }
+            return 'You answered ' + mono(entered) + '. Adding fractions does not change the size of the pieces. Both fractions are ' + mono(q.L) + 'ths, so the answer is in ' + mono(q.L) + 'ths too.';
+        }
+
+        // ---------- Validation ----------
+        function readValue(input) {
+            var v = input.value.trim();
+            if (v === '') return null;
+            var n = Number(v);
+            if (isNaN(n) || !isFinite(n) || n !== Math.floor(n)) return NaN;
+            return n;
+        }
+
+        function showMultChip(which) {
+            var q = state.q;
+            var chip = document.getElementById(which === 'den1' ? 'mult1' : 'mult2');
+            var m = which === 'den1' ? q.m1 : q.m2;
+            chip.textContent = '×' + m;
+            chip.classList.add('visible');
+        }
+
+        function checkBox(which) {
+            var q = state.q;
+            var input = inputs[which];
+            if (input.disabled || input.readOnly) return;
+            var entered = readValue(input);
+            if (entered === null) return; // ignore empty boxes
+            if (isNaN(entered)) {
+                input.classList.remove('correct');
+                input.classList.add('wrong');
+                showFeedback('fb-wrong', 'Your answer needs to be a whole number.');
+                return;
+            }
+
+            var correct, feedbackHtml;
+            if (which === 'den1' || which === 'den2') {
+                correct = (entered === q.L);
+                feedbackHtml = denFeedback(entered, q);
+            } else if (which === 'num1') {
+                correct = (entered === q.t1);
+                feedbackHtml = numFeedback(entered, q.n1, q.d1, q.m1, q.L, q.t1);
+            } else if (which === 'num2') {
+                correct = (entered === q.t2);
+                feedbackHtml = numFeedback(entered, q.n2, q.d2, q.m2, q.L, q.t2);
+            } else if (which === 'sumNum') {
+                correct = (entered === q.t1 + q.t2);
+                feedbackHtml = sumNumFeedback(entered, q);
+            } else {
+                correct = (entered === q.L);
+                feedbackHtml = sumDenFeedback(entered, q);
+            }
+
+            if (correct) {
+                input.classList.remove('wrong');
+                input.classList.add('correct');
+                input.readOnly = true;
+                hideFeedback();
+                if (which === 'den1' || which === 'den2') showMultChip(which);
+                advanceFlow();
+            } else {
+                input.classList.remove('correct');
+                input.classList.add('wrong');
+                showFeedback('fb-wrong', feedbackHtml);
+            }
+        }
+
+        function isDone(key) { return inputs[key].classList.contains('correct'); }
+
+        function advanceFlow() {
+            var q = state.q;
+            var densDone = isDone('den1') && isDone('den2');
+            var numsDone = isDone('num1') && isDone('num2');
+            var sumDone = isDone('sumNum') && isDone('sumDen');
+
+            if (densDone && inputs.num1.disabled) {
+                inputs.num1.disabled = false;
+                inputs.num2.disabled = false;
+                document.getElementById('instruction').innerHTML = 'Both denominators are ' + mono(q.L) + '. Now convert the numerators.';
+                showFeedback('fb-progress', 'Both fractions are becoming ' + mono(q.L) + 'ths. The ' + mono('×') + ' clues show what happened to each denominator.');
+                hideHint();
+                inputs.num1.focus();
+                return;
+            }
+
+            if (densDone && numsDone && state.level === 2 && inputs.sumNum.disabled) {
+                inputs.sumNum.disabled = false;
+                inputs.sumDen.disabled = false;
+                document.getElementById('instruction').innerHTML = 'The denominators match. Now add the two fractions.';
+                showFeedback('fb-progress', 'Converted! Now add ' + mono(q.t1 + '/' + q.L) + ' and ' + mono(q.t2 + '/' + q.L) + '.');
+                hideHint();
+                inputs.sumNum.focus();
+                return;
+            }
+
+            if (densDone && numsDone && (state.level === 1 || sumDone)) {
+                questionComplete();
+                return;
+            }
+
+            // Move focus to the next open box
+            var order = ['den1', 'den2', 'num1', 'num2', 'sumNum', 'sumDen'];
+            for (var i = 0; i < order.length; i++) {
+                var inp = inputs[order[i]];
+                if (!inp.disabled && !inp.readOnly) { inp.focus(); return; }
+            }
+        }
+
+        function questionComplete() {
+            var q = state.q;
+            state.scores[state.level]++;
+            updateScore();
+            var html = 'Correct! ' + mono(q.n1 + '/' + q.d1) + ' = ' + mono(q.t1 + '/' + q.L) +
+                ' and ' + mono(q.n2 + '/' + q.d2) + ' = ' + mono(q.t2 + '/' + q.L);
+            if (state.level === 2) {
+                html += ', and ' + mono(q.t1 + '/' + q.L) + ' + ' + mono(q.t2 + '/' + q.L) + ' = ' + mono((q.t1 + q.t2) + '/' + q.L);
+            }
+            html += '. That is 1 point.';
+            showFeedback('fb-success', html);
+            document.getElementById('instruction').textContent = 'Nice work. Press Enter or click Next question.';
+            document.getElementById('nextBtn').classList.add('visible');
+            hideHint();
+            var score = state.scores[state.level];
+            var t = state.timing[state.level];
+            for (var i = 0; i < MILESTONES.length; i++) {
+                var m = MILESTONES[i];
+                if (score === m && !t.splits[m]) {
+                    t.splits[m] = elapsedMs(state.level);
+                    if (m === state.goal) {
+                        state.goalReached[state.level] = true;
+                        pauseTimer(state.level);
+                    }
+                    showMilestoneOverlay(m, t.splits[m]);
+                    break;
+                }
+            }
+        }
+
+        function nextTarget(score) {
+            for (var i = 0; i < MILESTONES.length; i++) {
+                if (score < MILESTONES[i]) return MILESTONES[i];
+            }
+            return state.goal;
+        }
+
+        function updateScore() {
+            var score = state.scores[state.level];
+            document.getElementById('scoreCount').textContent = score;
+            document.getElementById('scoreTarget').textContent = nextTarget(score);
+            var pct = Math.min(100, (score / state.goal) * 100);
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('goalMsg').style.display = score >= state.goal ? 'inline' : 'none';
+        }
+
+        function showMilestoneOverlay(milestone, splitMs) {
+            var title = document.getElementById('goalTitle');
+            var text = document.getElementById('goalText');
+            var buttons = document.getElementById('goalButtons');
+            var time = formatTime(splitMs);
+
+            if (milestone === 20) {
+                title.textContent = 'First target reached!';
+                text.innerHTML = mono(20) + ' correct in ' + mono(time) + '. The timer is still running. Next stop: ' + mono(35) + '.';
+                buttons.innerHTML = '<button onclick="closeGoalOverlay(0)">Keep going</button>';
+            } else if (milestone === 35) {
+                title.textContent = 'Second target reached!';
+                text.innerHTML = mono(35) + ' correct in ' + mono(time) + '. One final push to ' + mono(50) + '.';
+                buttons.innerHTML = '<button onclick="closeGoalOverlay(0)">Keep going</button>';
+            } else if (state.level === 1) {
+                title.textContent = '50 correct. You did it!';
+                text.innerHTML = 'You converted ' + mono(50) + ' pairs of fractions in ' + mono(time) + '. Ready to add them as well? Try Level 2, or keep practising.';
+                buttons.innerHTML = '<button onclick="closeGoalOverlay(2)">Try Level 2</button>' +
+                    '<button onclick="closeGoalOverlay(0)" style="background:#636E72;">Keep practising</button>';
+            } else {
+                title.textContent = '50 correct. You did it!';
+                text.innerHTML = 'You converted and added ' + mono(50) + ' pairs of fractions in ' + mono(time) + '. That is serious fraction power.';
+                buttons.innerHTML = '<button onclick="closeGoalOverlay(0)">Keep practising</button>';
+            }
+            document.getElementById('goalOverlay').classList.add('visible');
+        }
+
+        function closeGoalOverlay(switchTo) {
+            document.getElementById('goalOverlay').classList.remove('visible');
+            if (switchTo) setLevel(switchTo);
+        }
+
+        // ---------- Hints ----------
+        function multiplesList(d, L) {
+            var out = [];
+            for (var m = d; m <= L; m += d) out.push(m);
+            return out.map(mono).join(', ');
+        }
+
+        function showHint() {
+            var q = state.q;
+            var box = document.getElementById('hintBox');
+            var densDone = isDone('den1') && isDone('den2');
+            var numsDone = isDone('num1') && isDone('num2');
+            var html;
+            if (!densDone) {
+                html = '<strong>Finding the denominator:</strong> you need the smallest number in both times tables.<br>' +
+                    'Multiples of ' + mono(q.d1) + ': ' + multiplesList(q.d1, q.L) + '<br>' +
+                    'Multiples of ' + mono(q.d2) + ': ' + multiplesList(q.d2, q.L) + '<br>' +
+                    'The smallest number in both lists is your denominator.';
+            } else if (!numsDone) {
+                var h1 = (q.m1 === 1)
+                    ? mono(q.n1 + '/' + q.d1) + ' is already in ' + mono(q.L) + 'ths, so it does not change.'
+                    : 'For ' + mono(q.n1 + '/' + q.d1) + ': you multiplied ' + mono(q.d1) + ' by ' + mono(q.m1) + ' to get ' + mono(q.L) + ', so multiply ' + mono(q.n1) + ' by ' + mono(q.m1) + ' as well.';
+                var h2 = (q.m2 === 1)
+                    ? mono(q.n2 + '/' + q.d2) + ' is already in ' + mono(q.L) + 'ths, so it does not change.'
+                    : 'For ' + mono(q.n2 + '/' + q.d2) + ': you multiplied ' + mono(q.d2) + ' by ' + mono(q.m2) + ' to get ' + mono(q.L) + ', so multiply ' + mono(q.n2) + ' by ' + mono(q.m2) + ' as well.';
+                html = '<strong>Converting the numerators:</strong> whatever you do to the bottom, do to the top.<br>' + h1 + '<br>' + h2;
+            } else {
+                html = '<strong>Adding the fractions:</strong> the pieces are all ' + mono(q.L) + 'ths now, so they are the same size.<br>' +
+                    'Add the numerators: ' + mono(q.t1) + ' + ' + mono(q.t2) + '.<br>' +
+                    'The denominator stays the same, because the size of the pieces has not changed.';
+            }
+            box.innerHTML = html;
+            box.classList.add('visible');
+        }
+
+        // ---------- Events ----------
+        Object.keys(inputs).forEach(function (key) {
+            var input = inputs[key];
+            input.addEventListener('blur', function () { checkBox(key); });
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (document.getElementById('nextBtn').classList.contains('visible')) {
+                        nextQuestion();
+                    } else {
+                        checkBox(key);
+                    }
+                }
+            });
+            input.addEventListener('input', function () {
+                startTimerIfNeeded();
+                if (input.classList.contains('wrong')) {
+                    input.classList.remove('wrong');
+                    hideFeedback();
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && document.getElementById('nextBtn').classList.contains('visible') &&
+                document.activeElement.tagName !== 'INPUT') {
+                nextQuestion();
+            }
+        });
+
+        // ---------- Start ----------
+        state.q = makeQuestion();
+        renderQuestion();
+        updateScore();
+    </script>
+
+</body>
+</html>
