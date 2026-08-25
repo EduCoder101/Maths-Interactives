@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplying and Dividing Fractions Trainer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-accent: #4ECDC4;
+            --bg-cream: #FFF8F0;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --level1-color: #4ECDC4;
+            --level2-color: #3498DB;
+            --level3-color: #FF6B6B;
+            --level4-color: #9B5DE5;
+            --correct-color: #27AE60;
+            --incorrect-color: #E74C3C;
+            --blue: #3498DB;
+            --amber: #FFD93D;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--bg-cream);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        .page-header { text-align: center; max-width: 760px; margin: 0 auto 0.5rem; }
+        .page-header h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 700; }
+        .page-header p {
+            color: var(--text-light);
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            margin-top: 0.3rem;
+        }
+
+        /* ---------- Level tabs ---------- */
+        .level-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            max-width: 760px;
+            margin: 1.5rem auto 0;
+        }
+
+        .level-tab {
+            flex: 1 1 160px;
+            max-width: 220px;
+            background: white;
+            border: 3px solid #dfe6e9;
+            border-radius: 16px;
+            padding: 0.6rem 0.8rem;
+            font-family: 'Fredoka', sans-serif;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        }
+
+        .level-tab h3 { font-size: 1rem; font-weight: 700; }
+        .level-tab p { font-size: 0.8rem; color: var(--text-light); margin-top: 0.1rem; }
+        .level-tab:hover { transform: translateY(-2px); }
+
+        .level-tab.active.tab-l1 { border-color: var(--level1-color); background: #e8f8f5; }
+        .level-tab.active.tab-l2 { border-color: var(--level2-color); background: #e9f4fc; }
+        .level-tab.active.tab-l3 { border-color: var(--level3-color); background: #fdeeee; }
+        .level-tab.active.tab-l4 { border-color: var(--level4-color); background: #f4ecfd; }
+
+        /* ---------- Score bar ---------- */
+        .score-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--amber);
+            margin: 1.5rem auto;
+            max-width: 760px;
+            padding: 1.1rem 1.5rem;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .score-label { font-weight: 600; font-size: 1.05rem; }
+
+        .score-value { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.3rem; }
+
+        .score-time {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text-light);
+        }
+
+        .score-time::before {
+            content: 'Time ';
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .score-goal-msg {
+            font-weight: 600;
+            color: var(--correct-color);
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .progress-track {
+            margin-top: 0.8rem;
+            height: 14px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--level1-color), #38b2aa);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        .progress-fill.l2 { background: linear-gradient(90deg, var(--level2-color), #2176ae); }
+        .progress-fill.l3 { background: linear-gradient(90deg, var(--level3-color), #e05252); }
+        .progress-fill.l4 { background: linear-gradient(90deg, var(--level4-color), #7c3aed); }
+
+        .milestone-tick {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 3px;
+            background: rgba(45,52,54,0.25);
+            z-index: 1;
+        }
+
+        .milestone-labels {
+            position: relative;
+            height: 1.1rem;
+            margin-top: 0.15rem;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .milestone-labels span { position: absolute; transform: translateX(-50%); }
+
+        /* ---------- Question card ---------- */
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--level1-color);
+            margin: 1.5rem auto;
+            max-width: 760px;
+            padding: 2rem 1.5rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .question-card.l2 { border-top-color: var(--level2-color); }
+        .question-card.l3 { border-top-color: var(--level3-color); }
+        .question-card.l4 { border-top-color: var(--level4-color); }
+
+        .question-instruction {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 1.4rem;
+        }
+
+        /* ---------- Fractions ---------- */
+        .question-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(0.4rem, 2vw, 0.9rem);
+            flex-wrap: wrap;
+            margin-bottom: 1.4rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.4rem, 4vw, 1.85rem);
+        }
+
+        .frac .num { padding: 0 0.5rem 0.15rem; }
+
+        .frac .den {
+            padding: 0.15rem 0.5rem 0;
+            border-top: 3px solid var(--text-dark);
+        }
+
+        .whole-num {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.4rem, 4vw, 1.85rem);
+        }
+
+        .op {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.25rem, 3.5vw, 1.6rem);
+        }
+
+        /* ---------- Step grid ---------- */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            justify-content: center;
+            align-items: center;
+            column-gap: clamp(0.4rem, 2vw, 0.9rem);
+            row-gap: 1.1rem;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .step-value {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.3rem, 1.5vw, 0.7rem);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .input-frac { display: inline-flex; flex-direction: column; align-items: center; }
+
+        .input-frac input, .whole-input {
+            width: 72px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.15rem, 3.5vw, 1.5rem);
+            text-align: center;
+            border: 3px solid #dfe6e9;
+            border-radius: 12px;
+            padding: 0.3rem 0.2rem;
+            color: var(--text-dark);
+            background: white;
+            outline: none;
+            transition: border-color 0.2s ease, background 0.2s ease;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .input-frac input::-webkit-outer-spin-button,
+        .input-frac input::-webkit-inner-spin-button,
+        .whole-input::-webkit-outer-spin-button,
+        .whole-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .input-frac input:focus, .whole-input:focus { border-color: var(--primary-accent); }
+
+        .input-frac input:disabled, .whole-input:disabled {
+            background: #f1f5f9;
+            border-color: #e8edf0;
+            cursor: not-allowed;
+        }
+
+        .input-frac .frac-bar {
+            width: 72px;
+            height: 3px;
+            background: var(--text-dark);
+            margin: 0.35rem 0;
+            border-radius: 2px;
+        }
+
+        .input-frac input.correct, .whole-input.correct {
+            border-color: var(--correct-color);
+            background: #eafaf1;
+            color: var(--correct-color);
+        }
+
+        .input-frac input.wrong, .whole-input.wrong {
+            border-color: var(--incorrect-color);
+            background: #fdecea;
+            color: var(--incorrect-color);
+            animation: shake 0.35s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- Feedback + hint ---------- */
+        .feedback-box {
+            display: none;
+            margin: 1.4rem auto 0;
+            max-width: 580px;
+            border-radius: 12px;
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback-box.visible { display: block; }
+        .feedback-box.fb-wrong { background: #fdecea; border-left: 4px solid var(--incorrect-color); }
+        .feedback-box.fb-progress { background: #eafaf1; border-left: 4px solid var(--correct-color); }
+        .feedback-box.fb-partial { background: #fff8e6; border-left: 4px solid var(--amber); }
+        .feedback-box.fb-success { background: #eafaf1; border-left: 4px solid var(--correct-color); font-weight: 600; }
+
+        .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+        .question-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .hint-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: none;
+            background: var(--blue);
+            color: white;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+        }
+
+        .hint-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(52,152,219,0.4); }
+
+        .next-btn {
+            display: none;
+            background: var(--primary-accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.7rem 1.8rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(78,205,196,0.35);
+        }
+
+        .next-btn.visible { display: inline-block; }
+        .next-btn:hover { transform: translateY(-2px); }
+
+        .hint-box {
+            display: none;
+            margin: 1.2rem auto 0;
+            max-width: 580px;
+            background: #eaf4fb;
+            border-left: 4px solid var(--blue);
+            border-radius: 12px;
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .hint-box.visible { display: block; }
+
+        /* ---------- Goal celebration ---------- */
+        .goal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(45,52,54,0.55);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .goal-overlay.visible { display: flex; }
+
+        .goal-modal {
+            background: white;
+            border-radius: 20px;
+            border-top: 5px solid var(--amber);
+            box-shadow: var(--card-shadow);
+            max-width: 440px;
+            width: 100%;
+            padding: 2rem 1.7rem;
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .goal-modal h2 { font-size: 1.5rem; margin-bottom: 0.6rem; }
+        .goal-modal p { color: var(--text-light); line-height: 1.6; margin-bottom: 1.3rem; }
+
+        .goal-modal button {
+            background: var(--primary-accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.7rem 1.6rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .goal-modal button:hover { transform: translateY(-2px); }
+
+        @media (max-width: 600px) {
+            .input-frac input, .whole-input { width: 56px; }
+            .input-frac .frac-bar { width: 56px; }
+            .question-card { padding: 1.5rem 0.8rem; }
+            .level-tab { flex: 1 1 130px; }
+            .level-tab h3 { font-size: 0.9rem; }
+            .level-tab p { font-size: 0.72rem; }
+            .steps-grid { grid-template-columns: auto auto; row-gap: 0.9rem; }
+            .step-label { grid-column: 1 / -1; text-align: center; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <h1>Multiplying and Dividing Fractions</h1>
+        <p id="levelBlurb">Multiply a fraction by a whole number, then give the answer in its simplest form.</p>
+    </div>
+
+    <div class="level-tabs">
+        <button class="level-tab tab-l1 active" id="tab-l1" onclick="setLevel(1)">
+            <h3>Level 1</h3>
+            <p>Times a whole number</p>
+        </button>
+        <button class="level-tab tab-l2" id="tab-l2" onclick="setLevel(2)">
+            <h3>Level 2</h3>
+            <p>Times a fraction</p>
+        </button>
+        <button class="level-tab tab-l3" id="tab-l3" onclick="setLevel(3)">
+            <h3>Level 3</h3>
+            <p>Shared into parts</p>
+        </button>
+        <button class="level-tab tab-l4" id="tab-l4" onclick="setLevel(4)">
+            <h3>Level 4</h3>
+            <p>Divided by a fraction</p>
+        </button>
+    </div>
+
+    <div class="score-card">
+        <div class="score-row">
+            <span class="score-label" id="scoreLabel">Level 1 Score</span>
+            <span class="score-goal-msg" id="goalMsg">Goal reached! Keep going.</span>
+            <span class="score-time" id="scoreTime">0:00</span>
+            <span class="score-value"><span id="scoreCount">0</span> / <span id="scoreTarget">20</span></span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="milestone-tick" style="left: 40%;"></div>
+            <div class="milestone-tick" style="left: 70%;"></div>
+        </div>
+        <div class="milestone-labels">
+            <span style="left: 40%;">20</span>
+            <span style="left: 70%;">35</span>
+            <span style="left: 100%; transform: translateX(-100%);">50</span>
+        </div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+        <p class="question-instruction" id="instruction">Work it out one step at a time. Press Enter after each box.</p>
+        <div class="question-line" id="questionLine"></div>
+        <div class="steps-grid" id="stepsGrid"></div>
+        <div class="feedback-box" id="feedbackBox"></div>
+        <div class="hint-box" id="hintBox"></div>
+        <div class="question-controls">
+            <button class="hint-btn" id="hintBtn" onclick="showHint()" title="Show a hint">?</button>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next question</button>
+        </div>
+    </div>
+
+    <div class="goal-overlay" id="goalOverlay">
+        <div class="goal-modal">
+            <h2 id="goalTitle">50 correct. You did it!</h2>
+            <p id="goalText"></p>
+            <span id="goalButtons"></span>
+        </div>
+    </div>
+
+    <script>
+        /* ---------- Utilities ---------- */
+        function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+        function randPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function mono(n) { return '<span class="mono">' + n + '</span>'; }
+        function frac(n, d) { return mono(n + '/' + d); }
+        function factorsOf(n) {
+            var out = [];
+            for (var i = 1; i <= n; i++) if (n % i === 0) out.push(i);
+            return out;
+        }
+        function fracHTML(n, d) {
+            return '<span class="frac"><span class="num">' + n + '</span><span class="den">' + d + '</span></span>';
+        }
+
+        var MILESTONES = [20, 35, 50];
+
+        var LEVEL_BLURB = {
+            1: 'Multiply a fraction by a whole number, then give the answer in its simplest form.',
+            2: 'Multiply two fractions, then give the answer in its simplest form.',
+            3: 'Share a fraction into equal parts, then give the answer in its simplest form.',
+            4: 'Divide by a fraction. Flip the second fraction, multiply, then simplify.'
+        };
+
+        var state = {
+            q: null,
+            level: 1,
+            scores: { 1:0, 2:0, 3:0, 4:0 },
+            goal: 50,
+            goalReached: { 1:false, 2:false, 3:false, 4:false },
+            lastKey: '',
+            steps: [],
+            stepIndex: 0,
+            cur: null,
+            simplifyRounds: 0,
+            timing: {
+                1: { totalMs:0, runningSince:null, splits:{} },
+                2: { totalMs:0, runningSince:null, splits:{} },
+                3: { totalMs:0, runningSince:null, splits:{} },
+                4: { totalMs:0, runningSince:null, splits:{} }
+            }
+        };
+
+        /* ---------- Timer ---------- */
+        function elapsedMs(level) {
+            var t = state.timing[level];
+            return t.totalMs + (t.runningSince ? Date.now() - t.runningSince : 0);
+        }
+
+        function startTimerIfNeeded() {
+            var t = state.timing[state.level];
+            if (t.runningSince === null && !state.goalReached[state.level]) t.runningSince = Date.now();
+        }
+
+        function pauseTimer(level) {
+            var t = state.timing[level];
+            if (t.runningSince !== null) {
+                t.totalMs += Date.now() - t.runningSince;
+                t.runningSince = null;
+            }
+        }
+
+        function formatTime(ms) {
+            var totalSec = Math.floor(ms / 1000);
+            var m = Math.floor(totalSec / 60);
+            var s = totalSec % 60;
+            return m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        function updateTimeDisplay() {
+            document.getElementById('scoreTime').textContent = formatTime(elapsedMs(state.level));
+        }
+
+        setInterval(updateTimeDisplay, 500);
+
+        /* ---------- Question generation ---------- */
+        function properFraction(maxDen) {
+            var b, a, guard = 0;
+            do {
+                b = randInt(2, maxDen);
+                a = randInt(1, b - 1);
+                guard++;
+            } while (gcd(a, b) !== 1 && guard < 40);
+            if (gcd(a, b) !== 1) { a = 1; b = 3; }
+            return [a, b];
+        }
+
+        function buildQuestion(level) {
+            var a, b, c, d, w, rawN, rawD, guard = 0;
+            do {
+                guard++;
+                if (level === 1) {
+                    var f1 = properFraction(9);
+                    a = f1[0]; b = f1[1];
+                    w = randInt(2, 9); c = w; d = 1;
+                    rawN = a * w; rawD = b;
+                } else if (level === 2) {
+                    var f2 = properFraction(9), g2 = properFraction(9);
+                    a = f2[0]; b = f2[1]; c = g2[0]; d = g2[1];
+                    rawN = a * c; rawD = b * d;
+                } else if (level === 3) {
+                    var f3 = properFraction(9);
+                    a = f3[0]; b = f3[1];
+                    w = randInt(2, 8); c = w; d = 1;
+                    rawN = a; rawD = b * w;
+                } else {
+                    var f4 = properFraction(9), g4 = properFraction(9);
+                    a = f4[0]; b = f4[1]; c = g4[0]; d = g4[1];
+                    rawN = a * d; rawD = b * c;
+                }
+            } while (!validQuestion(level, rawN, rawD, a, b, c, d) && guard < 120);
+
+            var g = gcd(rawN, rawD);
+            var simN = rawN / g, simD = rawD / g;
+            return {
+                level: level, a: a, b: b, c: c, d: d, w: w,
+                rawN: rawN, rawD: rawD, hcf: g,
+                simN: simN, simD: simD,
+                needsSimplify: g > 1,
+                isImproper: simN > simD,
+                wholePart: Math.floor(simN / simD),
+                remN: simN % simD
+            };
+        }
+
+        function validQuestion(level, rawN, rawD, a, b, c, d) {
+            var g = gcd(rawN, rawD);
+            if (rawD / g < 2) return false;          /* never a whole-number answer */
+            if (rawN > 90 || rawD > 90) return false;
+            if (level === 4 && a * d === b * c) return false;   /* answer of exactly 1 */
+            /* Level 1 nearly always lands above one whole. Thin those out so the
+               first level is a mix of short and long questions. */
+            if (level === 1 && rawN > rawD && Math.random() < 0.75) return false;
+            return true;
+        }
+
+        function makeQuestion() {
+            var q, key, tries = 0;
+            do {
+                q = buildQuestion(state.level);
+                key = q.a + '/' + q.b + ':' + q.c + '/' + q.d;
+                tries++;
+            } while (key === state.lastKey && tries < 12);
+            state.lastKey = key;
+            return q;
+        }
+
+        /* ---------- Step plan ---------- */
+        /* Only the opening step. Later steps are pushed as each one is completed,
+           so state.steps[state.stepIndex] always matches the row on screen. */
+        function planSteps(q) {
+            return q.level === 4
+                ? [{ id: 'flip', op: '=' }]
+                : [{ id: 'product', op: '=' }];
+        }
+
+        var PRODUCT_LABEL = { 1: 'multiply', 2: 'multiply', 3: 'share it out', 4: 'multiply' };
+
+        function stepLabel(step) {
+            if (step.id === 'flip') return 'flip and multiply';
+            if (step.id === 'product') return PRODUCT_LABEL[state.q.level];
+            if (step.id === 'simplify') return 'simplify';
+            return 'as a mixed number';
+        }
+
+        /* ---------- Rendering ---------- */
+        function renderQuestion() {
+            var q = state.q;
+            hideFeedback();
+            hideHint();
+            document.getElementById('nextBtn').classList.remove('visible');
+            document.getElementById('stepsGrid').innerHTML = '';
+            state.steps = planSteps(q);
+            state.stepIndex = 0;
+            state.cur = null;
+            state.simplifyRounds = 0;
+
+            var opSymbol = (q.level === 3 || q.level === 4) ? '÷' : '×';
+            var second = (q.level === 1 || q.level === 3)
+                ? '<span class="whole-num">' + q.w + '</span>'
+                : fracHTML(q.c, q.d);
+            document.getElementById('questionLine').innerHTML =
+                fracHTML(q.a, q.b) + '<span class="op">' + opSymbol + '</span>' + second;
+
+            document.getElementById('instruction').textContent = (q.level === 4)
+                ? 'Flip the second fraction, then multiply. Press Enter after each box.'
+                : 'Work it out one step at a time. Press Enter after each box.';
+
+            addStepRow(state.steps[0]);
+        }
+
+        function addStepRow(step) {
+            var q = state.q;
+            var i = state.stepIndex;
+            var grid = document.getElementById('stepsGrid');
+
+            var label = document.createElement('span');
+            label.className = 'step-label';
+            label.textContent = stepLabel(step);
+            grid.appendChild(label);
+
+            var op = document.createElement('span');
+            op.className = 'op';
+            op.textContent = step.op;
+            grid.appendChild(op);
+
+            var value = document.createElement('div');
+            value.className = 'step-value';
+            var inputFrac =
+                '<div class="input-frac">' +
+                    '<input type="number" id="s' + i + '-num" inputmode="numeric" aria-label="Numerator">' +
+                    '<div class="frac-bar"></div>' +
+                    '<input type="number" id="s' + i + '-den" inputmode="numeric" aria-label="Denominator">' +
+                '</div>';
+
+            if (step.id === 'flip') {
+                value.innerHTML = fracHTML(q.a, q.b) + '<span class="op">×</span>' + inputFrac;
+            } else if (step.id === 'mixed') {
+                value.innerHTML = '<input type="number" class="whole-input" id="s' + i + '-whole" inputmode="numeric" aria-label="Whole number">' + inputFrac;
+            } else if (step.id === 'simplify') {
+                value.innerHTML =
+                    '<input type="number" class="whole-input" id="s' + i + '-div" inputmode="numeric" aria-label="Divide by">' +
+                    '<span class="op">=</span>' + inputFrac;
+            } else {
+                value.innerHTML = inputFrac;
+            }
+            grid.appendChild(value);
+
+            ['num', 'den', 'whole', 'div'].forEach(function (part) {
+                var el = document.getElementById('s' + i + '-' + part);
+                if (el) attachInput(el, i + ':' + part);
+            });
+
+            if (step.id === 'simplify') {
+                document.getElementById('s' + i + '-num').disabled = true;
+                document.getElementById('s' + i + '-den').disabled = true;
+                document.getElementById('s' + i + '-div').focus();
+            } else if (step.id === 'mixed') {
+                document.getElementById('s' + i + '-whole').focus();
+            } else {
+                document.getElementById('s' + i + '-num').focus();
+            }
+        }
+
+        function nextQuestion() {
+            state.q = makeQuestion();
+            renderQuestion();
+        }
+
+        function setLevel(level) {
+            if (state.level === level) return;
+            pauseTimer(state.level);
+            state.level = level;
+            for (var i = 1; i <= 4; i++) {
+                document.getElementById('tab-l' + i).classList.toggle('active', i === level);
+            }
+            var card = document.getElementById('questionCard');
+            card.classList.remove('l2', 'l3', 'l4');
+            if (level > 1) card.classList.add('l' + level);
+            var fill = document.getElementById('progressFill');
+            fill.classList.remove('l2', 'l3', 'l4');
+            if (level > 1) fill.classList.add('l' + level);
+            document.getElementById('scoreLabel').textContent = 'Level ' + level + ' Score';
+            document.getElementById('levelBlurb').textContent = LEVEL_BLURB[level];
+            updateScore();
+            updateTimeDisplay();
+            nextQuestion();
+        }
+
+        /* ---------- Feedback helpers ---------- */
+        function showFeedback(type, html) {
+            var box = document.getElementById('feedbackBox');
+            box.className = 'feedback-box visible ' + type;
+            box.innerHTML = html;
+        }
+
+        function hideFeedback() {
+            var box = document.getElementById('feedbackBox');
+            box.className = 'feedback-box';
+            box.innerHTML = '';
+        }
+
+        function hideHint() {
+            var box = document.getElementById('hintBox');
+            box.classList.remove('visible');
+            box.innerHTML = '';
+        }
+
+        function markCorrect(input) {
+            input.classList.remove('wrong');
+            input.classList.add('correct');
+            input.readOnly = true;
+            hideFeedback();
+        }
+
+        function markWrong(input, html) {
+            input.classList.remove('correct');
+            input.classList.add('wrong');
+            showFeedback('fb-wrong', html);
+        }
+
+        function readValue(input) {
+            var v = input.value.trim();
+            if (v === '') return null;
+            var n = Number(v);
+            if (isNaN(n) || !isFinite(n) || n !== Math.floor(n)) return NaN;
+            return n;
+        }
+
+        /* ---------- Step targets ---------- */
+        function targetFor(step, part) {
+            var q = state.q;
+            if (step.id === 'flip') return part === 'num' ? q.d : q.c;
+            if (step.id === 'product') return part === 'num' ? q.rawN : q.rawD;
+            if (step.id === 'mixed') {
+                if (part === 'whole') return q.wholePart;
+                return part === 'num' ? q.remN : q.simD;
+            }
+            /* simplify: depends on the divisor typed on that row */
+            var divisor = parseInt(document.getElementById('s' + state.stepIndex + '-div').value, 10);
+            return part === 'num' ? state.cur.n / divisor : state.cur.d / divisor;
+        }
+
+        /* ---------- Wrong-answer diagnosis ---------- */
+        function flipFeedback(entered, part) {
+            var q = state.q;
+            if (part === 'num' && entered === q.c) {
+                return 'You answered ' + mono(entered) + '. That is still the top of ' + frac(q.c, q.d) + '. Flipping it puts ' + mono(q.d) + ' on top.';
+            }
+            if (part === 'den' && entered === q.d) {
+                return 'You answered ' + mono(entered) + '. That is still the bottom of ' + frac(q.c, q.d) + '. Flipping it puts ' + mono(q.c) + ' underneath.';
+            }
+            return 'You answered ' + mono(entered) + '. Flipping ' + frac(q.c, q.d) + ' swaps the top and the bottom over, giving ' + frac(q.d, q.c) + '.';
+        }
+
+        function productNumFeedback(entered) {
+            var q = state.q, L = q.level;
+            if (L === 1) {
+                if (entered === q.a + q.w) return 'You answered ' + mono(entered) + '. It looks like you added ' + mono(q.a) + ' and ' + mono(q.w) + '. ' + mono(q.w) + ' lots of ' + frac(q.a, q.b) + ' means ' + mono(q.a) + ' multiplied by ' + mono(q.w) + '.';
+                if (entered === q.a) return 'You answered ' + mono(entered) + ', leaving the top the same. You have ' + mono(q.w) + ' lots of those pieces now, so the top is multiplied by ' + mono(q.w) + '.';
+                return 'You answered ' + mono(entered) + '. You have ' + mono(q.w) + ' lots of ' + mono(q.a) + ' pieces, so the top is ' + mono(q.a) + ' × ' + mono(q.w) + '.';
+            }
+            if (L === 2) {
+                if (entered === q.a + q.c) return 'You answered ' + mono(entered) + '. It looks like you added ' + mono(q.a) + ' and ' + mono(q.c) + '. The tops are multiplied, not added.';
+                return 'You answered ' + mono(entered) + '. Multiply the two tops together: ' + mono(q.a) + ' × ' + mono(q.c) + '.';
+            }
+            if (L === 3) {
+                if (entered === q.a * q.w) return 'You answered ' + mono(entered) + '. It looks like you multiplied the top by ' + mono(q.w) + '. Sharing does not give you more pieces, it makes each piece smaller, so it is the bottom that changes.';
+                if (entered === q.a / q.w) return 'You answered ' + mono(entered) + '. It looks like you divided the top by ' + mono(q.w) + '. You still have ' + mono(q.a) + ' pieces, they are just smaller ones now.';
+                return 'You answered ' + mono(entered) + '. You still have ' + mono(q.a) + ' pieces after sharing, so the top stays as ' + mono(q.a) + '.';
+            }
+            if (entered === q.a * q.c) return 'You answered ' + mono(entered) + '. It looks like you multiplied without flipping. After flipping, the top of the second fraction is ' + mono(q.d) + ', so the top is ' + mono(q.a) + ' × ' + mono(q.d) + '.';
+            return 'You answered ' + mono(entered) + '. Multiply the tops of ' + frac(q.a, q.b) + ' and ' + frac(q.d, q.c) + ': ' + mono(q.a) + ' × ' + mono(q.d) + '.';
+        }
+
+        function productDenFeedback(entered) {
+            var q = state.q, L = q.level;
+            if (L === 1) {
+                if (entered === q.b * q.w) return 'You answered ' + mono(entered) + '. It looks like you multiplied the bottom by ' + mono(q.w) + ' as well. The pieces are still ' + mono(q.b) + 'ths, you just have more of them, so the bottom stays as ' + mono(q.b) + '.';
+                return 'You answered ' + mono(entered) + '. Multiplying by a whole number does not change the size of the pieces, so the bottom stays as ' + mono(q.b) + '.';
+            }
+            if (L === 2) {
+                if (entered === q.b + q.d) return 'You answered ' + mono(entered) + '. It looks like you added ' + mono(q.b) + ' and ' + mono(q.d) + '. The bottoms are multiplied, not added.';
+                return 'You answered ' + mono(entered) + '. Multiply the two bottoms together: ' + mono(q.b) + ' × ' + mono(q.d) + '.';
+            }
+            if (L === 3) {
+                if (entered === q.b) return 'You answered ' + mono(entered) + ', leaving the bottom the same. Sharing into ' + mono(q.w) + ' parts cuts every piece into ' + mono(q.w) + ' smaller ones, so the bottom is ' + mono(q.b) + ' × ' + mono(q.w) + '.';
+                if (entered === q.b + q.w) return 'You answered ' + mono(entered) + '. It looks like you added ' + mono(q.w) + ' to the bottom. Each piece is cut into ' + mono(q.w) + ', so the bottom is multiplied: ' + mono(q.b) + ' × ' + mono(q.w) + '.';
+                return 'You answered ' + mono(entered) + '. Every ' + mono(q.b) + 'th is cut into ' + mono(q.w) + ' smaller pieces, so the bottom is ' + mono(q.b) + ' × ' + mono(q.w) + '.';
+            }
+            if (entered === q.b * q.d) return 'You answered ' + mono(entered) + '. It looks like you multiplied without flipping. After flipping, the bottom of the second fraction is ' + mono(q.c) + ', so the bottom is ' + mono(q.b) + ' × ' + mono(q.c) + '.';
+            return 'You answered ' + mono(entered) + '. Multiply the bottoms of ' + frac(q.a, q.b) + ' and ' + frac(q.d, q.c) + ': ' + mono(q.b) + ' × ' + mono(q.c) + '.';
+        }
+
+        function divisorFeedback(entered, curN, curD) {
+            if (entered === 1) return 'You answered ' + mono(1) + '. Dividing by ' + mono(1) + ' leaves the fraction exactly as it was. You need a number bigger than ' + mono(1) + '.';
+            if (entered < 1) return 'You answered ' + mono(entered) + '. You need a whole number bigger than ' + mono(1) + '.';
+            var intoN = curN % entered === 0, intoD = curD % entered === 0;
+            if (!intoN && !intoD) return 'You answered ' + mono(entered) + '. But ' + mono(entered) + ' does not divide exactly into ' + mono(curN) + ' or ' + mono(curD) + '. It has to go into both.';
+            return 'You answered ' + mono(entered) + '. It goes into ' + mono(intoN ? curN : curD) + ', but not into ' + mono(intoN ? curD : curN) + '. The number has to divide both the top and the bottom exactly.';
+        }
+
+        function mixedFeedback(entered, part) {
+            var q = state.q;
+            if (part === 'whole') {
+                if (entered === q.simN) return 'You answered ' + mono(entered) + '. That is the top of ' + frac(q.simN, q.simD) + ', not how many whole ones fit inside it. Each whole one takes ' + mono(q.simD) + ' pieces.';
+                return 'You answered ' + mono(entered) + '. Each whole one needs ' + mono(q.simD) + ' pieces. How many times does ' + mono(q.simD) + ' fit into ' + mono(q.simN) + '?';
+            }
+            if (part === 'num') {
+                return 'You answered ' + mono(entered) + '. After taking out ' + mono(q.wholePart) + ' whole ones, that uses ' + mono(q.wholePart * q.simD) + ' pieces. ' + mono(q.simN) + ' subtract ' + mono(q.wholePart * q.simD) + ' pieces are left over.';
+            }
+            return 'You answered ' + mono(entered) + '. The pieces are still ' + mono(q.simD) + 'ths, so the bottom stays as ' + mono(q.simD) + '.';
+        }
+
+        /* ---------- Validation ---------- */
+        function checkBox(key) {
+            var parts = key.split(':');
+            var i = parseInt(parts[0], 10), part = parts[1];
+            if (i !== state.stepIndex) return;
+            var step = state.steps[state.stepIndex];
+            var input = document.getElementById('s' + i + '-' + part);
+            if (!input || input.disabled || input.readOnly) return;
+            var entered = readValue(input);
+            if (entered === null) return;
+            if (isNaN(entered)) { markWrong(input, 'Your answer needs to be a whole number.'); return; }
+
+            /* The divisor box on a simplify row is validated differently */
+            if (step.id === 'simplify' && part === 'div') {
+                var ok = entered > 1 && state.cur.n % entered === 0 && state.cur.d % entered === 0;
+                if (!ok) { markWrong(input, divisorFeedback(entered, state.cur.n, state.cur.d)); return; }
+                markCorrect(input);
+                document.getElementById('s' + i + '-num').disabled = false;
+                document.getElementById('s' + i + '-den').disabled = false;
+                document.getElementById('s' + i + '-num').focus();
+                showFeedback('fb-progress', 'Good, ' + mono(entered) + ' goes into both. Now divide the top and the bottom by ' + mono(entered) + '.');
+                return;
+            }
+
+            var target = targetFor(step, part);
+            if (entered !== target) {
+                markWrong(input, wrongFeedback(step, part, entered));
+                return;
+            }
+            markCorrect(input);
+            advanceWithinStep(step, i);
+        }
+
+        function wrongFeedback(step, part, entered) {
+            if (step.id === 'flip') return flipFeedback(entered, part);
+            if (step.id === 'mixed') return mixedFeedback(entered, part);
+            if (step.id === 'simplify') {
+                var divisor = parseInt(document.getElementById('s' + state.stepIndex + '-div').value, 10);
+                var orig = part === 'num' ? state.cur.n : state.cur.d;
+                return 'You answered ' + mono(entered) + '. ' + mono(orig) + ' divided by ' + mono(divisor) + ' is ' + mono(orig / divisor) + '.';
+            }
+            return part === 'num' ? productNumFeedback(entered) : productDenFeedback(entered);
+        }
+
+        function stepFilled(i, step) {
+            var needed = (step.id === 'mixed') ? ['whole', 'num', 'den'] : ['num', 'den'];
+            for (var k = 0; k < needed.length; k++) {
+                var el = document.getElementById('s' + i + '-' + needed[k]);
+                if (!el.classList.contains('correct')) return needed[k];
+            }
+            return null;
+        }
+
+        function advanceWithinStep(step, i) {
+            var missing = stepFilled(i, step);
+            if (missing) { document.getElementById('s' + i + '-' + missing).focus(); return; }
+            completeStep(step, i);
+        }
+
+        function completeStep(step, i) {
+            var q = state.q;
+
+            if (step.id === 'flip') {
+                showFeedback('fb-progress', 'Flipped. Dividing by ' + frac(q.c, q.d) + ' is the same as multiplying by ' + frac(q.d, q.c) + '. Now multiply.');
+                pushStep({ id: 'product', op: '=' });
+                return;
+            }
+
+            if (step.id === 'product') {
+                state.cur = { n: q.rawN, d: q.rawD };
+            } else if (step.id === 'simplify') {
+                var divisor = parseInt(document.getElementById('s' + i + '-div').value, 10);
+                state.cur = { n: state.cur.n / divisor, d: state.cur.d / divisor };
+                state.simplifyRounds++;
+            } else {
+                questionComplete();
+                return;
+            }
+
+            if (gcd(state.cur.n, state.cur.d) > 1) {
+                showFeedback('fb-partial', (step.id === 'product' ? 'Correct, but ' : 'Correct, but ') +
+                    frac(state.cur.n, state.cur.d) + ' is not as simple as it can be. There is still a number that goes into both the top and the bottom.');
+                pushStep({ id: 'simplify', op: '÷' });
+                return;
+            }
+
+            if (state.cur.n > state.cur.d) {
+                showFeedback('fb-progress', frac(state.cur.n, state.cur.d) + ' is more than one whole. Write it as a mixed number.');
+                pushStep({ id: 'mixed', op: '=' });
+                return;
+            }
+
+            questionComplete();
+        }
+
+        function pushStep(step) {
+            state.steps.push(step);
+            state.stepIndex++;
+            hideHint();
+            addStepRow(step);
+        }
+
+        /* ---------- Completion ---------- */
+        function questionComplete() {
+            var q = state.q;
+            var opSymbol = (q.level === 3 || q.level === 4) ? '÷' : '×';
+            var second = (q.level === 1 || q.level === 3) ? mono(q.w) : frac(q.c, q.d);
+            var answer = q.isImproper
+                ? mono(q.wholePart + ' and ' + q.remN + '/' + q.simD)
+                : frac(q.simN, q.simD);
+            var html = 'Correct! ' + frac(q.a, q.b) + ' ' + opSymbol + ' ' + second + ' = ' + answer + '.';
+            if (state.simplifyRounds > 1) {
+                html += ' You simplified in ' + mono(state.simplifyRounds) + ' steps. Dividing by ' + mono(q.hcf) + ' straight away would have done it in one.';
+            }
+            html += ' That is 1 point.';
+
+            state.scores[state.level]++;
+            updateScore();
+            showFeedback('fb-success', html);
+            document.getElementById('instruction').textContent = 'Nice work. Press Enter or click Next question.';
+            document.getElementById('nextBtn').classList.add('visible');
+            hideHint();
+
+            var score = state.scores[state.level];
+            var t = state.timing[state.level];
+            for (var i = 0; i < MILESTONES.length; i++) {
+                var m = MILESTONES[i];
+                if (score === m && !t.splits[m]) {
+                    t.splits[m] = elapsedMs(state.level);
+                    if (m === state.goal) {
+                        state.goalReached[state.level] = true;
+                        pauseTimer(state.level);
+                    }
+                    showMilestoneOverlay(m, t.splits[m]);
+                    break;
+                }
+            }
+        }
+
+        function nextTarget(score) {
+            for (var i = 0; i < MILESTONES.length; i++) if (score < MILESTONES[i]) return MILESTONES[i];
+            return state.goal;
+        }
+
+        function updateScore() {
+            var score = state.scores[state.level];
+            document.getElementById('scoreCount').textContent = score;
+            document.getElementById('scoreTarget').textContent = nextTarget(score);
+            document.getElementById('progressFill').style.width = Math.min(100, (score / state.goal) * 100) + '%';
+            document.getElementById('goalMsg').style.display = score >= state.goal ? 'inline' : 'none';
+        }
+
+        var NEXT_LEVEL_LABEL = { 1:'Try Level 2', 2:'Try Level 3', 3:'Try Level 4' };
+
+        function showMilestoneOverlay(milestone, splitMs) {
+            var title = document.getElementById('goalTitle');
+            var text = document.getElementById('goalText');
+            var buttons = document.getElementById('goalButtons');
+            var time = formatTime(splitMs);
+
+            if (milestone === 20) {
+                title.textContent = 'First target reached!';
+                text.innerHTML = mono(20) + ' correct in ' + mono(time) + '. The timer is still running. Next stop: ' + mono(35) + '.';
+                buttons.innerHTML = '<button onclick="closeGoalOverlay(0)">Keep going</button>';
+            } else if (milestone === 35) {
+                title.textContent = 'Second target reached!';
+                text.innerHTML = mono(35) + ' correct in ' + mono(time) + '. One final push to ' + mono(50) + '.';
+                buttons.innerHTML = '<button onclick="closeGoalOverlay(0)">Keep going</button>';
+            } else {
+                title.textContent = '50 correct. You did it!';
+                text.innerHTML = 'Level ' + state.level + ' finished in ' + mono(time) + '.';
+                if (state.level < 4) {
+                    buttons.innerHTML = '<button onclick="closeGoalOverlay(' + (state.level + 1) + ')">' + NEXT_LEVEL_LABEL[state.level] + '</button>' +
+                        '<button onclick="closeGoalOverlay(0)" style="background:#636E72;">Keep practising</button>';
+                } else {
+                    text.innerHTML += ' That is every level done. Serious fraction power.';
+                    buttons.innerHTML = '<button onclick="closeGoalOverlay(0)">Keep practising</button>';
+                }
+            }
+            document.getElementById('goalOverlay').classList.add('visible');
+        }
+
+        function closeGoalOverlay(switchTo) {
+            document.getElementById('goalOverlay').classList.remove('visible');
+            if (switchTo) setLevel(switchTo);
+        }
+
+        /* ---------- Hints ---------- */
+        function showHint() {
+            var box = document.getElementById('hintBox');
+            box.innerHTML = hintForStep();
+            box.classList.add('visible');
+        }
+
+        function hintForStep() {
+            var q = state.q;
+            var step = state.steps[state.stepIndex];
+
+            if (step.id === 'flip') {
+                return '<strong>Flipping the second fraction:</strong> dividing asks how many ' + frac(q.c, q.d) + 's fit inside ' + frac(q.a, q.b) + '.<br>' +
+                    'Turn ' + frac(q.c, q.d) + ' upside down to get ' + frac(q.d, q.c) + ', then multiply instead of dividing.';
+            }
+
+            if (step.id === 'simplify') {
+                var common = factorsOf(state.cur.n).filter(function (f) { return state.cur.d % f === 0 && f > 1; });
+                return '<strong>Which number divides both?</strong><br>' +
+                    'Factors of ' + mono(state.cur.n) + ': ' + factorsOf(state.cur.n).map(mono).join(', ') + '<br>' +
+                    'Factors of ' + mono(state.cur.d) + ': ' + factorsOf(state.cur.d).map(mono).join(', ') + '<br>' +
+                    'In both lists: ' + common.map(mono).join(', ') + '.<br>' +
+                    'Any of these will work, but the biggest one gets you there fastest.';
+            }
+
+            if (step.id === 'mixed') {
+                return '<strong>Turning ' + frac(q.simN, q.simD) + ' into a mixed number:</strong> every whole one takes ' + mono(q.simD) + ' pieces.<br>' +
+                    'How many lots of ' + mono(q.simD) + ' fit into ' + mono(q.simN) + '? That is the whole number.<br>' +
+                    'Whatever is left over stays on top, still in ' + mono(q.simD) + 'ths.';
+            }
+
+            if (q.level === 1) {
+                return '<strong>Multiplying by a whole number:</strong> ' + frac(q.a, q.b) + ' × ' + mono(q.w) + ' means ' + mono(q.w) + ' lots of ' + frac(q.a, q.b) + '.<br>' +
+                    'You end up with ' + mono(q.w) + ' times as many pieces, so the top is ' + mono(q.a) + ' × ' + mono(q.w) + '.<br>' +
+                    'The pieces are still ' + mono(q.b) + 'ths, so the bottom does not change.';
+            }
+            if (q.level === 2) {
+                return '<strong>Multiplying two fractions:</strong> ' + frac(q.a, q.b) + ' × ' + frac(q.c, q.d) + ' means ' + frac(q.c, q.d) + ' of ' + frac(q.a, q.b) + '.<br>' +
+                    'Multiply the tops together: ' + mono(q.a) + ' × ' + mono(q.c) + '.<br>' +
+                    'Multiply the bottoms together: ' + mono(q.b) + ' × ' + mono(q.d) + '.';
+            }
+            if (q.level === 3) {
+                return '<strong>Sharing into equal parts:</strong> ' + frac(q.a, q.b) + ' ÷ ' + mono(q.w) + ' cuts every ' + mono(q.b) + 'th into ' + mono(q.w) + ' smaller pieces.<br>' +
+                    'You still have ' + mono(q.a) + ' pieces, so the top stays the same.<br>' +
+                    'The pieces are ' + mono(q.w) + ' times smaller, so the bottom is ' + mono(q.b) + ' × ' + mono(q.w) + '.';
+            }
+            return '<strong>Now multiply:</strong> the sum is now ' + frac(q.a, q.b) + ' × ' + frac(q.d, q.c) + '.<br>' +
+                'Tops: ' + mono(q.a) + ' × ' + mono(q.d) + '.<br>' +
+                'Bottoms: ' + mono(q.b) + ' × ' + mono(q.c) + '.';
+        }
+
+        /* ---------- Events ---------- */
+        function attachInput(input, key) {
+            input.addEventListener('blur', function () { checkBox(key); });
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (document.getElementById('nextBtn').classList.contains('visible')) nextQuestion();
+                    else checkBox(key);
+                }
+            });
+            input.addEventListener('input', function () {
+                startTimerIfNeeded();
+                if (input.classList.contains('wrong')) {
+                    input.classList.remove('wrong');
+                    hideFeedback();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && document.getElementById('nextBtn').classList.contains('visible') &&
+                document.activeElement.tagName !== 'INPUT') {
+                nextQuestion();
+            }
+        });
+
+        /* ---------- Start ---------- */
+        document.getElementById('levelBlurb').textContent = LEVEL_BLURB[1];
+        state.q = makeQuestion();
+        renderQuestion();
+        updateScore();
+    </script>
+
+</body>
+</html>
