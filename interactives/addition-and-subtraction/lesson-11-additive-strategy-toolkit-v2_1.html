@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11: The Additive Strategy Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --pv-hundreds: #0891b2;
+    --pv-tens: #059669;
+    --pv-ones: #65a30d;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 22px 60px 30px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide { display: none; animation: fadeIn 0.4s ease; width: 100%; max-width: 960px; margin: 0 auto; }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 40px;
+    border: 2px solid var(--border); margin-bottom: 16px;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC */
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 18px; margin-bottom: 10px; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p { font-size: 1.4rem; }
+  .success-criteria { list-style: none; padding: 0; margin: 0; }
+  .success-criteria li {
+    padding: 4px 0 4px 32px; position: relative; font-size: 1.4rem; line-height: 1.5; margin-bottom: 8px;
+  }
+  .success-criteria li::before {
+    content: '\2713'; position: absolute; left: 0; color: var(--red); font-weight: 700;
+  }
+
+  /* SLIDE NAV */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* EQUATIONS */
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 9px; background: white; border-radius: 14px;
+    border: 2px solid var(--border); margin: 10px 0; transition: filter 0.4s ease;
+  }
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+  /* HOOK RACE */
+  .hook-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 18px 0; }
+  .hook-item {
+    background: #fafbfc; border: 2px solid var(--border); border-radius: 14px;
+    padding: 18px; text-align: center;
+  }
+  .hook-item .hook-eq {
+    font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700;
+    transition: filter 0.4s ease;
+  }
+  .hook-hidden .hook-eq { filter: blur(14px); }
+  .hook-item .hook-tag { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+  .reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); }
+  .reveal-btn:disabled { background: #ccc; cursor: default; transform: none; }
+  .step-reveal-btn {
+    background: var(--teal); color: white; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .step-reveal-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .step-reveal-btn:disabled { background: #ccc; cursor: default; transform: none; }
+
+  /* STEP ROWS */
+  .step-stack { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+  .step-row {
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+    font-size: 1.3rem; line-height: 1.5;
+    background: #fafbfc; border: 2px solid var(--border); border-radius: 12px; padding: 8px 16px;
+  }
+  .step-num { font-weight: 700; min-width: 30px; color: var(--teal-dark); font-size: 1.1rem; }
+  .step-text { flex: 1; }
+  .step-hidden { opacity: 0; transition: opacity 0.35s ease; pointer-events: none; }
+  .step-hidden.revealed { opacity: 1; pointer-events: auto; }
+  .step-row.is-answer { background: var(--green-light); border-color: var(--green); }
+  .step-row.is-error { background: var(--red-light); border-color: var(--red); }
+  .adj-pill {
+    background: #e8f8f5; border-radius: 8px; padding: 3px 12px;
+    font-size: 1.05rem; font-weight: 600; color: var(--teal-dark);
+  }
+  .adj-pill.give-back { background: #fff3e0; color: #b26a00; }
+
+  /* PARTITION CHIPS */
+  .chip-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .chip {
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.2rem;
+    color: #fff; border-radius: 10px; padding: 6px 16px;
+  }
+  .chip.h { background: var(--pv-hundreds); }
+  .chip.t { background: var(--pv-tens); }
+  .chip.o { background: var(--pv-ones); }
+  .chip-plus { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.2rem; color: var(--muted); }
+
+  /* NUMBER LINE */
+  .cd-line { width: 100%; max-width: 670px; margin: 2px auto; display: block; }
+  .cd-caption { text-align: center; font-size: 1rem; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+
+  /* FORMAL ALGORITHM */
+  .algo-wrap { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+  .algo-card { background: #fff; border: 2px solid var(--border); border-radius: 14px; padding: 10px 14px; text-align: center; }
+  .algo-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .algo { display: inline-grid; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; row-gap: 0; }
+  .algo span { padding: 0 4px; text-align: right; }
+  .algo .regroup { font-size: 13px; color: var(--blue); font-weight: 700; }
+  .algo .op { text-align: left; color: var(--muted); }
+  .algo .uline { border-bottom: 3px solid var(--text); padding-bottom: 2px; }
+  .algo .ans { color: var(--green-dark); }
+  .algo-note { font-size: 0.88rem; color: var(--muted); margin-top: 5px; max-width: 230px; line-height: 1.35; }
+
+  /* PRACTICE SET HEADERS */
+  .set-header {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin: 22px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border);
+  }
+  .set-header:first-child { margin-top: 4px; }
+
+  /* WORDED PROBLEMS */
+  .wp-card {
+    background: #fff; border: 2px solid var(--border); border-radius: 16px;
+    padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .wp-card.answered-correct { border-color: var(--green); }
+  .wp-card.answered-wrong { border-color: var(--red); }
+  .wp-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+  .wp-num { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .wp-steps-tag { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border-radius: 20px; padding: 3px 12px; background: var(--amber); color: #6a5200; }
+  .wp-text { font-size: 1.2rem; line-height: 1.6; color: #445; margin-bottom: 12px; }
+  .wp-plan { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .wp-plan-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 1.02rem; }
+  .wp-plan-label { font-size: 0.9rem; font-weight: 700; color: var(--muted); min-width: 62px; }
+  .wp-step-input {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+    width: 120px; text-align: center; padding: 8px; border: 2px solid var(--border);
+    border-radius: 12px; outline: none; transition: border-color 0.2s;
+  }
+  .wp-step-input:focus { border-color: var(--teal); }
+  .wp-worked { display: none; margin-top: 10px; background: #f7fbfc; border-left: 5px solid var(--teal); border-radius: 12px; padding: 12px 18px; }
+  .wp-worked.show { display: block; animation: fadeIn 0.3s ease; }
+  .wp-worked .wp-w-row { font-size: 1.02rem; line-height: 1.6; margin-bottom: 4px; }
+  .wp-w-strat { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border-radius: 20px; padding: 2px 10px; color: #fff; margin-right: 8px; }
+  .wp-w-strat.part { background: var(--blue); }
+  .wp-w-strat.lev { background: var(--orange); }
+  .wp-w-strat.cd { background: var(--purple); }
+
+  /* CALLOUTS */
+  .callout { border-radius: 12px; padding: 13px 20px; margin: 11px 0; border-left: 5px solid var(--border); }
+  .callout.callout-red { background: rgba(255,107,107,0.10); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.10); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.14); border-left-color: var(--amber-dark); }
+  .callout.callout-green { background: rgba(46,204,113,0.10); border-left-color: var(--green); }
+  .callout.callout-blue { background: rgba(52,152,219,0.10); border-left-color: var(--blue); }
+  .callout .label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+  .callout p { font-size: 1.2rem; line-height: 1.5; margin: 4px 0; }
+
+  /* NOTE STRIP: what to write, what to learn */
+  .note-strip { display: flex; gap: 0; margin-top: 14px; border-radius: 12px; overflow: hidden; border: 2px solid var(--border); }
+  .note-strip > div { flex: 1; padding: 10px 18px; }
+  .note-book { background: #f6f1ff; border-left: 6px solid var(--purple); }
+  .note-learn { background: #fffaef; border-left: 6px solid var(--amber-dark); }
+  .note-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 3px; }
+  .note-strip p { font-size: 1.05rem; line-height: 1.45; color: #445; }
+
+  /* BIG IDEA */
+  .big-idea {
+    background: linear-gradient(135deg, #fff6e8, #ffeed6);
+    border: 2px solid #f3d9b0; border-radius: var(--radius);
+    padding: 36px 44px; text-align: center;
+  }
+  .big-idea p { font-size: 1.6rem; line-height: 1.6; color: #5a4326; }
+
+  /* STRATEGY CARDS */
+  .strategy-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .strategy-card { background: white; border: 3px solid var(--border); border-radius: 14px; padding: 18px; }
+  .strategy-card h4 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+  .strategy-card p { font-size: 1.02rem; line-height: 1.5; color: #666; }
+  .strategy-card .use-when { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-top: 8px; display: block; }
+  .strategy-card.part { border-color: var(--blue); }
+  .strategy-card.part h4 { color: var(--blue); }
+  .strategy-card.lev { border-color: var(--orange); }
+  .strategy-card.lev h4 { color: var(--orange); }
+  .strategy-card.cd { border-color: var(--purple); }
+  .strategy-card.cd h4 { color: var(--purple); }
+  .only-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: var(--purple); color: #fff; border-radius: 20px; padding: 2px 10px; margin-left: 6px; vertical-align: middle; }
+
+  /* WE DO */
+  .problem-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+  .answer-row { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 14px 0; flex-wrap: wrap; }
+  .answer-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 150px; text-align: center; padding: 10px; border: 3px solid var(--border);
+    border-radius: 14px; outline: none; transition: border-color 0.2s;
+  }
+  .answer-input:focus { border-color: var(--teal); }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover:not(:disabled) { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .feedback { border-radius: 12px; padding: 14px 18px; margin-top: 12px; display: none; font-size: 1.05rem; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .hint-btn {
+    background: transparent; color: var(--blue-dark); border: 2px solid var(--blue);
+    border-radius: 30px; padding: 8px 20px; font-family: 'Fredoka', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .hint-btn:hover:not(:disabled) { background: var(--blue); color: #fff; }
+  .hint-btn:disabled { opacity: 0.4; cursor: default; }
+  .hint-box {
+    display: none; background: rgba(52,152,219,0.08); border-left: 5px solid var(--blue);
+    border-radius: 12px; padding: 12px 18px; margin-top: 12px; font-size: 1.05rem; line-height: 1.6;
+  }
+  .hint-box.visible { display: block; animation: fadeIn 0.3s ease; }
+
+  /* PRACTICE */
+  .tier-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tier-tab {
+    border: 2px solid var(--border); background: #fff; border-radius: 30px;
+    padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 1rem;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .tier-tab:hover { border-color: var(--teal); }
+  .tier-tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .tier-intro { font-size: 1.1rem; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+  .pq-card {
+    background: #fff; border: 2px solid var(--border); border-radius: 16px;
+    padding: 20px 24px; margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .pq-card.answered-correct { border-color: var(--green); }
+  .pq-card.answered-wrong { border-color: var(--red); }
+  .pq-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .pq-num { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .pq-named { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border-radius: 20px; padding: 3px 12px; color: #fff; }
+  .pq-named.part { background: var(--blue); }
+  .pq-named.lev { background: var(--orange); }
+  .pq-named.cd { background: var(--purple); }
+  .pq-body { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .pq-left { flex: 1 1 300px; min-width: 280px; }
+  .pq-right { flex: 1 1 340px; min-width: 300px; }
+  .pq-eq { font-family: 'Space Mono', monospace; font-size: 32px; font-weight: 700; margin-bottom: 10px; }
+  .pq-select {
+    font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+    padding: 9px 14px; border: 2px solid var(--border); border-radius: 12px;
+    background: #fff; color: var(--text); outline: none; cursor: pointer;
+  }
+  .pq-select:focus { border-color: var(--teal); }
+  .pq-justify {
+    width: 100%; min-height: 70px; border: 2px solid var(--border); border-radius: 12px;
+    padding: 12px; font-family: 'Fredoka', sans-serif; font-size: 15px;
+    resize: vertical; outline: none; margin-top: 10px; transition: border-color 0.2s;
+  }
+  .pq-justify:focus { border-color: var(--teal); }
+
+  /* SUPPORT SCAFFOLDS */
+  .scaffold {
+    background: #f7fbfc; border: 2px dashed #cfe3e8; border-radius: 14px; padding: 16px 18px;
+  }
+  .scaffold-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .sc-slot {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 66px; height: 40px; border-radius: 10px; border: 2px dashed #b9ccd2;
+    background: #fff; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.05rem;
+    color: var(--muted); margin: 3px;
+  }
+  .sc-slot.filled { border-style: solid; color: #fff; border-color: transparent; }
+  .sc-slot.filled.h { background: var(--pv-hundreds); }
+  .sc-slot.filled.t { background: var(--pv-tens); }
+  .sc-slot.filled.o { background: var(--pv-ones); }
+  .sc-slot.filled.plain { background: var(--teal-dark); }
+  .sc-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .sc-label { font-size: 0.95rem; font-weight: 600; color: var(--muted); min-width: 74px; }
+  .sc-btn {
+    background: var(--teal); color: #fff; border: none; border-radius: 20px;
+    padding: 7px 16px; font-family: 'Fredoka', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 6px;
+  }
+  .sc-btn:hover:not(:disabled) { background: var(--teal-dark); }
+  .sc-btn:disabled { background: #ccc; cursor: default; }
+  .sc-note { font-size: 0.95rem; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+
+  /* TIER SUMMARY */
+  .tier-summary {
+    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 26px; text-align: center; display: none; margin-top: 8px;
+    border: 2px solid var(--green);
+  }
+  .tier-summary.show { display: block; animation: fadeIn 0.35s; }
+  .tier-summary h3 { font-size: 1.4rem; margin-bottom: 6px; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 44px; font-weight: 700; }
+  .sent-msg { font-size: 0.95rem; color: var(--muted); margin-top: 8px; }
+
+  /* GO DEEPER */
+  .go-deeper-level-btn {
+    display: block; width: 100%; text-align: left; padding: 20px 24px;
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif;
+    transition: all 0.3s; margin-top: 20px;
+  }
+  .go-deeper-level-btn h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+  .go-deeper-level-btn p { font-size: 0.95rem; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-top: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; }
+  .go-deeper-card > p { font-size: 1.15rem; line-height: 1.6; color: var(--muted); margin-bottom: 18px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 22px; }
+  .ext-task-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 15px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .ext-model-response p { font-size: 1.02rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1.02rem; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 20px 18px; }
+    .strategy-cards, .hook-grid { grid-template-columns: 1fr; }
+    .note-strip { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 &middot; Additive Strategies</div>
+  <h1><span>Lesson 11: The Additive Strategy Toolkit</span> &middot; Partitioning, Levelling, Constant Difference</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Beat the Algorithm</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">What the Algorithm Costs</button>
+      <button class="sidebar-item" onclick="goToSlide(3)">The Big Idea</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(4)">Partitioning</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Levelling</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Constant Difference</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">The Compensation Trap</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Which One, When?</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(9)">Q1: Partitioning</button>
+      <button class="sidebar-item" onclick="goToSlide(10)">Q2: Levelling</button>
+      <button class="sidebar-item" onclick="goToSlide(11)">Q3: Constant Difference</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(12)">Your Turn</button>
+      <button class="sidebar-item" onclick="goToSlide(13)">Worded Problems</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- ============ SLIDE 0: LISC ============ -->
+<div class="slide active" id="slide-0">
+  <div class="card lisc-card">
+    <h2>Learning Intention and Success Criteria</h2>
+    <div class="lisc-content">
+      <h3>Learning Intention</h3>
+      <p>We are learning to choose and apply partitioning, levelling and constant difference to solve addition and subtraction problems efficiently.</p>
+      <h3>Success Criteria</h3>
+      <ul class="success-criteria">
+        <li>I can partition numbers by place value and add or subtract each part.</li>
+        <li>I can adjust a number to a friendly number and then compensate correctly.</li>
+        <li>I can shift both numbers in a subtraction by the same amount to keep the difference the same.</li>
+        <li>I can look at a calculation and justify which strategy is the most efficient.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+    <span class="slide-counter">Card 1 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 1: HOOK ============ -->
+<div class="slide" id="slide-1">
+  <div class="card">
+    <h3>Beat the Algorithm</h3>
+    <p>Three calculations are hidden below. When I click Start, you get thirty seconds. No written algorithm allowed. See how many you can do in your head.</p>
+    <div class="hook-grid" id="hook-grid">
+      <div class="hook-item hook-hidden" id="hook-1">
+        <div class="hook-tag">One</div>
+        <div class="hook-eq">1002 &minus; 997</div>
+      </div>
+      <div class="hook-item hook-hidden" id="hook-2">
+        <div class="hook-tag">Two</div>
+        <div class="hook-eq">250 + 99</div>
+      </div>
+      <div class="hook-item hook-hidden" id="hook-3">
+        <div class="hook-tag">Three</div>
+        <div class="hook-eq">6000 &minus; 5994</div>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="reveal-btn" id="hook-start-btn" onclick="startHook()">Start the thirty seconds</button>
+    </div>
+
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Nothing yet. Just watch and think.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">What to notice</div>
+        <p>The algorithm gets every one of these right, and makes you regroup across three columns to do it. The numbers were telling you an easier way.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 2 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+
+<!-- ============ SLIDE 2: WHAT THE ALGORITHM COSTS ============ -->
+<div class="slide" id="slide-2">
+  <div class="card">
+    <h3>What the Algorithm Costs</h3>
+    <p style="font-size:1.1rem;">The algorithm gets all three right. Here is what it makes you do.</p>
+    <div class="algo-wrap">
+
+        <div class="algo-card step-hidden" data-group="algo">
+          <div class="algo-title">One</div>
+          <div class="algo" style="grid-template-columns:24px repeat(4,30px);">
+            <span></span><span class="regroup">0</span><span class="regroup">9</span><span class="regroup">9</span><span class="regroup">12</span>
+            <span></span><span>1</span><span>0</span><span>0</span><span>2</span>
+            <span class="op uline">&minus;</span><span class="uline"></span><span class="uline">9</span><span class="uline">9</span><span class="uline">7</span>
+            <span></span><span class="ans">0</span><span class="ans">0</span><span class="ans">0</span><span class="ans">5</span>
+          </div>
+          <div class="algo-note">Three columns of regrouping, for an answer of 5.</div>
+        </div>
+
+        <div class="algo-card step-hidden" data-group="algo">
+          <div class="algo-title">Two</div>
+          <div class="algo" style="grid-template-columns:24px repeat(3,30px);">
+            <span></span><span class="regroup">1</span><span></span><span></span>
+            <span></span><span>2</span><span>5</span><span>0</span>
+            <span class="op uline">+</span><span class="uline"></span><span class="uline">9</span><span class="uline">9</span>
+            <span></span><span class="ans">3</span><span class="ans">4</span><span class="ans">9</span>
+          </div>
+          <div class="algo-note">A carry into the hundreds, to add a number that is nearly 100.</div>
+        </div>
+
+        <div class="algo-card step-hidden" data-group="algo">
+          <div class="algo-title">Three</div>
+          <div class="algo" style="grid-template-columns:24px repeat(4,30px);">
+            <span></span><span class="regroup">5</span><span class="regroup">9</span><span class="regroup">9</span><span class="regroup">10</span>
+            <span></span><span>6</span><span>0</span><span>0</span><span>0</span>
+            <span class="op uline">&minus;</span><span class="uline">5</span><span class="uline">9</span><span class="uline">9</span><span class="uline">4</span>
+            <span></span><span class="ans">0</span><span class="ans">0</span><span class="ans">0</span><span class="ans">6</span>
+          </div>
+          <div class="algo-note">Regrouping across three zeros, for an answer of 6.</div>
+        </div>
+
+      </div>
+    <div class="step-hidden" data-group="algo">
+      <div class="callout callout-teal">
+        <span class="label">Now the same three in your head</span>
+        <p><span class="mono">1002</span> and <span class="mono">997</span> are only <span class="mono">5</span> apart. <span class="mono">250 + 100</span> is <span class="mono">350</span>, so take <span class="mono">1</span> off. <span class="mono">6000</span> and <span class="mono">5994</span> are only <span class="mono">6</span> apart.</p>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="step-reveal-btn" id="algo-btn" onclick="revealGroup('algo')">Show the first one</button>
+    </div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Copy the <span class="mono">1002 &minus; 997</span> algorithm exactly as written, regrouping and all.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">What to notice</div>
+        <p>Three columns of regrouping for an answer of <span class="mono">5</span>. Not wrong, just far more work than these numbers need.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 3 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 3: BIG IDEA ============ -->
+<div class="slide" id="slide-3">
+  <div class="card big-idea">
+    <h2>The Big Idea</h2>
+    <p>A good mathematician looks at the numbers <strong>before</strong> choosing a method.<br>
+    The algorithm always works. It is almost never the fastest.</p>
+    <p style="margin-top:18px;font-size:1.3rem;">Today you are building a toolkit of three strategies, and learning to pick the right tool for the numbers in front of you.</p>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 4 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 3: I DO, PARTITIONING ============ -->
+<div class="slide" id="slide-4">
+  <div class="card">
+    <h3>Strategy 1: Partitioning</h3>
+    <p style="font-size:1.15rem;">Split each number into its place value parts. Add the parts that match. Put the total back together.</p>
+    <div class="equation-box">364 + 253</div>
+    <div class="step-stack">
+      <div class="step-row step-hidden" data-group="part">
+        <span class="step-num">1</span>
+        <span class="step-text"><span class="chip-row"><span class="chip h">300</span><span class="chip-plus">+</span><span class="chip t">60</span><span class="chip-plus">+</span><span class="chip o">4</span></span></span>
+      </div>
+      <div class="step-row step-hidden" data-group="part">
+        <span class="step-num">2</span>
+        <span class="step-text"><span class="chip-row"><span class="chip h">200</span><span class="chip-plus">+</span><span class="chip t">50</span><span class="chip-plus">+</span><span class="chip o">3</span></span></span>
+      </div>
+      <div class="step-row step-hidden" data-group="part">
+        <span class="step-num">3</span>
+        <span class="step-text">Hundreds: <span class="mono">300 + 200 = 500</span></span>
+      </div>
+      <div class="step-row step-hidden" data-group="part">
+        <span class="step-num">4</span>
+        <span class="step-text">Tens: <span class="mono">60 + 50 = 110</span></span>
+      </div>
+      <div class="step-row step-hidden" data-group="part">
+        <span class="step-num">5</span>
+        <span class="step-text">Ones: <span class="mono">4 + 3 = 7</span></span>
+      </div>
+      <div class="step-row is-answer step-hidden" data-group="part">
+        <span class="step-num">6</span>
+        <span class="step-text">Recombine: <span class="mono">500 + 110 + 7 = 617</span></span>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="step-reveal-btn" onclick="revealGroup('part')">Reveal the next step</button>
+    </div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Copy the six steps above, one line each. Then do <span class="mono">526 + 341</span> the same way.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Learn this</div>
+        <p>Partitioning is the safe, everyday strategy. It works for every addition and every subtraction, no matter what the numbers look like.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 5 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 4: I DO, LEVELLING ============ -->
+<div class="slide" id="slide-5">
+  <div class="card">
+    <h3>Strategy 2: Levelling</h3>
+    <p style="font-size:1.15rem;">Adjust one number to a friendly number. Do the easy calculation. Then pay back what you borrowed.</p>
+    <div class="equation-box">268 + 97</div>
+    <div class="step-stack">
+      <div class="step-row step-hidden" data-group="lev">
+        <span class="step-num">1</span>
+        <span class="step-text">Look at <span class="mono">97</span>. It is only <span class="mono">3</span> away from <span class="mono">100</span>.</span>
+      </div>
+      <div class="step-row step-hidden" data-group="lev">
+        <span class="step-num">2</span>
+        <span class="step-text">Adjust: <span class="mono">268 + 100 = 368</span> <span class="adj-pill">added 3 too many</span></span>
+      </div>
+      <div class="step-row step-hidden" data-group="lev">
+        <span class="step-num">3</span>
+        <span class="step-text">Compensate: <span class="mono">368 &minus; 3 = 365</span> <span class="adj-pill give-back">give the 3 back</span></span>
+      </div>
+      <div class="step-row is-answer step-hidden" data-group="lev">
+        <span class="step-num">4</span>
+        <span class="step-text">So <span class="mono">268 + 97 = 365</span></span>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="step-reveal-btn" onclick="revealGroup('lev')">Reveal the next step</button>
+    </div>
+    <div class="callout callout-teal step-hidden" data-group="lev">
+      <span class="label">The question to ask yourself</span>
+      <p>Did I add too much or too little? If you added too much, take it back off. If you added too little, add the rest on.</p>
+    </div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Copy steps 1 to 4. Circle the word <strong>compensate</strong>. Then do <span class="mono">435 + 96</span>.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Learn this</div>
+        <p>Use levelling when one number sits just below or just above a friendly number like 100, 200 or 1000.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 6 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 5: I DO, CONSTANT DIFFERENCE ============ -->
+<div class="slide" id="slide-6">
+  <div class="card">
+    <h3>Strategy 3: Constant Difference <span class="only-tag">Subtraction only</span></h3>
+    <p style="font-size:1.15rem;">Subtraction measures the gap between two numbers. Slide both numbers along by the same amount and the gap does not change.</p>
+    <div class="equation-box">704 &minus; 296</div>
+    <div class="step-stack">
+      <div class="step-row step-hidden" data-group="cd">
+        <span class="step-num">1</span>
+        <span class="step-text"><span class="mono">296</span> is only <span class="mono">4</span> away from <span class="mono">300</span>. That is the number we want.</span>
+      </div>
+    </div>
+    <div class="step-hidden" data-group="cd" style="margin:5px 0;">
+      <div class="cd-caption">Before: the gap we need to measure</div>
+      <svg class="cd-line" viewBox="0 0 780 92" role="img" aria-label="Number line showing 296 and 704 with the gap between them">
+        <line x1="30" y1="66" x2="750" y2="66" stroke="#d5dade" stroke-width="4" stroke-linecap="round"/>
+        <path d="M150 44 L150 34 L620 34 L620 44" fill="none" stroke="#9B5DE5" stroke-width="3"/>
+        <text x="385" y="26" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="17" font-weight="600" fill="#7a44c4">the gap</text>
+        <circle cx="150" cy="66" r="10" fill="#9B5DE5"/>
+        <circle cx="620" cy="66" r="10" fill="#9B5DE5"/>
+        <text x="150" y="90" text-anchor="middle" font-family="'Space Mono', monospace" font-size="20" font-weight="700" fill="#2D3436">296</text>
+        <text x="620" y="90" text-anchor="middle" font-family="'Space Mono', monospace" font-size="20" font-weight="700" fill="#2D3436">704</text>
+      </svg>
+    </div>
+    <div class="step-hidden" data-group="cd" style="margin:5px 0;">
+      <div class="cd-caption">Slide both numbers up 4. The gap is exactly the same size.</div>
+      <svg class="cd-line" viewBox="0 0 780 92" role="img" aria-label="Number line showing 300 and 708 with the same gap between them">
+        <line x1="30" y1="66" x2="750" y2="66" stroke="#d5dade" stroke-width="4" stroke-linecap="round"/>
+        <path d="M180 44 L180 34 L650 34 L650 44" fill="none" stroke="#2ECC71" stroke-width="3"/>
+        <text x="415" y="26" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="17" font-weight="600" fill="#1a9c51">same gap</text>
+        <circle cx="150" cy="66" r="7" fill="#e0e5e8"/>
+        <circle cx="620" cy="66" r="7" fill="#e0e5e8"/>
+        <path d="M158 66 L172 66" stroke="#2ECC71" stroke-width="3" marker-end="url(#arrowGreen)"/>
+        <path d="M628 66 L642 66" stroke="#2ECC71" stroke-width="3" marker-end="url(#arrowGreen)"/>
+        <circle cx="180" cy="66" r="10" fill="#2ECC71"/>
+        <circle cx="650" cy="66" r="10" fill="#2ECC71"/>
+        <text x="180" y="90" text-anchor="middle" font-family="'Space Mono', monospace" font-size="20" font-weight="700" fill="#2D3436">300</text>
+        <text x="650" y="90" text-anchor="middle" font-family="'Space Mono', monospace" font-size="20" font-weight="700" fill="#2D3436">708</text>
+        <defs>
+          <marker id="arrowGreen" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L7,3 L0,6 z" fill="#2ECC71"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    <div class="step-stack">
+      <div class="step-row is-answer step-hidden" data-group="cd">
+        <span class="step-num">2</span>
+        <span class="step-text">Now the easy one: <span class="mono">708 &minus; 300 = 408</span>. So <span class="mono">704 &minus; 296 = 408</span>.</span>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="step-reveal-btn" onclick="revealGroup('cd')">Reveal the next step</button>
+    </div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Draw both number lines. Write <span class="mono">704 &minus; 296 = 708 &minus; 300 = 408</span>. Then do <span class="mono">602 &minus; 397</span>.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Learn this</div>
+        <p>Works for subtraction only. Subtraction is a gap, and sliding both numbers together never changes the gap.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 7 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 6: THE COMPENSATION TRAP ============ -->
+<div class="slide" id="slide-7">
+  <div class="card">
+    <h3>The Trap: Levelling a Subtraction</h3>
+    <p style="font-size:1.15rem;">Here is a student's work on <span class="mono">83 &minus; 29</span>. Something has gone wrong.</p>
+    <div class="step-stack">
+      <div class="step-row step-hidden" data-group="trap">
+        <span class="step-num">1</span>
+        <span class="step-text"><span class="mono">29</span> is <span class="mono">1</span> away from <span class="mono">30</span>, so I will use <span class="mono">30</span>.</span>
+      </div>
+      <div class="step-row step-hidden" data-group="trap">
+        <span class="step-num">2</span>
+        <span class="step-text"><span class="mono">83 &minus; 30 = 53</span></span>
+      </div>
+      <div class="step-row is-error step-hidden" data-group="trap">
+        <span class="step-num">3</span>
+        <span class="step-text">I used <span class="mono">1</span> extra, so I take another <span class="mono">1</span> off. <span class="mono">53 &minus; 1 = 52</span></span>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="step-reveal-btn" id="trap-btn" onclick="revealGroup('trap')">Show her first step</button>
+    </div>
+    <div class="step-hidden" data-group="trap">
+      <div class="callout callout-red">
+        <span class="label">The error</span>
+        <p>She took away <span class="mono">30</span> when she only needed to take away <span class="mono">29</span>. She has taken <span class="mono">1</span> too much away already. Taking another <span class="mono">1</span> off makes it worse.</p>
+      </div>
+    </div>
+    <div class="step-stack">
+      <div class="step-row is-answer step-hidden" data-group="trap">
+        <span class="step-num">3</span>
+        <span class="step-text">Give the extra <span class="mono">1</span> back: <span class="mono">53 + 1 = 54</span>. So <span class="mono">83 &minus; 29 = 54</span>.</span>
+      </div>
+    </div>
+    <div class="step-hidden" data-group="trap">
+      <div class="callout callout-amber">
+        <span class="label">The rule that fixes it</span>
+        <p>Adding too much means you <strong>take the extra off</strong>. &nbsp; <span class="mono">268 + 100</span> becomes <span class="mono">&minus; 3</span></p>
+        <p>Taking away too much means you <strong>give the extra back</strong>. &nbsp; <span class="mono">83 &minus; 30</span> becomes <span class="mono">+ 1</span></p>
+      </div>
+    </div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Write the heading <strong>The Compensation Trap</strong>. Copy both lines of the rule that fixes it.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Learn this</div>
+        <p>Always ask what you did to the calculation, then do the opposite to fix it. Never guess the direction.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 8 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 7: WHICH ONE, WHEN ============ -->
+<div class="slide" id="slide-8">
+  <div class="card">
+    <h3>Which One, When?</h3>
+    <p style="font-size:1.15rem;">Read the numbers first. They tell you which tool to reach for.</p>
+    <div class="strategy-cards">
+      <div class="strategy-card part">
+        <h4>Partitioning</h4>
+        <p>Split into hundreds, tens and ones. Add or subtract each part, then recombine.</p>
+        <span class="use-when">Use when: no number is close to a friendly number. <span class="mono">364 + 253</span></span>
+      </div>
+      <div class="strategy-card lev">
+        <h4>Levelling</h4>
+        <p>Round one number to a friendly number, calculate, then compensate.</p>
+        <span class="use-when">Use when: one number ends in 8, 9, 98, 99. <span class="mono">268 + 97</span></span>
+      </div>
+      <div class="strategy-card cd">
+        <h4>Constant Difference</h4>
+        <p>Slide both numbers by the same amount so the second one becomes friendly.</p>
+        <span class="use-when">Use when: subtracting, and the second number is just under a hundred. <span class="mono">704 &minus; 296</span></span>
+      </div>
+    </div>
+    <div class="callout callout-blue">
+      <span class="label">The one that catches people out</span>
+      <p>Constant difference is for subtraction only. If you slide both numbers in an addition, the total changes.</p>
+    </div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Rule three columns. Head them Partitioning, Levelling, Constant Difference. Write one Use when line in each.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Learn this</div>
+        <p>Choosing the strategy is the skill being assessed today, not just getting the answer.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 9 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+<!-- ============ SLIDE 8: WE DO 1 ============ -->
+<div class="slide" id="slide-9">
+  <div class="card" id="wedo-card-0">
+    <div class="problem-label">We Do &middot; Question 1 &middot; Partitioning</div>
+    <h3>Split it, add the parts, put it back together</h3>
+    <div class="equation-box">425 + 342</div>
+    <div class="answer-row">
+      <input type="text" class="answer-input" id="wd-input-0" inputmode="numeric" placeholder="?" onkeydown="if(event.key==='Enter')checkWeDo(0)">
+      <button class="check-btn" id="wd-check-0" onclick="checkWeDo(0)">Check</button>
+      <button class="hint-btn" id="wd-hint-0" onclick="showWeDoHint(0)">Show hint</button>
+    </div>
+    <div class="hint-box" id="wd-hintbox-0"></div>
+    <div class="feedback" id="wd-fb-0"></div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Show all six lines of working, not just the answer.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Watch for</div>
+        <p>The tens make more than one hundred here. Keep <span class="mono">60 + 50</span> as <span class="mono">110</span> rather than rushing to carry.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 10 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 9: WE DO 2 ============ -->
+<div class="slide" id="slide-10">
+  <div class="card" id="wedo-card-1">
+    <div class="problem-label">We Do &middot; Question 2 &middot; Levelling</div>
+    <h3>Adjust to a friendly number, then compensate</h3>
+    <div class="equation-box">476 + 198</div>
+    <div class="answer-row">
+      <input type="text" class="answer-input" id="wd-input-1" inputmode="numeric" placeholder="?" onkeydown="if(event.key==='Enter')checkWeDo(1)">
+      <button class="check-btn" id="wd-check-1" onclick="checkWeDo(1)">Check</button>
+      <button class="hint-btn" id="wd-hint-1" onclick="showWeDoHint(1)">Show hint</button>
+    </div>
+    <div class="hint-box" id="wd-hintbox-1"></div>
+    <div class="feedback" id="wd-fb-1"></div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Write the adjust line and the compensate line separately, one under the other.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Watch for</div>
+        <p>You added <span class="mono">2</span> too many. Decide what to do with that <span class="mono">2</span> before you write the answer.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 11 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 10: WE DO 3 ============ -->
+<div class="slide" id="slide-11">
+  <div class="card" id="wedo-card-2">
+    <div class="problem-label">We Do &middot; Question 3 &middot; Constant Difference</div>
+    <h3>Slide both numbers together</h3>
+    <div class="equation-box">802 &minus; 495</div>
+    <div class="answer-row">
+      <input type="text" class="answer-input" id="wd-input-2" inputmode="numeric" placeholder="?" onkeydown="if(event.key==='Enter')checkWeDo(2)">
+      <button class="check-btn" id="wd-check-2" onclick="checkWeDo(2)">Check</button>
+      <button class="hint-btn" id="wd-hint-2" onclick="showWeDoHint(2)">Show hint</button>
+    </div>
+    <div class="hint-box" id="wd-hintbox-2"></div>
+    <div class="feedback" id="wd-fb-2"></div>
+    <div class="note-strip">
+      <div class="note-book">
+        <div class="note-label">In your book</div>
+        <p>Write the shifted calculation next to the original one, so you can see both.</p>
+      </div>
+      <div class="note-learn">
+        <div class="note-label">Watch for</div>
+        <p>Both numbers must move, and they must move the same amount. Moving only one changes the gap.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 12 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 11: PRACTICE ============ -->
+<div class="slide" id="slide-12">
+  <div class="card">
+    <h2>Your Turn</h2>
+    <p style="font-size:1.15rem;">Choose your level. Work in your book, then type each answer in to check it.</p>
+    <div class="tier-tabs">
+      <button class="tier-tab active" id="tab-support" onclick="showTier('support')">Support</button>
+      <button class="tier-tab" id="tab-core" onclick="showTier('core')">Core</button>
+      <button class="tier-tab" id="tab-extension" onclick="showTier('extension')">Extension</button>
+    </div>
+
+    <div id="tier-support">
+      <p class="tier-intro">The strategy is named for you, and a helper sits beside each question. Use the helper to build the working, then write the answer.</p>
+      <div id="q-support"></div>
+      <div class="tier-summary" id="summary-support">
+        <h3>Support level complete</h3>
+        <div class="summary-score" id="score-support">0 / 11</div>
+        <p class="sent-msg" id="sent-support"></p>
+      </div>
+    </div>
+
+    <div id="tier-core" style="display:none;">
+      <p class="tier-intro">No strategy is named. Look at the numbers, choose your strategy, then work it out. You must choose a strategy before you can check.</p>
+      <div id="q-core"></div>
+      <div class="tier-summary" id="summary-core">
+        <h3>Core level complete</h3>
+        <div class="summary-score" id="score-core">0 / 11</div>
+        <p class="sent-msg" id="sent-core"></p>
+      </div>
+    </div>
+
+    <div id="tier-extension" style="display:none;">
+      <p class="tier-intro">Choose your strategy and explain why it beats the algorithm for these particular numbers. The explanation matters as much as the answer.</p>
+      <div id="q-extension"></div>
+      <div class="tier-summary" id="summary-extension">
+        <h3>Extension level complete</h3>
+        <div class="summary-score" id="score-extension">0 / 9</div>
+        <p class="sent-msg" id="sent-extension"></p>
+      </div>
+    </div>
+
+    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+      <h3>Go Deeper: Constant Difference Investigations <span style="font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:#d8dde0;color:#5a6467;border-radius:20px;padding:2px 10px;margin-left:6px;" id="gd-tag">Locked</span></h3>
+      <p id="gd-sub">Finish Core or Extension to unlock</p>
+    </button>
+
+    <div class="go-deeper-card" id="go-deeper-section" style="display:none;">
+      <h2>Go Deeper: Constant Difference Investigations</h2>
+      <p>These tasks push past finding answers. You will explore, make a claim, and then work out whether your claim survives.</p>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Specialising</div>
+        <div class="ext-task-prompt">
+          Write down any subtraction, for example <span class="ext-numbers">152 &minus; 48</span>. Work out the answer.
+          Now add the same amount to <strong>both</strong> numbers and work out that new subtraction as well.
+        </div>
+        <div class="ext-task-sub">Do this with at least three different subtractions. What happens to the answer each time?</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="toggleModel(this)">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>I started with <span class="ext-numbers">152 &minus; 48</span>, which is <span class="ext-numbers">104</span>. Then I added <span class="ext-numbers">2</span> to both numbers and got <span class="ext-numbers">154 &minus; 50</span>, which is also <span class="ext-numbers">104</span>. That surprised me, so I thought I had made an arithmetic slip.</p>
+          <p>I checked it with different numbers. <span class="ext-numbers">83 &minus; 29</span> is <span class="ext-numbers">54</span>. Adding <span class="ext-numbers">1</span> to both gives <span class="ext-numbers">84 &minus; 30</span>, which is <span class="ext-numbers">54</span> again.</p>
+          <p>Then I tried a bigger jump to see if the size of the jump mattered. <span class="ext-numbers">1000 &minus; 678</span> is <span class="ext-numbers">322</span>, and adding <span class="ext-numbers">22</span> to both gives <span class="ext-numbers">1022 &minus; 700</span>, which is <span class="ext-numbers">322</span>. So the size of the jump does not seem to matter at all.</p>
+          <p>Three times out of three the answer stayed exactly the same. I am starting to think something is going on here that is not a coincidence.</p>
+        </div>
+        <div class="mathematician-box">
+          <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+        </div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Conjecturing</div>
+        <div class="ext-task-prompt">
+          "If you add the same amount to both numbers in a subtraction, the answer never changes."
+        </div>
+        <div class="ext-task-sub">Is that always true, sometimes true, or never true? Try hard to find an example that breaks it before you decide.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="toggleModel(this)">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>My conjecture is <strong>always true</strong>, but I did not want to say that until I had tried to break it.</p>
+          <p>First I went hunting for a counterexample. I tried making the answer <span class="ext-numbers">0</span>: <span class="ext-numbers">100 &minus; 100</span> is <span class="ext-numbers">0</span>, and adding <span class="ext-numbers">50</span> to both gives <span class="ext-numbers">150 &minus; 150</span>, still <span class="ext-numbers">0</span>. No luck.</p>
+          <p>Then I tried making the answer go below zero, because I thought that might behave differently. <span class="ext-numbers">5 &minus; 12</span> is <span class="ext-numbers">-7</span>, and <span class="ext-numbers">8 &minus; 15</span> is also <span class="ext-numbers">-7</span>. Still no luck.</p>
+          <p>I even tried sliding the numbers the other way, taking <span class="ext-numbers">3</span> off both instead of adding. <span class="ext-numbers">7 &minus; 3</span> is <span class="ext-numbers">4</span>, and <span class="ext-numbers">4 &minus; 0</span> is <span class="ext-numbers">4</span>. It still held.</p>
+          <p>I could not break it, and I think I know why. A subtraction is measuring the gap between two numbers. When both numbers slide the same distance along the number line, the gap between them cannot change. So my conjecture is always true.</p>
+        </div>
+        <div class="mathematician-box">
+          <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim you believe is true, based on your evidence, but you know it still needs to be proved.
+        </div>
+      </div>
+
+      <div class="ext-task">
+        <div class="ext-task-label">Justifying</div>
+        <div class="ext-task-prompt">
+          A student says: "Constant difference is brilliant, so I will use it on additions too. For <span class="ext-numbers">47 + 38</span> I will add <span class="ext-numbers">2</span> to both numbers to make <span class="ext-numbers">49 + 40</span>, which is <span class="ext-numbers">89</span>."
+        </div>
+        <div class="ext-task-sub">Is she right? If not, explain exactly what went wrong, and work out how much her answer is out by and why.</div>
+        <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+        <button class="ext-reveal-btn" onclick="toggleModel(this)">See how a mathematician thought about this</button>
+        <div class="ext-model-response">
+          <div class="model-label">A mathematician's response</div>
+          <p>I worked out the real answer first. <span class="ext-numbers">47 + 38</span> is <span class="ext-numbers">85</span>, and she got <span class="ext-numbers">89</span>. So she is out by <span class="ext-numbers">4</span>.</p>
+          <p>My first thought was that she had just made a mistake in her adding, but <span class="ext-numbers">49 + 40</span> really is <span class="ext-numbers">89</span>. Her arithmetic is fine. The method is what is wrong.</p>
+          <p>Then I noticed where the <span class="ext-numbers">4</span> came from. She added <span class="ext-numbers">2</span> to one number and <span class="ext-numbers">2</span> to the other, so she put an extra <span class="ext-numbers">2 + 2 = 4</span> into the total. I tested that idea on another one: <span class="ext-numbers">268 + 97</span> is <span class="ext-numbers">365</span>, and adding <span class="ext-numbers">3</span> to both gives <span class="ext-numbers">271 + 100 = 371</span>, which is out by <span class="ext-numbers">6</span>. That is <span class="ext-numbers">3 + 3</span>. The rule holds.</p>
+          <p>This is the real reason. Subtraction measures a gap, so both numbers can move together and the gap survives. Addition measures a total, and anything you add to either number goes straight into the total.</p>
+          <p>There is a version that does work for addition, though. Add to one number and take the same amount off the other. <span class="ext-numbers">47 + 2 = 49</span> and <span class="ext-numbers">38 &minus; 2 = 36</span>, and <span class="ext-numbers">49 + 36 = 85</span>. That is the correct answer, because what one number gained the other one lost.</p>
+        </div>
+        <div class="mathematician-box">
+          <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just checking whether an answer is right, you are examining whether the reason given is correct. A right answer with a wrong reason is still a problem in mathematics.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 13 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()">Next</button>
+  </div>
+</div>
+
+<!-- ============ SLIDE 12: WORDED PROBLEMS ============ -->
+<div class="slide" id="slide-13">
+  <div class="card">
+    <h2>Worded Problems</h2>
+    <p style="font-size:1.15rem;">Most of these take more than one step, and the best strategy can change between step one and step two. Work out each step in your book, then type the answers in.</p>
+    <div class="tier-tabs">
+      <button class="tier-tab active" id="wtab-support" onclick="showWorded('support')">Support</button>
+      <button class="tier-tab" id="wtab-core" onclick="showWorded('core')">Core</button>
+      <button class="tier-tab" id="wtab-extension" onclick="showWorded('extension')">Extension</button>
+    </div>
+
+    <div id="wtier-support">
+      <p class="tier-intro">Read the problem twice. Decide what you are working out first, before you touch any numbers.</p>
+      <div id="w-support"></div>
+      <div class="tier-summary" id="wsummary-support">
+        <h3>Worded problems complete</h3>
+        <div class="summary-score" id="wscore-support">0 / 3</div>
+        <p class="sent-msg" id="wsent-support"></p>
+      </div>
+    </div>
+
+    <div id="wtier-core" style="display:none;">
+      <p class="tier-intro">Every one of these takes two steps. Work out what the first step has to be, then choose a strategy for each step separately.</p>
+      <div id="w-core"></div>
+      <div class="tier-summary" id="wsummary-core">
+        <h3>Worded problems complete</h3>
+        <div class="summary-score" id="wscore-core">0 / 3</div>
+        <p class="sent-msg" id="wsent-core"></p>
+      </div>
+    </div>
+
+    <div id="wtier-extension" style="display:none;">
+      <p class="tier-intro">Two steps, bigger numbers, and the strategy that suits step one will not always suit step two. Say which strategy you used for each step in your book.</p>
+      <div id="w-extension"></div>
+      <div class="tier-summary" id="wsummary-extension">
+        <h3>Worded problems complete</h3>
+        <div class="summary-score" id="wscore-extension">0 / 3</div>
+        <p class="sent-msg" id="wsent-extension"></p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" onclick="prevSlide()">Previous</button>
+    <span class="slide-counter">Card 14 of 14</span>
+    <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+  </div>
+</div>
+
+</main>
+<script src="../../scripts/results-to-sheet.js?v=2"></script>
+<script>
+/* ============================================================
+   SLIDES AND NAVIGATION
+   ============================================================ */
+var slides = [
+  { id: 'slide-0',  title: 'Learning Intention',     section: 'Learning' },
+  { id: 'slide-1',  title: 'Beat the Algorithm',     section: 'Hook' },
+  { id: 'slide-2',  title: 'What the Algorithm Costs', section: 'Hook' },
+  { id: 'slide-3',  title: 'The Big Idea',           section: 'Hook' },
+  { id: 'slide-4',  title: 'Partitioning',           section: 'I Do' },
+  { id: 'slide-5',  title: 'Levelling',              section: 'I Do' },
+  { id: 'slide-6',  title: 'Constant Difference',    section: 'I Do' },
+  { id: 'slide-7',  title: 'The Compensation Trap',  section: 'I Do' },
+  { id: 'slide-8',  title: 'Which One, When?',       section: 'I Do' },
+  { id: 'slide-9',  title: 'Q1: Partitioning',       section: 'We Do' },
+  { id: 'slide-10',  title: 'Q2: Levelling',          section: 'We Do' },
+  { id: 'slide-11', title: 'Q3: Constant Difference',section: 'We Do' },
+  { id: 'slide-12', title: 'Your Turn',              section: 'Practice' },
+  { id: 'slide-13', title: 'Worded Problems',        section: 'Practice' }
+];
+
+var sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice'
+};
+
+var currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  var all = document.querySelectorAll('.slide');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToPhase(sectionName) {
+  for (var i = 0; i < slides.length; i++) {
+    if (slides[i].section === sectionName) { goToSlide(i); return; }
+  }
+}
+
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+
+function updateNavButtons() {
+  var active = document.getElementById(slides[currentSlide].id);
+  if (!active) return;
+  var nav = active.querySelector('.slide-nav');
+  if (!nav) return;
+  var btns = nav.querySelectorAll('.nav-btn');
+  if (btns[0]) btns[0].disabled = (currentSlide === 0);
+  if (btns[1]) btns[1].disabled = (currentSlide === slides.length - 1);
+  var counter = nav.querySelector('.slide-counter');
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+
+function updatePhaseNav() {
+  var phase = sectionToPhase[slides[currentSlide].section];
+  var btns = document.querySelectorAll('.phase-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  var target = document.querySelector('.phase-btn[data-phase="' + phase + '"]');
+  if (target) target.classList.add('active');
+}
+
+function updateSidebarActive() {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    if (i === currentSlide) items[i].classList.add('active');
+    else items[i].classList.remove('active');
+  }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  var h = document.querySelector('header');
+  var nav = document.getElementById('phaseNav');
+  var total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+/* ============================================================
+   STAGED REVEALS
+   ============================================================ */
+var revealState = {};
+
+/* Button labels that change as a group is revealed, one per remaining click. */
+var STEP_LABELS = {
+  trap: ['Show her next step', 'Show her last step', 'Where did she go wrong?', 'Show the correct step 3', 'Show the rule that fixes it'],
+  algo: ['Show the second one', 'Show the third one', 'Now do it in your head']
+};
+
+function revealGroup(group) {
+  if (!revealState[group]) revealState[group] = 0;
+  var steps = document.querySelectorAll('[data-group="' + group + '"]');
+  if (revealState[group] < steps.length) {
+    steps[revealState[group]].classList.add('revealed');
+    revealState[group]++;
+  }
+  var btns = document.querySelectorAll('button[onclick="revealGroup(\'' + group + '\')"]');
+  for (var i = 0; i < btns.length; i++) {
+    if (revealState[group] >= steps.length) {
+      btns[i].disabled = true;
+      btns[i].textContent = 'All steps shown';
+    } else {
+      var labels = STEP_LABELS[group];
+      var next = labels ? labels[revealState[group] - 1] : null;
+      if (next) btns[i].textContent = next;
+    }
+  }
+}
+
+/* ============================================================
+   HOOK
+   ============================================================ */
+var hookTimer = null;
+
+function startHook() {
+  var ids = ['hook-1', 'hook-2', 'hook-3'];
+  for (var i = 0; i < ids.length; i++) document.getElementById(ids[i]).classList.remove('hook-hidden');
+  var btn = document.getElementById('hook-start-btn');
+  btn.disabled = true;
+  var left = 30;
+  btn.textContent = 'Thirty seconds: ' + left;
+  hookTimer = setInterval(function () {
+    left--;
+    if (left <= 0) {
+      clearInterval(hookTimer);
+      btn.textContent = 'Time is up';
+        } else {
+      btn.textContent = 'Thirty seconds: ' + left;
+    }
+  }, 1000);
+}
+
+/* ============================================================
+   WE DO
+   ============================================================ */
+var weDo = [
+  {
+    answer: 767,
+    hints: [
+      'Split both numbers into hundreds, tens and ones first.',
+      'Work out <span class="mono">400 + 300</span>, then <span class="mono">20 + 40</span>, then <span class="mono">5 + 2</span>.',
+      'Now add your three totals together: <span class="mono">700 + 60 + 7</span>.'
+    ],
+    named: {},
+    working: 'Hundreds: <span class="mono">400 + 300 = 700</span><br>Tens: <span class="mono">20 + 40 = 60</span><br>Ones: <span class="mono">5 + 2 = 7</span><br>Recombine: <span class="mono">700 + 60 + 7 = 767</span>'
+  },
+  {
+    answer: 674,
+    hints: [
+      '<span class="mono">198</span> is very close to a friendly number. Which one?',
+      'Work out <span class="mono">476 + 200</span> first. That gives <span class="mono">676</span>.',
+      'You added <span class="mono">2</span> too many, so take <span class="mono">2</span> off your total.'
+    ],
+    named: {
+      676: 'That is <span class="mono">476 + 200</span>. You adjusted but you did not compensate. You added <span class="mono">2</span> too many, so take <span class="mono">2</span> back off.',
+      678: 'You adjusted to <span class="mono">676</span> and then added the <span class="mono">2</span> on. You had already added too much, so the <span class="mono">2</span> needs to come off, not go on.'
+    },
+    working: 'Adjust: <span class="mono">476 + 200 = 676</span><br>Compensate: <span class="mono">676 &minus; 2 = 674</span>'
+  },
+  {
+    answer: 307,
+    hints: [
+      '<span class="mono">495</span> is <span class="mono">5</span> away from <span class="mono">500</span>.',
+      'Add <span class="mono">5</span> to <strong>both</strong> numbers. <span class="mono">802</span> becomes <span class="mono">807</span> and <span class="mono">495</span> becomes <span class="mono">500</span>.',
+      'Now work out the easy one: <span class="mono">807 &minus; 500</span>.'
+    ],
+    named: {
+      302: 'That is <span class="mono">802 &minus; 500</span>. You only moved one number. Taking away <span class="mono">500</span> takes away <span class="mono">5</span> too much, so the gap has changed.',
+      312: 'You moved <span class="mono">802</span> up to <span class="mono">807</span> but left <span class="mono">495</span> where it was. Both numbers have to move the same amount, or the gap changes.'
+    },
+    working: 'Slide both up <span class="mono">5</span>: <span class="mono">807 &minus; 500</span><br>Answer: <span class="mono">807 &minus; 500 = 307</span>'
+  }
+];
+
+var weDoHintLevel = [0, 0, 0];
+var weDoChecked = [false, false, false];
+
+function showWeDoHint(i) {
+  if (weDoChecked[i]) return;
+  var q = weDo[i];
+  if (weDoHintLevel[i] >= q.hints.length) return;
+  var box = document.getElementById('wd-hintbox-' + i);
+  var out = '';
+  for (var h = 0; h <= weDoHintLevel[i]; h++) {
+    out += '<div style="margin-bottom:6px;"><strong>Hint ' + (h + 1) + ':</strong> ' + q.hints[h] + '</div>';
+  }
+  box.innerHTML = out;
+  box.classList.add('visible');
+  weDoHintLevel[i]++;
+  if (weDoHintLevel[i] >= q.hints.length) document.getElementById('wd-hint-' + i).disabled = true;
+}
+
+function placeValueDiagnosis(given, correct) {
+  var diff = Math.abs(given - correct);
+  if (diff % 1000 === 0) return 'Your thousands are out.';
+  if (diff % 100 === 0) return 'Your hundreds column is out by <span class="mono">' + (diff / 100) + '</span> hundred.';
+  if (diff % 10 === 0) return 'Your tens column is out by <span class="mono">' + (diff / 10) + '</span> ten.';
+  return 'Check your ones column.';
+}
+
+function checkWeDo(i) {
+  var input = document.getElementById('wd-input-' + i);
+  var fb = document.getElementById('wd-fb-' + i);
+  var card = document.getElementById('wedo-card-' + i);
+  var q = weDo[i];
+  var raw = (input.value || '').replace(/[,\s]/g, '').trim();
+  var shown = raw === '' ? '(blank)' : raw;
+  var given = parseInt(raw, 10);
+
+  weDoChecked[i] = true;
+  document.getElementById('wd-check-' + i).disabled = true;
+  document.getElementById('wd-hint-' + i).disabled = true;
+  fb.classList.add('show');
+
+  if (raw !== '' && given === q.answer) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = 'Correct. <span class="mono">' + q.answer + '</span> is right.<br>' + q.working;
+    card.classList.add('answered-correct');
+    return;
+  }
+
+  fb.className = 'feedback show incorrect';
+  var msg = 'You answered <span class="mono">' + shown + '</span>. The correct answer is <span class="mono">' + q.answer + '</span>.<br>';
+  if (raw !== '' && !isNaN(given) && q.named[given]) {
+    msg += q.named[given] + '<br>';
+  } else if (raw !== '' && !isNaN(given)) {
+    msg += placeValueDiagnosis(given, q.answer) + '<br>';
+  }
+  msg += q.working;
+  fb.innerHTML = msg;
+  card.classList.add('answered-wrong');
+}
+
+/* ============================================================
+   PRACTICE DATA
+   ============================================================ */
+var STRAT_NAMES = { part: 'Partitioning', lev: 'Levelling', cd: 'Constant difference', alg: 'Written algorithm' };
+var STRAT_CLASS = { part: 'part', lev: 'lev', cd: 'cd' };
+
+var practice = {
+  support: [
+    { set:1, a: 231, b: 546, op: '+', strategy: 'part', answer: 777 },
+    { set:1, a: 355, b: 199, op: '+', strategy: 'lev', answer: 554, friendly: 200, delta: 1 },
+    { set:1, a: 500, b: 297, op: '-', strategy: 'cd',  answer: 203, friendly: 300, shift: 3 },
+    { set:1, a: 472, b: 315, op: '+', strategy: 'part', answer: 787 },
+    { set:1, a: 264, b: 98,  op: '-', strategy: 'lev', answer: 166, friendly: 100, delta: 2 },
+    { set:1, a: 600, b: 394, op: '-', strategy: 'cd',  answer: 206, friendly: 400, shift: 6 },
+    { set:2, a: 613, b: 275, op: '+', strategy: 'part', answer: 888 },
+    { set:2, a: 428, b: 297, op: '+', strategy: 'lev', answer: 725, friendly: 300, delta: 3 },
+    { set:2, a: 800, b: 596, op: '-', strategy: 'cd',  answer: 204, friendly: 600, shift: 4 },
+    { set:2, a: 573, b: 199, op: '-', strategy: 'lev', answer: 374, friendly: 200, delta: 1 },
+    { set:2, a: 900, b: 693, op: '-', strategy: 'cd',  answer: 207, friendly: 700, shift: 7 }
+  ],
+  core: [
+    { set:1, a: 452,  b: 336,  op: '+', answer: 788,  best: 'part', why: 'No number is near a friendly number, so partitioning by place value is the cleanest route.' },
+    { set:1, a: 1000, b: 654,  op: '-', answer: 346,  best: 'cd',   why: 'Slide both down <span class="mono">1</span> to get <span class="mono">999 &minus; 653</span>, which needs no regrouping at all.' },
+    { set:1, a: 467,  b: 295,  op: '+', answer: 762,  best: 'lev',  why: '<span class="mono">295</span> is <span class="mono">5</span> below <span class="mono">300</span>. Add <span class="mono">300</span> then take <span class="mono">5</span> off.' },
+    { set:1, a: 703,  b: 398,  op: '-', answer: 305,  best: 'cd',   why: 'Slide both up <span class="mono">2</span> to get <span class="mono">705 &minus; 400</span>.' },
+    { set:1, a: 3241, b: 2536, op: '+', answer: 5777, best: 'part', why: 'Nothing is near a friendly number, so split both by place value and add the matching parts.' },
+    { set:1, a: 1750, b: 999,  op: '+', answer: 2749, best: 'lev',  why: '<span class="mono">999</span> is <span class="mono">1</span> below <span class="mono">1000</span>. Add <span class="mono">1000</span> then take <span class="mono">1</span> off.' },
+    { set:2, a: 517,  b: 362,  op: '+', answer: 879,  best: 'part', why: 'Neither number is near a friendly number, so split both by place value.' },
+    { set:2, a: 5000, b: 4678, op: '-', answer: 322,  best: 'cd',   why: 'Slide both down <span class="mono">1</span> to get <span class="mono">4999 &minus; 4677</span>, and every column subtracts without regrouping.' },
+    { set:2, a: 685,  b: 398,  op: '+', answer: 1083, best: 'lev',  why: 'Add <span class="mono">400</span> then take <span class="mono">2</span> off.' },
+    { set:2, a: 904,  b: 697,  op: '-', answer: 207,  best: 'cd',   why: 'Slide both up <span class="mono">3</span> to get <span class="mono">907 &minus; 700</span>.' },
+    { set:2, a: 2460, b: 1995, op: '+', answer: 4455, best: 'lev',  why: 'Add <span class="mono">2000</span> then take <span class="mono">5</span> off.' }
+  ],
+  extension: [
+    { set:1, a: 4002, b: 3995, op: '-', answer: 7,     best: 'cd',  why: 'Slide both up <span class="mono">5</span> to get <span class="mono">4007 &minus; 4000</span>. The algorithm here means regrouping across three columns for an answer of <span class="mono">7</span>.' },
+    { set:1, a: 2860, b: 1998, op: '+', answer: 4858,  best: 'lev', why: 'Add <span class="mono">2000</span> then take <span class="mono">2</span> off.' },
+    { set:1, a: 6003, b: 5897, op: '-', answer: 106,   best: 'cd',  why: 'Slide both up <span class="mono">103</span> to get <span class="mono">6106 &minus; 6000</span>, or up <span class="mono">3</span> to get <span class="mono">6006 &minus; 5900</span>. Either beats regrouping.' },
+    { set:1, a: 8004, b: 2997, op: '+', answer: 11001, best: 'lev', why: 'Add <span class="mono">3000</span> then take <span class="mono">3</span> off.' },
+    { set:2, a: 7002,  b: 6993, op: '-', answer: 9,    best: 'cd',  why: 'Slide both up <span class="mono">7</span> to get <span class="mono">7009 &minus; 7000</span>.' },
+    { set:2, a: 3745,  b: 2996, op: '+', answer: 6741, best: 'lev', why: 'Add <span class="mono">3000</span> then take <span class="mono">4</span> off.' },
+    { set:2, a: 10000, b: 6743, op: '-', answer: 3257, best: 'cd',  why: 'Slide both down <span class="mono">1</span> to get <span class="mono">9999 &minus; 6742</span>. Subtracting from <span class="mono">9999</span> never needs a single regroup.' },
+    { set:2, a: 4890,  b: 1997, op: '+', answer: 6887, best: 'lev', why: 'Add <span class="mono">2000</span> then take <span class="mono">3</span> off.' },
+    { set:2, a: 4321,  b: 3542, op: '+', answer: 7863, best: 'part', why: 'Nothing is near a friendly number, so split both by place value and add the matching parts.' }
+  ]
+};
+
+var SET_LABELS = {
+  support: { 1: 'Set 1', 2: 'Set 2' },
+  core:    { 1: 'Set 1', 2: 'Set 2' },
+  extension: { 1: 'Set 1', 2: 'Set 2' }
+};
+
+var tierState = {
+  support:   { status: [], scaffoldStep: [] },
+  core:      { status: [] },
+  extension: { status: [] }
+};
+
+/* ============================================================
+   PRACTICE RENDERING
+   ============================================================ */
+function opSign(op) { return op === '+' ? '+' : '&minus;'; }
+
+function scaffoldHTML(tier, i, q) {
+  var h = '<div class="scaffold"><div class="scaffold-title">Helper</div><div id="sc-body-' + tier + '-' + i + '">';
+  h += scaffoldStage(q, 0);
+  h += '</div><button class="sc-btn" id="sc-btn-' + tier + '-' + i + '" onclick="advanceScaffold(' + i + ')">Show me the first move</button></div>';
+  return h;
+}
+
+function partitionParts(n) {
+  var out = [], s = String(n), len = s.length;
+  for (var i = 0; i < len; i++) {
+    var d = parseInt(s.charAt(i), 10);
+    if (d === 0) continue;
+    out.push(d * Math.pow(10, len - 1 - i));
+  }
+  return out;
+}
+
+function partClass(v) {
+  if (v >= 100) return 'h';
+  if (v >= 10) return 't';
+  return 'o';
+}
+
+function chipsFor(n) {
+  var parts = partitionParts(n), out = '';
+  for (var i = 0; i < parts.length; i++) {
+    if (i > 0) out += '<span class="chip-plus">+</span>';
+    out += '<span class="sc-slot filled ' + partClass(parts[i]) + '">' + parts[i] + '</span>';
+  }
+  return out;
+}
+
+function blanksFor(n) {
+  var parts = partitionParts(n), out = '';
+  for (var i = 0; i < parts.length; i++) {
+    if (i > 0) out += '<span class="chip-plus">+</span>';
+    out += '<span class="sc-slot">?</span>';
+  }
+  return out;
+}
+
+/* stage 0 = nothing revealed, then one more piece each click */
+function scaffoldStage(q, stage) {
+  var h = '';
+  if (q.strategy === 'part') {
+    h += '<div class="sc-row"><span class="sc-label mono">' + q.a + '</span>' + (stage >= 1 ? chipsFor(q.a) : blanksFor(q.a)) + '</div>';
+    h += '<div class="sc-row"><span class="sc-label mono">' + q.b + '</span>' + (stage >= 2 ? chipsFor(q.b) : blanksFor(q.b)) + '</div>';
+    h += '<div class="sc-row"><span class="sc-label">Add</span>' + blanksFor(Math.max(q.a, q.b)) + '</div>';
+    if (stage >= 3) h += '<div class="sc-note">Add the matching parts, then put your three totals back together.</div>';
+  } else if (q.strategy === 'lev') {
+    if (stage >= 1) h += '<div class="sc-row"><span class="sc-label">Friendly</span><span class="sc-slot filled plain">' + q.friendly + '</span><span class="sc-note" style="margin:0 0 0 8px;"><span class="mono">' + q.b + '</span> is <span class="mono">' + q.delta + '</span> below it.</span></div>';
+    else h += '<div class="sc-row"><span class="sc-label">Friendly</span><span class="sc-slot">?</span></div>';
+    if (stage >= 2) h += '<div class="sc-row"><span class="sc-label">Adjust</span><span class="sc-slot filled plain">' + q.a + '</span><span class="chip-plus">' + opSign(q.op) + '</span><span class="sc-slot filled plain">' + q.friendly + '</span><span class="chip-plus">=</span><span class="sc-slot">?</span></div>';
+    else h += '<div class="sc-row"><span class="sc-label">Adjust</span><span class="sc-slot">?</span></div>';
+    if (stage >= 3) {
+      var dir = (q.op === '+') ? 'take ' + q.delta + ' off' : 'give ' + q.delta + ' back';
+      h += '<div class="sc-note">You used <span class="mono">' + q.delta + '</span> too much, so ' + dir + ' at the end.</div>';
+    }
+  } else {
+    h += '<div class="sc-row"><span class="sc-label">Now</span><span class="sc-slot filled plain">' + q.a + '</span><span class="chip-plus">&minus;</span><span class="sc-slot filled plain">' + q.b + '</span></div>';
+    if (stage >= 1) h += '<div class="sc-note"><span class="mono">' + q.b + '</span> is <span class="mono">' + q.shift + '</span> below <span class="mono">' + q.friendly + '</span>. Slide <strong>both</strong> numbers up <span class="mono">' + q.shift + '</span>.</div>';
+    if (stage >= 2) h += '<div class="sc-row" style="margin-top:8px;"><span class="sc-label">Slide</span><span class="sc-slot filled plain">' + (q.a + q.shift) + '</span><span class="chip-plus">&minus;</span><span class="sc-slot filled plain">' + q.friendly + '</span><span class="chip-plus">=</span><span class="sc-slot">?</span></div>';
+    if (stage >= 3) h += '<div class="sc-note">The gap has not changed, so this answer is the answer to the original question.</div>';
+  }
+  return h;
+}
+
+function advanceScaffold(i) {
+  var q = practice.support[i];
+  var st = tierState.support.scaffoldStep[i] || 0;
+  if (st >= 3) return;
+  st++;
+  tierState.support.scaffoldStep[i] = st;
+  document.getElementById('sc-body-support-' + i).innerHTML = scaffoldStage(q, st);
+  var btn = document.getElementById('sc-btn-support-' + i);
+  if (st >= 3) { btn.disabled = true; btn.textContent = 'That is all the help'; }
+  else btn.textContent = 'Show me the next move';
+}
+
+function stratSelectHTML(tier, i) {
+  var h = '<select class="pq-select" id="pq-strat-' + tier + '-' + i + '">';
+  h += '<option value="">Choose your strategy...</option>';
+  h += '<option value="part">Partitioning</option>';
+  h += '<option value="lev">Levelling</option>';
+  h += '<option value="cd">Constant difference</option>';
+  h += '<option value="alg">Written algorithm</option>';
+  h += '</select>';
+  return h;
+}
+
+function renderTier(tier) {
+  var qs = practice[tier];
+  var host = document.getElementById('q-' + tier);
+  var html = '';
+  for (var i = 0; i < qs.length; i++) {
+    var q = qs[i];
+    tierState[tier].status[i] = null;
+    if (tier === 'support') tierState.support.scaffoldStep[i] = 0;
+
+    if (i === 0 || qs[i].set !== qs[i - 1].set) {
+      html += '<div class="set-header">' + SET_LABELS[tier][q.set] + '</div>';
+    }
+    html += '<div class="pq-card" id="pq-' + tier + '-' + i + '">';
+    html += '<div class="pq-head"><span class="pq-num">Question ' + (i + 1) + '</span>';
+    if (tier === 'support') html += '<span class="pq-named ' + STRAT_CLASS[q.strategy] + '">' + STRAT_NAMES[q.strategy] + '</span>';
+    html += '</div>';
+    html += '<div class="pq-body"><div class="pq-left">';
+    html += '<div class="pq-eq">' + q.a + ' ' + opSign(q.op) + ' ' + q.b + '</div>';
+    if (tier !== 'support') html += '<div style="margin-bottom:10px;">' + stratSelectHTML(tier, i) + '</div>';
+    html += '<div class="answer-row" style="justify-content:flex-start;">';
+    html += '<input type="text" class="answer-input" id="pq-input-' + tier + '-' + i + '" inputmode="numeric" placeholder="?" onkeydown="if(event.key===\'Enter\')checkPractice(\'' + tier + '\',' + i + ')">';
+    html += '<button class="check-btn" id="pq-check-' + tier + '-' + i + '" onclick="checkPractice(\'' + tier + '\',' + i + ')">Check</button>';
+    html += '</div>';
+    if (tier === 'extension') html += '<textarea class="pq-justify" id="pq-just-' + i + '" placeholder="Show your thinking here..."></textarea>';
+    html += '<div class="feedback" id="pq-fb-' + tier + '-' + i + '"></div>';
+    html += '</div>';
+    if (tier === 'support') html += '<div class="pq-right">' + scaffoldHTML(tier, i, q) + '</div>';
+    html += '</div></div>';
+  }
+  host.innerHTML = html;
+}
+
+function checkPractice(tier, i) {
+  var q = practice[tier][i];
+  var input = document.getElementById('pq-input-' + tier + '-' + i);
+  var fb = document.getElementById('pq-fb-' + tier + '-' + i);
+  var card = document.getElementById('pq-' + tier + '-' + i);
+  var raw = (input.value || '').replace(/[,\s]/g, '').trim();
+  var shown = raw === '' ? '(blank)' : raw;
+  var given = parseInt(raw, 10);
+  var chosen = '';
+
+  if (tier !== 'support') {
+    var sel = document.getElementById('pq-strat-' + tier + '-' + i);
+    chosen = sel.value;
+    if (!chosen) {
+      fb.className = 'feedback show incorrect';
+      fb.innerHTML = 'Choose a strategy from the list before you check. Deciding which method to use is part of the question.';
+      return;
+    }
+  }
+
+  document.getElementById('pq-check-' + tier + '-' + i).disabled = true;
+  fb.classList.add('show');
+  var correct = (raw !== '' && given === q.answer);
+  tierState[tier].status[i] = correct ? 'correct' : 'incorrect';
+
+  var msg = '';
+  if (correct) {
+    fb.className = 'feedback show correct';
+    msg = 'Correct. <span class="mono">' + q.answer + '</span> is right.';
+    card.classList.add('answered-correct');
+  } else {
+    fb.className = 'feedback show incorrect';
+    msg = 'You answered <span class="mono">' + shown + '</span>. The correct answer is <span class="mono">' + q.answer + '</span>.';
+    card.classList.add('answered-wrong');
+  }
+
+  if (tier !== 'support') {
+    if (chosen === 'cd' && q.op === '+') {
+      msg += '<br><strong>Strategy check.</strong> You chose constant difference, but this is an addition. Sliding both numbers only works for subtraction, because subtraction measures a gap.';
+    } else if (chosen === 'alg') {
+      msg += '<br><strong>Strategy check.</strong> The algorithm works, but look at these numbers again. ' + q.why;
+    } else if (chosen === q.best) {
+      msg += '<br><strong>Good choice.</strong> ' + q.why;
+    } else {
+      msg += '<br><strong>Strategy check.</strong> ' + STRAT_NAMES[chosen] + ' can get there, but ' + STRAT_NAMES[q.best].toLowerCase() + ' is quicker here. ' + q.why;
+    }
+  } else {
+    msg += '<br>' + supportWorking(q);
+  }
+
+  fb.innerHTML = msg;
+  checkTierComplete(tier);
+}
+
+function supportWorking(q) {
+  if (q.strategy === 'part') {
+    var pa = partitionParts(q.a), pb = partitionParts(q.b);
+    return 'Working: <span class="mono">' + pa.join(' + ') + '</span> and <span class="mono">' + pb.join(' + ') + '</span>, giving <span class="mono">' + q.answer + '</span>.';
+  }
+  if (q.strategy === 'lev') {
+    var adj = (q.op === '+') ? q.a + q.friendly : q.a - q.friendly;
+    var fix = (q.op === '+') ? '&minus; ' + q.delta : '+ ' + q.delta;
+    return 'Working: <span class="mono">' + q.a + ' ' + opSign(q.op) + ' ' + q.friendly + ' = ' + adj + '</span>, then <span class="mono">' + adj + ' ' + fix + ' = ' + q.answer + '</span>.';
+  }
+  return 'Working: slide both up <span class="mono">' + q.shift + '</span> to get <span class="mono">' + (q.a + q.shift) + ' &minus; ' + q.friendly + ' = ' + q.answer + '</span>.';
+}
+
+/* ============================================================
+   TIERS, SCORING AND RESULTS
+   ============================================================ */
+function showTier(tier) {
+  var tiers = ['support', 'core', 'extension'];
+  for (var i = 0; i < tiers.length; i++) {
+    document.getElementById('tier-' + tiers[i]).style.display = (tiers[i] === tier) ? 'block' : 'none';
+    document.getElementById('tab-' + tiers[i]).classList.toggle('active', tiers[i] === tier);
+  }
+}
+
+var tierSent = { support: false, core: false, extension: false };
+
+function checkTierComplete(tier) {
+  var st = tierState[tier].status;
+  var total = practice[tier].length;
+  for (var i = 0; i < total; i++) { if (!st[i]) return; }
+
+  var score = 0;
+  for (var j = 0; j < total; j++) if (st[j] === 'correct') score++;
+
+  var label = tier.charAt(0).toUpperCase() + tier.slice(1);
+  document.getElementById('score-' + tier).textContent = score + ' / ' + total;
+  document.getElementById('summary-' + tier).classList.add('show');
+
+  if (!tierSent[tier] && typeof submitResult === 'function') {
+    tierSent[tier] = true;
+    var qData = (typeof buildQuestionData === 'function') ? buildQuestionData(st, total) : [];
+    submitResult('additive-strategy-toolkit', 'Additive Strategy Toolkit', score, total, label, qData);
+    document.getElementById('sent-' + tier).textContent = 'Your result has been sent to your teacher.';
+  }
+
+  if (tier === 'core' || tier === 'extension') unlockGoDeeper();
+}
+
+function unlockGoDeeper() {
+  var card = document.getElementById('go-deeper-card');
+  if (!card || !card.classList.contains('locked')) return;
+  card.classList.remove('locked');
+  card.disabled = false;
+  var tag = document.getElementById('gd-tag');
+  if (tag) { tag.textContent = 'Unlocked'; tag.style.background = '#4ECDC4'; tag.style.color = '#fff'; }
+  document.getElementById('gd-sub').textContent = 'Explore, reason, and think like a mathematician';
+}
+
+function openGoDeeper() {
+  var sec = document.getElementById('go-deeper-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleModel(btn) {
+  var panel = btn.nextElementSibling;
+  panel.classList.toggle('visible');
+  btn.textContent = panel.classList.contains('visible')
+    ? 'Hide mathematician\'s response'
+    : 'See how a mathematician thought about this';
+}
+
+/* ============================================================
+   WORDED PROBLEMS
+   ============================================================ */
+var worded = {
+  support: [
+    { text: 'The school library has <span class="mono">348</span> fiction books and <span class="mono">199</span> non-fiction books. How many books are there altogether?',
+      steps: [ { label: 'Answer', calc: '348 + 199', strat: 'lev', answer: 547, how: '<span class="mono">199</span> is <span class="mono">1</span> below <span class="mono">200</span>. <span class="mono">348 + 200 = 548</span>, then take <span class="mono">1</span> off.' } ] },
+    { text: 'A hall seats <span class="mono">750</span> people. <span class="mono">298</span> seats are already taken. How many seats are empty?',
+      steps: [ { label: 'Answer', calc: '750 &minus; 298', strat: 'cd', answer: 452, how: 'Slide both up <span class="mono">2</span>. <span class="mono">752 &minus; 300 = 452</span>.' } ] },
+    { text: 'Mrs Patel buys <span class="mono">235</span> pencils and <span class="mono">142</span> rubbers. She then gives <span class="mono">99</span> pencils to another class. How many items does she have left?',
+      steps: [ { label: 'Step 1', calc: '235 + 142', strat: 'part', answer: 377, how: 'Nothing is near a friendly number, so partition. <span class="mono">300 + 70 + 7</span>.' },
+               { label: 'Step 2', calc: '377 &minus; 99', strat: 'lev', answer: 278, how: '<span class="mono">99</span> is <span class="mono">1</span> below <span class="mono">100</span>. <span class="mono">377 &minus; 100 = 277</span>, then give the <span class="mono">1</span> back.' } ] }
+  ],
+  core: [
+    { text: 'A charity run raised <span class="mono">$2,470</span> on Saturday and <span class="mono">$1,998</span> on Sunday. The target was <span class="mono">$5,000</span>. How much short of the target are they?',
+      steps: [ { label: 'Step 1', calc: '2470 + 1998', strat: 'lev', answer: 4468, how: 'Add <span class="mono">2000</span> to get <span class="mono">4470</span>, then take <span class="mono">2</span> off.' },
+               { label: 'Step 2', calc: '5000 &minus; 4468', strat: 'cd', answer: 532, how: 'Slide both down <span class="mono">1</span>. <span class="mono">4999 &minus; 4467 = 532</span>, with no regrouping at all.' } ] },
+    { text: 'A school has <span class="mono">412</span> students. <span class="mono">158</span> are in Stage 3 and <span class="mono">197</span> are in Stage 2. The rest are in Stage 1. How many students are in Stage 1?',
+      steps: [ { label: 'Step 1', calc: '158 + 197', strat: 'lev', answer: 355, how: '<span class="mono">197</span> is <span class="mono">3</span> below <span class="mono">200</span>. <span class="mono">158 + 200 = 358</span>, then take <span class="mono">3</span> off.' },
+               { label: 'Step 2', calc: '412 &minus; 355', strat: 'cd', answer: 57, how: 'Slide both up <span class="mono">5</span>. <span class="mono">417 &minus; 360 = 57</span>.' } ] },
+    { text: 'A bookshop starts the day with <span class="mono">1,500</span> books. It sells <span class="mono">342</span> in the morning and <span class="mono">236</span> in the afternoon. How many books are left?',
+      steps: [ { label: 'Step 1', calc: '342 + 236', strat: 'part', answer: 578, how: 'Neither number is near a friendly number, so partition. <span class="mono">500 + 70 + 8</span>.' },
+               { label: 'Step 2', calc: '1500 &minus; 578', strat: 'cd', answer: 922, how: 'Slide both down <span class="mono">1</span>. <span class="mono">1499 &minus; 577 = 922</span>.' } ] }
+  ],
+  extension: [
+    { text: 'A council will plant <span class="mono">4,000</span> trees. They plant <span class="mono">1,996</span> in June and <span class="mono">1,207</span> in July. How many trees are left to plant in August?',
+      steps: [ { label: 'Step 1', calc: '1996 + 1207', strat: 'lev', answer: 3203, how: 'Add <span class="mono">2000</span> to get <span class="mono">3207</span>, then take <span class="mono">4</span> off.' },
+               { label: 'Step 2', calc: '4000 &minus; 3203', strat: 'cd', answer: 797, how: 'Slide both down <span class="mono">1</span>. <span class="mono">3999 &minus; 3202 = 797</span>.' } ] },
+    { text: 'Town A has <span class="mono">6,004</span> people. Town B has <span class="mono">2,997</span> people. A new estate brings <span class="mono">1,250</span> more people to Town B. How many more people does Town A have than Town B now?',
+      steps: [ { label: 'Step 1', calc: '2997 + 1250', strat: 'lev', answer: 4247, how: 'Add <span class="mono">3000</span> to get <span class="mono">4250</span>, then take <span class="mono">3</span> off.' },
+               { label: 'Step 2', calc: '6004 &minus; 4247', strat: 'cd', answer: 1757, how: 'Slide both up <span class="mono">3</span>. <span class="mono">6007 &minus; 4250 = 1757</span>.' } ] },
+    { text: 'A warehouse holds <span class="mono">5,002</span> boxes. <span class="mono">1,998</span> boxes are sent to Sydney and <span class="mono">2,499</span> are sent to Melbourne. How many boxes are left in the warehouse?',
+      steps: [ { label: 'Step 1', calc: '1998 + 2499', strat: 'lev', answer: 4497, how: 'Add <span class="mono">2000</span> and <span class="mono">2500</span> to get <span class="mono">4500</span>, then take <span class="mono">3</span> off for the two adjustments.' },
+               { label: 'Step 2', calc: '5002 &minus; 4497', strat: 'cd', answer: 505, how: 'Slide both up <span class="mono">3</span>. <span class="mono">5005 &minus; 4500 = 505</span>.' } ] }
+  ]
+};
+
+var wordedStatus = { support: [], core: [], extension: [] };
+var wordedSent = { support: false, core: false, extension: false };
+
+function renderWorded(tier) {
+  var qs = worded[tier];
+  var html = '';
+  for (var i = 0; i < qs.length; i++) {
+    var q = qs[i];
+    wordedStatus[tier][i] = null;
+    html += '<div class="wp-card" id="wp-' + tier + '-' + i + '">';
+    html += '<div class="wp-head"><span class="wp-num">Problem ' + (i + 1) + '</span>';
+    if (q.steps.length > 1) html += '<span class="wp-steps-tag">' + q.steps.length + ' steps</span>';
+    html += '</div>';
+    html += '<div class="wp-text">' + q.text + '</div>';
+    html += '<div class="wp-plan">';
+    for (var k = 0; k < q.steps.length; k++) {
+      html += '<div class="wp-plan-row"><span class="wp-plan-label">' + q.steps[k].label + '</span>';
+      html += '<input type="text" class="wp-step-input" id="wp-in-' + tier + '-' + i + '-' + k + '" inputmode="numeric" placeholder="?">';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<button class="check-btn" id="wp-check-' + tier + '-' + i + '" onclick="checkWorded(\'' + tier + '\',' + i + ')">Check</button>';
+    html += '<div class="feedback" id="wp-fb-' + tier + '-' + i + '"></div>';
+    html += '<div class="wp-worked" id="wp-worked-' + tier + '-' + i + '"></div>';
+    html += '</div>';
+  }
+  document.getElementById('w-' + tier).innerHTML = html;
+}
+
+function checkWorded(tier, i) {
+  var q = worded[tier][i];
+  var fb = document.getElementById('wp-fb-' + tier + '-' + i);
+  var card = document.getElementById('wp-' + tier + '-' + i);
+  var allRight = true;
+  var lines = '';
+
+  for (var k = 0; k < q.steps.length; k++) {
+    var st = q.steps[k];
+    var raw = (document.getElementById('wp-in-' + tier + '-' + i + '-' + k).value || '').replace(/[,\s]/g, '').trim();
+    var shown = raw === '' ? '(blank)' : raw;
+    var given = parseInt(raw, 10);
+    var right = (raw !== '' && given === st.answer);
+    if (!right) allRight = false;
+    lines += '<div style="margin-bottom:4px;"><strong>' + st.label + ':</strong> you answered <span class="mono">' + shown + '</span>. ';
+    lines += right ? 'That is correct.' : 'The correct answer is <span class="mono">' + st.answer + '</span>.';
+    lines += '</div>';
+  }
+
+  document.getElementById('wp-check-' + tier + '-' + i).disabled = true;
+  wordedStatus[tier][i] = allRight ? 'correct' : 'incorrect';
+  fb.className = 'feedback show ' + (allRight ? 'correct' : 'incorrect');
+  fb.innerHTML = lines;
+  card.classList.add(allRight ? 'answered-correct' : 'answered-wrong');
+
+  var w = '';
+  for (var j = 0; j < q.steps.length; j++) {
+    var sp = q.steps[j];
+    w += '<div class="wp-w-row"><span class="wp-w-strat ' + sp.strat + '">' + STRAT_NAMES[sp.strat] + '</span>';
+    w += '<span class="mono">' + sp.calc + ' = ' + sp.answer + '</span></div>';
+    w += '<div class="wp-w-row" style="margin-bottom:10px;color:#636E72;">' + sp.how + '</div>';
+  }
+  var worked = document.getElementById('wp-worked-' + tier + '-' + i);
+  worked.innerHTML = w;
+  worked.classList.add('show');
+
+  checkWordedComplete(tier);
+}
+
+function checkWordedComplete(tier) {
+  var st = wordedStatus[tier];
+  var total = worded[tier].length;
+  for (var i = 0; i < total; i++) { if (!st[i]) return; }
+  var score = 0;
+  for (var j = 0; j < total; j++) if (st[j] === 'correct') score++;
+  var label = tier.charAt(0).toUpperCase() + tier.slice(1);
+  document.getElementById('wscore-' + tier).textContent = score + ' / ' + total;
+  document.getElementById('wsummary-' + tier).classList.add('show');
+  if (!wordedSent[tier] && typeof submitResult === 'function') {
+    wordedSent[tier] = true;
+    var qData = (typeof buildQuestionData === 'function') ? buildQuestionData(st, total) : [];
+    submitResult('additive-strategy-toolkit-worded', 'Additive Strategy Toolkit Worded', score, total, label, qData);
+    document.getElementById('wsent-' + tier).textContent = 'Your result has been sent to your teacher.';
+  }
+}
+
+function showWorded(tier) {
+  var tiers = ['support', 'core', 'extension'];
+  for (var i = 0; i < tiers.length; i++) {
+    document.getElementById('wtier-' + tiers[i]).style.display = (tiers[i] === tier) ? 'block' : 'none';
+    document.getElementById('wtab-' + tiers[i]).classList.toggle('active', tiers[i] === tier);
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function () {
+  renderTier('support');
+  renderTier('core');
+  renderTier('extension');
+  renderWorded('support');
+  renderWorded('core');
+  renderWorded('extension');
+  setHeaderHeight();
+  updateNavButtons();
+  updateSidebarActive();
+  window.addEventListener('resize', setHeaderHeight);
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+</script>
+</body>
+</html>
