@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 2: The Area Model for Division - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --pv-h: #0891b2;
+    --pv-t: #059669;
+    --pv-o: #65a30d;
+    --pv-th: #1d4ed8;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT (full projector width) */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 1500px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 30px 48px;
+    border: 2px solid var(--border); margin-bottom: 0;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content p, .lisc-content li { font-size: 1.4rem; }
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 18px; margin-bottom: 8px; color: #2D3436; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .muted { color: var(--muted); }
+
+  /* TITLE ROW WITH EQUATION BOX */
+  .title-row { display: flex; align-items: center; gap: 28px; margin-bottom: 14px; flex-wrap: wrap; }
+  .title-row h3 { margin-bottom: 0; }
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 6px 28px; background: white; border-radius: 14px;
+    border: 2px solid #e2e8f0; line-height: 1.3;
+  }
+  .narration {
+    font-size: 1.35rem; line-height: 1.6; background: #f8fafc; border-radius: 12px;
+    padding: 12px 20px; border-left: 5px solid var(--teal); min-height: 58px;
+  }
+
+  /* REVEAL BUTTONS */
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .reveal-row { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+  .stage-count { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* CALLOUTS */
+  .callout { border-radius: 12px; padding: 14px 20px; margin: 12px 0; }
+  .callout .label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; display: block; }
+  .card .callout p { font-size: 1.3rem; line-height: 1.55; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-blue { background: #eef6ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-green { background: #e8f8e8; border-left: 5px solid var(--green); }
+  .callout-green .label { color: var(--green-dark); }
+  .callout-red { background: rgba(255,107,107,0.1); border-left: 5px solid var(--red); }
+  .callout-red .label { color: var(--red-dark); }
+
+  /* BOOK NOTE STRIP (what to write in your book) */
+  .book-note {
+    display: flex; align-items: center; gap: 14px; background: #f3edff;
+    border: 2px solid var(--purple); border-radius: 14px; padding: 10px 18px; margin-top: 14px;
+  }
+  .book-note .bn-tag {
+    background: var(--purple); color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1.5px;
+    text-transform: uppercase; border-radius: 20px; padding: 4px 12px; white-space: nowrap;
+  }
+  .card .book-note p { font-size: 1.25rem; line-height: 1.5; color: #3b2a5c; }
+
+  /* HOOK: PLACE VALUE BLOCKS */
+  .hook-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; margin-top: 8px; }
+  .pv-panel { border: 2px dashed #cbd5e1; border-radius: 14px; padding: 12px 16px; background: #fafbfc; }
+  .pv-panel-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .blocks { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; min-height: 134px; }
+  .blk-group { display: flex; align-items: flex-end; gap: 3px; flex-wrap: wrap; }
+  .blk-flat {
+    width: 130px; height: 130px; background-color: var(--pv-h); border: 2px solid #06708f;
+    background-image: linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
+    background-size: 13px 13px; border-radius: 2px;
+  }
+  .blk-rod {
+    width: 14px; height: 130px; background-color: var(--pv-t); border: 1px solid #047857;
+    background-image: linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px); background-size: 13px 13px; border-radius: 2px;
+  }
+  .blk-cubes { display: grid; grid-template-columns: repeat(9, 14px); gap: 3px; align-content: end; }
+  .blk-cube { width: 14px; height: 14px; background: var(--pv-o); border: 1px solid #4d7c0f; border-radius: 2px; }
+  .blk-new { animation: popIn 0.45s ease; }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+  .pv-counts { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .pv-chip { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 18px; color: #fff; border-radius: 10px; padding: 3px 12px; }
+  .pv-chip.h { background: var(--pv-h); } .pv-chip.t { background: var(--pv-t); } .pv-chip.o { background: var(--pv-o); }
+  .class-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 14px; }
+  .class-box { border: 3px solid #e2e8f0; border-radius: 14px; padding: 10px 14px; background: #fff; min-height: 150px; transition: border-color 0.3s; }
+  .class-box.got { border-color: var(--teal); }
+  .class-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+  .class-total { font-family: 'Space Mono', monospace; font-size: 22px; background: var(--green); color: #fff; border-radius: 10px; padding: 0 10px; }
+  .log-rows { display: flex; flex-direction: column; gap: 6px; }
+  .log-row { font-size: 1.3rem; line-height: 1.45; }
+  .log-row .mono { font-size: 1.3rem; }
+
+  /* BIG IDEA */
+  .big-idea {
+    background: linear-gradient(135deg, #fff7e0 0%, #ffe9d6 100%); border-radius: 18px;
+    padding: 30px 36px; text-align: center; border: 2px solid #ffd9a8;
+  }
+  .card .big-idea p { font-size: 1.6rem; line-height: 1.6; color: var(--text); }
+  .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 22px; }
+  .compare-card { border-radius: 16px; padding: 20px 24px; border: 3px solid #e2e8f0; background: #fff; }
+  .compare-card h4 { font-size: 1.35rem; margin-bottom: 8px; }
+  .compare-card.then { border-color: #cbd5e1; }
+  .compare-card.now { border-color: var(--teal); }
+
+  /* MULTIPLES LADDER */
+  .ladder-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  .ladder { display: flex; flex-direction: column; gap: 8px; }
+  .ladder-row {
+    display: grid; grid-template-columns: 70px 1fr; align-items: center; gap: 14px;
+    background: #f8fafc; border-radius: 12px; padding: 6px 16px; border-left: 6px solid #cbd5e1;
+  }
+  .ladder-row .rung { font-weight: 700; font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .ladder-row .mono { font-size: 28px; }
+  .ladder-row.pv-o-row { border-left-color: var(--pv-o); }
+  .ladder-row.pv-t-row { border-left-color: var(--pv-t); }
+  .ladder-row.pv-h-row { border-left-color: var(--pv-h); }
+  .ladder-row.step-hidden { opacity: 0; transform: translateX(-10px); }
+  .ladder-row { transition: opacity 0.35s, transform 0.35s; }
+
+  /* CHIP-AWAY AREA MODEL */
+  .cm { padding: 44px 0 40px 58px; }
+  .cm-row { display: flex; align-items: stretch; position: relative; }
+  .cm-side {
+    position: absolute; left: -54px; top: 50%; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; color: var(--text);
+    background: var(--teal); padding: 2px 12px; border-radius: 8px;
+  }
+  .cm-box { flex: 1; display: flex; border: 3px solid var(--text); border-radius: 6px; min-height: 130px; background: #fff; }
+  .cm-sec {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; border-right: 2px dashed var(--muted); padding: 8px 4px; min-width: 0;
+    animation: fadeIn 0.4s ease;
+  }
+  .cm-sec:last-child { border-right: none; }
+  .cm-sec.pv-th { background: rgba(29,78,216,0.12); }
+  .cm-sec.pv-h { background: rgba(8,145,178,0.14); }
+  .cm-sec.pv-t { background: rgba(5,150,105,0.14); }
+  .cm-sec.pv-o { background: rgba(101,163,13,0.16); }
+  .cm-top {
+    position: absolute; top: -38px; left: 50%; transform: translateX(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 20px; color: #fff;
+    padding: 1px 10px; border-radius: 8px; white-space: nowrap; background: var(--text);
+  }
+  .cm-sec.pv-th .cm-top { background: var(--pv-th); }
+  .cm-sec.pv-h .cm-top { background: var(--pv-h); }
+  .cm-sec.pv-t .cm-top { background: var(--pv-t); }
+  .cm-sec.pv-o .cm-top { background: var(--pv-o); }
+  .cm-top.mystery { background: var(--muted); }
+  .cm-calc { font-family: 'Space Mono', monospace; font-size: 15px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+  .cm-prod { font-family: 'Space Mono', monospace; font-size: 24px; color: var(--blue-dark); font-weight: 700; white-space: nowrap; }
+  .cm-sec.tiny .cm-calc, .cm-sec.tiny .cm-prod { display: none; }
+  .cm-sec.tiny .cm-top { font-size: 12px; padding: 0 4px; top: -26px; }
+  .cm-sec.small .cm-calc { display: none; }
+  .cm-sec.small .cm-prod { font-size: 16px; }
+  .cm-sec.small .cm-top { font-size: 15px; padding: 0 6px; }
+  .cm-sec.todo { background: repeating-linear-gradient(135deg, #fff5f5, #fff5f5 10px, #ffecec 10px, #ffecec 20px); }
+  .cm-left-num { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .cm-left-word { font-size: 15px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .cm-strip {
+    width: 40px; margin-left: 8px; position: relative; border: 3px dashed var(--purple); border-radius: 4px;
+    background: repeating-linear-gradient(45deg, rgba(155,93,229,0.35), rgba(155,93,229,0.35) 5px, #fff 5px, #fff 11px);
+    animation: fadeIn 0.4s ease;
+  }
+  .cm-strip-label {
+    position: absolute; bottom: -36px; right: 0;
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 17px; color: #fff;
+    background: var(--purple); border-radius: 8px; padding: 1px 10px; white-space: nowrap;
+  }
+
+  /* TRACKER AND SIDE PANELS */
+  .ex-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start; }
+  .panel-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .tracker { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 12px 16px; }
+  .tracker .panel-title { color: var(--muted); }
+  .tracker-rows { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; }
+  .tracker-row { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; padding: 2px 8px; border-radius: 8px; white-space: nowrap; }
+  .tracker-row.latest { background: #fff3c4; }
+  .tracker-row.start { color: var(--muted); font-size: 18px; }
+  .radar-box { background: linear-gradient(135deg, #fffbf0, #fff8e8); border: 2px solid var(--amber); border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; }
+  .radar-box .panel-title { color: var(--amber-dark); }
+  .radar-row { font-size: 1.25rem; line-height: 1.5; }
+  .radar-row .mono { font-size: 22px; }
+  .answer-box { background: var(--green-light); border: 2px solid var(--green); border-radius: 14px; padding: 10px 18px; margin-top: 4px; }
+  .answer-box .panel-title { color: var(--green-dark); }
+  .answer-row-line { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 24px; line-height: 1.5; }
+  .hide { display: none !important; }
+
+  /* CHIP AWAY BUILDER */
+  .cb-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .cb-eq { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 40px; padding: 2px 22px; border: 2px solid #e2e8f0; border-radius: 14px; background: #fff; }
+  .tool-btn {
+    background: #fff; color: var(--text); border: 2px solid #cbd5e1; border-radius: 30px;
+    padding: 9px 20px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .tool-btn:hover:not(:disabled) { border-color: var(--teal); background: #f0fdfa; }
+  .tool-btn:disabled { opacity: 0.4; cursor: default; }
+  .cb-main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+  .cb-ladder { background: #fff; border: 2px solid var(--teal); border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; }
+  .cb-ladder .panel-title { color: var(--teal-dark); }
+  .cb-ladder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; }
+  .cb-ladder-grid .mono { font-size: 17px; }
+  .cb-chip-row, .cb-answer-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+  .cb-prompt { font-size: 1.3rem; font-weight: 600; }
+  .ia-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 130px; text-align: center; padding: 8px; border: 3px solid #e2e8f0;
+    border-radius: 12px; outline: none; transition: border-color 0.2s;
+  }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 11px 24px; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover:not(:disabled) { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .feedback { border-radius: 12px; padding: 12px 18px; margin-top: 12px; display: none; font-size: 17px; line-height: 1.6; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback.info { background: #f3edff; border: 2px solid var(--purple); color: #3b2a5c; }
+  .feedback .mono { font-size: 1.05em; }
+  .check-rows { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+  .check-rows .mono { font-size: 20px; }
+  .eff-note { margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: #fffbf0; border: 2px solid var(--amber); color: #665500; }
+  .hint-row { margin-top: 12px; }
+  .hint-btn {
+    background: none; border: 2px solid var(--purple); color: var(--purple); padding: 8px 16px;
+    border-radius: 10px; cursor: pointer; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+  }
+  .hint-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .hint-box { margin-top: 10px; padding: 12px 16px; background: #F5EFFF; border-left: 4px solid var(--purple); border-radius: 10px; display: none; font-size: 16px; line-height: 1.6; }
+  .hint-box.show { display: block; }
+
+  /* WE DO */
+  .reminder { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .reminder span { background: #eef6ff; border: 2px solid #bfdcf5; border-radius: 20px; padding: 4px 14px; font-size: 1.05rem; font-weight: 600; color: #1a3a5c; }
+
+  /* PRACTICE */
+  .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  .level-card {
+    background: white; border: 2px solid var(--border); border-radius: 16px; padding: 18px 20px 16px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08); text-align: left; position: relative; overflow: hidden;
+    font-family: 'Fredoka', sans-serif; transition: all 0.3s ease;
+    display: flex; flex-direction: column; justify-content: flex-start;
+  }
+  .level-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
+  .level-card.l1::before { background: var(--teal); }
+  .level-card.l2::before { background: var(--red); }
+  .level-card.l3::before { background: var(--purple); }
+  .level-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.14); }
+  .level-card.current { border-color: var(--text); }
+  .level-card h4 { font-size: 1.2rem; margin-bottom: 4px; }
+  .level-card p { font-size: 1rem; color: var(--muted); line-height: 1.4; }
+  .level-card .level-meta { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .level-card .done-tag { display: none; font-size: 13px; font-weight: 700; color: var(--green-dark); margin-top: 4px; }
+  .level-card.done .done-tag { display: block; }
+  .go-deeper-level-btn {
+    grid-column: 1 / -1; display: block; width: 100%; text-align: left; padding: 18px 24px;
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s;
+  }
+  .go-deeper-level-btn h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 2px; }
+  .go-deeper-level-btn p { font-size: 1rem; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.55; cursor: not-allowed; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .practice-area { border: 2px solid #e2e8f0; border-radius: 16px; padding: 18px 22px; background: #fff; margin-top: 8px; }
+  .practice-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .practice-label { font-size: 14px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+  .dot-counter { display: flex; gap: 6px; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text); color: white; }
+  .btn-dark:hover { background: #444; transform: translateY(-2px); }
+  .summary-card { background: white; border-radius: 16px; border: 2px solid #e2e8f0; padding: 26px; text-align: center; display: none; margin-top: 12px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 52px; font-weight: 700; }
+  .summary-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+
+  /* GO DEEPER */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-top: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1.05rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 16px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid #e2e8f0; }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .card .ext-model-response p { font-size: 1.05rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 14px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1.05rem; line-height: 1.6; }
+
+  /* IN YOUR BOOK */
+  .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 14px; }
+  .tier-col { border-radius: 16px; padding: 14px 16px; border: 2px solid #e2e8f0; background: #fafbfc; }
+  .tier-col h4 { font-size: 1.25rem; margin-bottom: 8px; }
+  .tier-col.t1 { border-top: 6px solid var(--teal); }
+  .tier-col.t2 { border-top: 6px solid var(--red); }
+  .tier-col.t3 { border-top: 6px solid var(--purple); }
+  .bw-card { background: white; border-radius: 12px; padding: 8px 12px; border: 2px solid #e2e8f0; margin-bottom: 8px; }
+  .bw-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .bw-problem { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; }
+  .bw-reveal-btn { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 6px 14px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .bw-reveal-btn:hover { background: var(--blue-dark); }
+  .bw-answer { display: none; margin-top: 6px; font-size: 15px; line-height: 1.5; }
+  .bw-answer.show { display: block; animation: fadeIn 0.3s; }
+  .bw-answer .mono { font-size: 17px; }
+  .bw-extra { font-size: 1.05rem; line-height: 1.5; background: #fff; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 8px 12px; margin-top: 4px; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 20px 18px; }
+    .ex-grid, .cb-main, .hook-grid, .level-grid, .tier-grid, .compare-row, .ladder-wrap { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Multiplicative Relations · Term 4</div>
+  <h1><span>Lesson 2</span> · The Area Model for Division</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">The Balloon Share</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">The Big Idea</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">The Multiples Ladder</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Example 1: 196 ÷ 7</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Example 2: 517 ÷ 4</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Example 3: 2,658 ÷ 6</button>
+      <button class="sidebar-item" onclick="goToSlide(7)">Key Idea: When to Stop</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(8)">Q1: 158 ÷ 5</button>
+      <button class="sidebar-item" onclick="goToSlide(9)">Q2: 774 ÷ 6</button>
+      <button class="sidebar-item" onclick="goToSlide(10)">Q3: 1,385 ÷ 4</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(11)">Chip Away Practice</button>
+      <button class="sidebar-item" onclick="goToSlide(12)">In Your Book</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use the area model to divide by chipping away friendly multiples of the divisor.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can draw an area model with the divisor as the side I know.</li>
+          <li>I can chip away a friendly multiple of the divisor, such as 10 or 100 groups.</li>
+          <li>I can keep chipping until what is left is smaller than the divisor, and record it as the remainder.</li>
+          <li>I can add the section widths to find the quotient and check that divisor × quotient + remainder = dividend.</li>
+        </ul>
+      </div>
+      <div class="book-note">
+        <span class="bn-tag">In your book</span>
+        <p>Write today's date and the Learning Intention as your heading.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - The balloon share -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <div class="title-row">
+        <h3>The Balloon Share</h3>
+        <div class="equation-box" style="font-size:40px;">237 ÷ 3</div>
+      </div>
+      <p><strong>237</strong> balloons are shared equally between <strong>3</strong> classes. How many balloons does each class get?</p>
+      <div class="hook-grid">
+        <div class="pv-panel">
+          <div class="pv-panel-title">Balloons still to share</div>
+          <div class="blocks" id="hook-store"></div>
+          <div class="pv-counts" id="hook-counts"></div>
+        </div>
+        <div class="pv-panel" style="background:#fff;">
+          <div class="pv-panel-title" id="hook-step-title">What is happening</div>
+          <div class="log-rows" id="hook-log"><div class="log-row muted">Press the button to show the balloons as place value blocks.</div></div>
+        </div>
+      </div>
+      <div class="class-row" id="hook-classes"></div>
+      <div class="book-note hide" id="hook-book">
+        <span class="bn-tag">In your book</span>
+        <p>Write: 237 ÷ 3 = 79. Underneath, write the check: 3 × 79 = 237.</p>
+      </div>
+      <div class="reveal-row">
+        <button class="am-reveal-btn" id="hook-btn" onclick="nextHook()">Show 237 in place value blocks &rarr;</button>
+        <span class="stage-count" id="hook-count"></span>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Big idea -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h3>The Big Idea</h3>
+      <div class="big-idea">
+        <p>In Term 1 we used the area model <strong>in reverse</strong> to find a missing side.</p>
+        <p style="margin-top:10px;">Today we use it to <strong>chip away</strong> at any division, even when something is left over.</p>
+      </div>
+      <div class="compare-row">
+        <div class="compare-card then">
+          <h4>Term 1: the area model in reverse</h4>
+          <p>We knew the area and one side. Every division came out exactly, with nothing left over.</p>
+        </div>
+        <div class="compare-card now">
+          <h4>Today: chip away</h4>
+          <p>We chip off friendly chunks, one at a time. If a little bit is left that is too small for another group, that is the <strong>remainder</strong>.</p>
+        </div>
+      </div>
+      <div class="book-note">
+        <span class="bn-tag">In your book</span>
+        <p>Copy the big idea: "The area model can chip away at any division, even when something is left over."</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Multiples ladder -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h3>The Multiples Ladder for 7</h3>
+      <p>Before we chip, we build a ladder of <strong>friendly multiples</strong>. We only need a few facts, and the rest come from multiplying by <strong>10</strong> and <strong>100</strong>.</p>
+      <div class="ladder-wrap" style="margin-top:14px;">
+        <div class="ladder" id="ladder-7">
+          <div class="ladder-row pv-o-row step-hidden"><span class="rung">× 1</span><span class="mono">7 × 1 = 7</span></div>
+          <div class="ladder-row pv-o-row step-hidden"><span class="rung">× 2</span><span class="mono">7 × 2 = 14</span></div>
+          <div class="ladder-row pv-o-row step-hidden"><span class="rung">× 5</span><span class="mono">7 × 5 = 35</span></div>
+          <div class="ladder-row pv-t-row step-hidden"><span class="rung">× 10</span><span class="mono">7 × 10 = 70</span></div>
+          <div class="ladder-row pv-t-row step-hidden"><span class="rung">× 20</span><span class="mono">7 × 20 = 140</span></div>
+          <div class="ladder-row pv-t-row step-hidden"><span class="rung">× 50</span><span class="mono">7 × 50 = 350</span></div>
+          <div class="ladder-row pv-h-row step-hidden"><span class="rung">× 100</span><span class="mono">7 × 100 = 700</span></div>
+        </div>
+        <div>
+          <div class="narration" id="ladder-narration">We start at the bottom of the ladder: one group of 7.</div>
+          <div class="callout callout-teal hide" id="ladder-callout">
+            <span class="label">Friendly chunks</span>
+            <p>Friendly chunks come from the ladder. <strong style="white-space:nowrap;">× 2</strong> is double. <strong style="white-space:nowrap;">× 5</strong> is half of <strong style="white-space:nowrap;">× 10</strong>. <strong style="white-space:nowrap;">× 20</strong> is double <strong style="white-space:nowrap;">× 10</strong>. <strong style="white-space:nowrap;">× 50</strong> is half of <strong style="white-space:nowrap;">× 100</strong>.</p>
+          </div>
+          <div class="book-note hide" id="ladder-book">
+            <span class="bn-tag">In your book</span>
+            <p>Copy the ladder for 7. You will build a ladder like this for every divisor.</p>
+          </div>
+        </div>
+      </div>
+      <div class="reveal-row">
+        <button class="am-reveal-btn" id="ladder-btn" onclick="nextLadder()">Show 7 × 1 &rarr;</button>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Example 1 -->
+  <div class="slide" id="slide-4">
+    <div class="card" id="ex1"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: I DO - Example 2 -->
+  <div class="slide" id="slide-5">
+    <div class="card" id="ex2"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: I DO - Example 3 -->
+  <div class="slide" id="slide-6">
+    <div class="card" id="ex3"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: I DO - Key idea -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h3>Key Idea: When Do We Stop?</h3>
+      <div class="big-idea">
+        <p>When what is left is <strong>smaller than the divisor</strong>, stop.<br>That leftover is the <strong>remainder</strong>.</p>
+      </div>
+      <div class="big-idea" style="margin-top:18px; background:linear-gradient(135deg,#e8f8f6,#eef6ff); border-color:#b9e8e3;">
+        <p><strong>divisor × quotient + remainder = dividend</strong></p>
+      </div>
+      <div class="compare-row">
+        <div class="compare-card now">
+          <h4>Why stop?</h4>
+          <p>If what is left were as big as the divisor, one more whole group would fit. So we would keep chipping.</p>
+        </div>
+        <div class="compare-card now">
+          <h4>Why check?</h4>
+          <p>Multiplying the quotient by the divisor and adding the remainder must take us all the way back to the number we started with.</p>
+        </div>
+      </div>
+      <div class="book-note">
+        <span class="bn-tag">In your book</span>
+        <p>Copy both key ideas in a box. Learn the check equation by heart.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: WE DO - Q1 -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h3>Q1: Chip Away Together</h3>
+      <div class="reminder"><span>1. Use the ladder</span><span>2. Chip a friendly chunk</span><span>3. Stop when what is left is smaller than the divisor</span><span>4. Add the widths</span></div>
+      <div id="wedo-1"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: WE DO - Q2 -->
+  <div class="slide" id="slide-9">
+    <div class="card">
+      <h3>Q2: Chip Away Together</h3>
+      <div class="reminder"><span>1. Use the ladder</span><span>2. Chip a friendly chunk</span><span>3. Stop when what is left is smaller than the divisor</span><span>4. Add the widths</span></div>
+      <div id="wedo-2"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: WE DO - Q3 -->
+  <div class="slide" id="slide-10">
+    <div class="card">
+      <h3>Q3: Chip Away Together</h3>
+      <div class="reminder"><span>1. Use the ladder</span><span>2. Chip hundreds, then tens, then ones</span><span>3. Stop when what is left is smaller than the divisor</span><span>4. Add the widths</span></div>
+      <div id="wedo-3"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 11 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: PRACTICE -->
+  <div class="slide" id="slide-11">
+    <div class="card">
+      <h3>Chip Away Practice</h3>
+      <p>Choose a level. Each level has <strong>4</strong> questions. Chip away friendly chunks, then type the quotient and the remainder.</p>
+
+      <div class="level-grid" id="level-grid">
+        <button class="level-card l1" id="level-card-1" onclick="startLevel(1)">
+          <h4>Level 1</h4>
+          <p>Divide numbers up to 199 by 2, 3, 4, 5 or 6</p>
+          <div class="level-meta">4 questions</div>
+          <div class="done-tag">Completed</div>
+        </button>
+        <button class="level-card l2" id="level-card-2" onclick="startLevel(2)">
+          <h4>Level 2</h4>
+          <p>Divide 3-digit numbers by 3 to 9</p>
+          <div class="level-meta">4 questions</div>
+          <div class="done-tag">Completed</div>
+        </button>
+        <button class="level-card l3" id="level-card-3" onclick="startLevel(3)">
+          <h4>Level 3</h4>
+          <p>Divide 4-digit numbers by 3 to 9</p>
+          <div class="level-meta">4 questions</div>
+          <div class="done-tag">Completed</div>
+        </button>
+        <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+          <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Remainder Investigations</h3>
+          <p>Complete Level 3 to unlock</p>
+        </button>
+      </div>
+
+      <div class="practice-area hide" id="practice-area">
+        <div class="practice-head">
+          <div class="practice-label" id="practice-label">Level 1: Question 1 of 4</div>
+          <div class="dot-counter" id="practice-dots"></div>
+        </div>
+        <div id="practice-builder"></div>
+        <div style="margin-top:12px;"><button class="btn btn-primary hide" id="practice-next" onclick="nextPractice()">Next question &rarr;</button></div>
+      </div>
+
+      <div class="summary-card" id="practice-summary">
+        <h3 id="summary-title">Level complete</h3>
+        <div class="summary-score" id="summary-score"></div>
+        <p id="summary-message" style="color:var(--muted);"></p>
+        <div class="summary-btns">
+          <button class="btn btn-primary" id="try-again-btn" onclick="startLevel(currentLevel)">Try Again</button>
+          <button class="btn btn-dark" id="next-level-btn" onclick="startLevel(currentLevel + 1)">Next Level</button>
+          <button class="btn btn-primary hide" id="go-deeper-summary-btn" onclick="openGoDeeper()">Go Deeper</button>
+        </div>
+      </div>
+
+      <!-- GO DEEPER -->
+      <div class="go-deeper-card" id="go-deeper-section" style="display:none;">
+        <h2>&#x1F513; Go Deeper: Remainder Investigations</h2>
+        <p>These tasks will push your thinking beyond finding answers. You will explore, make conjectures, and reason like a mathematician.</p>
+
+        <!-- TASK 1: SPECIALISING -->
+        <div class="ext-task">
+          <div class="ext-task-label">Specialising</div>
+          <div class="ext-task-prompt">
+            Divide each of these numbers by <span class="ext-numbers">4</span>: <span class="ext-numbers">50</span>, <span class="ext-numbers">51</span>, <span class="ext-numbers">52</span>, <span class="ext-numbers">53</span>, <span class="ext-numbers">54</span>, <span class="ext-numbers">55</span>, <span class="ext-numbers">56</span>, <span class="ext-numbers">57</span>. Record the remainder each time.
+          </div>
+          <div class="ext-task-sub">What do you notice about the list of remainders?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p>I started with <span class="ext-numbers">50</span>. I chipped away <span class="ext-numbers">4</span> × <span class="ext-numbers">10</span> = <span class="ext-numbers">40</span>, which left <span class="ext-numbers">10</span>. Then <span class="ext-numbers">4</span> × <span class="ext-numbers">2</span> = <span class="ext-numbers">8</span>, which left <span class="ext-numbers">2</span>. So <span class="ext-numbers">50</span> ÷ <span class="ext-numbers">4</span> = <span class="ext-numbers">12</span> remainder <span class="ext-numbers">2</span>.</p>
+            <p><span class="ext-numbers">51</span> is one more, so the leftover grew by one: <span class="ext-numbers">12</span> remainder <span class="ext-numbers">3</span>. I guessed that <span class="ext-numbers">52</span> would be <span class="ext-numbers">12</span> remainder <span class="ext-numbers">4</span>. But that was wrong. A leftover of <span class="ext-numbers">4</span> is a whole group of <span class="ext-numbers">4</span>, so one more group fits: <span class="ext-numbers">52</span> ÷ <span class="ext-numbers">4</span> = <span class="ext-numbers">13</span> remainder <span class="ext-numbers">0</span>.</p>
+            <p>After that I kept going: <span class="ext-numbers">53</span> gave remainder <span class="ext-numbers">1</span>, <span class="ext-numbers">54</span> gave <span class="ext-numbers">2</span>, <span class="ext-numbers">55</span> gave <span class="ext-numbers">3</span>, <span class="ext-numbers">56</span> gave <span class="ext-numbers">0</span> and <span class="ext-numbers">57</span> gave <span class="ext-numbers">1</span>.</p>
+            <p>My list of remainders is <span class="ext-numbers">2</span>, <span class="ext-numbers">3</span>, <span class="ext-numbers">0</span>, <span class="ext-numbers">1</span>, <span class="ext-numbers">2</span>, <span class="ext-numbers">3</span>, <span class="ext-numbers">0</span>, <span class="ext-numbers">1</span>. The remainders go round in a cycle of <span class="ext-numbers">0</span>, <span class="ext-numbers">1</span>, <span class="ext-numbers">2</span>, <span class="ext-numbers">3</span>. They never reached <span class="ext-numbers">4</span>.</p>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+          </div>
+        </div>
+
+        <!-- TASK 2: CONJECTURING -->
+        <div class="ext-task">
+          <div class="ext-task-label">Conjecturing</div>
+          <div class="ext-task-prompt">
+            Sam says: "When you divide a whole number by <span class="ext-numbers">6</span>, the remainder can be <span class="ext-numbers">6</span>."
+          </div>
+          <div class="ext-task-sub">Is Sam's statement always true, sometimes true or never true? Test some numbers, including small ones, and write your conjecture.</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p>I tested some numbers. <span class="ext-numbers">0</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">0</span> remainder <span class="ext-numbers">0</span>. <span class="ext-numbers">5</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">0</span> remainder <span class="ext-numbers">5</span>, because not even one group of <span class="ext-numbers">6</span> fits into <span class="ext-numbers">5</span>. <span class="ext-numbers">6</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">1</span> remainder <span class="ext-numbers">0</span>.</p>
+            <p>Then I tried <span class="ext-numbers">12</span>. I chipped away one group of <span class="ext-numbers">6</span> and had <span class="ext-numbers">6</span> left. I thought, "There it is, remainder <span class="ext-numbers">6</span>! Sam is sometimes right." But then I looked again. I had stopped too early. <span class="ext-numbers">6</span> is not smaller than <span class="ext-numbers">6</span>, so another group fits. <span class="ext-numbers">12</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">2</span> remainder <span class="ext-numbers">0</span>.</p>
+            <p>I tried two more: <span class="ext-numbers">17</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">2</span> remainder <span class="ext-numbers">5</span>, and <span class="ext-numbers">18</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">3</span> remainder <span class="ext-numbers">0</span>. The biggest remainder I ever got was <span class="ext-numbers">5</span>.</p>
+            <p>My conjecture: Sam's statement is <strong>never true</strong>. When you divide by <span class="ext-numbers">6</span>, the remainder can only be <span class="ext-numbers">0</span>, <span class="ext-numbers">1</span>, <span class="ext-numbers">2</span>, <span class="ext-numbers">3</span>, <span class="ext-numbers">4</span> or <span class="ext-numbers">5</span>. A leftover of <span class="ext-numbers">6</span> is always one more group of <span class="ext-numbers">6</span>.</p>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proved.
+          </div>
+        </div>
+
+        <!-- TASK 3: JUSTIFYING -->
+        <div class="ext-task">
+          <div class="ext-task-label">Justifying</div>
+          <div class="ext-task-prompt">
+            A whole number is divided by <span class="ext-numbers">7</span>. The quotient is <span class="ext-numbers">23</span>. The remainder can be any whole number that is allowed, including <span class="ext-numbers">0</span>. What is the smallest the number could be? What is the largest?
+          </div>
+          <div class="ext-task-sub">Find both numbers. Then explain, using the area model, why 168 is not possible.</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p>I drew an area model with <span class="ext-numbers">7</span> as the side I know and <span class="ext-numbers">23</span> as the width. That makes <span class="ext-numbers">7</span> × <span class="ext-numbers">23</span> = <span class="ext-numbers">161</span>. With a remainder of <span class="ext-numbers">0</span>, the number is <span class="ext-numbers">161</span>. That is the smallest.</p>
+            <p>For the largest, my first idea was to add a remainder of <span class="ext-numbers">7</span>: <span class="ext-numbers">161</span> + <span class="ext-numbers">7</span> = <span class="ext-numbers">168</span>. Then I remembered the rule from the lesson. The remainder must be smaller than the divisor. <span class="ext-numbers">7</span> is not smaller than <span class="ext-numbers">7</span>, so that does not work.</p>
+            <p>The biggest remainder allowed is <span class="ext-numbers">6</span>. So the largest number is <span class="ext-numbers">161</span> + <span class="ext-numbers">6</span> = <span class="ext-numbers">167</span>. Check: <span class="ext-numbers">7</span> × <span class="ext-numbers">23</span> + <span class="ext-numbers">6</span> = <span class="ext-numbers">167</span>.</p>
+            <p>Why is <span class="ext-numbers">168</span> not possible? In the area model, a leftover strip of <span class="ext-numbers">7</span> would be exactly as tall as the side of <span class="ext-numbers">7</span>. That means it is a full column, one whole extra group of <span class="ext-numbers">7</span>. So the box gets one wider: <span class="ext-numbers">7</span> × <span class="ext-numbers">24</span> = <span class="ext-numbers">168</span>. The quotient of <span class="ext-numbers">168</span> ÷ <span class="ext-numbers">7</span> is <span class="ext-numbers">24</span> with remainder <span class="ext-numbers">0</span>, not <span class="ext-numbers">23</span>.</p>
+            <p>So the number can be anything from <span class="ext-numbers">161</span> to <span class="ext-numbers">167</span>.</p>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just finding an answer, you are explaining <em>why</em> it must be true, and why other answers cannot work.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 12 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: IN YOUR BOOK -->
+  <div class="slide" id="slide-12">
+    <div class="card">
+      <h3>In Your Book</h3>
+      <div class="book-note" style="margin-top:0;">
+        <span class="bn-tag">In your book</span>
+        <p><strong>Draw an area model for each question. Label each chunk, shade the remainder strip, and write the check equation underneath.</strong></p>
+      </div>
+      <div class="tier-grid" id="tier-grid"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 13 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── SLIDES AND NAVIGATION ──
+var slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'The Balloon Share', section: 'Hook' },
+  { id: 'slide-2', title: 'The Big Idea', section: 'Hook' },
+  { id: 'slide-3', title: 'The Multiples Ladder', section: 'I Do' },
+  { id: 'slide-4', title: 'Example 1: 196 ÷ 7', section: 'I Do' },
+  { id: 'slide-5', title: 'Example 2: 517 ÷ 4', section: 'I Do' },
+  { id: 'slide-6', title: 'Example 3: 2,658 ÷ 6', section: 'I Do' },
+  { id: 'slide-7', title: 'Key Idea: When to Stop', section: 'I Do' },
+  { id: 'slide-8', title: 'Q1: 158 ÷ 5', section: 'We Do' },
+  { id: 'slide-9', title: 'Q2: 774 ÷ 6', section: 'We Do' },
+  { id: 'slide-10', title: 'Q3: 1,385 ÷ 4', section: 'We Do' },
+  { id: 'slide-11', title: 'Chip Away Practice', section: 'Practice' },
+  { id: 'slide-12', title: 'In Your Book', section: 'Practice' }
+];
+
+var sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice'
+};
+
+var currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+  window.scrollTo(0, 0);
+}
+
+function goToPhase(sectionName) {
+  var idx = slides.findIndex(function(s) { return s.section === sectionName; });
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+
+function updateNavButtons() {
+  var slide = document.querySelector('.slide.active');
+  var prevBtn = slide.querySelector('.slide-nav .nav-btn:first-of-type');
+  var nextBtn = slide.querySelector('.slide-nav .nav-btn:last-of-type');
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  var counter = slide.querySelector('.slide-counter');
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+
+function updatePhaseNav() {
+  var phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  var btn = document.querySelector('.phase-btn[data-phase="' + phase + '"]');
+  if (btn) btn.classList.add('active');
+}
+
+function updateSidebarActive() {
+  var items = document.querySelectorAll('.sidebar-item');
+  items.forEach(function(item) { item.classList.remove('active'); });
+  if (items[currentSlide]) items[currentSlide].classList.add('active');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  var h = document.querySelector('header');
+  var nav = document.getElementById('phaseNav');
+  var total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── UTILITIES ──
+// UTIL-START
+function fmt(n) { return Number(n).toLocaleString('en-GB'); }
+function mono(s) { return '<span class="mono">' + s + '</span>'; }
+function sum(arr) { return arr.reduce(function(a, b) { return a + b; }, 0); }
+function pvClass(g) { return g >= 1000 ? 'pv-th' : g >= 100 ? 'pv-h' : g >= 10 ? 'pv-t' : 'pv-o'; }
+function parseWhole(raw) {
+  var s = String(raw == null ? '' : raw).replace(/,/g, '').replace(/\s/g, '');
+  if (s === '') return { blank: true, ok: false, text: '(blank)' };
+  if (!/^\d+$/.test(s)) return { blank: false, ok: false, text: String(raw).trim() };
+  return { blank: false, ok: true, value: parseInt(s, 10), text: fmt(parseInt(s, 10)) };
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+// UTIL-END
+
+// ── HOOK: THE BALLOON SHARE (place value blocks) ──
+var hookStage = 0;
+var hookStages = [
+  { store: { h: 2, t: 3, o: 7 }, cls: { t: 0, o: 0 }, title: 'Step 1: Show the balloons',
+    log: ['<strong>237</strong> is <strong>2</strong> hundreds, <strong>3</strong> tens and <strong>7</strong> ones.', 'There are <strong>3</strong> classes waiting for their share.'],
+    btn: 'Try to share the hundreds' },
+  { store: { h: 0, t: 23, o: 7 }, cls: { t: 0, o: 0 }, title: 'Step 2: Trade the hundreds',
+    log: ['We can\'t share <strong>2</strong> hundreds between <strong>3</strong> classes, so trade them for <strong>20</strong> tens.', mono('20 tens + 3 tens = 23 tens')],
+    btn: 'Share the tens' },
+  { store: { h: 0, t: 2, o: 7 }, cls: { t: 7, o: 0 }, title: 'Step 3: Share the tens',
+    log: ['Each class gets <strong>7</strong> tens.', mono('3 × 7 tens = 21 tens'), mono('23 tens − 21 tens = 2 tens') + ' left'],
+    btn: 'Trade the 2 tens for ones' },
+  { store: { h: 0, t: 0, o: 27 }, cls: { t: 7, o: 0 }, title: 'Step 4: Trade the tens',
+    log: ['Trade the <strong>2</strong> tens left for <strong>20</strong> ones.', mono('20 ones + 7 ones = 27 ones')],
+    btn: 'Share the ones' },
+  { store: { h: 0, t: 0, o: 0 }, cls: { t: 7, o: 9 }, title: 'Step 5: Share the ones',
+    log: ['Each class gets <strong>9</strong> ones.', mono('3 × 9 ones = 27 ones'), 'Nothing is left over.'],
+    btn: 'How many balloons does each class get?' },
+  { store: { h: 0, t: 0, o: 0 }, cls: { t: 7, o: 9 }, total: true, title: 'Step 6: Each class gets 79',
+    log: ['Each class gets <strong>7</strong> tens and <strong>9</strong> ones, so <strong>79</strong> balloons.', 'Check: ' + mono('3 × 79 = 237')],
+    btn: null }
+];
+
+function blocksHTML(h, t, o, fresh) {
+  var cls = fresh ? ' blk-new' : '';
+  var html = '';
+  if (h) { html += '<div class="blk-group">'; for (var i = 0; i < h; i++) html += '<div class="blk-flat' + cls + '"></div>'; html += '</div>'; }
+  if (t) { html += '<div class="blk-group">'; for (var j = 0; j < t; j++) html += '<div class="blk-rod' + cls + '"></div>'; html += '</div>'; }
+  if (o) { html += '<div class="blk-cubes">'; for (var k = 0; k < o; k++) html += '<div class="blk-cube' + cls + '"></div>'; html += '</div>'; }
+  return html;
+}
+
+function renderHook() {
+  var s = hookStage > 0 ? hookStages[hookStage - 1] : null;
+  var store = s ? s.store : { h: 0, t: 0, o: 0 };
+  var cl = s ? s.cls : { t: 0, o: 0 };
+  document.getElementById('hook-store').innerHTML = blocksHTML(store.h, store.t, store.o, true) ||
+    (s ? '<span class="muted" style="font-size:1.2rem;">All shared out.</span>' : '');
+  document.getElementById('hook-counts').innerHTML = s ?
+    '<span class="pv-chip h">Hundreds: ' + store.h + '</span><span class="pv-chip t">Tens: ' + store.t + '</span><span class="pv-chip o">Ones: ' + store.o + '</span>' : '';
+  var classesHTML = '';
+  for (var c = 1; c <= 3; c++) {
+    classesHTML += '<div class="class-box' + (cl.t || cl.o ? ' got' : '') + '">' +
+      '<div class="class-name">Class ' + c + (s && s.total ? '<span class="class-total">79</span>' : '') + '</div>' +
+      '<div class="blocks" style="min-height:130px;">' + blocksHTML(0, cl.t, cl.o, false) + '</div></div>';
+  }
+  document.getElementById('hook-classes').innerHTML = classesHTML;
+  if (s) {
+    document.getElementById('hook-step-title').textContent = s.title;
+    document.getElementById('hook-log').innerHTML = s.log.map(function(r) { return '<div class="log-row">' + r + '</div>'; }).join('');
+    document.getElementById('hook-count').textContent = 'Step ' + hookStage + ' of ' + hookStages.length;
+  }
+  var btn = document.getElementById('hook-btn');
+  if (s && !s.btn) { btn.classList.add('hide'); document.getElementById('hook-book').classList.remove('hide'); }
+  else if (s) btn.innerHTML = s.btn + ' &rarr;';
+}
+
+function nextHook() {
+  if (hookStage >= hookStages.length) return;
+  hookStage++;
+  renderHook();
+}
+
+// ── I DO: MULTIPLES LADDER ──
+var ladderStage = 0;
+var ladderNarr = [
+  'One group of 7 is <strong>7</strong>.',
+  'Double it. Two groups of 7 is <strong>14</strong>.',
+  'Five groups of 7 is <strong>35</strong>. That is half of ten groups.',
+  'Ten groups of 7 is <strong>70</strong>. The 7 moves one place to the left.',
+  'Double <strong>70</strong>. Twenty groups of 7 is <strong>140</strong>.',
+  'Fifty groups of 7 is <strong>350</strong>. That is half of <strong>700</strong>.',
+  'A hundred groups of 7 is <strong>700</strong>. The 7 moves two places to the left.'
+];
+var ladderBtns = ['Show 7 × 2', 'Show 7 × 5', 'Show 7 × 10', 'Show 7 × 20', 'Show 7 × 50', 'Show 7 × 100', 'Where do friendly chunks come from?'];
+function nextLadder() {
+  var rows = document.querySelectorAll('#ladder-7 .ladder-row');
+  var btn = document.getElementById('ladder-btn');
+  if (ladderStage < rows.length) {
+    rows[ladderStage].classList.remove('step-hidden');
+    document.getElementById('ladder-narration').innerHTML = ladderNarr[ladderStage];
+    btn.innerHTML = ladderBtns[ladderStage] + ' &rarr;';
+    ladderStage++;
+  } else {
+    document.getElementById('ladder-callout').classList.remove('hide');
+    document.getElementById('ladder-book').classList.remove('hide');
+    btn.classList.add('hide');
+  }
+}
+
+// ── CHIP-AWAY AREA MODEL RENDERER (used by I Do, We Do and Practice) ──
+// o = { d, N, chunks: [groups...], dims: bool, leftover: bool }
+function modelHTML(o) {
+  var d = o.d, N = o.N, chunks = o.chunks || [];
+  var total = N / d;
+  var rem = N - d * sum(chunks);
+  var minF = total * 0.12;
+  var count = chunks.length + (rem > 0 && !o.leftover ? 1 : 0);
+  var size = count > 14 ? 'tiny' : count > 6 ? 'small' : '';
+  var minW = count > 14 ? 18 : count > 6 ? 54 : 104;
+  var html = '<div class="cm"><div class="cm-row">';
+  html += '<div class="cm-side"' + (o.dims ? '' : ' style="visibility:hidden;"') + '>' + d + '</div>';
+  html += '<div class="cm-box">';
+  chunks.forEach(function(g) {
+    html += '<div class="cm-sec ' + pvClass(g) + ' ' + size + '" style="flex:' + Math.max(g, minF) + ' 1 0; min-width:' + minW + 'px;">' +
+      '<div class="cm-top">' + fmt(g) + '</div>' +
+      '<div class="cm-calc">' + d + ' × ' + fmt(g) + '</div>' +
+      '<div class="cm-prod">' + fmt(g * d) + '</div></div>';
+  });
+  if (rem > 0 && !o.leftover) {
+    var inner = '';
+    if (o.dims) {
+      inner = '<div class="cm-top mystery">?</div><div class="cm-left-num">' + fmt(rem) + '</div><div class="cm-left-word">' + (chunks.length ? 'left to chip' : 'to chip') + '</div>';
+    }
+    html += '<div class="cm-sec todo" style="flex:' + Math.max(rem / d, minF * 1.3) + ' 1 0; min-width:120px;">' + inner + '</div>';
+  }
+  html += '</div>';
+  if (o.leftover && rem > 0) {
+    html += '<div class="cm-strip"><div class="cm-strip-label">remainder ' + rem + '</div></div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+// What is left tracker: one subtraction per row
+function trackerHTML(d, N, chunks) {
+  var rows = '<div class="tracker-row start">Start: ' + fmt(N) + '</div>';
+  var left = N;
+  chunks.forEach(function(g, i) {
+    var p = g * d;
+    rows += '<div class="tracker-row' + (i === chunks.length - 1 ? ' latest' : '') + '">' + fmt(left) + ' − ' + fmt(p) + ' = ' + fmt(left - p) + '</div>';
+    left -= p;
+  });
+  return '<div class="panel-title">What is left</div><div class="tracker-rows">' + rows + '</div>';
+}
+
+// ── I DO WORKED EXAMPLES (staged) ──
+var examples = {
+  ex1: {
+    title: 'Example 1: Chip away', d: 7, N: 196, chunks: [20, 8],
+    radar: ['Round <strong>196</strong> up to <strong>210</strong>, a multiple of 7.', mono('210 ÷ 7 = 30'), 'So the answer is <strong>a bit less than 30</strong>.'],
+    radarNarr: 'Radar first. <strong>210</strong> is close to <strong>196</strong> and is easy to divide by 7.',
+    book: 'Draw this area model. Write the "What is left" rows beside it and the check underneath.'
+  },
+  ex2: {
+    title: 'Example 2: Something left over', d: 4, N: 517, chunks: [100, 20, 9],
+    radar: ['Round <strong>517</strong> to <strong>520</strong>.', mono('520 ÷ 4 = 130'), 'So the answer is <strong>a bit less than 130</strong>.'],
+    radarNarr: 'Radar first. <strong>520</strong> is close to <strong>517</strong> and easy to divide by 4.',
+    book: 'Draw this area model. Shade the remainder strip and write the check underneath.'
+  },
+  ex3: {
+    title: 'Example 3: A 4-digit number', d: 6, N: 2658, chunks: [400, 40, 3],
+    radar: [mono('2,400 ÷ 6 = 400'), mono('3,000 ÷ 6 = 500'), '<strong>2,658</strong> is between them, so the answer is <strong>between 400 and 500</strong>.'],
+    radarNarr: 'Radar first. Which friendly numbers is <strong>2,658</strong> between?',
+    callout: '<span class="label">Place value chunks</span><p>Hundreds, then tens, then ones. Big chunks first means fewer steps.</p>',
+    book: 'Draw this area model. Colour the hundreds chunk, the tens chunk and the ones chunk differently.'
+  }
+};
+var exState = {};
+
+function buildExample(key) {
+  var ex = examples[key];
+  var card = document.getElementById(key);
+  card.innerHTML =
+    '<div class="title-row"><h3>' + ex.title + '</h3><div class="equation-box">' + fmt(ex.N) + ' ÷ ' + ex.d + '</div></div>' +
+    '<div class="narration" id="' + key + '-narr"></div>' +
+    '<div class="ex-grid">' +
+      '<div><div id="' + key + '-model"></div>' +
+        '<div class="answer-box hide" id="' + key + '-answer"></div>' +
+      '</div>' +
+      '<div><div class="radar-box hide" id="' + key + '-radar"><div class="panel-title">Radar estimate</div>' +
+        ex.radar.map(function(r) { return '<div class="radar-row">' + r + '</div>'; }).join('') + '</div>' +
+        '<div class="tracker hide" id="' + key + '-tracker"></div>' +
+        (ex.callout ? '<div class="callout callout-teal hide" id="' + key + '-callout">' + ex.callout + '</div>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="book-note hide" id="' + key + '-book"><span class="bn-tag">In your book</span><p>' + ex.book + '</p></div>' +
+    '<div class="reveal-row"><button class="am-reveal-btn" id="' + key + '-btn" onclick="nextExample(\'' + key + '\')"></button><span class="stage-count" id="' + key + '-count"></span></div>';
+  exState[key] = { stage: 0 };
+  ex.stages = buildExampleStages(ex);
+  renderExample(key);
+}
+
+function buildExampleStages(ex) {
+  var d = ex.d, N = ex.N;
+  var stages = [];
+  stages.push({ kind: 'empty', narr: 'Here is an empty rectangle. We will use it to work out <strong>' + fmt(N) + ' ÷ ' + d + '</strong>.', btn: 'Add the divisor and the amount to chip' });
+  stages.push({ kind: 'dims', narr: 'The divisor <strong>' + d + '</strong> is the side we know. <strong>' + fmt(N) + '</strong> is the area we need to chip away.', btn: 'Make a radar estimate' });
+  stages.push({ kind: 'radar', narr: ex.radarNarr, btn: 'Chip away ' + d + ' × ' + fmt(ex.chunks[0]) });
+  var left = N;
+  ex.chunks.forEach(function(g, i) {
+    var p = g * d;
+    var after = left - p;
+    var narr = '<strong>' + d + ' × ' + fmt(g) + ' = ' + fmt(p) + '</strong>. Chip it away. <strong>' + fmt(left) + ' − ' + fmt(p) + ' = ' + fmt(after) + '</strong> is left.';
+    var btn;
+    if (i < ex.chunks.length - 1) btn = 'Chip away ' + d + ' × ' + fmt(ex.chunks[i + 1]);
+    else if (after > 0) btn = 'Can we chip any more?';
+    else btn = 'Add the section widths';
+    if (after === 0) narr = '<strong>' + d + ' × ' + fmt(g) + ' = ' + fmt(p) + '</strong>. Chip it away. <strong>' + fmt(left) + ' − ' + fmt(p) + ' = 0</strong>. Nothing is left.';
+    stages.push({ kind: 'chunk', n: i + 1, narr: narr, btn: btn });
+    left = after;
+  });
+  var rem = left;
+  if (rem > 0) {
+    stages.push({ kind: 'stop', narr: '<strong>' + rem + '</strong> is smaller than <strong>' + d + '</strong>, so we stop. Not even one more group of ' + d + ' fits. The <strong>' + rem + '</strong> left over is the <strong>remainder</strong>, shown as a thin strip.', btn: 'Add the section widths' });
+  }
+  stages.push({ kind: 'quotient', narr: 'Add the widths above the box to find the <strong>quotient</strong>.', btn: 'Check the answer' });
+  stages.push({ kind: 'check', narr: 'Check: divisor × quotient + remainder = dividend. We are back to <strong>' + fmt(N) + '</strong>, so the answer is right.', btn: null });
+  ex.rem = rem;
+  ex.q = sum(ex.chunks);
+  return stages;
+}
+
+function renderExample(key) {
+  var ex = examples[key];
+  var st = exState[key].stage;
+  var stage = ex.stages[st];
+  var kinds = ex.stages.slice(0, st + 1).map(function(s) { return s.kind; });
+  var has = function(k) { return kinds.indexOf(k) >= 0; };
+  var nChunks = ex.stages.slice(0, st + 1).filter(function(s) { return s.kind === 'chunk'; }).length;
+  var chunks = ex.chunks.slice(0, nChunks);
+  var dims = has('dims');
+  document.getElementById(key + '-model').innerHTML = modelHTML({ d: ex.d, N: ex.N, chunks: chunks, dims: dims, leftover: has('stop') });
+  document.getElementById(key + '-narr').innerHTML = stage.narr;
+  document.getElementById(key + '-radar').classList.toggle('hide', !has('radar'));
+  var tr = document.getElementById(key + '-tracker');
+  tr.classList.toggle('hide', !dims);
+  tr.innerHTML = trackerHTML(ex.d, ex.N, chunks);
+  var ans = document.getElementById(key + '-answer');
+  if (has('quotient')) {
+    var rows = '<div class="panel-title">Answer</div>';
+    rows += '<div class="answer-row-line">' + ex.chunks.map(fmt).join(' + ') + ' = ' + fmt(ex.q) + '</div>';
+    rows += '<div class="answer-row-line">' + fmt(ex.N) + ' ÷ ' + ex.d + ' = ' + fmt(ex.q) + (ex.rem > 0 ? ' remainder ' + ex.rem : '') + '</div>';
+    if (has('check')) {
+      rows += '<div class="panel-title" style="margin-top:6px;">Check</div>';
+      rows += '<div class="answer-row-line">' + ex.d + ' × ' + fmt(ex.q) + ' = ' + fmt(ex.d * ex.q) + '</div>';
+      if (ex.rem > 0) rows += '<div class="answer-row-line">' + fmt(ex.d * ex.q) + ' + ' + ex.rem + ' = ' + fmt(ex.N) + '</div>';
+    }
+    ans.innerHTML = rows;
+    ans.classList.remove('hide');
+  } else {
+    ans.classList.add('hide');
+  }
+  var co = document.getElementById(key + '-callout');
+  if (co) co.classList.toggle('hide', !has('check'));
+  document.getElementById(key + '-book').classList.toggle('hide', !has('check'));
+  var btn = document.getElementById(key + '-btn');
+  if (stage.btn) { btn.classList.remove('hide'); btn.innerHTML = stage.btn + ' &rarr;'; }
+  else btn.classList.add('hide');
+  document.getElementById(key + '-count').textContent = 'Step ' + (st + 1) + ' of ' + ex.stages.length;
+}
+
+function nextExample(key) {
+  var ex = examples[key];
+  if (exState[key].stage < ex.stages.length - 1) {
+    exState[key].stage++;
+    renderExample(key);
+  }
+}
+
+// ── QUESTION GENERATION AND ANSWER CHECKING (pure functions, tested in node) ──
+// GEN-START
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function randInt(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+
+var LEVELS = {
+  1: { dmin: 2, dmax: 6, Nmin: 40, Nmax: 199, qmin: 10 },
+  2: { dmin: 3, dmax: 9, Nmin: 200, Nmax: 999, qmin: 1 },
+  3: { dmin: 3, dmax: 9, Nmin: 1000, Nmax: 4999, qmin: 1 }
+};
+// Every number used elsewhere in this lesson (and the Term 1 lesson) is never a practice dividend
+var EXCLUDED = [237, 196, 517, 2658, 158, 774, 1385, 84, 96, 75, 138, 345, 629, 806, 1476, 2394, 4135,
+  144, 372, 156, 252, 50, 51, 52, 53, 54, 55, 56, 57, 161, 167, 168, 7, 14, 35, 70, 140, 350, 700,
+  210, 520, 2400, 3000, 516, 79, 23, 27, 21, 1000, 600, 800, 900, 400, 500, 560, 400, 4128, 4000];
+
+function remPattern(level) {
+  if (level === 2) return shuffle(Math.random() < 2 / 3 ? [1, 1, 1, 0] : [1, 1, 0, 0]);
+  return shuffle([1, 1, 0, 0]);
+}
+
+function genOne(level, withRem, usedN, usedD) {
+  var L = LEVELS[level];
+  for (var tries = 0; tries < 2000; tries++) {
+    var d = randInt(L.dmin, L.dmax);
+    if (tries < 300 && usedD.indexOf(d) >= 0) continue;
+    var r = withRem ? randInt(1, d - 1) : 0;
+    var qlo = Math.max(L.qmin, Math.ceil((L.Nmin - r) / d));
+    var qhi = Math.floor((L.Nmax - r) / d);
+    if (qlo > qhi) continue;
+    var q = randInt(qlo, qhi);
+    var N = d * q + r;
+    if (N < L.Nmin || N > L.Nmax) continue;
+    if (EXCLUDED.indexOf(N) >= 0 || usedN.indexOf(N) >= 0) continue;
+    return { d: d, N: N, q: q, r: r };
+  }
+  return null;
+}
+
+function generateLevelQuestions(level) {
+  var pattern = remPattern(level);
+  var qs = [], usedN = [], usedD = [];
+  pattern.forEach(function(withRem) {
+    var item = genOne(level, withRem === 1, usedN, usedD);
+    qs.push(item);
+    usedN.push(item.N);
+    usedD.push(item.d);
+  });
+  return qs;
+}
+
+// Validate a typed number of groups against what is left
+function checkChunk(d, left, raw) {
+  var p = parseWhole(raw);
+  if (p.blank) return { ok: false, reason: 'blank', text: p.text };
+  if (!p.ok) return { ok: false, reason: 'notwhole', text: p.text };
+  if (p.value === 0) return { ok: false, reason: 'zero', text: p.text };
+  if (d * p.value > left) return { ok: false, reason: 'toobig', groups: p.value, product: d * p.value, text: p.text };
+  return { ok: true, groups: p.value, product: d * p.value };
+}
+
+// Check the final quotient and remainder
+function evaluateAnswer(d, N, qRaw, rRaw) {
+  var q = parseWhole(qRaw), r = parseWhole(rRaw);
+  var tq = Math.floor(N / d), tr = N % d;
+  return { q: q, r: r, trueQ: tq, trueR: tr, qOK: q.ok && q.value === tq, rOK: r.ok && r.value === tr };
+}
+
+// Biggest place-value chunk that fits into what is left
+function placeChunk(d, left) {
+  var places = [[1000, 'thousands'], [100, 'hundreds'], [10, 'tens'], [1, 'ones']];
+  for (var i = 0; i < places.length; i++) {
+    var p = places[i][0];
+    if (d * p <= left) return { p: p, name: places[i][1], g: Math.floor(left / (d * p)) * p };
+  }
+  return null;
+}
+
+// Names of the non-zero place-value digits of a quotient, biggest first
+function placeNames(q) {
+  var names = ['ones', 'tens', 'hundreds', 'thousands'];
+  var out = [], s = String(q);
+  for (var i = 0; i < s.length; i++) {
+    if (s[i] !== '0') out.push(names[s.length - 1 - i]);
+  }
+  return out;
+}
+// GEN-END
+
+// ── CHIP AWAY BUILDER (We Do and Practice) ──
+var builders = {};
+
+function ChipBuilder(root, cfg) {
+  this.root = root;
+  this.d = cfg.d;
+  this.N = cfg.N;
+  this.mode = cfg.mode;
+  this.onDone = cfg.onDone || null;
+  this.chunks = [];
+  this.finished = false;
+  this.hintLevel = 0;
+  this.build();
+}
+
+ChipBuilder.prototype.left = function() { return this.N - this.d * sum(this.chunks); };
+
+ChipBuilder.prototype.ladderMultipliers = function() {
+  var self = this;
+  return [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000].filter(function(m) { return m <= 10 || self.d * m <= self.N; });
+};
+
+ChipBuilder.prototype.build = function() {
+  var d = this.d, N = this.N, self = this;
+  var practice = this.mode === 'practice';
+  this.root.innerHTML =
+    '<div class="cb">' +
+      '<div class="cb-top">' +
+        '<div class="cb-eq">' + fmt(N) + ' ÷ ' + d + '</div>' +
+        '<button class="tool-btn cb-ladder-btn">Show the multiples ladder for ' + d + '</button>' +
+        '<button class="tool-btn cb-undo" disabled>Undo last chunk</button>' +
+      '</div>' +
+      '<div class="cb-main">' +
+        '<div class="cb-model"></div>' +
+        '<div class="cb-side" style="padding-top:10px;">' +
+          '<div class="cb-ladder hide"><div class="panel-title">Multiples ladder for ' + d + '</div><div class="cb-ladder-grid">' +
+            this.ladderMultipliers().map(function(m) { return '<span class="mono">' + d + ' × ' + fmt(m) + ' = ' + fmt(d * m) + '</span>'; }).join('') +
+          '</div></div>' +
+          '<div class="tracker cb-tracker"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cb-chip-row">' +
+        '<span class="cb-prompt">How many groups of <span class="mono">' + d + '</span> will you chip away?</span>' +
+        '<input class="ia-input cb-groups" inputmode="numeric" autocomplete="off" placeholder="?">' +
+        '<button class="check-btn cb-chip">Chip it away</button>' +
+      '</div>' +
+      '<div class="feedback cb-msg"></div>' +
+      '<div class="cb-answer-row hide" style="margin-top:12px;">' +
+        '<span class="cb-prompt">Quotient</span><input class="ia-input cb-q" inputmode="numeric" autocomplete="off" placeholder="?">' +
+        '<span class="cb-prompt">remainder</span><input class="ia-input cb-r" inputmode="numeric" autocomplete="off" placeholder="?" style="width:90px;">' +
+        '<button class="check-btn cb-check">Check</button>' +
+      '</div>' +
+      '<div class="feedback cb-result"></div>' +
+      (practice ? '<div class="hint-row"><button class="hint-btn cb-hint">Show a hint</button><div class="hint-box cb-hint-box"></div></div>' : '') +
+    '</div>';
+  var q = function(sel) { return self.root.querySelector(sel); };
+  this.el = {
+    model: q('.cb-model'), tracker: q('.cb-tracker'), ladder: q('.cb-ladder'), ladderBtn: q('.cb-ladder-btn'),
+    undo: q('.cb-undo'), chipRow: q('.cb-chip-row'), groups: q('.cb-groups'), chip: q('.cb-chip'),
+    msg: q('.cb-msg'), answerRow: q('.cb-answer-row'), qIn: q('.cb-q'), rIn: q('.cb-r'), check: q('.cb-check'),
+    result: q('.cb-result'), hint: q('.cb-hint'), hintBox: q('.cb-hint-box')
+  };
+  this.el.ladderBtn.addEventListener('click', function() { self.toggleLadder(); });
+  this.el.undo.addEventListener('click', function() { self.undo(); });
+  this.el.chip.addEventListener('click', function() { self.chip(); });
+  this.el.groups.addEventListener('keydown', function(e) { if (e.key === 'Enter') self.chip(); });
+  this.el.check.addEventListener('click', function() { self.checkAnswer(); });
+  [this.el.qIn, this.el.rIn].forEach(function(inp) {
+    inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') self.checkAnswer(); });
+    inp.addEventListener('input', function() { inp.classList.remove('wrong'); });
+  });
+  if (this.el.hint) this.el.hint.addEventListener('click', function() { self.showHint(); });
+  this.render();
+};
+
+ChipBuilder.prototype.toggleLadder = function(forceOpen) {
+  var open = forceOpen === true ? true : this.el.ladder.classList.contains('hide');
+  this.el.ladder.classList.toggle('hide', !open);
+  this.el.ladderBtn.textContent = (open ? 'Hide' : 'Show') + ' the multiples ladder for ' + this.d;
+};
+
+ChipBuilder.prototype.render = function() {
+  var left = this.left();
+  var stopped = left < this.d;
+  this.el.model.innerHTML = modelHTML({ d: this.d, N: this.N, chunks: this.chunks, dims: true, leftover: stopped });
+  this.el.tracker.innerHTML = trackerHTML(this.d, this.N, this.chunks);
+  var rowsEl = this.el.tracker.querySelector('.tracker-rows');
+  if (rowsEl) rowsEl.scrollTop = rowsEl.scrollHeight;
+  this.el.undo.disabled = this.finished || this.chunks.length === 0;
+  this.el.chipRow.classList.toggle('hide', stopped);
+  this.el.answerRow.classList.toggle('hide', !stopped);
+};
+
+ChipBuilder.prototype.setMsg = function(kind, html) {
+  this.el.msg.className = 'feedback cb-msg show ' + kind;
+  this.el.msg.innerHTML = html;
+};
+
+ChipBuilder.prototype.chip = function() {
+  if (this.finished) return;
+  var d = this.d, left = this.left();
+  if (left < d) return;
+  var res = checkChunk(d, left, this.el.groups.value);
+  if (!res.ok) {
+    this.el.groups.classList.add('wrong');
+    if (res.reason === 'blank') this.setMsg('incorrect', 'You typed ' + mono('(blank)') + '. Type how many groups of ' + mono(d) + ' you want to chip away, like ' + mono('10') + ' or ' + mono('100') + '.');
+    else if (res.reason === 'notwhole') this.setMsg('incorrect', 'You typed ' + mono(esc(res.text)) + '. Type a whole number of groups, like ' + mono('10') + ' or ' + mono('100') + '.');
+    else if (res.reason === 'zero') this.setMsg('incorrect', 'You typed ' + mono('0') + '. Chipping away ' + mono('0') + ' groups does not chip anything. Try ' + mono('10') + ' or more.');
+    else this.setMsg('incorrect', 'You tried ' + mono(d + ' × ' + fmt(res.groups) + ' = ' + fmt(res.product)) + ', but only ' + mono(fmt(left)) + ' is left. Try a smaller chunk.');
+    return;
+  }
+  this.el.groups.classList.remove('wrong');
+  this.chunks.push(res.groups);
+  this.el.groups.value = '';
+  this.el.result.className = 'feedback cb-result';
+  var newLeft = this.left();
+  this.render();
+  if (newLeft < d) {
+    this.showStop();
+  } else {
+    this.setMsg('correct', mono(d + ' × ' + fmt(res.groups) + ' = ' + fmt(res.product)) + '. Chipped away. ' + mono(fmt(newLeft)) + ' is left. Chip again.');
+    this.el.groups.focus();
+  }
+};
+
+ChipBuilder.prototype.showStop = function() {
+  var left = this.left(), d = this.d;
+  if (left === 0) {
+    this.setMsg('info', 'Nothing is left. You have chipped away all of ' + mono(fmt(this.N)) + '. Now type the quotient and the remainder.');
+  } else {
+    this.setMsg('info', 'What is left is ' + mono(left) + '. ' + mono(left) + ' is smaller than ' + mono(d) + ', so no more groups of ' + mono(d) + ' fit. Stop chipping. The leftover strip is the remainder. Now type the quotient and the remainder.');
+  }
+  this.el.qIn.focus();
+};
+
+ChipBuilder.prototype.undo = function() {
+  if (this.finished || this.chunks.length === 0) return;
+  var g = this.chunks.pop();
+  this.el.result.className = 'feedback cb-result';
+  this.el.qIn.classList.remove('wrong'); this.el.rIn.classList.remove('wrong');
+  this.render();
+  this.setMsg('info', 'You took back the chunk of ' + mono(fmt(g)) + ' groups. ' + mono(fmt(this.left())) + ' is left to chip.');
+};
+
+ChipBuilder.prototype.checkLines = function(q, r) {
+  var d = this.d;
+  var rows = '<div class="mono">' + d + ' × ' + fmt(q) + ' = ' + fmt(d * q) + '</div>';
+  if (r > 0) rows += '<div class="mono">' + fmt(d * q) + ' + ' + r + ' = ' + fmt(this.N) + '</div>';
+  return '<div style="margin-top:6px;"><strong>Check:</strong> divisor × quotient + remainder = dividend</div><div class="check-rows">' + rows + '</div>';
+};
+
+ChipBuilder.prototype.effNote = function(q) {
+  var names = placeNames(q);
+  if (this.chunks.length <= names.length) return '';
+  var how = names.length === 1 ? names[0] : names.slice(0, -1).join(', then ') + ', then ' + names[names.length - 1];
+  return '<div class="eff-note">You used ' + mono(this.chunks.length) + ' chunks. Could you do it in ' + mono(names.length) + ' by chipping ' + how + '?</div>';
+};
+
+ChipBuilder.prototype.checkAnswer = function() {
+  if (this.finished) return;
+  if (this.left() >= this.d) return;
+  var d = this.d;
+  var ev = evaluateAnswer(d, this.N, this.el.qIn.value, this.el.rIn.value);
+  var widths = this.chunks.map(fmt);
+  var widthStr = widths.length > 1 ? widths.join(' + ') + ' = ' + fmt(ev.trueQ) : widths[0];
+  var msgs = [];
+  if (!ev.qOK) {
+    this.el.qIn.classList.add('wrong');
+    if (this.chunks.length > 1) msgs.push('You answered ' + mono(esc(ev.q.text)) + ' for the quotient. Add your chunk widths: ' + mono(widthStr) + '.');
+    else msgs.push('You answered ' + mono(esc(ev.q.text)) + ' for the quotient. You chipped one chunk, ' + mono(widthStr) + ' groups wide, so that is the quotient.');
+  } else this.el.qIn.classList.add('correct');
+  if (!ev.rOK) {
+    this.el.rIn.classList.add('wrong');
+    if (ev.r.blank) msgs.push('Your remainder is ' + mono('(blank)') + '. The remainder is what is left at the end of the tracker. If nothing is left, write ' + mono('0') + '.');
+    else if (!ev.r.ok) msgs.push('Your remainder is ' + mono(esc(ev.r.text)) + '. Type a whole number. Look at what is left at the end of the tracker.');
+    else if (ev.r.value >= d) msgs.push('Your remainder is ' + mono(fmt(ev.r.value)) + ', but ' + mono(fmt(ev.r.value)) + ' is not smaller than ' + mono(d) + ', so one more group fits. The remainder must be smaller than the divisor.');
+    else msgs.push('Your remainder is ' + mono(ev.r.value) + '. Look at the end of the "What is left" tracker: ' + mono(ev.trueR) + ' is left over.');
+  } else this.el.rIn.classList.add('correct');
+
+  var correct = ev.qOK && ev.rOK;
+  var answerText = mono(fmt(this.N) + ' ÷ ' + d + ' = ' + fmt(ev.trueQ) + (ev.trueR > 0 ? ' remainder ' + ev.trueR : ''));
+  var res = this.el.result;
+  if (correct) {
+    res.className = 'feedback cb-result show correct';
+    res.innerHTML = '<strong>Correct!</strong> ' + answerText + '.' + this.checkLines(ev.trueQ, ev.trueR) + this.effNote(ev.trueQ);
+    this.finish();
+  } else if (this.mode === 'wedo') {
+    res.className = 'feedback cb-result show incorrect';
+    res.innerHTML = '<strong>Not quite.</strong><br>' + msgs.join('<br>') + '<br>Fix your answer and check again.';
+    if (ev.qOK) this.el.qIn.classList.remove('wrong'); else this.el.qIn.classList.remove('correct');
+    if (ev.rOK) this.el.rIn.classList.remove('wrong'); else this.el.rIn.classList.remove('correct');
+  } else {
+    res.className = 'feedback cb-result show incorrect';
+    res.innerHTML = '<strong>Not quite.</strong><br>' + msgs.join('<br>') + '<br>The answer is ' + answerText + '.' + this.checkLines(ev.trueQ, ev.trueR) + this.effNote(ev.trueQ);
+    this.finish();
+  }
+  if (this.mode === 'practice' && this.onDone) this.onDone(correct);
+};
+
+ChipBuilder.prototype.finish = function() {
+  this.finished = true;
+  [this.el.qIn, this.el.rIn, this.el.check, this.el.groups, this.el.chip, this.el.undo].forEach(function(e) { e.disabled = true; });
+  if (this.el.hint) this.el.hint.disabled = true;
+};
+
+ChipBuilder.prototype.showHint = function() {
+  if (this.finished || this.hintLevel >= 3) return;
+  this.hintLevel++;
+  var d = this.d, left = this.left(), n = this.hintLevel, text;
+  if (left < d) {
+    var widths = this.chunks.map(fmt);
+    if (n === 1) text = 'You have finished chipping. The quotient is how many groups you chipped altogether. The remainder is what is left: ' + mono(left) + '.';
+    else if (n === 2) text = 'Find the quotient by adding the numbers above the box.';
+    else text = 'Add your chunk widths: ' + mono(widths.join(' + ')) + '.';
+  } else {
+    var pc = placeChunk(d, left);
+    if (n === 1) {
+      text = 'Open the multiples ladder for ' + mono(d) + '. Find the biggest product that is not more than ' + mono(fmt(left)) + '.';
+      this.toggleLadder(true);
+    } else if (n === 2) {
+      text = 'The biggest place-value chunk that fits is <strong>' + pc.name + '</strong>, so chip a number of groups like ' + mono(fmt(pc.p)) + ', ' + mono(fmt(2 * pc.p)) + ', ' + mono(fmt(3 * pc.p)) + ' and so on. ' + mono(d + ' × ' + fmt(pc.p) + ' = ' + fmt(d * pc.p)) + ' fits into ' + mono(fmt(left)) + '.';
+    } else {
+      text = 'Chip away ' + mono(fmt(pc.g)) + ' groups: ' + mono(d + ' × ' + fmt(pc.g) + ' = ' + fmt(d * pc.g)) + '. That leaves ' + mono(fmt(left) + ' − ' + fmt(d * pc.g) + ' = ' + fmt(left - d * pc.g)) + '.';
+    }
+  }
+  this.el.hintBox.innerHTML = '<strong>Hint ' + n + ' of 3:</strong> ' + text;
+  this.el.hintBox.classList.add('show');
+  if (this.hintLevel >= 3) { this.el.hint.disabled = true; this.el.hint.textContent = 'No more hints'; }
+  else this.el.hint.textContent = 'Show another hint';
+};
+
+// ── WE DO ──
+var weDoQuestions = [
+  { id: 'wedo-1', d: 5, N: 158 },
+  { id: 'wedo-2', d: 6, N: 774 },
+  { id: 'wedo-3', d: 4, N: 1385 }
+];
+function buildWeDo() {
+  weDoQuestions.forEach(function(w) {
+    builders[w.id] = new ChipBuilder(document.getElementById(w.id), { d: w.d, N: w.N, mode: 'wedo' });
+  });
+}
+
+// ── PRACTICE ──
+var currentLevel = 1;
+var practiceQs = [];
+var practiceIdx = 0;
+var practiceResults = [];
+var levelsDone = {};
+
+function startLevel(level) {
+  if (level < 1 || level > 3) return;
+  currentLevel = level;
+  practiceQs = generateLevelQuestions(level);
+  practiceIdx = 0;
+  practiceResults = [];
+  document.querySelectorAll('.level-card').forEach(function(c, i) { c.classList.toggle('current', i + 1 === level); });
+  document.getElementById('practice-summary').classList.remove('show');
+  document.getElementById('practice-area').classList.remove('hide');
+  var dots = '';
+  for (var i = 0; i < 4; i++) dots += '<div class="dot" id="pdot-' + i + '">' + (i + 1) + '</div>';
+  document.getElementById('practice-dots').innerHTML = dots;
+  showPracticeQuestion();
+  document.getElementById('practice-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showPracticeQuestion() {
+  var item = practiceQs[practiceIdx];
+  document.getElementById('practice-label').textContent = 'Level ' + currentLevel + ': Question ' + (practiceIdx + 1) + ' of 4';
+  for (var i = 0; i < 4; i++) document.getElementById('pdot-' + i).classList.toggle('current', i === practiceIdx);
+  document.getElementById('practice-next').classList.add('hide');
+  builders.practice = new ChipBuilder(document.getElementById('practice-builder'), {
+    d: item.d, N: item.N, mode: 'practice', onDone: practiceAnswered
+  });
+}
+
+function practiceAnswered(correct) {
+  practiceResults[practiceIdx] = correct;
+  var dot = document.getElementById('pdot-' + practiceIdx);
+  dot.classList.remove('current');
+  dot.classList.add(correct ? 'green' : 'red');
+  var nb = document.getElementById('practice-next');
+  nb.innerHTML = practiceIdx < 3 ? 'Next question &rarr;' : 'See my score &rarr;';
+  nb.classList.remove('hide');
+}
+
+function nextPractice() {
+  if (practiceIdx < 3) { practiceIdx++; showPracticeQuestion(); }
+  else showPracticeSummary();
+}
+
+function showPracticeSummary() {
+  document.getElementById('practice-area').classList.add('hide');
+  var correct = practiceResults.filter(function(r) { return r; }).length;
+  levelsDone[currentLevel] = true;
+  document.getElementById('level-card-' + currentLevel).classList.add('done');
+  document.getElementById('summary-title').textContent = 'Level ' + currentLevel + ' complete';
+  var sc = document.getElementById('summary-score');
+  sc.textContent = correct + ' / 4';
+  sc.style.color = correct >= 3 ? 'var(--green-dark)' : correct >= 2 ? 'var(--amber-dark)' : 'var(--red-dark)';
+  var msg = correct === 4 ? 'Excellent chipping. Every answer was right.' :
+            correct === 3 ? 'Great work. Look back at the one that tripped you up.' :
+            correct === 2 ? 'Getting there. Use the multiples ladder and chip bigger chunks.' :
+            'Look back at the I Do examples, then try again.';
+  document.getElementById('summary-message').textContent = msg;
+  document.getElementById('next-level-btn').classList.toggle('hide', currentLevel >= 3);
+  document.getElementById('practice-summary').classList.add('show');
+  document.getElementById('practice-summary').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (currentLevel === 3) unlockGoDeeper();
+}
+
+// ── GO DEEPER ──
+var goUnlocked = false;
+function unlockGoDeeper() {
+  if (goUnlocked) return;
+  goUnlocked = true;
+  var card = document.getElementById('go-deeper-card');
+  card.classList.remove('locked');
+  card.disabled = false;
+  card.querySelector('h3').innerHTML = '<span class="lock-icon" style="font-size:1.3rem;">&#x1F513;</span> Go Deeper: Remainder Investigations';
+  card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  document.getElementById('go-deeper-summary-btn').classList.remove('hide');
+}
+function openGoDeeper() {
+  if (!goUnlocked) return;
+  var sec = document.getElementById('go-deeper-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── IN YOUR BOOK ──
+var bookTiers = [
+  { cls: 't1', title: 'Tier 1', qs: [[84, 4], [96, 3], [75, 6], [138, 5]] },
+  { cls: 't2', title: 'Tier 2', qs: [[345, 3], [629, 4], [806, 7], [1476, 6]],
+    extra: 'Then solve one of them a second way using different chunks.',
+    extraAns: 'One second way for ' + mono('629 ÷ 4') + ':<br>' + mono('4 × 150 = 600') + '<br>' + mono('629 − 600 = 29') + '<br>' + mono('4 × 7 = 28') + '<br>' + mono('29 − 28 = 1') + '<br>' + mono('150 + 7 = 157') + ', remainder ' + mono('1') + '. Same answer.' },
+  { cls: 't3', title: 'Tier 3', qs: [[2394, 9], [4135, 8]],
+    extra: 'Then: solve 4,135 ÷ 8 using as few chunks as you can, using only multiples you can work out in your head. Compare with a partner.',
+    extraAns: 'One way with 3 chunks:<br>' + mono('8 × 500 = 4,000') + '<br>' + mono('4,135 − 4,000 = 135') + '<br>' + mono('8 × 10 = 80') + '<br>' + mono('135 − 80 = 55') + '<br>' + mono('8 × 6 = 48') + '<br>' + mono('55 − 48 = 7') + '<br>' + mono('500 + 10 + 6 = 516') + ', remainder ' + mono('7') + '.' }
+];
+
+function buildBook() {
+  var html = '';
+  bookTiers.forEach(function(t) {
+    html += '<div class="tier-col ' + t.cls + '"><h4>' + t.title + '</h4>';
+    t.qs.forEach(function(pair) {
+      var N = pair[0], d = pair[1], q = Math.floor(N / d), r = N % d;
+      var ans = mono(fmt(N) + ' ÷ ' + d + ' = ' + fmt(q) + (r ? ' remainder ' + r : '')) +
+        '<br>Check: ' + mono(d + ' × ' + fmt(q) + ' = ' + fmt(d * q)) + (r ? '<br>' + mono(fmt(d * q) + ' + ' + r + ' = ' + fmt(N)) : '');
+      html += '<div class="bw-card"><div class="bw-line"><span class="bw-problem">' + fmt(N) + ' ÷ ' + d + '</span>' +
+        '<button class="bw-reveal-btn" onclick="toggleBW(this)">Show answer</button></div>' +
+        '<div class="bw-answer">' + ans + '</div></div>';
+    });
+    if (t.extra) {
+      html += '<div class="bw-extra">' + t.extra + '<div style="margin-top:6px;"><button class="bw-reveal-btn" onclick="toggleBW(this)">Show answer</button>' +
+        '<div class="bw-answer">' + t.extraAns + '</div></div></div>';
+    }
+    html += '</div>';
+  });
+  document.getElementById('tier-grid').innerHTML = html;
+}
+
+function toggleBW(btn) {
+  var ans = btn.closest('.bw-card, .bw-extra').querySelector('.bw-answer');
+  var show = !ans.classList.contains('show');
+  ans.classList.toggle('show', show);
+  btn.textContent = show ? 'Hide answer' : 'Show answer';
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  renderHook();
+  buildExample('ex1');
+  buildExample('ex2');
+  buildExample('ex3');
+  buildWeDo();
+  buildBook();
+  goToSlide(0);
+  document.addEventListener('keydown', function(e) {
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+  window.addEventListener('resize', setHeaderHeight);
+});
+</script>
+</body>
+</html>

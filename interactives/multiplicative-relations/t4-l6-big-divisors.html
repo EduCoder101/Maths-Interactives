@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 6: Big Divisors - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES (wide, projector-first) */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 1320px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 36px 48px;
+    border: 2px solid var(--border); margin-bottom: 0;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 14px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC */
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 18px; margin-bottom: 8px; color: #2D3436; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+  .lisc-content p, .lisc-content li { font-size: 1.4rem; }
+
+  /* SLIDE NAV */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* GENERAL */
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .equation-box {
+    font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700;
+    text-align: center; padding: 14px 24px; background: white; border-radius: 14px;
+    border: 2px solid #e9eef3; margin: 8px 0;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .callout { border-radius: 12px; padding: 14px 22px; margin: 12px 0; border-left: 5px solid var(--border); }
+  .callout.callout-red { background: rgba(255,107,107,0.1); border-left-color: var(--red); }
+  .callout.callout-teal { background: rgba(78,205,196,0.1); border-left-color: var(--teal); }
+  .callout.callout-amber { background: rgba(255,217,61,0.12); border-left-color: var(--amber); }
+  .callout.callout-blue { background: rgba(52,152,219,0.1); border-left-color: var(--blue); }
+  .callout.callout-green { background: rgba(46,204,113,0.1); border-left-color: var(--green); }
+  .callout .label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #666; margin-bottom: 6px; display: block; }
+  .callout p { font-size: 1.3rem; line-height: 1.55; margin: 4px 0; }
+
+  /* IN YOUR BOOK strip */
+  .book-note {
+    display: flex; gap: 14px; align-items: center; margin-top: 16px;
+    background: #f5efff; border: 2px dashed var(--purple); border-radius: 14px; padding: 10px 18px;
+  }
+  .book-note .book-tag {
+    background: var(--purple); color: #fff; font-weight: 700; font-size: 14px; letter-spacing: 1px;
+    text-transform: uppercase; border-radius: 10px; padding: 6px 12px; white-space: nowrap;
+  }
+  .card .book-note p { font-size: 1.2rem; line-height: 1.5; color: #3a2a55; margin: 0; }
+
+  /* STAGED REVEAL */
+  .rv { opacity: 0; transition: opacity 0.4s ease; }
+  .rv.show { opacity: 1; }
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .reveal-bar { text-align: center; margin-top: 14px; }
+
+  /* STEP ROWS */
+  .step-row { display: flex; gap: 14px; align-items: center; margin: 8px 0; font-size: 1.3rem; line-height: 1.5; }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    width: 36px; height: 36px; border-radius: 50%; color: #fff; font-weight: 700; font-size: 18px;
+  }
+  .sn-1 { background: var(--amber); color: var(--text); }
+  .sn-2 { background: var(--blue); }
+  .sn-3 { background: var(--teal); color: var(--text); }
+  .sn-4 { background: var(--green); }
+  .step-text { flex: 1; }
+  .calc-line { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.35rem; }
+  .answer-line { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.5rem; color: var(--green-dark); background: var(--green-light); border: 2px solid var(--green); border-radius: 12px; padding: 6px 16px; display: inline-block; margin-top: 6px; }
+
+  /* ROUTINE ROWS */
+  .routine-row {
+    display: flex; gap: 22px; align-items: center; padding: 14px 22px; margin: 10px 0;
+    border-radius: 16px; border: 3px solid #e9eef3; background: #fafbfc;
+  }
+  .routine-row .big-num {
+    width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .routine-row h4 { font-size: 1.5rem; font-weight: 700; margin-bottom: 2px; }
+  .card .routine-row p { font-size: 1.25rem; line-height: 1.5; margin: 0; }
+
+  /* CALCULATOR */
+  .calc {
+    background: linear-gradient(160deg, #4b5257, #2f3437); border-radius: 22px; padding: 12px 16px 16px;
+    width: 100%; max-width: 440px; box-shadow: 0 8px 20px rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.12);
+    margin: 8px 0;
+  }
+  .calc-brand { color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin: 0 4px 8px; display: flex; justify-content: space-between; align-items: center; }
+  .calc-brand .solar { width: 64px; height: 14px; border-radius: 3px; background: repeating-linear-gradient(90deg, #3a2f28 0 14px, #57463a 14px 16px); }
+  .calc-screen {
+    background: #17211c; border-radius: 10px; padding: 8px 16px 6px; text-align: right;
+    border: 3px solid #0d1310; box-shadow: inset 0 3px 8px rgba(0,0,0,0.6);
+  }
+  .calc-expr { font-family: 'Space Mono', monospace; font-size: 18px; color: #7fb592; min-height: 26px; }
+  .calc-digits { font-family: 'Space Mono', monospace; font-size: 44px; font-weight: 700; color: #c9f7d6; letter-spacing: 1px; line-height: 1.2; white-space: nowrap; }
+  .calc-digits .whole { color: #ffe27a; }
+  .calc.small .calc-digits { font-size: 34px; }
+  .calc.small .calc-expr { font-size: 15px; min-height: 20px; }
+
+  /* SPEECH */
+  .speech {
+    position: relative; background: #fff7d6; border: 3px solid var(--amber); border-radius: 18px;
+    padding: 12px 20px; font-size: 1.35rem; font-weight: 500; margin: 10px 0;
+  }
+  .speech .who { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--amber-dark); display: block; margin-bottom: 4px; }
+
+  /* RADAR */
+  .radar-box { background: linear-gradient(135deg, #fffbf0, #fff8e8); border: 2px solid var(--amber); border-radius: 14px; padding: 10px 18px; margin: 8px 0; }
+  .radar-box .est-label { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--amber-dark); margin-bottom: 4px; }
+  .card .radar-box p { font-size: 1.2rem; margin: 0; line-height: 1.5; }
+
+  /* AREA MODEL (labels outside the box) */
+  .area-model-container { position: relative; margin: 48px 10px 10px 96px; }
+  .area-model { display: flex; border: 3px solid var(--text); border-radius: 6px; min-height: 120px; background: #fff; }
+  .area-section {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 14px 10px; border-right: 2px dashed var(--muted); position: relative; min-width: 140px;
+  }
+  .area-section:last-child { border-right: none; }
+  .area-section.filled { background: rgba(78,205,196,0.1); }
+  .area-top-label {
+    position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 20px; color: var(--text);
+    background: var(--amber); padding: 2px 12px; border-radius: 8px; white-space: nowrap;
+  }
+  .area-side-label {
+    position: absolute; left: -90px; top: 50%; transform: translateY(-50%);
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 20px; color: var(--text);
+    background: var(--teal); padding: 2px 12px; border-radius: 8px; white-space: nowrap;
+  }
+  .inner-calc { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 19px; color: var(--blue-dark); text-align: center; line-height: 1.4; }
+  .inner-calc .calc-result { display: block; font-size: 24px; }
+  .am-rows { margin-top: 8px; padding-left: 96px; }
+  .am-rows .calc-line { padding: 3px 0; }
+
+  /* BIG IDEA / KEY CARDS */
+  .big-idea {
+    background: linear-gradient(135deg, #fff7e0, #ffe9d6); border-radius: 18px; padding: 34px 48px;
+    text-align: center; border: 3px solid var(--amber);
+  }
+  .big-idea .bi-text { font-size: 2.3rem; font-weight: 700; line-height: 1.35; color: var(--text); }
+  .big-idea .bi-sub { font-size: 1.8rem; font-weight: 600; margin-top: 14px; color: var(--blue-dark); line-height: 1.5; }
+  .key-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .key-card { border-radius: 18px; padding: 24px 28px; border: 3px solid var(--teal); background: #f0fdfa; }
+  .key-card.amber { border-color: var(--amber); background: #fffbea; }
+  .key-card .kc-title { font-size: 1.6rem; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
+
+  /* WE DO + PRACTICE INPUTS */
+  .ia-input {
+    font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700;
+    width: 130px; text-align: center; padding: 8px; border: 3px solid #dfe6ec;
+    border-radius: 12px; outline: none; transition: border-color 0.2s; background: #fff;
+  }
+  .ia-input:focus { border-color: var(--teal); }
+  .ia-input.correct { border-color: var(--green); background: var(--green-light); }
+  .ia-input.wrong { border-color: var(--red); background: var(--red-light); }
+  .in-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; flex-wrap: wrap; font-size: 1.25rem; }
+  .in-row .in-label { min-width: 210px; font-weight: 600; }
+  .in-row .mono { font-size: 1.25rem; }
+  .step-head { font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin: 6px 0; }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 10px 26px; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .feedback { border-radius: 12px; padding: 12px 18px; margin-top: 12px; display: none; font-size: 17px; line-height: 1.6; }
+  .feedback .mono, .hint-display .mono { white-space: nowrap; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+
+  /* PRACTICE */
+  .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0 20px; }
+  .level-btn {
+    background: white; border: 3px solid #e9ecef; border-radius: 20px; padding: 18px 16px;
+    text-align: center; cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+  .level-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  .level-btn h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .card .level-btn p { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.4; }
+  .level-btn.active { border-color: var(--teal); }
+  .level-btn.completed { border-color: var(--green); background: #f0fdf4; }
+  .l1-btn { border-top: 6px solid var(--teal); }
+  .l2-btn { border-top: 6px solid var(--red); }
+  .l3-btn { border-top: 6px solid var(--purple); }
+  .go-deeper-level-btn {
+    display: block; width: 100%; text-align: left; padding: 18px 24px; grid-column: 1 / -1;
+    background: var(--card-bg); border: 2px solid #e9ecef; border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s;
+  }
+  .go-deeper-level-btn h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .card .go-deeper-level-btn p { font-size: 14px; color: var(--muted); margin: 0; }
+  .go-deeper-level-btn.locked { opacity: 0.5; cursor: default; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .pq-card { background: #fff; border-radius: 18px; border: 2px solid #e9ecef; padding: 22px 28px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .pq-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+  .pq-prompt { font-size: 19px; line-height: 1.6; margin-bottom: 6px; }
+  .pq-prompt .mono { font-size: 19px; }
+  .pq-card .in-row { font-size: 17px; margin: 8px 0; }
+  .pq-card .in-row .in-label { min-width: 250px; }
+  .pq-card .in-row .mono { font-size: 17px; }
+  .pq-card .ia-input { font-size: 18px; width: 110px; padding: 6px; }
+  .pq-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .hint-btn {
+    background: none; border: 2px solid var(--purple); color: var(--purple); padding: 8px 16px;
+    border-radius: 10px; cursor: pointer; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+  }
+  .hint-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .hint-display { margin-top: 10px; padding: 12px 16px; background: #F5EFFF; border-left: 4px solid var(--purple); border-radius: 10px; display: none; font-size: 16px; color: #444; line-height: 1.6; }
+  .hint-display.show { display: block; }
+  .dot-counter { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+  .dot { width: 30px; height: 30px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+  .summary-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; text-align: center; display: none; margin-top: 8px; border: 2px solid var(--border); }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 48px; font-weight: 700; }
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin: 12px 6px 0; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text); color: #fff; }
+  .mini-am { margin: 46px 10px 8px 120px; max-width: 620px; }
+  .mini-am .area-section { min-width: 200px; min-height: 100px; }
+  .mini-am .area-top-label, .mini-am .area-side-label { font-size: 17px; }
+  .mini-am .area-side-label { left: -112px; }
+
+  /* GO DEEPER */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-bottom: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .card .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1.05rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid #e3e8ee; border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 16px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid var(--border); }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .card .ext-model-response p { font-size: 1.05rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 16px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1.05rem; line-height: 1.6; }
+
+  /* BOOK WORK */
+  .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 12px; }
+  .tier-col { border-radius: 16px; padding: 14px 16px; border: 2px solid #e9eef3; background: #fafbfc; }
+  .tier-col h4 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+  .tier-col.t1 h4 { color: var(--teal-dark); }
+  .tier-col.t2 h4 { color: var(--red-dark); }
+  .tier-col.t3 h4 { color: var(--purple); }
+  .bw-card { background: white; border-radius: 12px; padding: 10px 14px; border: 2px solid #eef2f6; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .bw-problem { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; }
+  .bw-ctx { font-size: 15px; color: var(--muted); font-weight: 600; }
+  .bw-story { font-size: 17px; line-height: 1.5; }
+  .bw-story .mono { font-size: 17px; }
+  .bw-reveal-btn { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 6px 14px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; }
+  .bw-reveal-btn:hover { background: var(--blue-dark); }
+  .bw-answer { display: none; margin-top: 8px; font-size: 15px; line-height: 1.6; }
+  .bw-answer.show { display: block; animation: fadeIn 0.3s; }
+  .bw-answer .mono { font-size: 15px; }
+
+  @media (max-width: 1100px) {
+    .two-col, .key-cards, .tier-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 20px 18px; }
+    .level-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Multiplicative Relations · Term 4</div>
+  <h1><span>Lesson 6</span> · Big Divisors</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Lily's Calculator</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">The Big Idea</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">The Four-Step Routine</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Example 1: 1,000 ÷ 24</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Example 2: 4,567 ÷ 23</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Two Key Ideas</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q1: 365 ÷ 14</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Q2: 2,000 ÷ 36</button>
+      <button class="sidebar-item" onclick="goToSlide(9)">Q3: 1,512 ÷ 18</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(10)">Independent Practice</button>
+      <button class="sidebar-item" onclick="goToSlide(11)">In Your Book</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to use a calculator to divide by 2-digit numbers, make sense of the display, and check the answer by multiplying.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can estimate before I press any buttons.</li>
+          <li>I can read the whole-number part of a calculator answer as the number of full groups.</li>
+          <li>I can find the remainder by multiplying back and subtracting.</li>
+          <li>I can check a division by multiplying a 3-digit number by a 2-digit number.</li>
+        </ul>
+      </div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Write today's date and the Learning Intention as your heading.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - Lily's calculator -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <h3>Lily's Calculator</h3>
+      <div class="two-col">
+        <div>
+          <p><strong>250</strong> cupcakes are packed into boxes of <strong>12</strong>. How many boxes can be filled?</p>
+          <p>Lily types it into her calculator.</p>
+          <div class="calc rv" id="hk-calc">
+            <div class="calc-brand"><span>Class Calculator</span><span class="solar"></span></div>
+            <div class="calc-screen"><div class="calc-expr">250÷12=</div><div class="calc-digits">20.83333333</div></div>
+          </div>
+          <div class="speech rv" id="hk-lily"><span class="who">Lily says</span>"That means <strong>20</strong> boxes with <strong>83</strong> cupcakes left over."</div>
+          <p class="rv" id="hk-q" style="font-weight:700;">Is Lily right? Talk to your partner.</p>
+        </div>
+        <div>
+          <div class="radar-box rv" id="hk-radar">
+            <div class="est-label">Radar estimate</div>
+            <div class="calc-line">240 ÷ 12 = 20</div>
+            <p style="font-size:1.2rem;margin:0;">So about <strong>20</strong> boxes. Lily's <strong>20</strong> makes sense.</p>
+          </div>
+          <div class="step-row rv" id="hk-mult"><span class="step-num sn-3">&times;</span><span class="step-text">20 boxes hold:<br><span class="calc-line">12 &times; 20 = 240</span> cupcakes</span></div>
+          <div class="step-row rv" id="hk-sub"><span class="step-num sn-3">&minus;</span><span class="step-text">Cupcakes left over:<br><span class="calc-line">250 &minus; 240 = 10</span></span></div>
+          <div class="callout callout-red rv" id="hk-verdict">
+            <span class="label">So is Lily right?</span>
+            <p>The <strong>20</strong> boxes part is right. But <strong>83</strong> cannot be the remainder. It is bigger than <strong>12</strong>, so it would fill more boxes. A remainder is always smaller than the divisor.</p>
+            <p><strong>20</strong> boxes with <strong>10</strong> cupcakes left over.</p>
+          </div>
+        </div>
+      </div>
+      <div class="reveal-bar"><button class="am-reveal-btn" id="hk-btn" onclick="stageNext('hk')">Press the buttons &rarr;</button></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Big idea -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <h3>The Big Idea</h3>
+      <div class="big-idea">
+        <div class="bi-text">The digits after the decimal point are <u>not</u> the remainder.</div>
+        <div class="bi-sub">Multiply back to find it.</div>
+      </div>
+      <div class="two-col" style="margin-top:22px;">
+        <div class="calc small">
+          <div class="calc-brand"><span>Class Calculator</span><span class="solar"></span></div>
+          <div class="calc-screen"><div class="calc-expr">250÷12=</div><div class="calc-digits"><span class="whole">20</span>.83333333</div></div>
+        </div>
+        <div>
+          <p>The <strong>whole-number part</strong> (yellow) tells you the full groups.</p>
+          <p>The decimal part is <strong>part of one more group</strong>. It is not a count of leftovers.</p>
+        </div>
+      </div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Copy the big idea: "The digits after the decimal point are not the remainder. Multiply back to find it."</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Four-step routine -->
+  <div class="slide" id="slide-3">
+    <div class="card">
+      <h3>The Four-Step Calculator Routine</h3>
+      <div class="routine-row rv" id="rt-1">
+        <div class="big-num" style="background:var(--amber);color:var(--text);">1</div>
+        <div><h4>Radar estimate</h4><p>Round to friendly numbers and estimate before you press any buttons.</p></div>
+      </div>
+      <div class="routine-row rv" id="rt-2">
+        <div class="big-num" style="background:var(--blue);">2</div>
+        <div><h4>Calculate and read the whole-number part</h4><p>The whole-number part of the display is the number of full groups.</p></div>
+      </div>
+      <div class="routine-row rv" id="rt-3">
+        <div class="big-num" style="background:var(--teal);color:var(--text);">3</div>
+        <div><h4>Multiply back and subtract</h4><p>Divisor &times; full groups, then dividend &minus; that answer. What is left is the remainder.</p></div>
+      </div>
+      <div class="routine-row rv" id="rt-4">
+        <div class="big-num" style="background:var(--green);">4</div>
+        <div><h4>Check by hand</h4><p>divisor &times; quotient + remainder = dividend</p></div>
+      </div>
+      <div class="reveal-bar"><button class="am-reveal-btn" id="rt-btn" onclick="stageNext('rt')">Show step 1: Radar estimate &rarr;</button></div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Copy the four steps. You will use them for every question today.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Example 1: 1,000 ÷ 24 -->
+  <div class="slide" id="slide-4">
+    <div class="card">
+      <h3>Example 1: <span class="mono" style="font-size:1.4rem;">1,000 ÷ 24</span></h3>
+      <div class="two-col">
+        <div>
+          <div class="radar-box rv" id="e1-radar">
+            <div class="est-label">Step 1: Radar estimate</div>
+            <div class="calc-line">1,000 ÷ 25 = 40</div>
+            <p>So about <strong>40</strong> groups.</p>
+          </div>
+          <div class="calc small rv" id="e1-calc">
+            <div class="calc-brand"><span>Step 2: Calculate</span><span class="solar"></span></div>
+            <div class="calc-screen"><div class="calc-expr">1000÷24=</div><div class="calc-digits"><span class="whole">41</span>.66666667</div></div>
+          </div>
+          <div class="step-row rv" id="e1-groups"><span class="step-num sn-2">2</span><span class="step-text">Whole-number part: <strong>41</strong> full groups</span></div>
+          <div class="step-row rv" id="e1-mult"><span class="step-num sn-3">3</span><span class="step-text">Multiply back: <span class="calc-line">41 &times; 24 = 984</span></span></div>
+          <div class="step-row rv" id="e1-sub"><span class="step-num sn-3">3</span><span class="step-text">Subtract: <span class="calc-line">1,000 &minus; 984 = 16</span></span></div>
+          <div class="rv" id="e1-ans"><span class="answer-line">1,000 ÷ 24 = 41 r 16</span></div>
+        </div>
+        <div>
+          <div class="step-head rv" id="e1-am-head">Step 4: Check by hand with an area model</div>
+          <div class="area-model-container rv" id="e1-am">
+            <div class="area-model" id="e1-unsplit">
+              <div class="area-section filled" style="flex:1;"></div>
+              <div class="area-top-label rv" id="e1-top-full">41</div>
+            </div>
+            <div class="area-model" id="e1-split" hidden>
+              <div class="area-section filled" style="flex:3;">
+                <div class="area-top-label">40</div>
+                <div class="inner-calc rv" id="e1-c1">40 &times; 24<span class="calc-result">= 960</span></div>
+              </div>
+              <div class="area-section filled" style="flex:1;">
+                <div class="area-top-label">1</div>
+                <div class="inner-calc rv" id="e1-c2">1 &times; 24<span class="calc-result">= 24</span></div>
+              </div>
+            </div>
+            <div class="area-side-label rv" id="e1-side">24</div>
+          </div>
+          <div class="am-rows">
+            <div class="calc-line rv" id="e1-r1">960 + 24 = 984</div>
+            <div class="calc-line rv" id="e1-r2">984 + 16 = 1,000</div>
+            <p class="rv" id="e1-r3" style="font-size:1.2rem;color:var(--green-dark);font-weight:600;">That is the number we started with, so the answer is right.</p>
+          </div>
+        </div>
+      </div>
+      <div class="reveal-bar"><button class="am-reveal-btn" id="e1-btn" onclick="stageNext('e1')">Radar estimate first &rarr;</button></div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Copy Example 1: the estimate, the display, each step on its own line, and the area model check.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: I DO - Example 2: 4,567 ÷ 23 -->
+  <div class="slide" id="slide-5">
+    <div class="card">
+      <h3>Example 2: <span class="mono" style="font-size:1.4rem;">4,567 ÷ 23</span></h3>
+      <div class="two-col">
+        <div>
+          <div class="radar-box rv" id="e2-radar">
+            <div class="est-label">Step 1: Radar estimate</div>
+            <div class="calc-line">4,600 ÷ 23 = 200</div>
+            <p><strong>4,567</strong> is a bit less than <strong>4,600</strong>, so a bit under <strong>200</strong>.</p>
+          </div>
+          <div class="calc small rv" id="e2-calc">
+            <div class="calc-brand"><span>Step 2: Calculate</span><span class="solar"></span></div>
+            <div class="calc-screen"><div class="calc-expr">4567÷23=</div><div class="calc-digits"><span class="whole">198</span>.5652174</div></div>
+          </div>
+          <div class="step-row rv" id="e2-groups"><span class="step-num sn-2">2</span><span class="step-text">Whole-number part: <strong>198</strong> full groups</span></div>
+          <div class="step-row rv" id="e2-mult"><span class="step-num sn-3">3</span><span class="step-text">Multiply back: <span class="calc-line">198 &times; 23 = 4,554</span></span></div>
+          <div class="step-row rv" id="e2-sub"><span class="step-num sn-3">3</span><span class="step-text">Subtract: <span class="calc-line">4,567 &minus; 4,554 = 13</span></span></div>
+          <div class="rv" id="e2-ans"><span class="answer-line">4,567 ÷ 23 = 198 r 13</span></div>
+        </div>
+        <div>
+          <div class="step-head rv" id="e2-am-head">Step 4: Check by hand with an area model</div>
+          <div class="area-model-container rv" id="e2-am">
+            <div class="area-model" id="e2-unsplit">
+              <div class="area-section filled" style="flex:1;"></div>
+              <div class="area-top-label rv" id="e2-top-full">23</div>
+            </div>
+            <div class="area-model" id="e2-split" hidden>
+              <div class="area-section filled" style="flex:2;">
+                <div class="area-top-label">20</div>
+                <div class="inner-calc rv" id="e2-c1">198 &times; 20<span class="calc-result">= 3,960</span></div>
+              </div>
+              <div class="area-section filled" style="flex:1;">
+                <div class="area-top-label">3</div>
+                <div class="inner-calc rv" id="e2-c2">198 &times; 3<span class="calc-result">= 594</span></div>
+              </div>
+            </div>
+            <div class="area-side-label rv" id="e2-side">198</div>
+          </div>
+          <div class="am-rows">
+            <div class="calc-line rv" id="e2-r1">3,960 + 594 = 4,554</div>
+            <div class="calc-line rv" id="e2-r2">4,554 + 13 = 4,567</div>
+            <p class="rv" id="e2-r3" style="font-size:1.2rem;color:var(--green-dark);font-weight:600;">That is the number we started with, so the answer is right.</p>
+          </div>
+        </div>
+      </div>
+      <div class="reveal-bar"><button class="am-reveal-btn" id="e2-btn" onclick="stageNext('e2')">Radar estimate first &rarr;</button></div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Copy Example 2. Draw the area model with <strong>198</strong> on the left and <strong>20</strong> and <strong>3</strong> along the top.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: I DO - Two key ideas -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h3>Two Key Ideas</h3>
+      <div class="key-cards">
+        <div class="key-card rv" id="ki-1">
+          <div class="kc-title">If the display shows a whole number, the remainder is 0.</div>
+          <div class="calc small">
+            <div class="calc-brand"><span>Class Calculator</span><span class="solar"></span></div>
+            <div class="calc-screen"><div class="calc-expr">864÷27=</div><div class="calc-digits"><span class="whole">32</span></div></div>
+          </div>
+          <div class="calc-line">27 &times; 32 = 864</div>
+          <p>Nothing is left over. <strong>27</strong> goes into <strong>864</strong> exactly <strong>32</strong> times.</p>
+        </div>
+        <div class="key-card amber rv" id="ki-2">
+          <div class="kc-title">The remainder must always be smaller than the divisor.</div>
+          <p>Dividing by <strong>23</strong>? The remainder can only be <strong>0</strong> up to <strong>22</strong>.</p>
+          <p>If you get <strong>23</strong> or more left over, there is enough to make another full group. Go back and check your full groups.</p>
+        </div>
+      </div>
+      <div class="reveal-bar"><button class="am-reveal-btn" id="ki-btn" onclick="stageNext('ki')">Show key idea 1 &rarr;</button></div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Write both key ideas in your book. Put a box around them.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO - Q1 -->
+  <div class="slide" id="slide-7">
+    <div class="card">
+      <h3>Q1: How many full fortnights are in a year?</h3>
+      <div id="wd-0"></div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Write E: your estimate, the display, the full groups, the multiply-back step and the remainder, one line each.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: WE DO - Q2 -->
+  <div class="slide" id="slide-8">
+    <div class="card">
+      <h3>Q2: Watch out for the decimal digits</h3>
+      <div id="wd-1"></div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Write E: your estimate, the display, the full groups, the multiply-back step and the remainder, one line each.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: WE DO - Q3 -->
+  <div class="slide" id="slide-9">
+    <div class="card">
+      <h3>Q3: What does a whole-number display tell you?</h3>
+      <div id="wd-2"></div>
+      <div class="book-note"><span class="book-tag">In your book</span><p>Write each step on its own line, then check: <strong>84</strong> &times; <strong>18</strong> = <strong>1,512</strong>.</p></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: PRACTICE -->
+  <div class="slide" id="slide-10">
+    <div class="card">
+      <h3>Independent Practice</h3>
+      <p style="font-size:1.2rem;color:var(--muted);">Work with your partner and a real calculator. Choose a level. Each level has <strong>4</strong> questions.</p>
+
+      <div class="level-grid">
+        <button class="level-btn l1-btn" id="level-1-btn" onclick="startLevel(1)">
+          <h3 style="color:var(--teal-dark);">Level 1</h3>
+          <p>Read the display</p>
+        </button>
+        <button class="level-btn l2-btn" id="level-2-btn" onclick="startLevel(2)">
+          <h3 style="color:var(--red-dark);">Level 2</h3>
+          <p>Calculator stories</p>
+        </button>
+        <button class="level-btn l3-btn" id="level-3-btn" onclick="startLevel(3)">
+          <h3 style="color:var(--purple);">Level 3</h3>
+          <p>Check by hand</p>
+        </button>
+        <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+          <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Calculator Investigations</h3>
+          <p>Complete Level 3 to unlock</p>
+        </button>
+      </div>
+
+      <div id="practice-area" hidden>
+        <div class="dot-counter" id="pq-dots"></div>
+        <div class="pq-card" id="pq-card"></div>
+        <div class="summary-card" id="pq-summary">
+          <h3 id="pq-sum-title">Level complete</h3>
+          <div class="summary-score" id="pq-score"></div>
+          <p id="pq-message" style="font-size:1.1rem;color:var(--muted);"></p>
+          <button class="btn btn-primary" id="pq-retry" onclick="startLevel(currentLevel)">Try Again</button>
+          <button class="btn btn-dark" id="pq-nextlevel" onclick="startLevel(currentLevel + 1)">Next Level</button>
+          <button class="btn btn-primary" id="pq-godeeper" onclick="openGoDeeper()" hidden>Go Deeper</button>
+        </div>
+      </div>
+
+      <div id="go-deeper-section" style="display:none; margin-top:28px;">
+        <div class="go-deeper-card">
+          <h2>&#x1F513; Go Deeper: Calculator Investigations</h2>
+          <p>These tasks will push your thinking beyond finding answers. You will explore, make conjectures, and reason like a mathematician.</p>
+
+          <!-- TASK 1: Specialising -->
+          <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">
+              <span class="ext-numbers">77</span> ÷ <span class="ext-numbers">5</span> shows <span class="ext-numbers">15.4</span>. Multiply the decimal part by the divisor: <span class="ext-numbers">0.4</span> &times; <span class="ext-numbers">5</span> = <span class="ext-numbers">2</span>. Check: <span class="ext-numbers">5</span> &times; <span class="ext-numbers">15</span> + <span class="ext-numbers">2</span> = <span class="ext-numbers">77</span>.<br>
+              Now try <span class="ext-numbers">47</span> ÷ <span class="ext-numbers">4</span>, <span class="ext-numbers">38</span> ÷ <span class="ext-numbers">5</span> and <span class="ext-numbers">63</span> ÷ <span class="ext-numbers">10</span>. For each one, multiply the decimal part by the divisor, then check by multiplying back.
+            </div>
+            <div class="ext-task-sub">What do you notice each time?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I started with <span class="ext-numbers">47</span> ÷ <span class="ext-numbers">4</span>. The calculator showed <span class="ext-numbers">11.75</span>. My first thought was that the remainder was <span class="ext-numbers">75</span>, because those are the digits after the point. But that can't be right: <span class="ext-numbers">75</span> is way bigger than <span class="ext-numbers">4</span>, and a remainder has to be smaller than the divisor.</p>
+              <p>So I did what the task said. <span class="ext-numbers">0.75</span> is three quarters, and three quarters of <span class="ext-numbers">4</span> is <span class="ext-numbers">3</span>. So <span class="ext-numbers">0.75</span> &times; <span class="ext-numbers">4</span> = <span class="ext-numbers">3</span>. Check: <span class="ext-numbers">4</span> &times; <span class="ext-numbers">11</span> = <span class="ext-numbers">44</span>, and <span class="ext-numbers">44</span> + <span class="ext-numbers">3</span> = <span class="ext-numbers">47</span>. It works.</p>
+              <p>Next, <span class="ext-numbers">38</span> ÷ <span class="ext-numbers">5</span> showed <span class="ext-numbers">7.6</span>. <span class="ext-numbers">0.6</span> &times; <span class="ext-numbers">5</span> = <span class="ext-numbers">3</span>. Check: <span class="ext-numbers">5</span> &times; <span class="ext-numbers">7</span> = <span class="ext-numbers">35</span>, and <span class="ext-numbers">35</span> + <span class="ext-numbers">3</span> = <span class="ext-numbers">38</span>. Works again.</p>
+              <p>Then <span class="ext-numbers">63</span> ÷ <span class="ext-numbers">10</span> showed <span class="ext-numbers">6.3</span>. <span class="ext-numbers">0.3</span> &times; <span class="ext-numbers">10</span> = <span class="ext-numbers">3</span>. Check: <span class="ext-numbers">10</span> &times; <span class="ext-numbers">6</span> = <span class="ext-numbers">60</span>, and <span class="ext-numbers">60</span> + <span class="ext-numbers">3</span> = <span class="ext-numbers">63</span>.</p>
+              <p>What I notice: every time, the decimal part times the divisor gave me exactly the remainder. The decimal part seems to be "how much of one more group" is left. It is funny that all three remainders were <span class="ext-numbers">3</span>, but the displays all looked different. So the decimal digits do not show the remainder directly, but they do hide it.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+            </div>
+          </div>
+
+          <!-- TASK 2: Conjecturing -->
+          <div class="ext-task">
+            <div class="ext-task-label">Conjecturing</div>
+            <div class="ext-task-prompt">
+              Mia says: "The remainder is always the decimal part times the divisor."<br>
+              Test Mia's method on <span class="ext-numbers">250</span> ÷ <span class="ext-numbers">12</span> (the display shows <span class="ext-numbers">20.83333333</span>) and on <span class="ext-numbers">1,000</span> ÷ <span class="ext-numbers">24</span> (the display shows <span class="ext-numbers">41.66666667</span>). Type the decimal part into your calculator and multiply by the divisor.
+            </div>
+            <div class="ext-task-sub">Is Mia's method always reliable on a calculator? Write your conjecture and the evidence for it.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>I typed <span class="ext-numbers">0.83333333</span> &times; <span class="ext-numbers">12</span> and the calculator said <span class="ext-numbers">9.99999996</span>. At first I thought Mia was just wrong, because a remainder has to be a whole number and <span class="ext-numbers">9.99999996</span> is not.</p>
+              <p>Then I multiplied back to find the real remainder: <span class="ext-numbers">12</span> &times; <span class="ext-numbers">20</span> = <span class="ext-numbers">240</span>, and <span class="ext-numbers">250</span> &minus; <span class="ext-numbers">240</span> = <span class="ext-numbers">10</span>. So the real remainder is <span class="ext-numbers">10</span>, and Mia's answer was super close to <span class="ext-numbers">10</span>, but not exactly <span class="ext-numbers">10</span>.</p>
+              <p>I tried the second one: <span class="ext-numbers">0.66666667</span> &times; <span class="ext-numbers">24</span> = <span class="ext-numbers">16.00000008</span>. Multiplying back: <span class="ext-numbers">24</span> &times; <span class="ext-numbers">41</span> = <span class="ext-numbers">984</span>, and <span class="ext-numbers">1,000</span> &minus; <span class="ext-numbers">984</span> = <span class="ext-numbers">16</span>. Close again, but this time a tiny bit too big.</p>
+              <p>Why? The decimal <span class="ext-numbers">0.8333...</span> goes on forever, but the calculator only has room for <span class="ext-numbers">10</span> digits, so it cuts it off or rounds it. Multiplying a cut-off number gives a cut-off answer. With <span class="ext-numbers">15.4</span> in Task 1 the decimal stopped, so the answer came out exact.</p>
+              <p>My conjecture: Mia's idea is true, but on a calculator it is not always reliable. When the decimal goes on forever you get a number very close to the remainder, not the exact remainder. Multiplying back with whole numbers is safer because whole numbers never get rounded.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proved.
+            </div>
+          </div>
+
+          <!-- TASK 3: Justifying -->
+          <div class="ext-task">
+            <div class="ext-task-label">Justifying</div>
+            <div class="ext-task-prompt">
+              A whole number was divided by <span class="ext-numbers">8</span>, and the calculator showed <span class="ext-numbers">26.375</span>. What was the whole number, and what was the remainder? Could more than one whole number give exactly this display?
+            </div>
+            <div class="ext-task-sub">Find the number and the remainder. Then justify how many answers there are.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+              <div class="model-label">A mathematician's response</div>
+              <p>The whole-number part is <span class="ext-numbers">26</span>, so there were <span class="ext-numbers">26</span> full groups of <span class="ext-numbers">8</span>. <span class="ext-numbers">26</span> &times; <span class="ext-numbers">8</span> = <span class="ext-numbers">208</span>. My first guess was that the number was <span class="ext-numbers">208</span>. But <span class="ext-numbers">208</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">26</span> exactly, and the display had <span class="ext-numbers">.375</span> on the end. So something was left over that I had forgotten.</p>
+              <p>Using Task 1: decimal part times divisor. <span class="ext-numbers">0.375</span> &times; <span class="ext-numbers">8</span> = <span class="ext-numbers">3</span>. So the remainder is <span class="ext-numbers">3</span>, and the number is <span class="ext-numbers">208</span> + <span class="ext-numbers">3</span> = <span class="ext-numbers">211</span>. I checked: <span class="ext-numbers">211</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">26.375</span>. Yes.</p>
+              <p>Could another number work? I tried the neighbours. <span class="ext-numbers">210</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">26.25</span> and <span class="ext-numbers">212</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">26.5</span>. Each time I add <span class="ext-numbers">1</span> to the number, the display goes up by one eighth of a group, which is <span class="ext-numbers">0.125</span>. So the displays go <span class="ext-numbers">26.25</span>, <span class="ext-numbers">26.375</span>, <span class="ext-numbers">26.5</span>, and only <span class="ext-numbers">211</span> lands on <span class="ext-numbers">26.375</span>.</p>
+              <p>So there is only one answer: <span class="ext-numbers">211</span>, remainder <span class="ext-numbers">3</span>. Every whole number gives its own different display when you divide by <span class="ext-numbers">8</span>.</p>
+            </div>
+            <div class="mathematician-box">
+              <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just finding an answer, you are explaining why it must be the only answer. A reason that works for every case is stronger than one example.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 11 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: IN YOUR BOOK -->
+  <div class="slide" id="slide-11">
+    <div class="card">
+      <h3>In Your Book: Written Practice</h3>
+      <div class="book-note" style="margin-top:0;"><span class="book-tag">In your book</span><p>For each question write E: [estimate], the calculator display, the full groups, the multiply-back step, the remainder, and the check by hand.</p></div>
+      <div class="tier-grid">
+        <div class="tier-col t1">
+          <h4>Tier 1</h4>
+          <div class="bw-card"><div class="bw-problem">130 ÷ 12</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">120 ÷ 12 = 10</span><br>Display: <span class="mono">10.83333333</span><br>Full groups: <span class="mono">10</span><br><span class="mono">12 &times; 10 = 120</span><br><span class="mono">130 &minus; 120 = 10</span><br>Answer: <span class="mono">10 r 10</span><br>Check: <span class="mono">120 + 10 = 130</span></div></div>
+          <div class="bw-card"><div class="bw-problem">200 ÷ 15</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">200 ÷ 20 = 10</span>, so a bit more than <span class="mono">10</span><br>Display: <span class="mono">13.33333333</span><br>Full groups: <span class="mono">13</span><br><span class="mono">15 &times; 13 = 195</span><br><span class="mono">200 &minus; 195 = 5</span><br>Answer: <span class="mono">13 r 5</span><br>Check: <span class="mono">195 + 5 = 200</span></div></div>
+          <div class="bw-card"><div class="bw-problem">365 ÷ 7</div><div class="bw-ctx">How many weeks are in a year?</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">350 ÷ 7 = 50</span><br>Display: <span class="mono">52.14285714</span><br>Full groups: <span class="mono">52</span><br><span class="mono">7 &times; 52 = 364</span><br><span class="mono">365 &minus; 364 = 1</span><br>Answer: <span class="mono">52 r 1</span>, so <span class="mono">52</span> weeks and <span class="mono">1</span> day<br>Check: <span class="mono">364 + 1 = 365</span></div></div>
+          <div class="bw-card"><div class="bw-problem">96 ÷ 16</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">100 ÷ 20 = 5</span>, so a bit more than <span class="mono">5</span><br>Display: <span class="mono">6</span><br>Full groups: <span class="mono">6</span><br><span class="mono">16 &times; 6 = 96</span><br><span class="mono">96 &minus; 96 = 0</span><br>Answer: <span class="mono">6</span>, remainder <span class="mono">0</span><br>Check: <span class="mono">96 + 0 = 96</span></div></div>
+        </div>
+        <div class="tier-col t2">
+          <h4>Tier 2</h4>
+          <p style="font-size:15px;line-height:1.4;margin-bottom:8px;">Check each one with the area model or the algorithm.</p>
+          <div class="bw-card"><div class="bw-problem">500 ÷ 24</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">500 ÷ 25 = 20</span><br>Display: <span class="mono">20.83333333</span><br>Full groups: <span class="mono">20</span><br><span class="mono">24 &times; 20 = 480</span><br><span class="mono">500 &minus; 480 = 20</span><br>Answer: <span class="mono">20 r 20</span><br>Check: <span class="mono">20 &times; 20 = 400</span><br><span class="mono">20 &times; 4 = 80</span><br><span class="mono">400 + 80 = 480</span><br><span class="mono">480 + 20 = 500</span></div></div>
+          <div class="bw-card"><div class="bw-problem">1,200 ÷ 32</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">1,200 ÷ 30 = 40</span><br>Display: <span class="mono">37.5</span><br>Full groups: <span class="mono">37</span><br><span class="mono">32 &times; 37 = 1,184</span><br><span class="mono">1,200 &minus; 1,184 = 16</span><br>Answer: <span class="mono">37 r 16</span> (not <span class="mono">5</span>)<br>Check: <span class="mono">37 &times; 30 = 1,110</span><br><span class="mono">37 &times; 2 = 74</span><br><span class="mono">1,110 + 74 = 1,184</span><br><span class="mono">1,184 + 16 = 1,200</span></div></div>
+          <div class="bw-card"><div class="bw-problem">2,345 ÷ 15</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">2,400 ÷ 15 = 160</span>, so a bit under <span class="mono">160</span><br>Display: <span class="mono">156.3333333</span><br>Full groups: <span class="mono">156</span><br><span class="mono">15 &times; 156 = 2,340</span><br><span class="mono">2,345 &minus; 2,340 = 5</span><br>Answer: <span class="mono">156 r 5</span><br>Check: <span class="mono">156 &times; 10 = 1,560</span><br><span class="mono">156 &times; 5 = 780</span><br><span class="mono">1,560 + 780 = 2,340</span><br><span class="mono">2,340 + 5 = 2,345</span></div></div>
+          <div class="bw-card"><div class="bw-problem">840 ÷ 35</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">E: <span class="mono">800 ÷ 40 = 20</span>, so a bit more than <span class="mono">20</span><br>Display: <span class="mono">24</span><br>Full groups: <span class="mono">24</span><br><span class="mono">35 &times; 24 = 840</span><br><span class="mono">840 &minus; 840 = 0</span><br>Answer: <span class="mono">24</span>, remainder <span class="mono">0</span><br>Check: <span class="mono">24 &times; 30 = 720</span><br><span class="mono">24 &times; 5 = 120</span><br><span class="mono">720 + 120 = 840</span></div></div>
+        </div>
+        <div class="tier-col t3">
+          <h4>Tier 3</h4>
+          <div class="bw-card"><div class="bw-story">A calculator shows <span class="mono">37.25</span> after a whole number was divided by <span class="mono">12</span>. What was the whole number, and what was the remainder?</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer">Full groups: <span class="mono">37</span><br><span class="mono">12 &times; 37 = 444</span><br><span class="mono">0.25</span> is a quarter of a group.<br>A quarter of <span class="mono">12</span> is <span class="mono">3</span>.<br>Remainder: <span class="mono">3</span><br>Number: <span class="mono">444 + 3 = 447</span><br>Check: <span class="mono">447 ÷ 12 = 37.25</span></div></div>
+          <div class="bw-card"><div class="bw-story">A different display shows <span class="mono">15.4</span> after dividing by <span class="mono">5</span>. Find the remainder without dividing again.</div><button class="bw-reveal-btn" onclick="toggleBW(this)">Show Answer</button>
+            <div class="bw-answer"><span class="mono">0.4</span> of a group of <span class="mono">5</span>:<br><span class="mono">0.4 &times; 5 = 2</span><br>Remainder: <span class="mono">2</span><br>(The number was <span class="mono">5 &times; 15 + 2 = 77</span>.)</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 12 of 12</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+<script>
+// ── ENGINE: maths, generators and answer checking (no DOM; tested in node) ──
+function calcDisplay(a, b) {
+  var s = (a / b).toPrecision(10);
+  if (s.indexOf('.') >= 0) { s = s.replace(/0+$/, '').replace(/\.$/, ''); }
+  return s;
+}
+function fmt(n) { return Number(n).toLocaleString('en-GB'); }
+function M(x) { return '<span class="mono">' + x + '</span>'; }
+function rnd(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+function decDigits(disp) { var i = disp.indexOf('.'); return i < 0 ? '' : disp.slice(i + 1); }
+function parseIn(raw) {
+  var s = String(raw == null ? '' : raw).replace(/[,\s]/g, '');
+  if (s === '') return null;
+  if (/^\d+$/.test(s)) return Number(s);
+  return NaN;
+}
+function shown(raw) {
+  var s = String(raw == null ? '' : raw).trim();
+  return s === '' ? '(blank)' : s.replace(/</g, '&lt;');
+}
+// True if val matches the digits after the decimal point (or the start of them)
+function isDecimalDigits(val, disp) {
+  var dec = decDigits(disp);
+  if (!dec || val === null || isNaN(val) || val <= 0) return false;
+  for (var k = 1; k <= dec.length; k++) {
+    if (Number(dec.slice(0, k)) === val) return true;
+  }
+  return false;
+}
+
+// Every dividend used elsewhere in this lesson (practice never repeats them)
+var USED_DIVIDENDS = [250, 240, 1000, 984, 960, 4567, 4554, 4600, 3960, 594, 365, 360, 364, 350, 2000, 1980, 1800,
+  1512, 864, 77, 75, 47, 44, 38, 35, 63, 60, 211, 208, 210, 212, 447, 444, 130, 120, 200, 195, 96, 100, 500, 480,
+  1200, 1184, 1110, 2345, 2340, 2400, 1560, 780, 840, 800, 720];
+function isUsed(n) { return USED_DIVIDENDS.indexOf(n) >= 0; }
+
+// ── DIAGNOSTICS (each returns { ok, msg }) ──
+function diagGroups(raw, n, d) {
+  var val = parseIn(raw), q = Math.floor(n / d), disp = calcDisplay(n, d);
+  if (val === q) return { ok: true, msg: 'Full groups: ' + M(fmt(q)) + '. That is the whole-number part of ' + M(disp) + '.' };
+  if (val === null) return { ok: false, msg: 'Full groups: you wrote (blank). Read the whole-number part of the display, the digits before the point: ' + M(fmt(q)) + '.' };
+  if (val === q + 1 && n % d !== 0) return { ok: false, msg: 'Full groups: you wrote ' + M(shown(raw)) + '. That is rounding up. Full groups means only the whole-number part of the display, so there are ' + M(fmt(q)) + ' full groups.' };
+  if (isDecimalDigits(val, disp)) return { ok: false, msg: 'Full groups: you wrote ' + M(shown(raw)) + '. Those are digits after the decimal point. The full groups are the whole-number part: ' + M(fmt(q)) + '.' };
+  return { ok: false, msg: 'Full groups: you wrote ' + M(shown(raw)) + '. The whole-number part of ' + M(disp) + ' is ' + M(fmt(q)) + ', so there are ' + M(fmt(q)) + ' full groups.' };
+}
+function diagProduct(raw, n, d) {
+  var val = parseIn(raw), q = Math.floor(n / d), P = d * q;
+  if (val === P) return { ok: true, msg: 'Multiply back: ' + M(d + ' &times; ' + fmt(q) + ' = ' + fmt(P)) + '.' };
+  var pre = 'Multiply back: you wrote ' + M(shown(raw)) + '. ';
+  if (val === null) return { ok: false, msg: 'Multiply back: you wrote (blank). Multiply the divisor by the full groups: ' + M(d + ' &times; ' + fmt(q) + ' = ' + fmt(P)) + '.' };
+  if (val === n) return { ok: false, msg: pre + 'That is the number you started with. Multiply the divisor by the full groups: ' + M(d + ' &times; ' + fmt(q) + ' = ' + fmt(P)) + '.' };
+  if (val === d * (q + 1)) return { ok: false, msg: pre + 'You multiplied by ' + M(fmt(q + 1)) + '. Use the full groups, ' + M(fmt(q)) + ': ' + M(d + ' &times; ' + fmt(q) + ' = ' + fmt(P)) + '.' };
+  return { ok: false, msg: pre + M(d + ' &times; ' + fmt(q) + ' = ' + fmt(P)) + '.' };
+}
+function multiplyBackText(n, d) {
+  var q = Math.floor(n / d), P = d * q;
+  return 'Multiply back: ' + M(d + ' &times; ' + fmt(q) + ' = ' + fmt(P)) + ', then ' + M(fmt(n) + ' &minus; ' + fmt(P) + ' = ' + fmt(n - P)) + '.';
+}
+function diagRemainder(raw, n, d) {
+  var val = parseIn(raw), q = Math.floor(n / d), r = n - d * q, disp = calcDisplay(n, d);
+  if (val === r) return { ok: true, msg: 'Remainder: ' + M(fmt(r)) + (r === 0 ? '. The display is a whole number, so nothing is left over.' : '. It is smaller than ' + M(d) + ', so it cannot make another group.') };
+  if (val === null) return { ok: false, msg: 'Remainder: you wrote (blank). ' + multiplyBackText(n, d) };
+  if (isDecimalDigits(val, disp)) return { ok: false, msg: 'You wrote ' + M(shown(raw)) + ' as the remainder. Those are the digits after the decimal point, not the remainder. ' + multiplyBackText(n, d) };
+  if (val >= d) return { ok: false, msg: 'Remainder: you wrote ' + M(shown(raw)) + ', but a remainder must be smaller than the divisor, ' + M(d) + '. If that many were left, you could make another group. ' + multiplyBackText(n, d) };
+  if (val === 0) return { ok: false, msg: 'Remainder: you wrote ' + M('0') + ', but the display has digits after the decimal point, so something is left over. ' + multiplyBackText(n, d) };
+  if (r === 0) return { ok: false, msg: 'Remainder: you wrote ' + M(shown(raw)) + '. The display shows a whole number, so nothing is left over. The remainder is ' + M('0') + '.' };
+  return { ok: false, msg: 'Remainder: you wrote ' + M(shown(raw)) + '. ' + multiplyBackText(n, d) };
+}
+function diagEstimate(raw, item) {
+  var val = parseIn(raw);
+  if (val !== null && !isNaN(val) && val >= item.lo && val <= item.hi) {
+    return { ok: true, msg: 'Estimate: ' + M(fmt(val)) + ' is sensible. ' + item.radar };
+  }
+  return { ok: false, msg: 'Estimate: you wrote ' + M(shown(raw)) + '. ' + (val !== null && !isNaN(val) && val > item.hi ? 'That is too big. ' : (val !== null && !isNaN(val) ? 'That is too small. ' : '')) + 'Round to friendly numbers first. ' + item.radar };
+}
+
+// ── WE DO DATA ──
+var WEDO = [
+  { n: 365, d: 14, lo: 20, hi: 36, ctx: 'A fortnight is <strong>14</strong> days. How many full fortnights are in <strong>365</strong> days?',
+    radar: 'For example, ' + M('350 &divide; 14 = 25') + ' or ' + M('360 &divide; 12 = 30') + ', so about ' + M('25') + ' to ' + M('30') + '.' },
+  { n: 2000, d: 36, lo: 45, hi: 70, ctx: 'Divide <strong>2,000</strong> by <strong>36</strong>.',
+    radar: 'For example, ' + M('2,000 &divide; 40 = 50') + ' or ' + M('1,800 &divide; 36 = 50') + ', so about ' + M('50') + ' to ' + M('60') + '.' },
+  { n: 1512, d: 18, lo: 70, hi: 105, ctx: 'Divide <strong>1,512</strong> by <strong>18</strong>.',
+    radar: 'For example, ' + M('1,600 &divide; 20 = 80') + ' or ' + M('1,800 &divide; 18 = 100') + ', so about ' + M('80') + ' to ' + M('100') + '.' }
+];
+
+// ── PRACTICE GENERATORS ──
+function genLevel1Item(exact) {
+  for (var tries = 0; tries < 1000; tries++) {
+    var d = rnd(11, 19), n;
+    if (exact) { n = d * rnd(Math.ceil(100 / d), Math.floor(399 / d)); }
+    else { n = rnd(100, 399); if (n % d === 0) continue; }
+    if (isUsed(n)) continue;
+    return { level: 1, n: n, d: d, q: Math.floor(n / d), r: n % d, disp: calcDisplay(n, d) };
+  }
+}
+
+var STORIES = {
+  up: [
+    { dLo: 40, dHi: 49, nLo: 300, nHi: 1500, unit: 'buses', text: function (n, d) { return M(fmt(n)) + ' students are going to the athletics carnival. Each bus has ' + M(d) + ' seats. How many buses are needed?'; },
+      decision: 'Everyone needs a seat, so round up.', left: function (r) { return M(r) + ' students would have no seat'; } },
+    { dLo: 20, dHi: 36, nLo: 300, nHi: 2999, unit: 'boxes', text: function (n, d) { return 'A library is packing ' + M(fmt(n)) + ' books into boxes. Each box holds ' + M(d) + ' books. How many boxes are needed to pack every book?'; },
+      decision: 'Every book must be packed, so round up.', left: function (r) { return M(r) + ' books would not be packed'; } },
+    { dLo: 12, dHi: 16, nLo: 300, nHi: 900, unit: 'tables', text: function (n, d) { return M(fmt(n)) + ' guests are coming to the school fete dinner. Each table seats ' + M(d) + ' people. How many tables are needed?'; },
+      decision: 'Every guest needs a seat, so round up.', left: function (r) { return M(r) + ' guests would have no seat'; } }
+  ],
+  down: [
+    { dLo: 12, dHi: 12, nLo: 300, nHi: 2999, unit: 'cartons', text: function (n, d) { return 'A farm collected ' + M(fmt(n)) + ' eggs. Eggs are packed in cartons of ' + M(d) + '. How many full cartons can be packed?'; },
+      decision: 'Only full cartons count, so round down.', left: function (r) { return 'the last ' + M(r) + ' eggs cannot fill a carton'; } },
+    { dLo: 15, dHi: 30, nLo: 300, nHi: 1500, unit: 'packs', text: function (n, d) { return M(fmt(n)) + ' pencils are put into packs of ' + M(d) + '. How many full packs can be made?'; },
+      decision: 'Only full packs count, so round down.', left: function (r) { return 'the last ' + M(r) + ' pencils cannot make a full pack'; } },
+    { dLo: 25, dHi: 45, nLo: 300, nHi: 2999, unit: 'bows', text: function (n, d) { return 'A roll of ribbon is ' + M(fmt(n)) + ' cm long. Each bow needs ' + M(d) + ' cm of ribbon. How many bows can be made?'; },
+      decision: 'You cannot make a bow from a piece that is too short, so round down.', left: function (r) { return 'the last ' + M(r) + ' cm is too short for a bow'; } }
+  ],
+  rem: [
+    { dLo: 12, dHi: 24, nLo: 300, nHi: 999, unit: 'cards left over', text: function (n, d) { return M(fmt(n)) + ' trading cards are shared equally between ' + M(d) + ' players. How many cards are left over?'; },
+      decision: 'The question asks what is left over, so the remainder is the answer.', each: 'cards each player gets' },
+    { dLo: 12, dHi: 30, nLo: 300, nHi: 2999, unit: 'seeds left over', text: function (n, d) { return M(fmt(n)) + ' sunflower seeds are shared equally between ' + M(d) + ' classes. How many seeds are left over?'; },
+      decision: 'The question asks what is left over, so the remainder is the answer.', each: 'seeds each class gets' },
+    { dLo: 20, dHi: 40, nLo: 300, nHi: 2999, unit: 'beads left over', text: function (n, d) { return M(fmt(n)) + ' beads are threaded into necklaces of ' + M(d) + ' beads each. How many beads are left over?'; },
+      decision: 'The question asks what is left over, so the remainder is the answer.', each: 'full necklaces' }
+  ]
+};
+
+function genLevel2Item(type) {
+  var list = STORIES[type];
+  for (var tries = 0; tries < 1000; tries++) {
+    var s = list[rnd(0, list.length - 1)];
+    var d = rnd(s.dLo, s.dHi), n = rnd(s.nLo, s.nHi);
+    if (n % d === 0 || isUsed(n)) continue;
+    var q = Math.floor(n / d), r = n % d;
+    if (q === r) continue; // keep groups and leftovers distinguishable
+    var ans = type === 'up' ? q + 1 : (type === 'down' ? q : r);
+    return { level: 2, type: type, story: s, n: n, d: d, q: q, r: r, answer: ans, disp: calcDisplay(n, d), text: s.text(n, d) };
+  }
+}
+
+function genLevel3Item() {
+  for (var tries = 0; tries < 1000; tries++) {
+    var d = rnd(12, 48);
+    if (d % 10 === 0) continue;
+    var qMax = Math.floor(9999 / d);
+    if (qMax < 100) continue;
+    var q = rnd(100, qMax), r = rnd(0, d - 1), n = d * q + r;
+    if (n < 1000 || n > 9999 || isUsed(n)) continue;
+    var tens = d - d % 10, ones = d % 10;
+    return { level: 3, n: n, d: d, q: q, r: r, tens: tens, ones: ones, p1: q * tens, p2: q * ones, total: d * q, disp: calcDisplay(n, d) };
+  }
+}
+
+function generateSet(level) {
+  var set = [], seen = {};
+  var exactPos = rnd(0, 3);
+  var types = ['up', 'down', 'rem', ['up', 'down', 'rem'][rnd(0, 2)]];
+  types.sort(function () { return Math.random() - 0.5; });
+  while (set.length < 4) {
+    var i = set.length, item;
+    if (level === 1) item = genLevel1Item(i === exactPos);
+    else if (level === 2) item = genLevel2Item(types[i]);
+    else item = genLevel3Item();
+    var key = item.n + '/' + item.d;
+    if (seen[key]) continue;
+    seen[key] = true;
+    set.push(item);
+  }
+  return set;
+}
+
+// ── CHECKING ──
+function checkItem(item, inputs) {
+  var res = {}, n = item.n, d = item.d;
+  if (item.level === 'wedo') {
+    res.est = diagEstimate(inputs.est, item);
+    res.groups = diagGroups(inputs.groups, n, d);
+    res.product = diagProduct(inputs.product, n, d);
+    res.rem = diagRemainder(inputs.rem, n, d);
+  } else if (item.level === 1) {
+    res.groups = diagGroups(inputs.groups, n, d);
+    res.product = diagProduct(inputs.product, n, d);
+    res.rem = diagRemainder(inputs.rem, n, d);
+  } else if (item.level === 2) {
+    res.groups = diagGroups(inputs.groups, n, d);
+    res.rem = diagRemainder(inputs.rem, n, d);
+    res.answer = diagStory(inputs.answer, item);
+  } else if (item.level === 3) {
+    res.groups = diagGroups(inputs.groups, n, d);
+    res.p1 = diagPart(inputs.p1, item.q, item.tens, true);
+    res.p2 = diagPart(inputs.p2, item.q, item.ones, false);
+    res.total = diagTotal(inputs.total, item, inputs);
+    res.rem = diagCheckRem(inputs.rem, item, inputs);
+  }
+  var all = true;
+  for (var k in res) if (!res[k].ok) all = false;
+  return { fields: res, allOk: all };
+}
+
+function diagStory(raw, item) {
+  var val = parseIn(raw), s = item.story, q = item.q, r = item.r, C = item.answer;
+  var pre = 'Answer: you wrote ' + M(shown(raw)) + '. ';
+  if (val === C) {
+    if (item.type === 'up') return { ok: true, msg: 'Answer: ' + M(fmt(C)) + ' ' + s.unit + '. ' + s.decision + ' Otherwise ' + s.left(r) + '.' };
+    if (item.type === 'down') return { ok: true, msg: 'Answer: ' + M(fmt(C)) + ' ' + s.unit + '. ' + s.decision + ' ' + s.left(r).charAt(0).toUpperCase() + s.left(r).slice(1) + '.' };
+    return { ok: true, msg: 'Answer: ' + M(fmt(C)) + ' ' + s.unit + '. ' + s.decision };
+  }
+  if (val === null) return { ok: false, msg: 'Answer: you wrote (blank). ' + s.decision + ' The answer is ' + M(fmt(C)) + ' ' + s.unit + '.' };
+  if (item.type === 'up' && val === q) return { ok: false, msg: pre + 'With ' + M(fmt(q)) + ' ' + s.unit + ', ' + s.left(r) + '. ' + s.decision + ' ' + M(fmt(q) + ' + 1 = ' + fmt(C)) + ' ' + s.unit + '.' };
+  if (item.type === 'down' && val === q + 1) return { ok: false, msg: pre + 'That counts a part-filled one. ' + s.left(r).charAt(0).toUpperCase() + s.left(r).slice(1) + '. ' + s.decision + ' The answer is ' + M(fmt(C)) + ' ' + s.unit + '.' };
+  if (item.type === 'rem' && val === q) return { ok: false, msg: pre + 'That is the number of ' + s.each + '. ' + s.decision + ' The answer is ' + M(fmt(C)) + '.' };
+  if (isDecimalDigits(val, item.disp)) return { ok: false, msg: pre + 'Those are the digits after the decimal point. ' + s.decision + ' The answer is ' + M(fmt(C)) + ' ' + s.unit + '.' };
+  return { ok: false, msg: pre + 'The display gives ' + M(fmt(q)) + ' full groups with ' + M(fmt(r)) + ' left over. ' + s.decision + ' The answer is ' + M(fmt(C)) + ' ' + s.unit + '.' };
+}
+
+function diagPart(raw, q, part, isTens) {
+  var val = parseIn(raw), P = q * part, label = isTens ? 'Tens part' : 'Ones part';
+  if (val === P) return { ok: true, msg: label + ': ' + M(fmt(q) + ' &times; ' + part + ' = ' + fmt(P)) + '.' };
+  if (val === null) return { ok: false, msg: label + ': you wrote (blank). ' + M(fmt(q) + ' &times; ' + part + ' = ' + fmt(P)) + '.' };
+  if (isTens && val === q * (part / 10)) return { ok: false, msg: label + ': you wrote ' + M(shown(raw)) + '. You multiplied by ' + M(part / 10) + ', but this part is worth ' + M(part) + '. ' + M(fmt(q) + ' &times; ' + part + ' = ' + fmt(P)) + '.' };
+  return { ok: false, msg: label + ': you wrote ' + M(shown(raw)) + '. ' + M(fmt(q) + ' &times; ' + part + ' = ' + fmt(P)) + '.' };
+}
+function diagTotal(raw, item, inputs) {
+  var val = parseIn(raw), T = item.total;
+  if (val === T) return { ok: true, msg: 'Total: ' + M(fmt(item.p1) + ' + ' + fmt(item.p2) + ' = ' + fmt(T)) + '.' };
+  if (val === null) return { ok: false, msg: 'Total: you wrote (blank). Add the two parts: ' + M(fmt(item.p1) + ' + ' + fmt(item.p2) + ' = ' + fmt(T)) + '.' };
+  var a = parseIn(inputs.p1), b = parseIn(inputs.p2);
+  if (a !== null && b !== null && !isNaN(a) && !isNaN(b) && val === a + b) return { ok: false, msg: 'Total: you wrote ' + M(shown(raw)) + '. Your adding is right, but one of your parts is wrong. ' + M(fmt(item.p1) + ' + ' + fmt(item.p2) + ' = ' + fmt(T)) + '.' };
+  return { ok: false, msg: 'Total: you wrote ' + M(shown(raw)) + '. ' + M(fmt(item.p1) + ' + ' + fmt(item.p2) + ' = ' + fmt(T)) + '.' };
+}
+function diagCheckRem(raw, item, inputs) {
+  var val = parseIn(raw), r = item.r, T = item.total, n = item.n, d = item.d;
+  var fix = M(fmt(n) + ' &minus; ' + fmt(T) + ' = ' + fmt(r)) + ', and ' + M(fmt(T) + ' + ' + fmt(r) + ' = ' + fmt(n)) + '.';
+  if (val === r) return { ok: true, msg: 'Remainder: ' + M(fmt(T) + ' + ' + fmt(r) + ' = ' + fmt(n)) + '. That makes the dividend, so the check works.' };
+  if (val === null) return { ok: false, msg: 'Remainder: you wrote (blank). ' + fix };
+  if (isDecimalDigits(val, item.disp)) return { ok: false, msg: 'You wrote ' + M(shown(raw)) + ' as the remainder. Those are the digits after the decimal point, not the remainder. ' + fix };
+  var t = parseIn(inputs.total);
+  if (t !== null && !isNaN(t) && t !== T && val === n - t && val >= 0) return { ok: false, msg: 'Remainder: you wrote ' + M(shown(raw)) + '. That matches your total, but your total is not right, so the check does not work. ' + fix };
+  if (val >= d) return { ok: false, msg: 'Remainder: you wrote ' + M(shown(raw)) + ', but a remainder must be smaller than the divisor, ' + M(d) + '. ' + fix };
+  return { ok: false, msg: 'Remainder: you wrote ' + M(shown(raw)) + '. ' + fix };
+}
+
+// ── HINTS (up to 3, general to specific) ──
+function getHints(item) {
+  var n = item.n, d = item.d, q = item.q;
+  if (item.level === 1) return [
+    'The full groups are the digits <strong>before</strong> the decimal point in ' + M(item.disp) + '.',
+    'Multiply back: ' + M(d + ' &times; ' + fmt(q)) + '. Use your calculator if you need to.',
+    'Subtract your product from ' + M(fmt(n)) + '. What is left is the remainder. It must be smaller than ' + M(d) + '.'
+  ];
+  if (item.level === 2) return [
+    'Read the display. The whole-number part is the number of full groups.',
+    'Find the remainder: ' + M(d + ' &times; ' + fmt(q)) + ', then subtract that from ' + M(fmt(n)) + '.',
+    item.type === 'up' ? 'Think about the leftovers. Can they be left behind? If not, you need one more.'
+      : item.type === 'down' ? 'Can the leftovers make a full one? If not, they do not count.'
+      : 'Read the question again. Does it ask how many groups, or how many are left over?'
+  ];
+  return [
+    'The full groups from the display go on the left of the area model.',
+    'Split ' + M(d) + ' into ' + M(item.tens) + ' and ' + M(item.ones) + '. Multiply ' + M(fmt(q)) + ' by each part.',
+    'Add the two parts to get the total. Then ' + M(fmt(n)) + ' minus your total is the remainder.'
+  ];
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = { calcDisplay: calcDisplay, fmt: fmt, parseIn: parseIn, isDecimalDigits: isDecimalDigits, USED_DIVIDENDS: USED_DIVIDENDS,
+    WEDO: WEDO, genLevel1Item: genLevel1Item, genLevel2Item: genLevel2Item, genLevel3Item: genLevel3Item, generateSet: generateSet,
+    checkItem: checkItem, getHints: getHints, STORIES: STORIES };
+}
+
+// ── SLIDES AND NAVIGATION ──
+const slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: "Lily's Calculator", section: 'Hook' },
+  { id: 'slide-2', title: 'The Big Idea', section: 'Hook' },
+  { id: 'slide-3', title: 'The Four-Step Routine', section: 'I Do' },
+  { id: 'slide-4', title: 'Example 1: 1,000 ÷ 24', section: 'I Do' },
+  { id: 'slide-5', title: 'Example 2: 4,567 ÷ 23', section: 'I Do' },
+  { id: 'slide-6', title: 'Two Key Ideas', section: 'I Do' },
+  { id: 'slide-7', title: 'Q1: 365 ÷ 14', section: 'We Do' },
+  { id: 'slide-8', title: 'Q2: 2,000 ÷ 36', section: 'We Do' },
+  { id: 'slide-9', title: 'Q3: 1,512 ÷ 18', section: 'We Do' },
+  { id: 'slide-10', title: 'Independent Practice', section: 'Practice' },
+  { id: 'slide-11', title: 'In Your Book', section: 'Practice' }
+];
+const sectionToPhase = { 'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido', 'We Do': 'wedo', 'Practice': 'practice' };
+let currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+  window.scrollTo(0, 0);
+}
+function goToPhase(sectionName) {
+  const idx = slides.findIndex(s => s.section === sectionName);
+  if (idx >= 0) goToSlide(idx);
+}
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+function updateNavButtons() {
+  const slide = document.querySelector('.slide.active');
+  const prevBtn = slide.querySelector('.slide-nav .nav-btn:first-of-type');
+  const nextBtn = slide.querySelector('.slide-nav .nav-btn:last-of-type');
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  const counter = slide.querySelector('.slide-counter');
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+function updatePhaseNav() {
+  const phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector('.phase-btn[data-phase="' + phase + '"]');
+  if (btn) btn.classList.add('active');
+}
+function updateSidebarActive() {
+  const items = document.querySelectorAll('.sidebar-item');
+  items.forEach(item => item.classList.remove('active'));
+  if (items[currentSlide]) items[currentSlide].classList.add('active');
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+function setHeaderHeight() {
+  const h = document.querySelector('header');
+  const nav = document.getElementById('phaseNav');
+  const total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── STAGED REVEALS (teacher controlled) ──
+// Each stage lists what to show (and hide), and the text for the NEXT button press.
+const ARROW = ' ' + String.fromCharCode(8594);
+const STAGES = {
+  hk: [
+    { show: ['hk-calc'], next: 'What does Lily say?' },
+    { show: ['hk-lily', 'hk-q'], next: 'Run the Radar' },
+    { show: ['hk-radar'], next: 'Multiply back' },
+    { show: ['hk-mult'], next: 'Subtract to find what is left' },
+    { show: ['hk-sub'], next: 'Can 83 be the remainder?' },
+    { show: ['hk-verdict'] }
+  ],
+  rt: [
+    { show: ['rt-1'], next: 'Show step 2: Calculate' },
+    { show: ['rt-2'], next: 'Show step 3: Multiply back and subtract' },
+    { show: ['rt-3'], next: 'Show step 4: Check by hand' },
+    { show: ['rt-4'] }
+  ],
+  e1: [
+    { show: ['e1-radar'], next: 'Press the buttons' },
+    { show: ['e1-calc'], next: 'Read the full groups' },
+    { show: ['e1-groups'], next: 'Multiply back' },
+    { show: ['e1-mult'], next: 'Subtract to find the remainder' },
+    { show: ['e1-sub'], next: 'Write the answer' },
+    { show: ['e1-ans'], next: 'Check by hand: draw the area model' },
+    { show: ['e1-am-head', 'e1-am'], next: 'Add the dimensions' },
+    { show: ['e1-top-full', 'e1-side'], next: 'Split 41 into 40 and 1' },
+    { hide: ['e1-unsplit'], show: ['e1-split'], next: 'Calculate 40 × 24' },
+    { show: ['e1-c1'], next: 'Calculate 1 × 24' },
+    { show: ['e1-c2'], next: 'Add the parts' },
+    { show: ['e1-r1'], next: 'Add the remainder' },
+    { show: ['e1-r2', 'e1-r3'] }
+  ],
+  e2: [
+    { show: ['e2-radar'], next: 'Press the buttons' },
+    { show: ['e2-calc'], next: 'Read the full groups' },
+    { show: ['e2-groups'], next: 'Multiply back' },
+    { show: ['e2-mult'], next: 'Subtract to find the remainder' },
+    { show: ['e2-sub'], next: 'Write the answer' },
+    { show: ['e2-ans'], next: 'Check by hand: draw the area model' },
+    { show: ['e2-am-head', 'e2-am'], next: 'Add the dimensions' },
+    { show: ['e2-top-full', 'e2-side'], next: 'Split 23 into 20 and 3' },
+    { hide: ['e2-unsplit'], show: ['e2-split'], next: 'Calculate 198 × 20' },
+    { show: ['e2-c1'], next: 'Calculate 198 × 3' },
+    { show: ['e2-c2'], next: 'Add the parts' },
+    { show: ['e2-r1'], next: 'Add the remainder' },
+    { show: ['e2-r2', 'e2-r3'] }
+  ],
+  ki: [
+    { show: ['ki-1'], next: 'Show key idea 2' },
+    { show: ['ki-2'] }
+  ]
+};
+const stagePos = {};
+function stageNext(key) {
+  const list = STAGES[key];
+  const i = stagePos[key] || 0;
+  if (i >= list.length) return;
+  const st = list[i];
+  (st.hide || []).forEach(id => { document.getElementById(id).hidden = true; });
+  (st.show || []).forEach(id => {
+    const el = document.getElementById(id);
+    el.hidden = false;
+    el.classList.add('show');
+  });
+  stagePos[key] = i + 1;
+  const btn = document.getElementById(key + '-btn');
+  if (st.next) btn.textContent = st.next + ARROW;
+  else btn.style.display = 'none';
+}
+
+// ── SHARED UI HELPERS ──
+function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function markInput(id, ok) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('correct', 'wrong');
+  el.classList.add(ok ? 'correct' : 'wrong');
+}
+function calcHTML(n, d, small) {
+  const disp = calcDisplay(n, d);
+  const dot = disp.indexOf('.');
+  const digits = dot < 0 ? '<span class="whole">' + disp + '</span>' : '<span class="whole">' + disp.slice(0, dot) + '</span>' + disp.slice(dot);
+  return '<div class="calc' + (small ? ' small' : '') + '"><div class="calc-brand"><span>Class Calculator</span><span class="solar"></span></div>' +
+    '<div class="calc-screen"><div class="calc-expr">' + n + '÷' + d + '=</div><div class="calc-digits">' + digits + '</div></div></div>';
+}
+function inRow(label, id, extra, after) {
+  return '<div class="in-row"><span class="in-label">' + label + '</span>' + (extra || '') +
+    '<input type="text" inputmode="numeric" autocomplete="off" class="ia-input" id="' + id + '" placeholder="?">' + (after || '') + '</div>';
+}
+
+// ── WE DO ──
+function buildWeDo() {
+  WEDO.forEach(function (p, idx) {
+    const c = document.getElementById('wd-' + idx);
+    c.innerHTML =
+      '<p class="problem-ctx">' + p.ctx + '</p>' +
+      '<div class="equation-box">' + fmt(p.n) + ' ÷ ' + p.d + '</div>' +
+      '<div class="two-col" style="gap:32px;">' +
+        '<div>' +
+          '<div class="step-head">Step 1: Radar estimate (before any buttons)</div>' +
+          inRow('My estimate:', 'wd-est-' + idx) +
+          '<button class="check-btn" id="wd-estbtn-' + idx + '" onclick="checkWeDoEst(' + idx + ')">Check estimate</button>' +
+          '<div class="feedback" id="wd-estfb-' + idx + '"></div>' +
+          '<div id="wd-calc-' + idx + '" hidden><div class="step-head" style="margin-top:12px;">Step 2: The calculator display</div>' + calcHTML(p.n, p.d, true) + '</div>' +
+        '</div>' +
+        '<div id="wd-steps-' + idx + '" hidden>' +
+          '<div class="step-head">Steps 2 and 3: Full groups and remainder</div>' +
+          inRow('Full groups:', 'wd-groups-' + idx) +
+          inRow('Multiply back:', 'wd-product-' + idx, '<span class="mono">' + p.d + ' &times; full groups =</span>') +
+          inRow('Remainder:', 'wd-rem-' + idx, '<span class="mono">' + fmt(p.n) + ' &minus; product =</span>') +
+          '<button class="check-btn" id="wd-checkbtn-' + idx + '" onclick="checkWeDo(' + idx + ')">Check</button>' +
+          '<div class="feedback" id="wd-fb-' + idx + '"></div>' +
+        '</div>' +
+      '</div>';
+  });
+}
+function checkWeDoEst(idx) {
+  const p = Object.assign({ level: 'wedo' }, WEDO[idx]);
+  const r = diagEstimate(val('wd-est-' + idx), p);
+  markInput('wd-est-' + idx, r.ok);
+  const fb = document.getElementById('wd-estfb-' + idx);
+  fb.className = 'feedback show ' + (r.ok ? 'correct' : 'incorrect');
+  fb.innerHTML = (r.ok ? '<strong>Good Radar.</strong> ' : '<strong>Not quite.</strong> ') + r.msg + ' Now press the buttons.';
+  document.getElementById('wd-est-' + idx).disabled = true;
+  document.getElementById('wd-estbtn-' + idx).disabled = true;
+  document.getElementById('wd-calc-' + idx).hidden = false;
+  document.getElementById('wd-steps-' + idx).hidden = false;
+}
+function checkWeDo(idx) {
+  const p = Object.assign({ level: 'wedo' }, WEDO[idx]);
+  const inputs = { est: val('wd-est-' + idx), groups: val('wd-groups-' + idx), product: val('wd-product-' + idx), rem: val('wd-rem-' + idx) };
+  const res = checkItem(p, inputs);
+  ['groups', 'product', 'rem'].forEach(k => markInput('wd-' + k + '-' + idx, res.fields[k].ok));
+  const allOk = res.fields.groups.ok && res.fields.product.ok && res.fields.rem.ok;
+  const fb = document.getElementById('wd-fb-' + idx);
+  fb.className = 'feedback show ' + (allOk ? 'correct' : 'incorrect');
+  const q = Math.floor(p.n / p.d), r = p.n - p.d * q;
+  let html = (allOk ? '<strong>Correct.</strong>' : '<strong>Not quite.</strong>') + '<br>' +
+    [res.fields.groups.msg, res.fields.product.msg, res.fields.rem.msg].join('<br>');
+  html += '<br>Answer: ' + M(fmt(p.n) + ' ÷ ' + p.d + ' = ' + fmt(q) + ' r ' + r) + '.';
+  if (r === 0) html += '<br>Check: ' + M(fmt(q) + ' &times; ' + p.d + ' = ' + fmt(p.n)) + '.';
+  fb.innerHTML = html;
+  ['groups', 'product', 'rem'].forEach(k => { document.getElementById('wd-' + k + '-' + idx).disabled = true; });
+  document.getElementById('wd-checkbtn-' + idx).disabled = true;
+}
+
+// ── PRACTICE ──
+let currentLevel = 1, pqSet = [], pqIdx = 0, pqResults = [], hintsUsed = 0, pqChecked = false;
+const levelFields = { 1: ['groups', 'product', 'rem'], 2: ['groups', 'rem', 'answer'], 3: ['groups', 'p1', 'p2', 'total', 'rem'] };
+const levelNames = { 1: 'Read the display', 2: 'Calculator stories', 3: 'Check by hand' };
+
+function startLevel(level) {
+  if (level > 3) level = 3;
+  currentLevel = level;
+  pqSet = generateSet(level);
+  pqIdx = 0; pqResults = [];
+  document.querySelectorAll('.level-btn').forEach((b, i) => b.classList.toggle('active', i + 1 === level));
+  document.getElementById('practice-area').hidden = false;
+  document.getElementById('pq-summary').classList.remove('show');
+  document.getElementById('pq-card').style.display = 'block';
+  const dots = document.getElementById('pq-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = 'pq-dot-' + i; d.textContent = i + 1;
+    dots.appendChild(d);
+  }
+  showPQ();
+}
+
+function showPQ() {
+  const it = pqSet[pqIdx];
+  hintsUsed = 0; pqChecked = false;
+  let h = '<div class="pq-label">Level ' + currentLevel + ': ' + levelNames[currentLevel] + ' · Question ' + (pqIdx + 1) + ' of 4</div>';
+  if (it.level === 1) {
+    h += '<div class="pq-prompt">Your partner divides ' + M(fmt(it.n)) + ' by ' + M(it.d) + ' on the calculator. Use the display to find the full groups and the remainder.</div>' +
+      '<div class="two-col" style="gap:28px;"><div>' + calcHTML(it.n, it.d, true) + '</div><div>' +
+      inRow('Full groups:', 'pi-groups') +
+      inRow('Multiply back:', 'pi-product', M(it.d + ' &times; full groups =')) +
+      inRow('Remainder:', 'pi-rem', M(fmt(it.n) + ' &minus; product =')) + '</div></div>';
+  } else if (it.level === 2) {
+    h += '<div class="pq-prompt">' + it.text + '</div>' +
+      '<div class="two-col" style="gap:28px;"><div>' + calcHTML(it.n, it.d, true) + '</div><div>' +
+      inRow('Full groups:', 'pi-groups') +
+      inRow('Remainder:', 'pi-rem') +
+      inRow('Answer to the story:', 'pi-answer') + '</div></div>';
+  } else {
+    h += '<div class="pq-prompt">Divide ' + M(fmt(it.n)) + ' by ' + M(it.d) + '. Read the full groups from the display, then check by hand with an area model.</div>' +
+      '<div class="two-col" style="gap:28px;"><div>' + calcHTML(it.n, it.d, true) + inRow('Full groups:', 'pi-groups') + '</div><div>' +
+      '<div class="area-model-container mini-am"><div class="area-model">' +
+        '<div class="area-section filled" style="flex:1;"><div class="area-top-label">' + it.tens + '</div>' +
+          '<input type="text" inputmode="numeric" autocomplete="off" class="ia-input" id="pi-p1" placeholder="?"></div>' +
+        '<div class="area-section filled" style="flex:1;"><div class="area-top-label">' + it.ones + '</div>' +
+          '<input type="text" inputmode="numeric" autocomplete="off" class="ia-input" id="pi-p2" placeholder="?"></div>' +
+      '</div><div class="area-side-label" id="pi-side">?</div></div>' +
+      inRow('Add the two parts:', 'pi-total', M('total =')) +
+      inRow('Add the remainder:', 'pi-rem', M('total +'), M('= ' + fmt(it.n))) +
+      '</div></div>';
+  }
+  h += '<div class="pq-actions"><button class="check-btn" id="pq-check" onclick="checkPQ()">Check</button>' +
+    '<button class="hint-btn" id="pq-hint" onclick="showHint()">Need a hint?</button>' +
+    '<button class="btn btn-dark" id="pq-next" style="display:none;margin:0;" onclick="nextPQ()">Next &rarr;</button></div>' +
+    '<div class="hint-display" id="pq-hintbox"></div>' +
+    '<div class="feedback" id="pq-fb"></div>';
+  document.getElementById('pq-card').innerHTML = h;
+  if (it.level === 3) {
+    document.getElementById('pi-groups').addEventListener('input', function () {
+      const v = parseIn(this.value);
+      document.getElementById('pi-side').textContent = (v === null || isNaN(v)) ? '?' : fmt(v);
+    });
+  }
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('pq-dot-' + i);
+    d.classList.toggle('current', i === pqIdx && pqResults[i] === undefined);
+  }
+}
+
+function showHint() {
+  if (pqChecked || hintsUsed >= 3) return;
+  const hints = getHints(pqSet[pqIdx]);
+  hintsUsed++;
+  const box = document.getElementById('pq-hintbox');
+  box.innerHTML = hints.slice(0, hintsUsed).map((t, i) => '<strong>Hint ' + (i + 1) + ':</strong> ' + t).join('<br>');
+  box.classList.add('show');
+  if (hintsUsed >= 3) { const b = document.getElementById('pq-hint'); b.disabled = true; b.textContent = 'No more hints'; }
+}
+
+function checkPQ() {
+  if (pqChecked) return;
+  const it = pqSet[pqIdx];
+  const inputs = {};
+  levelFields[it.level].forEach(f => { inputs[f] = val('pi-' + f); });
+  const res = checkItem(it, inputs);
+  levelFields[it.level].forEach(f => { markInput('pi-' + f, res.fields[f].ok); document.getElementById('pi-' + f).disabled = true; });
+  const fb = document.getElementById('pq-fb');
+  fb.className = 'feedback show ' + (res.allOk ? 'correct' : 'incorrect');
+  fb.innerHTML = (res.allOk ? '<strong>Correct.</strong>' : '<strong>Not quite.</strong>') + '<br>' +
+    levelFields[it.level].map(f => res.fields[f].msg).join('<br>');
+  pqChecked = true;
+  pqResults[pqIdx] = res.allOk;
+  const dot = document.getElementById('pq-dot-' + pqIdx);
+  dot.classList.remove('current'); dot.classList.add(res.allOk ? 'green' : 'red');
+  document.getElementById('pq-check').disabled = true;
+  document.getElementById('pq-hint').disabled = true;
+  const nb = document.getElementById('pq-next');
+  nb.style.display = 'inline-block';
+  nb.innerHTML = pqIdx === 3 ? 'See my score &rarr;' : 'Next &rarr;';
+}
+
+function nextPQ() {
+  pqIdx++;
+  if (pqIdx >= 4) { showPQSummary(); return; }
+  showPQ();
+}
+
+function showPQSummary() {
+  document.getElementById('pq-card').style.display = 'none';
+  const correct = pqResults.filter(r => r).length;
+  const score = document.getElementById('pq-score');
+  score.textContent = correct + ' / 4';
+  score.style.color = correct >= 3 ? 'var(--green-dark)' : correct >= 2 ? 'var(--amber-dark)' : 'var(--red)';
+  document.getElementById('pq-sum-title').textContent = 'Level ' + currentLevel + ' complete';
+  document.getElementById('pq-message').textContent = correct === 4 ? 'Excellent. You can read the display and find the remainder every time.'
+    : correct >= 2 ? 'Good effort. Look back at the feedback, then try again with new numbers.'
+    : 'Go back over Examples 1 and 2, then have another go.';
+  document.getElementById('level-' + currentLevel + '-btn').classList.add('completed');
+  document.getElementById('pq-nextlevel').hidden = currentLevel >= 3;
+  document.getElementById('pq-summary').classList.add('show');
+  if (currentLevel === 3) {
+    unlockGoDeeper();
+    document.getElementById('pq-godeeper').hidden = false;
+  }
+}
+
+// ── GO DEEPER ──
+let goUnlocked = false;
+function unlockGoDeeper() {
+  if (goUnlocked) return;
+  goUnlocked = true;
+  const card = document.getElementById('go-deeper-card');
+  card.classList.remove('locked');
+  card.disabled = false;
+  card.querySelector('.lock-icon').innerHTML = '&#x1F513;';
+  card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+}
+function openGoDeeper() {
+  if (!goUnlocked) return;
+  const s = document.getElementById('go-deeper-section');
+  s.style.display = 'block';
+  s.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── BOOK WORK ──
+function toggleBW(btn) {
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? 'Hide Answer' : 'Show Answer';
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function () {
+  buildWeDo();
+  goToSlide(0);
+  setHeaderHeight();
+  document.addEventListener('keydown', function (e) {
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      if (e.key === 'Enter' && e.target.closest('#pq-card') && !pqChecked) checkPQ();
+      return;
+    }
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+});
+window.addEventListener('resize', setHeaderHeight);
+</script>
+</body>
+</html>
