@@ -397,6 +397,34 @@
     .card { padding: 20px 18px; }
     .ex-grid, .hook-grid, .fact-stage, .wd-grid, .yd-grid, .compare-row { grid-template-columns: 1fr; }
   }
+
+  /* Pivot card: labelled division */
+  .pv-grid { display: grid; grid-template-columns: 1fr 1.9fr; gap: 22px; margin-top: 14px; }
+  .pv-panel { border-radius: 16px; padding: 18px 22px; border: 3px solid #e2e8f0; background: #fff; }
+  .pv-panel.then { border-color: #cbd5e1; background: #f8fafc; }
+  .pv-panel.now { border-color: var(--teal); }
+  .pv-panel h4 { font-size: 1.3rem; margin-bottom: 10px; }
+  .pv-hide { opacity: 0; transition: opacity 0.4s; }
+  .pv-hide.show { opacity: 1; }
+  .pv-row { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 26px; margin: 4px 0; }
+  .pv-small { font-size: 1.15rem; color: #445; margin-top: 6px; }
+  .pv-eq { display: flex; align-items: flex-start; justify-content: center; gap: 18px; margin: 6px 0 4px; }
+  .pv-term { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
+  .pv-num { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 54px; line-height: 1.1; padding: 2px 16px; border-radius: 14px; border: 3px solid transparent; }
+  .pv-op { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 48px; padding-top: 6px; color: var(--muted); }
+  .pv-lab { margin-top: 6px; text-align: center; }
+  .pv-lab .w { display: inline-block; color: #fff; font-weight: 700; border-radius: 20px; padding: 3px 14px; font-size: 1.05rem; letter-spacing: 0.5px; }
+  .pv-lab .m { display: block; font-size: 1rem; color: #445; margin-top: 4px; line-height: 1.3; }
+  .pv-dividend .pv-num { color: var(--teal-dark); border-color: var(--teal); background: #e8f8f6; }
+  .pv-dividend .w { background: var(--teal-dark); }
+  .pv-divisor .pv-num { color: var(--blue-dark); border-color: var(--blue); background: #eef6ff; }
+  .pv-divisor .w { background: var(--blue-dark); }
+  .pv-quotient .pv-num { color: var(--green-dark); border-color: var(--green); background: #eafaf1; }
+  .pv-quotient .w { background: var(--green-dark); }
+  .pv-steps { margin-top: 10px; display: grid; gap: 8px; }
+  .pv-step { background: #f8fafc; border-radius: 12px; padding: 8px 16px; font-size: 1.25rem; }
+  .pv-step .mono { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 24px; }
+  .c-dvd { color: var(--teal-dark); } .c-dvs { color: var(--blue-dark); } .c-quo { color: var(--green-dark); }
 </style>
 </head>
 <body>
@@ -582,24 +610,43 @@
   <!-- SLIDE 3: HOOK - The Pivot -->
   <div class="slide" id="slide-3">
     <div class="card">
-      <h3>The Pivot</h3>
-      <div class="big-idea">
-        <p>Last term we used our Radar for <strong>products</strong>.</p>
-        <p style="margin-top:6px;">This week we turn it on for <strong>quotients</strong>.</p>
-      </div>
-      <div class="compare-row">
-        <div class="compare-card then">
+      <h3>The Pivot: the Radar works for division too</h3>
+      <div class="pv-grid">
+        <div class="pv-panel then">
           <h4>Last term: Radar for products</h4>
-          <p>Before we multiplied, we rounded to friendly numbers to see roughly how big the product would be.</p>
+          <div class="pv-row">49 &times; 6</div>
+          <div class="pv-small">Round to a friendly number:</div>
+          <div class="pv-row">49 &rarr; 50</div>
+          <div class="pv-row">50 &times; 6 = 300</div>
+          <div class="pv-small">So the <strong>product</strong> is about <strong>300</strong>.</div>
         </div>
-        <div class="compare-card now">
+        <div class="pv-panel now">
           <h4>This week: Radar for quotients</h4>
-          <p>Before you divide, find a <strong>multiple of the divisor</strong> that is <strong>close to the dividend</strong>. Then divide that friendly number instead.</p>
+          <div class="pv-eq">
+            <div class="pv-term pv-dividend"><div class="pv-num">323</div>
+              <div class="pv-lab pv-hide" id="pv-l1"><span class="w">DIVIDEND</span><span class="m">the number being divided</span></div></div>
+            <div class="pv-op">&divide;</div>
+            <div class="pv-term pv-divisor"><div class="pv-num">8</div>
+              <div class="pv-lab pv-hide" id="pv-l2"><span class="w">DIVISOR</span><span class="m">the number we divide by</span></div></div>
+            <div class="pv-op">=</div>
+            <div class="pv-term pv-quotient"><div class="pv-num" id="pv-q">?</div>
+              <div class="pv-lab pv-hide" id="pv-l3"><span class="w">QUOTIENT</span><span class="m">the answer</span></div></div>
+          </div>
+          <div class="pv-steps">
+            <div class="pv-step pv-hide" id="pv-s1">Find a multiple of the <strong class="c-dvs">divisor</strong> that is close to the <strong class="c-dvd">dividend</strong>:
+              <span class="mono"><span class="c-dvs">8</span> &times; 40 = <span class="c-dvd">320</span></span>. 320 is very close to 323.</div>
+            <div class="pv-step pv-hide" id="pv-s2">Divide the friendly number instead:
+              <span class="mono"><span class="c-dvd">320</span> &divide; <span class="c-dvs">8</span> = <span class="c-quo">40</span></span>. So the <strong class="c-quo">quotient</strong> is about <strong class="c-quo">40</strong>.</div>
+          </div>
         </div>
+      </div>
+      <div class="reveal-row" style="margin-top:14px;">
+        <button class="am-reveal-btn" id="pv-btn" onclick="nextPivot()">Label the dividend &rarr;</button>
+        <span class="stage-count" id="pv-count">Step 1 of 6</span>
       </div>
       <div class="book-note">
         <span class="bn-tag">Learn this</span>
-        <p>"Before I divide, I find a multiple of the divisor close to the dividend."</p>
+        <p><strong class="c-dvd">dividend</strong> &divide; <strong class="c-dvs">divisor</strong> = <strong class="c-quo">quotient</strong>. "Before I divide, I find a multiple of the divisor close to the dividend."</p>
       </div>
     </div>
     <div class="slide-nav">
@@ -1197,6 +1244,26 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   window.addEventListener('resize', setHeaderHeight);
 });
+
+var pvStage = 0;
+var pvSteps = [
+  ['pv-l1', 'Label the divisor &rarr;'],
+  ['pv-l2', 'Label the quotient &rarr;'],
+  ['pv-l3', 'Find a friendly multiple &rarr;'],
+  ['pv-s1', 'Estimate the quotient &rarr;'],
+  ['pv-s2', null]
+];
+function nextPivot() {
+  if (pvStage >= pvSteps.length) return;
+  var st = pvSteps[pvStage];
+  document.getElementById(st[0]).classList.add('show');
+  if (st[0] === 'pv-s2') { var q = document.getElementById('pv-q'); q.innerHTML = 'about 40'; q.style.fontSize = '38px'; q.style.padding = '12px 16px'; }
+  pvStage++;
+  var btn = document.getElementById('pv-btn');
+  if (st[1]) { btn.innerHTML = st[1]; } else { btn.textContent = 'All steps shown'; btn.disabled = true; }
+  document.getElementById('pv-count').textContent = 'Step ' + (pvStage + 1) + ' of 6';
+  if (pvStage === pvSteps.length) document.getElementById('pv-count').textContent = 'Step 6 of 6';
+}
 </script>
 </body>
 </html>
