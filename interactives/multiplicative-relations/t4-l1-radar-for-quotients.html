@@ -425,6 +425,35 @@
   .pv-step { background: #f8fafc; border-radius: 12px; padding: 8px 16px; font-size: 1.25rem; }
   .pv-step .mono { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 24px; }
   .c-dvd { color: var(--teal-dark); } .c-dvs { color: var(--blue-dark); } .c-quo { color: var(--green-dark); }
+
+  /* I DO v2: calm step rows */
+  .xe-head { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-bottom: 10px; }
+  .xe-head h3 { margin-bottom: 0; }
+  .xe-eq { display: flex; align-items: flex-start; gap: 14px; }
+  .xe-eq .pv-num { font-size: 44px; padding: 0 14px; }
+  .xe-eq .pv-op { font-size: 40px; padding-top: 2px; }
+  .xe-eq .pv-term { min-width: 90px; }
+  .xe-eq .pv-lab { margin-top: 4px; }
+  .xe-eq .pv-lab .w { font-size: 0.85rem; padding: 2px 10px; }
+  .xe-narr { font-size: 1.4rem; line-height: 1.5; padding: 10px 18px; border-left: 5px solid var(--teal); background: #f8fafc; border-radius: 10px; min-height: 52px; margin-bottom: 12px; }
+  .xe-rows { display: grid; gap: 10px; }
+  .xe-row { display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 18px; padding: 8px 0; border-bottom: 1px solid #eef2f6; animation: fadeIn 0.4s ease; }
+  .xe-row:last-child { border-bottom: none; }
+  .xe-label { font-size: 1.2rem; font-weight: 700; color: var(--muted); }
+  .xe-big { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 34px; }
+  .xe-front { background: #fff3c4; border-radius: 8px; padding: 0 6px; box-shadow: inset 0 -4px 0 var(--amber); }
+  .xe-dim { color: #b8c2cc; }
+  .xe-words { font-size: 1.35rem; margin-left: 14px; }
+  .xe-tt { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .xe-chip { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 28px; padding: 4px 14px; border-radius: 12px; background: #eef6ff; color: var(--blue-dark); opacity: 0; transform: translateY(6px); transition: all 0.3s ease; }
+  .xe-chip.on { opacity: 1; transform: none; }
+  .xe-chip.hit { background: var(--blue-dark); color: #fff; }
+  .xe-chip.pin { background: #e8f8f6; color: var(--teal-dark); border: 3px dashed var(--teal); font-size: 24px; }
+  .xe-nl { width: 100%; max-width: 900px; height: auto; display: block; }
+  .xe-nl .num { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .xe-est { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 32px; color: #8a6400; background: #fff7d6; border-radius: 12px; padding: 4px 16px; display: inline-block; }
+  .xe-ans { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 32px; color: var(--green-dark); }
+  .xe-ok { display: inline-block; margin-left: 16px; background: #eafaf1; color: var(--green-dark); border: 2px solid var(--green); border-radius: 20px; padding: 4px 14px; font-weight: 700; font-size: 1.1rem; }
 </style>
 </head>
 <body>
@@ -1026,115 +1055,114 @@ function nextHook2() {
   renderHook2();
 }
 
-// ── I DO WORKED EXAMPLES (staged) ──
+// ── I DO WORKED EXAMPLES (staged, v2: front digits and times table) ──
 var examples = {
-  ex1: {
-    title: 'Example 1', N: 172, d: 4, lo: 160, hi: 200, loK: 40, hiK: 50, closer: 'lo',
-    dist: [['172 − 160 = 12', true], ['200 − 172 = 28', false]],
-    est: 'E: about 40', estNote: 'a bit more than 40',
-    calc: ['172 ÷ 4 = 43'], check: ['4 × 43 = 172'],
-    verdictLabel: 'Radar confirmed',
-    verdict: '<strong>43</strong> is a bit more than <strong>40</strong>, just like our estimate. This answer is reasonable.',
-    narr: {
-      start: 'Here is our division. Before we calculate, we turn on the Radar.',
-      chips: 'The <strong>dividend</strong> is the number we are dividing: <strong>172</strong>. The <strong>divisor</strong> is the number we divide by: <strong>4</strong>.',
-      line: 'I look for multiples of <strong>4</strong> near <strong>172</strong>. <strong>4 × 40 = 160</strong> and <strong>4 × 50 = 200</strong>.',
-      pin: '<strong>172</strong> sits between <strong>160</strong> and <strong>200</strong>. Which one is it closer to?',
-      near: '<strong>172</strong> is closer to <strong>160</strong>, so the answer is a bit more than <strong>40</strong>.',
-      est: 'I write <strong>E:</strong> and my estimate before I calculate. About <strong>40</strong>, a bit more.',
-      calc: 'Now I calculate. <strong>172 ÷ 4 = 43</strong>.',
-      verdict: 'Radar confirmed. <strong>43</strong> is a bit more than <strong>40</strong>.'
-    },
-    btnLine: 'Find nearby multiples of 4', btnPin: 'Mark 172 on the line',
-    book: 'Copy the number line. Write E: about 40, then 172 ÷ 4 = 43.'
-  },
-  ex2: {
-    title: 'Example 2', N: 538, d: 6, lo: 480, hi: 540, loK: 80, hiK: 90, closer: 'hi',
-    dist: [['540 − 538 = 2', true], ['538 − 480 = 58', false]],
-    est: 'E: about 90', estNote: 'a little under 90',
-    calc: ['538 ÷ 6 = 89 r 4'], check: ['6 × 89 = 534', '534 + 4 = 538'],
-    verdictLabel: 'Reasonable',
-    verdict: '<strong>89</strong> remainder <strong>4</strong> is a little under <strong>90</strong>, just like our estimate. This answer is reasonable.',
-    narr: {
-      start: 'Here is our next division. Radar first, then calculate.',
-      chips: 'The <strong>dividend</strong> is <strong>538</strong>. The <strong>divisor</strong> is <strong>6</strong>.',
-      line: 'I look for multiples of <strong>6</strong> near <strong>538</strong>. <strong>6 × 80 = 480</strong> and <strong>6 × 90 = 540</strong>.',
-      pin: '<strong>538</strong> sits between <strong>480</strong> and <strong>540</strong>. Which one is it closer to?',
-      near: '<strong>538</strong> is just under <strong>540</strong>, so the answer is a little under <strong>90</strong>.',
-      est: 'I write <strong>E:</strong> and my estimate. About <strong>90</strong>, a little under.',
-      calc: 'Now I calculate. <strong>538 ÷ 6 = 89</strong> remainder <strong>4</strong>.',
-      verdict: 'Reasonable. <strong>89</strong> remainder <strong>4</strong> is a little under <strong>90</strong>.'
-    },
-    btnLine: 'Find nearby multiples of 6', btnPin: 'Mark 538 on the line',
-    book: 'Copy the number line. Write E: about 90, then 538 ÷ 6 = 89 r 4.'
-  },
-  ex3: {
-    title: 'Example 3: A 4-digit number', N: 2915, d: 7, lo: 2800, hi: 3500, loK: 400, hiK: 500, closer: 'lo',
-    dist: [['2,915 − 2,800 = 115', true], ['3,500 − 2,915 = 585', false]],
-    est: 'E: about 400', estNote: 'a bit more than 400',
-    calc: ['2,915 ÷ 7 = 416 r 3'], check: ['7 × 416 = 2,912', '2,912 + 3 = 2,915'],
-    verdictLabel: 'Reasonable',
-    verdict: '<strong>416</strong> remainder <strong>3</strong> is a bit more than <strong>400</strong>, just like our estimate. This answer is reasonable.',
-    narr: {
-      start: 'A 4-digit dividend. The Radar works the same way.',
-      chips: 'The <strong>dividend</strong> is <strong>2,915</strong>. The <strong>divisor</strong> is <strong>7</strong>.',
-      line: 'I look for multiples of <strong>7</strong> near <strong>2,915</strong>. <strong>7 × 400 = 2,800</strong> and <strong>7 × 500 = 3,500</strong>.',
-      pin: '<strong>2,915</strong> sits between <strong>2,800</strong> and <strong>3,500</strong>. Which one is it closer to?',
-      near: '<strong>2,915</strong> is just past <strong>2,800</strong>, so the answer is a bit more than <strong>400</strong>.',
-      est: 'I write <strong>E:</strong> and my estimate. About <strong>400</strong>, a bit more.',
-      calc: 'Now I calculate. <strong>2,915 ÷ 7 = 416</strong> remainder <strong>3</strong>.',
-      verdict: 'Reasonable. <strong>416</strong> remainder <strong>3</strong> is a bit more than <strong>400</strong>.'
-    },
-    btnLine: 'Find nearby multiples of 7', btnPin: 'Mark 2,915 on the line',
-    book: 'Copy the number line. Write E: about 400, then 2,915 ÷ 7 = 416 r 3.'
-  }
+  ex1: { title: 'Example 1', N: 172, d: 4, front: '17', rest: '2', unit: 'tens', unitMul: 10,
+    lo: 16, hi: 20, closer: 'lo', loK: 40, hiK: 50,
+    estText: 'a bit more than 40', estShort: 'about 40', ans: '43', check: '4 × 43 = 172',
+    near: '<strong>172</strong> is closer to <strong>160</strong>, so the quotient is a bit more than <strong>40</strong>.',
+    verdict: '<strong>43</strong> is a bit more than <strong>40</strong>. Radar confirmed.',
+    book: 'Write E: a bit more than 40. Then 172 ÷ 4 = 43.' },
+  ex2: { title: 'Example 2', N: 538, d: 6, front: '53', rest: '8', unit: 'tens', unitMul: 10,
+    lo: 48, hi: 54, closer: 'hi', loK: 80, hiK: 90,
+    estText: 'a little under 90', estShort: 'about 90', ans: '89 r 4', check: '6 × 89 + 4 = 538',
+    near: '<strong>538</strong> is just under <strong>540</strong>, so the quotient is a little under <strong>90</strong>.',
+    verdict: '<strong>89</strong> remainder <strong>4</strong> is a little under <strong>90</strong>. Reasonable.',
+    book: 'Write E: a little under 90. Then 538 ÷ 6 = 89 r 4.' },
+  ex3: { title: 'Example 3', N: 2915, d: 7, front: '29', rest: '15', unit: 'hundreds', unitMul: 100,
+    lo: 28, hi: 35, closer: 'lo', loK: 400, hiK: 500,
+    estText: 'a bit more than 400', estShort: 'about 400', ans: '416 r 3', check: '7 × 416 + 3 = 2,915',
+    near: '<strong>2,915</strong> is just past <strong>2,800</strong>, so the quotient is a bit more than <strong>400</strong>.',
+    verdict: '<strong>416</strong> remainder <strong>3</strong> is a bit more than <strong>400</strong>. Reasonable.',
+    book: 'Write E: a bit more than 400. Then 2,915 ÷ 7 = 416 r 3.' }
 };
 var exState = {};
+
+function xeLine(ex) {
+  var loV = ex.lo * ex.unitMul, hiV = ex.hi * ex.unitMul, N = ex.N;
+  var x0 = 80, x1 = 820, xN = x0 + (x1 - x0) * (N - loV) / (hiV - loV);
+  return '<svg class="xe-nl" viewBox="0 0 900 150">' +
+    '<line x1="' + x0 + '" y1="70" x2="' + x1 + '" y2="70" stroke="#2D3436" stroke-width="4"/>' +
+    '<line x1="' + x0 + '" y1="55" x2="' + x0 + '" y2="85" stroke="#2176ae" stroke-width="4"/>' +
+    '<line x1="' + x1 + '" y1="55" x2="' + x1 + '" y2="85" stroke="#2176ae" stroke-width="4"/>' +
+    '<text class="num" x="' + x0 + '" y="115" text-anchor="middle" font-size="28" fill="#2D3436">' + fmt(loV) + '</text>' +
+    '<text class="num" x="' + x0 + '" y="143" text-anchor="middle" font-size="20" fill="#2176ae">' + ex.d + ' × ' + ex.loK + '</text>' +
+    '<text class="num" x="' + x1 + '" y="115" text-anchor="middle" font-size="28" fill="#2D3436">' + fmt(hiV) + '</text>' +
+    '<text class="num" x="' + x1 + '" y="143" text-anchor="middle" font-size="20" fill="#2176ae">' + ex.d + ' × ' + ex.hiK + '</text>' +
+    '<circle cx="' + xN + '" cy="70" r="11" fill="#38b2aa"/>' +
+    '<text class="num" x="' + xN + '" y="36" text-anchor="middle" font-size="28" fill="#38b2aa">' + fmt(N) + '</text>' +
+    '</svg>';
+}
 
 function buildExample(key) {
   var ex = examples[key];
   var card = document.getElementById(key);
+  var Nf = fmt(ex.N);
+  // split formatted dividend into front digits and the rest, keeping the comma
+  var frontLen = 0, cnt = 0, frontHtml = '', restHtml = '';
+  for (var i = 0; i < Nf.length; i++) {
+    var ch = Nf[i];
+    if (cnt < ex.front.length) { frontHtml += ch; if (ch !== ',') cnt++; }
+    else restHtml += ch;
+  }
   card.innerHTML =
-    '<div class="title-row"><h3>' + ex.title + '</h3><div class="equation-box">' + fmt(ex.N) + ' ÷ ' + ex.d + '</div>' +
-      '<div class="anchor"><span class="anchor-tag">Think aloud</span><span class="anchor-text">"I look for a multiple of the divisor that sits close to the dividend."</span></div></div>' +
-    '<div class="narration" id="' + key + '-narr"></div>' +
-    '<div class="ex-grid">' +
-      '<div>' +
-        '<div class="chip-row" id="' + key + '-chips"></div>' +
-        '<div class="nl-wrap"><div class="panel-title">Multiples of ' + ex.d + ' on a number line</div>' +
-          '<svg class="nl-svg" id="' + key + '-nl" viewBox="0 0 1000 230">' + exLineSVG(ex) + '</svg></div>' +
-        '<div class="callout callout-green hide" id="' + key + '-verdict" style="margin-top:12px;"><span class="label">' + ex.verdictLabel + '</span><p>' + ex.verdict + '</p></div>' +
-      '</div>' +
-      '<div>' +
-        '<div class="dist-box hide" id="' + key + '-dist"><div class="panel-title">How far away?</div>' +
-          ex.dist.map(function(r) { return '<div class="dist-row' + (r[1] ? ' near' : '') + '">' + r[0] + '</div>'; }).join('') + '</div>' +
-        '<div class="radar-box hide" id="' + key + '-est"><div class="panel-title">Radar estimate</div>' +
-          '<div class="est-big">' + ex.est + '</div><div class="est-note">(' + ex.estNote + ')</div></div>' +
-        '<div class="answer-box hide" id="' + key + '-answer"><div class="panel-title">Calculate</div>' +
-          ex.calc.map(function(r) { return '<div class="answer-row-line">' + r + '</div>'; }).join('') +
-          '<div class="panel-title" style="margin-top:4px;">Check</div>' +
-          ex.check.map(function(r) { return '<div class="answer-row-line">' + r + '</div>'; }).join('') + '</div>' +
-      '</div>' +
+    '<div class="xe-head"><h3>' + ex.title + '</h3>' +
+      '<div class="xe-eq">' +
+        '<div class="pv-term pv-dividend"><div class="pv-num">' + Nf + '</div><div class="pv-lab"><span class="w">DIVIDEND</span></div></div>' +
+        '<div class="pv-op">÷</div>' +
+        '<div class="pv-term pv-divisor"><div class="pv-num">' + ex.d + '</div><div class="pv-lab"><span class="w">DIVISOR</span></div></div>' +
+        '<div class="pv-op">=</div>' +
+        '<div class="pv-term pv-quotient"><div class="pv-num" id="' + key + '-q">?</div><div class="pv-lab"><span class="w">QUOTIENT</span></div></div>' +
+      '</div></div>' +
+    '<div class="xe-narr" id="' + key + '-narr"></div>' +
+    '<div class="xe-rows">' +
+      '<div class="xe-row hide" id="' + key + '-r1"><div class="xe-label">1. Look at the front</div>' +
+        '<div><span class="xe-big"><span class="xe-front">' + frontHtml + '</span><span class="xe-dim">' + restHtml + '</span></span>' +
+        '<span class="xe-words"><strong>' + ex.front + '</strong> ' + ex.unit + '</span></div></div>' +
+      '<div class="xe-row hide" id="' + key + '-r2"><div class="xe-label">2. Count in ' + ex.d + 's</div>' +
+        '<div class="xe-tt" id="' + key + '-tt"></div></div>' +
+      '<div class="xe-row hide" id="' + key + '-r3"><div class="xe-label">3. Make them ' + ex.unit + '</div>' +
+        '<div>' + xeLine(ex) + '</div></div>' +
+      '<div class="xe-row hide" id="' + key + '-r4"><div class="xe-label">4. Estimate</div>' +
+        '<div><span class="xe-est">E: ' + ex.estText + '</span></div></div>' +
+      '<div class="xe-row hide" id="' + key + '-r5"><div class="xe-label">5. Calculate</div>' +
+        '<div><span class="xe-ans">' + Nf + ' ÷ ' + ex.d + ' = ' + ex.ans + '</span><span class="xe-ok">Reasonable</span></div></div>' +
     '</div>' +
     '<div class="book-note hide" id="' + key + '-book"><span class="bn-tag">Mini-whiteboard</span><p>' + ex.book + '</p></div>' +
     '<div class="reveal-row"><button class="am-reveal-btn" id="' + key + '-btn" onclick="nextExample(\'' + key + '\')"></button><span class="stage-count" id="' + key + '-count"></span></div>';
 
+  var loV = fmt(ex.lo * ex.unitMul), hiV = fmt(ex.hi * ex.unitMul);
   ex.stages = [
-    { narr: ex.narr.start, btn: 'Label the dividend and divisor' },
-    { narr: ex.narr.chips, btn: ex.btnLine, run: function() {
-        document.getElementById(key + '-chips').innerHTML =
-          '<span class="vchip dividend"><span class="vchip-word">dividend</span><span class="mono">' + fmt(ex.N) + '</span></span>' +
-          '<span class="vchip divisor"><span class="vchip-word">divisor</span><span class="mono">' + ex.d + '</span></span>';
-      } },
-    { narr: ex.narr.line, btn: ex.btnPin, run: function() { nlOn(key + '-nl', 'line'); } },
-    { narr: ex.narr.pin, btn: 'Which multiple is closer?', run: function() { nlOn(key + '-nl', 'pin'); } },
-    { narr: ex.narr.near, btn: 'Make the estimate', run: function() { nlOn(key + '-nl', 'near'); show(key + '-dist'); } },
-    { narr: ex.narr.est, btn: 'Calculate', run: function() { show(key + '-est'); } },
-    { narr: ex.narr.calc, btn: 'Is it reasonable?', run: function() { show(key + '-answer'); } },
-    { narr: ex.narr.verdict, btn: null, run: function() { show(key + '-verdict'); show(key + '-book'); } }
+    { narr: 'Radar first. What is the <strong>dividend</strong>? What is the <strong>divisor</strong>?', btn: 'Look at the front digits' },
+    { narr: 'I look at the front of the dividend: <strong>' + ex.front + '</strong>. In ' + Nf + ' that means <strong>' + ex.front + ' ' + ex.unit + '</strong>.',
+      btn: 'Count in ' + ex.d + 's', run: function() { show(key + '-r1'); } },
+    { narr: 'I count in <strong>' + ex.d + 's</strong> until I pass <strong>' + ex.front + '</strong>. <strong>' + ex.lo + '</strong> is just under, <strong>' + ex.hi + '</strong> is just over.',
+      btn: 'Make them ' + ex.unit, run: function() { show(key + '-r2'); xeCount(key); } },
+    { narr: '<strong>' + ex.lo + ' ' + ex.unit + '</strong> is <strong>' + loV + '</strong>. <strong>' + ex.hi + ' ' + ex.unit + '</strong> is <strong>' + hiV + '</strong>. ' + Nf + ' sits between them.',
+      btn: 'Make the estimate', run: function() { show(key + '-r3'); } },
+    { narr: ex.near, btn: 'Calculate', run: function() { show(key + '-r4'); document.getElementById(key + '-q').textContent = ex.estShort; } },
+    { narr: ex.verdict, btn: null, run: function() { show(key + '-r5'); show(key + '-book'); document.getElementById(key + '-q').textContent = ex.ans; } }
   ];
   exState[key] = 0;
   renderExample(key);
+}
+
+function xeCount(key) {
+  var ex = examples[key], tt = document.getElementById(key + '-tt');
+  tt.innerHTML = '';
+  var chips = [];
+  for (var m = ex.d; m <= ex.hi; m += ex.d) {
+    var c = document.createElement('span'); c.className = 'xe-chip'; c.textContent = m;
+    if (m === ex.lo || m === ex.hi) c.dataset.hit = '1';
+    tt.appendChild(c); chips.push(c);
+    if (m === ex.lo) {
+      var pin = document.createElement('span'); pin.className = 'xe-chip pin'; pin.textContent = ex.front + ' is here';
+      pin.dataset.pin = '1'; tt.appendChild(pin); chips.push(pin);
+    }
+  }
+  chips.forEach(function(c, i) {
+    setTimeout(function() { c.classList.add('on'); if (c.dataset.hit) c.classList.add('hit'); }, 250 * i);
+  });
 }
 
 function renderExample(key) {
