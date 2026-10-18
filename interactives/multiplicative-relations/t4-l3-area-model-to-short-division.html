@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 3: From Area Model to Short Division - Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #4ECDC4;
+    --teal-dark: #38b2aa;
+    --amber: #FFD93D;
+    --amber-dark: #e0b030;
+    --red: #FF6B6B;
+    --red-dark: #c0392b;
+    --orange: #FF8400;
+    --blue: #3498DB;
+    --blue-dark: #2176ae;
+    --green: #2ECC71;
+    --green-dark: #1a9c51;
+    --purple: #9B5DE5;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #f1f5f9;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 20px;
+    --green-light: #e8f8e8;
+    --red-light: #fff4f4;
+    --pv-h: #0891b2;
+    --pv-t: #059669;
+    --pv-o: #65a30d;
+    --pv-th: #1d4ed8;
+    --header-h: 120px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Fredoka', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: #2D3436; color: #fff;
+    padding: 12px 32px; position: relative; overflow: hidden; z-index: 300;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; position: relative; z-index: 1; white-space: nowrap; }
+  header h1 span { color: var(--orange); }
+  .back-link {
+    margin-left: auto; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; white-space: nowrap; position: relative; z-index: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* PHASE NAV BAR */
+  .phase-nav {
+    background: #3d4347; display: flex; align-items: center;
+    padding: 0; position: sticky; top: 0; z-index: 280;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-toggle {
+    background: none; border: none; border-right: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7); font-size: 22px;
+    cursor: pointer; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .phase-btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    padding: 14px 24px; transition: all 0.2s ease; position: relative;
+    white-space: nowrap;
+  }
+  .phase-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+  .phase-btn.active { color: #fff; }
+  .phase-btn.active::after {
+    content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+    height: 3px; background: var(--teal); border-radius: 3px 3px 0 0;
+  }
+  .phase-btn[data-phase="learning"].active::after { background: var(--red); }
+  .phase-btn[data-phase="hook"].active::after { background: var(--amber); }
+  .phase-btn[data-phase="ido"].active::after { background: var(--teal); }
+  .phase-btn[data-phase="wedo"].active::after { background: var(--green); }
+  .phase-btn[data-phase="practice"].active::after { background: var(--orange); }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #2D3436; color: #fff; z-index: 200;
+    overflow-y: auto; transition: width 0.3s ease;
+    padding-top: var(--header-h);
+  }
+  .sidebar.collapsed { width: 0; overflow: hidden; }
+  .sidebar-content { padding: 20px 0; }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal); padding: 12px 18px 8px;
+    text-align: left;
+  }
+  .sidebar-item {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-family: 'Fredoka', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; padding: 10px 18px; width: 100%; text-align: left;
+    transition: all 0.2s ease; display: block;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(78,205,196,0.15); color: #fff; border-left: 4px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* MAIN LAYOUT (full projector width) */
+  main {
+    margin-left: 260px; transition: margin-left 0.3s ease;
+    padding: 32px 60px 40px;
+  }
+  main.sidebar-collapsed { margin-left: 0; }
+
+  /* SLIDES */
+  .slide {
+    display: none; animation: fadeIn 0.4s ease;
+    width: 100%; max-width: 1500px; margin: 0 auto;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 30px 48px;
+    border: 2px solid var(--border); margin-bottom: 0;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .card.lisc-card { border-top: 5px solid var(--red); }
+  .card h2 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+  .card p, .card li { font-size: 1.35rem; line-height: 1.7; color: #445; font-weight: 400; }
+  .card ul { padding-left: 28px; }
+  .card ul li { margin-bottom: 8px; }
+
+  /* LISC Card */
+  .lisc-content p, .lisc-content li { font-size: 1.4rem; }
+  .lisc-content h3 { font-size: 1.5rem; margin-top: 18px; margin-bottom: 8px; color: #2D3436; }
+  .lisc-content h3:first-of-type { margin-top: 0; }
+
+  /* Slide Nav */
+  .slide-nav {
+    display: flex; gap: 16px; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    background: var(--text); color: #fff; border: none; border-radius: 30px;
+    padding: 14px 32px; font-family: 'Fredoka', sans-serif; font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #444; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .slide-counter { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  .mono { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .muted { color: var(--muted); }
+  .hide { display: none !important; }
+
+  /* TITLE ROW */
+  .title-row { display: flex; align-items: center; gap: 28px; margin-bottom: 14px; flex-wrap: wrap; }
+  .title-row h3 { margin-bottom: 0; }
+
+  /* REVEAL BUTTONS */
+  .am-reveal-btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 30px;
+    padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-reveal-btn:hover:not(:disabled) { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .am-reveal-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .am-reveal-btn.green { background: var(--green-dark); }
+  .am-reveal-btn.green:hover:not(:disabled) { background: #14803f; }
+  .am-reveal-btn.amber { background: var(--amber-dark); }
+  .am-reveal-btn.amber:hover:not(:disabled) { background: #c79a20; }
+  .am-reveal-btn.ghost { background: #fff; color: var(--blue-dark); border: 2px solid var(--blue); }
+  .am-reveal-btn.ghost:hover:not(:disabled) { background: #eef6ff; }
+  .reveal-row { display: flex; align-items: center; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+  .stage-count { font-size: 15px; font-weight: 600; color: var(--muted); }
+
+  /* CALLOUTS */
+  .callout { border-radius: 12px; padding: 12px 18px; margin: 10px 0; animation: fadeIn 0.35s ease; }
+  .callout .label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; display: block; }
+  .card .callout p { font-size: 1.25rem; line-height: 1.5; }
+  .callout-amber { background: #fffbf0; border-left: 5px solid var(--amber); }
+  .callout-amber .label { color: var(--amber-dark); }
+  .callout-teal { background: #e8f8f6; border-left: 5px solid var(--teal); }
+  .callout-teal .label { color: var(--teal-dark); }
+  .callout-blue { background: #eef6ff; border-left: 5px solid var(--blue); }
+  .callout-blue .label { color: var(--blue-dark); }
+  .callout-green { background: #e8f8e8; border-left: 5px solid var(--green); }
+  .callout-green .label { color: var(--green-dark); }
+
+  /* BOOK NOTE STRIP (what to write: book, mini-whiteboard, laptop, learn) */
+  .book-note {
+    display: flex; align-items: center; gap: 14px; background: #f3edff;
+    border: 2px solid var(--purple); border-radius: 14px; padding: 10px 18px; margin-top: 14px;
+  }
+  .book-note .bn-tag {
+    background: var(--purple); color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1.5px;
+    text-transform: uppercase; border-radius: 20px; padding: 4px 12px; white-space: nowrap;
+  }
+  .card .book-note p { font-size: 1.25rem; line-height: 1.5; color: #3b2a5c; }
+
+  /* BIG IDEA */
+  .big-idea {
+    background: linear-gradient(135deg, #fff7e0 0%, #ffe9d6 100%); border-radius: 18px;
+    padding: 26px 36px; text-align: center; border: 2px solid #ffd9a8;
+  }
+  .card .big-idea p { font-size: 1.6rem; line-height: 1.6; color: var(--text); }
+
+  /* FACT WARM-UP (as Lesson 1) */
+  .fact-stage { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 28px; align-items: stretch; margin-top: 6px; }
+  .fact-main { border: 2px dashed #cbd5e1; border-radius: 18px; background: #fafbfc; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px; min-height: 330px; }
+  .fact-num { font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .fact-eq { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 110px; line-height: 1.1; display: flex; align-items: center; gap: 24px; }
+  .fact-ans { display: inline-block; min-width: 150px; text-align: center; border-radius: 16px; padding: 0 18px; }
+  .fact-ans.hidden-ans { background: #e2e8f0; color: #94a3b8; }
+  .fact-ans.shown { background: var(--green-light); color: var(--green-dark); border: 3px solid var(--green); animation: popIn 0.35s ease; }
+  .fact-wait { font-size: 1.5rem; color: var(--muted); font-weight: 500; text-align: center; }
+  .panel-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; color: var(--muted); }
+  .fact-log { border: 2px solid #e2e8f0; border-radius: 18px; padding: 14px 18px; background: #fff; }
+  .fact-log-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+  .fact-log-item { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; padding: 2px 8px; border-radius: 8px; background: #f8fafc; white-space: nowrap; }
+
+  /* LABELLED EQUATION (as Lesson 1) */
+  .pv-term { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
+  .pv-num { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 54px; line-height: 1.1; padding: 2px 16px; border-radius: 14px; border: 3px solid transparent; }
+  .pv-op { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 48px; padding-top: 6px; color: var(--muted); }
+  .pv-lab { margin-top: 6px; text-align: center; }
+  .pv-lab .w { display: inline-block; color: #fff; font-weight: 700; border-radius: 20px; padding: 3px 14px; font-size: 1.05rem; letter-spacing: 0.5px; }
+  .pv-dividend .pv-num { color: var(--teal-dark); border-color: var(--teal); background: #e8f8f6; }
+  .pv-dividend .w { background: var(--teal-dark); }
+  .pv-divisor .pv-num { color: var(--blue-dark); border-color: var(--blue); background: #eef6ff; }
+  .pv-divisor .w { background: var(--blue-dark); }
+  .pv-quotient .pv-num { color: var(--green-dark); border-color: var(--green); background: #eafaf1; }
+  .pv-quotient .w { background: var(--green-dark); }
+  .c-dvd { color: var(--teal-dark); } .c-dvs { color: var(--blue-dark); } .c-quo { color: var(--green-dark); } .c-rem { color: #7a3fc4; }
+
+  .xe-head { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-bottom: 10px; }
+  .xe-head h3 { margin-bottom: 0; }
+  .xe-eq { display: flex; align-items: flex-start; gap: 14px; }
+  .xe-eq .pv-num { font-size: 44px; padding: 0 14px; }
+  .xe-eq .pv-op { font-size: 40px; padding-top: 2px; }
+  .xe-eq .pv-term { min-width: 90px; }
+  .xe-eq .pv-lab { margin-top: 4px; }
+  .xe-eq .pv-lab .w { font-size: 0.85rem; padding: 2px 10px; }
+  .xe-narr { font-size: 1.4rem; line-height: 1.5; padding: 10px 18px; border-left: 5px solid var(--teal); background: #f8fafc; border-radius: 10px; min-height: 56px; margin-bottom: 8px; }
+  .xe-narr .mono { font-size: 1.3rem; }
+
+  /* TIMES-TABLE COUNT (as Lesson 1) */
+  .ld-count { display: flex; align-items: center; gap: 14px; min-height: 50px; margin-bottom: 2px; }
+  .ld-count-label { font-size: 1.2rem; font-weight: 700; color: var(--muted); white-space: nowrap; min-width: 140px; }
+  .xe-tt { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .xe-chip { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 26px; padding: 2px 14px; border-radius: 12px; background: #eef6ff; color: var(--blue-dark); opacity: 0; transform: translateY(6px); transition: all 0.3s ease; }
+  .xe-chip.on { opacity: 1; transform: none; }
+  .xe-chip.hit { background: var(--blue-dark); color: #fff; }
+  .xe-chip.over.on { opacity: 0.4; text-decoration: line-through; }
+  .xe-chip.pin { background: #e8f8f6; color: var(--teal-dark); border: 3px dashed var(--teal); font-size: 22px; }
+
+  /* LINKED VIEW: SHORT DIVISION WITH THE AREA MODEL BENEATH */
+  .ld-wrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 34px; align-items: start; }
+  .ld {
+    --ldd: 200px; --ldc: 170px; --ldr: 140px; --ldf: 70px;
+    display: grid; column-gap: 0; row-gap: 4px; align-items: stretch;
+  }
+  .ld.wd { --ldd: 190px; --ldc: 160px; --ldr: 130px; --ldf: 64px; }
+  .ld.md { --ldd: 150px; --ldc: 112px; --ldr: 104px; --ldf: 60px; }
+  .ld.sm { --ldd: 140px; --ldc: 112px; --ldr: 112px; --ldf: 52px; }
+  .ld-c { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; }
+  .ld-c.right { justify-content: flex-end; padding-right: 16px; gap: 10px; }
+  .ld-c.left { justify-content: flex-start; padding-left: 16px; }
+  .ld-r-head { height: calc(var(--ldf) * 0.62); }
+  .ld-r-q { height: calc(var(--ldf) * 1.2); }
+  .ld-r-d { height: calc(var(--ldf) * 1.3); }
+  .ld-r-w { height: calc(var(--ldf) * 0.62); margin-top: 6px; }
+  .ld-r-a { height: calc(var(--ldf) * 1.45); }
+  .ld-pvchip { color: #fff; font-weight: 700; font-size: calc(var(--ldf) * 0.25); border-radius: 10px; padding: 2px 10px; white-space: nowrap; animation: fadeIn 0.4s ease; }
+  .ld-pvchip .mono { font-size: 1.1em; }
+  .bg-th { background: var(--pv-th); } .bg-h { background: var(--pv-h); } .bg-t { background: var(--pv-t); } .bg-o { background: var(--pv-o); }
+  .ld-tag { color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; border-radius: 20px; padding: 2px 10px; white-space: nowrap; }
+  .ld.md .ld-tag, .ld.sm .ld-tag { font-size: 11px; padding: 1px 8px; }
+  .t-dvd { background: var(--teal-dark); } .t-dvs { background: var(--blue-dark); } .t-quo { background: var(--green-dark); }
+  .ld-big { font-family: 'Space Mono', monospace; font-weight: 700; font-size: var(--ldf); line-height: 1; }
+  .ld-qd { color: var(--green-dark); border-radius: 14px; margin: 0 6px; }
+  .ld-qd .ld-big { animation: popIn 0.35s ease; }
+  .ld-dd { color: var(--teal-dark); border-top: 6px solid var(--text); }
+  .ld-dd.first { border-left: 6px solid var(--text); border-top-left-radius: 22px; }
+  .ld-dvs { color: var(--blue-dark); }
+  .ld-act { background: #fff7d6; }
+  .ld-qd.zero { background: #fff3c4; box-shadow: inset 0 0 0 4px var(--amber-dark); }
+  .ring-th { box-shadow: inset 0 0 0 5px var(--pv-th) !important; background: rgba(29,78,216,0.10) !important; }
+  .ring-h { box-shadow: inset 0 0 0 5px var(--pv-h) !important; background: rgba(8,145,178,0.12) !important; }
+  .ring-t { box-shadow: inset 0 0 0 5px var(--pv-t) !important; background: rgba(5,150,105,0.12) !important; }
+  .ring-o { box-shadow: inset 0 0 0 5px var(--pv-o) !important; background: rgba(101,163,13,0.14) !important; }
+  .ld-carry { position: absolute; left: 10%; top: 8%; font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.46); color: var(--blue); line-height: 1; animation: popIn 0.35s ease; }
+  .ld-comma { position: absolute; left: -0.1em; bottom: 0.12em; font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.8); line-height: 1; }
+  .ld-rem { font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.62); color: #7a3fc4; white-space: nowrap; animation: popIn 0.35s ease; }
+  .ld-wchip { background: var(--green-dark); color: #fff; font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.3); border-radius: 8px; padding: 1px 10px; white-space: nowrap; animation: fadeIn 0.4s ease; }
+  .ld-wchip.rem { background: var(--purple); }
+  .ld-wchip.zero { background: var(--amber-dark); }
+  .ld-side { background: var(--blue-dark); color: #fff; font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.36); border-radius: 8px; padding: 2px 12px; animation: fadeIn 0.4s ease; }
+  .ld-sec { flex-direction: column; border-top: 3px solid var(--text); border-bottom: 3px solid var(--text); border-left: 2px dashed var(--muted); animation: fadeIn 0.4s ease; }
+  .ld-sec.first { border-left: 3px solid var(--text); border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+  .ld-sec.last { border-right: 3px solid var(--text); border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+  .ld-sec.s-th { background: rgba(29,78,216,0.12); } .ld-sec.s-h { background: rgba(8,145,178,0.14); }
+  .ld-sec.s-t { background: rgba(5,150,105,0.14); } .ld-sec.s-o { background: rgba(101,163,13,0.16); }
+  .ld-sec.s-zero { background: repeating-linear-gradient(135deg, #fffbe8, #fffbe8 8px, #fff3c4 8px, #fff3c4 16px); }
+  .ld-sec .cc { font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.25); color: var(--muted); white-space: nowrap; }
+  .ld-sec .pp { font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.4); color: var(--teal-dark); white-space: nowrap; }
+  .ld-strip { width: 34px; height: 100%; margin-right: auto; margin-left: 8px; border: 3px dashed var(--purple); border-radius: 4px; background: repeating-linear-gradient(45deg, rgba(155,93,229,0.35), rgba(155,93,229,0.35) 5px, #fff 5px, #fff 11px); animation: fadeIn 0.4s ease; }
+  .ld-area-label { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+
+  /* INPUTS INSIDE THE BUS STOP */
+  .ld-in { font-family: 'Space Mono', monospace; font-weight: 700; text-align: center; outline: none; transition: border-color 0.2s; background: #fff; }
+  .ld-in.q { width: calc(var(--ldf) * 1.05); height: calc(var(--ldf) * 1.1); font-size: calc(var(--ldf) * 0.72); color: var(--green-dark); border: 3px solid var(--green); border-radius: 12px; }
+  .ld-in.c { position: absolute; left: 4px; top: 3px; width: calc(var(--ldf) * 0.64); height: calc(var(--ldf) * 0.66); font-size: calc(var(--ldf) * 0.4); color: var(--blue); border: 3px solid var(--blue); border-radius: 8px; padding: 0; }
+  .ld-in.r { width: calc(var(--ldf) * 0.9); height: calc(var(--ldf) * 0.9); font-size: calc(var(--ldf) * 0.5); color: #7a3fc4; border: 3px solid var(--purple); border-radius: 10px; margin-left: 6px; }
+  .ld-in:focus { box-shadow: 0 0 0 4px rgba(78,205,196,0.35); }
+  .ld-in.wrong { border-color: var(--red) !important; background: var(--red-light); }
+  .ld-rlabel { font-family: 'Space Mono', monospace; font-weight: 700; font-size: calc(var(--ldf) * 0.5); color: #7a3fc4; }
+
+  /* RIGHT ZONE: estimate, notes and the check */
+  .ld-zone { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+  .xe-est { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 28px; color: #8a6400; background: #fff7d6; border-radius: 12px; padding: 4px 16px; display: inline-block; animation: fadeIn 0.35s ease; align-self: flex-start; }
+  .ld-check { border-left: 5px solid var(--green); background: #f3fbf6; border-radius: 10px; padding: 10px 16px; animation: fadeIn 0.35s ease; }
+  .ld-check .panel-title { color: var(--green-dark); }
+  .ld-check-row { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 28px; line-height: 1.45; white-space: nowrap; }
+  .ld-check-words { font-size: 1.05rem; color: #445; margin-bottom: 2px; }
+  .ld-ok { display: inline-block; margin-top: 6px; background: #eafaf1; color: var(--green-dark); border: 2px solid var(--green); border-radius: 20px; padding: 2px 14px; font-weight: 700; font-size: 1.05rem; }
+
+  /* FORMAL MULTIPLICATION ALGORITHM (check) */
+  .algo-table { border-collapse: collapse; margin: 4px 0; }
+  .algo-table td { width: 46px; height: 46px; text-align: center; vertical-align: middle; font-family: 'Space Mono', monospace; font-size: 32px; font-weight: 700; padding: 0; }
+  .algo-table .carry-row td { height: 26px; font-size: 18px; color: var(--blue); }
+  .algo-table .mult-row td { border-bottom: 3px solid var(--text); }
+  .algo-table .mult-row td:first-child { color: var(--muted); }
+
+  /* HOOK: TWO SOLUTIONS */
+  .hook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 6px; }
+  .sol-panel { border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px 18px 14px; background: #fff; min-height: 360px; }
+  .sol-panel .panel-title { margin-bottom: 4px; }
+  .sol-sum { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 30px; color: var(--green-dark); margin-top: 6px; animation: fadeIn 0.35s ease; }
+  .cm { padding: 44px 0 6px 64px; }
+  .cm-row { display: flex; align-items: stretch; position: relative; }
+  .cm-side { position: absolute; left: -58px; top: 50%; transform: translateY(-50%); background: var(--blue-dark); color: #fff; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 24px; border-radius: 8px; padding: 2px 12px; }
+  .cm-box { flex: 1; display: flex; border: 3px solid var(--text); border-radius: 6px; min-height: 150px; background: #fff; }
+  .cm-box.empty { border-style: dashed; border-color: #cbd5e1; }
+  .cm-sec { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border-right: 2px dashed var(--muted); padding: 8px 4px; min-width: 0; animation: fadeIn 0.4s ease; }
+  .cm-sec:last-child { border-right: none; }
+  .cm-sec.s-h { background: rgba(8,145,178,0.14); } .cm-sec.s-t { background: rgba(5,150,105,0.14); } .cm-sec.s-o { background: rgba(101,163,13,0.16); }
+  .cm-sec.todo { background: repeating-linear-gradient(135deg, #f8fafc, #f8fafc 10px, #eef2f6 10px, #eef2f6 20px); }
+  .cm-top { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: var(--green-dark); color: #fff; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; border-radius: 8px; padding: 1px 10px; white-space: nowrap; }
+  .cm-calc { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 17px; color: var(--muted); white-space: nowrap; }
+  .cm-prod { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 28px; color: var(--teal-dark); white-space: nowrap; }
+  .cm-left { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; color: var(--muted); }
+
+  /* KEY IDEA */
+  .routine { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 20px; }
+  .routine-step { border-radius: 16px; border: 3px solid #e2e8f0; padding: 16px 20px; background: #fff; }
+  .routine-step .rs-num { display: inline-flex; width: 38px; height: 38px; border-radius: 50%; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.2rem; margin-bottom: 6px; }
+  .routine-step h4 { font-size: 1.45rem; margin-bottom: 4px; }
+  .card .routine-step p { font-size: 1.2rem; line-height: 1.45; }
+  .routine-step.r1 { border-top: 8px solid var(--teal); } .routine-step.r1 .rs-num { background: var(--teal-dark); }
+  .routine-step.r2 { border-top: 8px solid var(--green); } .routine-step.r2 .rs-num { background: var(--green-dark); }
+  .routine-step.r3 { border-top: 8px solid var(--blue); } .routine-step.r3 .rs-num { background: var(--blue-dark); }
+  .routine-step.r4 { border-top: 8px solid var(--purple); } .routine-step.r4 .rs-num { background: var(--purple); }
+
+  /* WE DO AND PRACTICE CONTROLS */
+  .ld-ctrl { display: flex; align-items: center; gap: 18px; margin-top: 12px; min-height: 54px; }
+  .ld-ctrl .reveal-row { margin-top: 0; flex-shrink: 0; }
+  .ld-ctrl .feedback { margin-top: 0; flex: 1; }
+  .feedback { border-radius: 12px; padding: 10px 18px; margin-top: 10px; display: none; font-size: 1.2rem; line-height: 1.55; }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--green-light); border: 2px solid var(--green); color: #0a3820; }
+  .feedback.incorrect { background: var(--red-light); border: 2px solid var(--red); color: #5a1a1a; }
+  .feedback.info { background: #f3edff; border: 2px solid var(--purple); color: #3b2a5c; }
+  .feedback .mono { font-size: 1.05em; }
+  .check-btn {
+    background: var(--teal); color: white; border: none; border-radius: 14px;
+    padding: 11px 24px; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s;
+  }
+  .check-btn:hover:not(:disabled) { background: var(--teal-dark); transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .hint-btn {
+    background: none; border: 2px solid var(--purple); color: var(--purple); padding: 9px 16px;
+    border-radius: 10px; cursor: pointer; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+  }
+  .hint-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .hint-box { margin-top: 10px; padding: 10px 16px; background: #F5EFFF; border-left: 4px solid var(--purple); border-radius: 10px; display: none; font-size: 16px; line-height: 1.6; }
+  .hint-box.show { display: block; }
+  .hint-box .mono { font-size: 1.05em; }
+
+  /* PRACTICE */
+  .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  .level-card {
+    background: white; border: 2px solid var(--border); border-radius: 16px; padding: 18px 20px 16px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08); text-align: left; position: relative; overflow: hidden;
+    font-family: 'Fredoka', sans-serif; transition: all 0.3s ease;
+    display: flex; flex-direction: column; justify-content: flex-start;
+  }
+  .level-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
+  .level-card.l1::before { background: var(--teal); }
+  .level-card.l2::before { background: var(--red); }
+  .level-card.l3::before { background: var(--purple); }
+  .level-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.14); }
+  .level-card.current { border-color: var(--text); }
+  .level-card h4 { font-size: 1.2rem; margin-bottom: 4px; }
+  .level-card p { font-size: 1rem; color: var(--muted); line-height: 1.4; }
+  .level-card .level-meta { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .level-card .done-tag { display: none; font-size: 13px; font-weight: 700; color: var(--green-dark); margin-top: 4px; }
+  .level-card.done .done-tag { display: block; }
+  .go-deeper-level-btn {
+    grid-column: 1 / -1; display: block; width: 100%; text-align: left; padding: 18px 24px;
+    background: var(--card-bg); border: 2px solid var(--border); border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06); cursor: pointer; font-family: 'Fredoka', sans-serif; transition: all 0.3s;
+  }
+  .go-deeper-level-btn h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 2px; }
+  .go-deeper-level-btn p { font-size: 1rem; color: var(--muted); }
+  .go-deeper-level-btn.locked { opacity: 0.55; cursor: not-allowed; }
+  .go-deeper-level-btn:not(.locked):hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,205,196,0.2); }
+  .practice-area { border: 2px solid #e2e8f0; border-radius: 16px; padding: 18px 22px; background: #fff; margin-top: 8px; }
+  .practice-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .practice-label { font-size: 14px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+  .practice-area .xe-eq .pv-num { font-size: 34px; }
+  .practice-area .xe-eq .pv-op { font-size: 30px; }
+  .practice-area .xe-narr { font-size: 1.15rem; min-height: 46px; }
+  .practice-area .ld-wrap { gap: 24px; }
+  .practice-area .ld-check-row { font-size: 22px; }
+  .practice-area .algo-table td { width: 36px; height: 36px; font-size: 24px; }
+  .dot-counter { display: flex; gap: 6px; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #e0e5e8; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; }
+  .dot.current { border-color: var(--text); background: var(--text); }
+  .dot.green { background: var(--green); border-color: var(--green); }
+  .dot.red { background: var(--red); border-color: var(--red); }
+  .btn { border: none; border-radius: 30px; padding: 12px 28px; font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+  .btn-dark { background: var(--text); color: white; }
+  .btn-dark:hover { background: #444; transform: translateY(-2px); }
+  .summary-card { background: white; border-radius: 16px; border: 2px solid #e2e8f0; padding: 26px; text-align: center; display: none; margin-top: 12px; }
+  .summary-card.show { display: block; animation: fadeIn 0.35s; }
+  .summary-score { font-family: 'Space Mono', monospace; font-size: 52px; font-weight: 700; }
+  .summary-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+
+  /* GO DEEPER */
+  .go-deeper-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; margin-top: 20px; border-top: 5px solid var(--teal); }
+  .go-deeper-card h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .go-deeper-card > p { font-size: 1.2rem; line-height: 1.6; color: var(--muted); margin-bottom: 20px; }
+  .ext-task { background: #f0fdfa; border-left: 5px solid var(--teal); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .ext-task-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 8px; }
+  .ext-task-prompt { font-size: 1.2rem; line-height: 1.7; margin-bottom: 8px; }
+  .ext-task-sub { font-size: 1.05rem; font-style: italic; color: var(--muted); margin-bottom: 12px; }
+  .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; }
+  .ext-thinking-area { width: 100%; min-height: 100px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; font-family: 'Fredoka', sans-serif; font-size: 16px; resize: vertical; outline: none; transition: border-color 0.3s; }
+  .ext-thinking-area:focus { border-color: var(--teal); }
+  .ext-reveal-btn { background: transparent; color: var(--teal-dark); border: 2px solid var(--teal); border-radius: 30px; padding: 10px 24px; font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+  .ext-reveal-btn:hover { background: var(--teal); color: white; }
+  .ext-model-response { display: none; margin-top: 16px; background: white; border-radius: 12px; padding: 18px 22px; border: 2px solid #e2e8f0; }
+  .ext-model-response.visible { display: block; animation: fadeIn 0.35s ease; }
+  .ext-model-response .model-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 10px; }
+  .card .ext-model-response p { font-size: 1.05rem; line-height: 1.7; margin-bottom: 10px; }
+  .mathematician-box { border: 2px dashed var(--teal); border-radius: 12px; padding: 14px 20px; margin-top: 16px; background: linear-gradient(135deg, #f0fdfa, #e8f8f6); font-size: 1.05rem; line-height: 1.6; }
+
+  /* IN YOUR BOOK */
+  .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 14px; }
+  .tier-col { border-radius: 16px; padding: 14px 16px; border: 2px solid #e2e8f0; background: #fafbfc; }
+  .tier-col h4 { font-size: 1.25rem; margin-bottom: 4px; }
+  .tier-col .tier-note { font-size: 1.05rem; color: #445; line-height: 1.35; margin-bottom: 6px; }
+  .tier-col.t1 { border-top: 6px solid var(--teal); }
+  .tier-col.t2 { border-top: 6px solid var(--red); }
+  .tier-col.t3 { border-top: 6px solid var(--purple); }
+  .bw-card { background: white; border-radius: 12px; padding: 5px 12px; border: 2px solid #e2e8f0; margin-bottom: 6px; }
+  .bw-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .bw-problem { font-family: 'Space Mono', monospace; font-size: 23px; font-weight: 700; }
+  .bw-reveal-btn { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 6px 14px; font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .bw-reveal-btn:hover { background: var(--blue-dark); }
+  .bw-answer { display: none; margin-top: 2px; font-size: 15px; line-height: 1.38; }
+  .bw-answer.show { display: block; animation: fadeIn 0.3s; }
+  .bw-answer .mono { font-size: 17px; }
+  .bw-extra { font-size: 1.05rem; line-height: 1.5; background: #fff; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 8px 12px; margin-top: 4px; }
+
+  /* PLENARY */
+  .preview { margin-top: 18px; border-radius: 16px; border: 3px dashed var(--teal); padding: 14px 22px; background: #f0fdfa; }
+  .preview .label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); display: block; margin-bottom: 4px; }
+
+  @media (max-width: 600px) {
+    header { padding: 12px 16px; }
+    header h1 { font-size: 1rem; }
+    main { padding: 20px 14px 40px; margin-left: 0; }
+    .sidebar { display: none; }
+    .card { padding: 20px 18px; }
+    .fact-stage, .hook-grid, .level-grid, .tier-grid, .routine, .ld-wrap { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Year 5 · Multiplicative Relations · Term 4</div>
+  <h1><span>Lesson 3</span> · From Area Model to Short Division</h1>
+  <a href="../../index.html" class="back-link">&larr; Back to Interactives</a>
+</header>
+
+<nav class="phase-nav" id="phaseNav">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+  <button class="phase-btn active" data-phase="learning" onclick="goToPhase('Learning')">LISC</button>
+  <button class="phase-btn" data-phase="hook" onclick="goToPhase('Hook')">Hook</button>
+  <button class="phase-btn" data-phase="ido" onclick="goToPhase('I Do')">I Do</button>
+  <button class="phase-btn" data-phase="wedo" onclick="goToPhase('We Do')">We Do</button>
+  <button class="phase-btn" data-phase="practice" onclick="goToPhase('Practice')">Practice</button>
+</nav>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Learning</div>
+      <button class="sidebar-item active" onclick="goToSlide(0)">Learning Intention</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Hook</div>
+      <button class="sidebar-item" onclick="goToSlide(1)">Fact Warm-up: ÷ 8</button>
+      <button class="sidebar-item" onclick="goToSlide(2)">Two Ways: 954 ÷ 6</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">I Do</div>
+      <button class="sidebar-item" onclick="goToSlide(3)">Example 1: 852 ÷ 4</button>
+      <button class="sidebar-item" onclick="goToSlide(4)">Example 2: 2,436 ÷ 4</button>
+      <button class="sidebar-item" onclick="goToSlide(5)">Example 3: 8,754 ÷ 3</button>
+      <button class="sidebar-item" onclick="goToSlide(6)">Key Idea: Every Digit Is a Chunk</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">We Do</div>
+      <button class="sidebar-item" onclick="goToSlide(7)">Q1: 693 ÷ 3</button>
+      <button class="sidebar-item" onclick="goToSlide(8)">Q2: 745 ÷ 5</button>
+      <button class="sidebar-item" onclick="goToSlide(9)">Q3: 4,218 ÷ 7</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Practice</div>
+      <button class="sidebar-item" onclick="goToSlide(10)">Short Division Practice</button>
+      <button class="sidebar-item" onclick="goToSlide(11)">In Your Book</button>
+      <button class="sidebar-item" onclick="goToSlide(12)">Plenary</button>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- SLIDE 0: LISC -->
+  <div class="slide active" id="slide-0">
+    <div class="card lisc-card">
+      <h2>Learning Intention and Success Criteria</h2>
+      <div class="lisc-content">
+        <h3>Learning Intention</h3>
+        <p>We are learning to record division using short division, and to see how each step matches the area model.</p>
+        <h3>Success Criteria</h3>
+        <ul>
+          <li>I can partition the dividend by place value before I divide.</li>
+          <li>I can record each step of short division and carry what is left to the next place.</li>
+          <li>I can write a zero in the quotient when the divisor does not go.</li>
+          <li>I can check my answer by multiplying the quotient by the divisor and adding the remainder.</li>
+        </ul>
+      </div>
+      <div class="book-note">
+        <span class="bn-tag">In your book</span>
+        <p>Write today's date and the Learning Intention as your heading.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()" disabled>Previous</button>
+      <span class="slide-counter">Card 1 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: HOOK - Fact warm-up -->
+  <div class="slide" id="slide-1">
+    <div class="card">
+      <div class="title-row">
+        <h3>Fact Warm-up: Dividing by 8</h3>
+      </div>
+      <div class="fact-stage">
+        <div class="fact-main" id="fact-main">
+          <div class="fact-wait" id="fact-wait">Mini-whiteboards ready.<br>Press <strong>Next fact</strong> to show the first fact.</div>
+          <div class="fact-num hide" id="fact-num"></div>
+          <div class="fact-eq hide" id="fact-eq"><span id="fact-q"></span><span>=</span><span class="fact-ans hidden-ans" id="fact-ans">?</span></div>
+        </div>
+        <div class="fact-log">
+          <div class="panel-title">Facts so far</div>
+          <div class="fact-log-grid" id="fact-log"></div>
+        </div>
+      </div>
+      <div class="book-note">
+        <span class="bn-tag">Mini-whiteboard</span>
+        <p>Write the answer only. Hold your board up when your teacher says "Show me".</p>
+      </div>
+      <div class="reveal-row">
+        <button class="am-reveal-btn" id="fact-next-btn" onclick="nextFact()">Next fact &rarr;</button>
+        <button class="am-reveal-btn green" id="fact-show-btn" onclick="showFactAnswer()" disabled>Show answer</button>
+        <span class="stage-count" id="fact-count"></span>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 2 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HOOK - Two ways to solve 954 ÷ 6 -->
+  <div class="slide" id="slide-2">
+    <div class="card">
+      <div class="xe-head">
+        <h3>Two Ways</h3>
+        <div class="xe-eq">
+          <div class="pv-term pv-dividend"><div class="pv-num">954</div><div class="pv-lab"><span class="w">DIVIDEND</span></div></div>
+          <div class="pv-op">&divide;</div>
+          <div class="pv-term pv-divisor"><div class="pv-num">6</div><div class="pv-lab"><span class="w">DIVISOR</span></div></div>
+          <div class="pv-op">=</div>
+          <div class="pv-term pv-quotient"><div class="pv-num" id="hk-q">?</div><div class="pv-lab"><span class="w">QUOTIENT</span></div></div>
+        </div>
+      </div>
+      <div class="xe-narr" id="hk-narr"></div>
+      <div class="hook-grid">
+        <div class="sol-panel">
+          <div class="panel-title">Solution A: the area model</div>
+          <div id="hk-area"></div>
+          <div class="sol-sum hide" id="hk-sum">100 + 50 + 9 = 159</div>
+        </div>
+        <div class="sol-panel">
+          <div class="panel-title">Solution B: short division</div>
+          <div id="hk-sd" style="margin-top:16px;"></div>
+        </div>
+      </div>
+      <div class="callout callout-blue hide" id="hk-ask">
+        <span class="label">Think, pair, share</span>
+        <p>Same answer. <strong>Where is each chunk of the area model hiding in the short division?</strong></p>
+      </div>
+      <div class="book-note" id="hk-book">
+        <span class="bn-tag">Mini-whiteboard</span>
+        <p id="hk-book-text">Watch both solutions. Then write where you think the 100 chunk is hiding.</p>
+      </div>
+      <div class="reveal-row">
+        <button class="am-reveal-btn" id="hk-btn" onclick="nextHook()">Chip away 6 × 100 &rarr;</button>
+        <span class="stage-count" id="hk-count"></span>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 3 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: I DO - Example 1 -->
+  <div class="slide" id="slide-3">
+    <div class="card" id="ex1"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 4 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: I DO - Example 2 -->
+  <div class="slide" id="slide-4">
+    <div class="card" id="ex2"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 5 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: I DO - Example 3 -->
+  <div class="slide" id="slide-5">
+    <div class="card" id="ex3"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 6 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: I DO - Key idea -->
+  <div class="slide" id="slide-6">
+    <div class="card">
+      <h3>Key Idea: Every Digit Is a Chunk</h3>
+      <div class="big-idea">
+        <p>Every digit in the <strong class="c-quo">quotient</strong> is one chunk of the area model,<br>written in its place value column.</p>
+      </div>
+      <div class="routine">
+        <div class="routine-step r1"><span class="rs-num">1</span><h4>Partition</h4><p>Split the <strong class="c-dvd">dividend</strong> into hundreds, tens and ones before you divide.</p></div>
+        <div class="routine-step r2"><span class="rs-num">2</span><h4>Divide</h4><p>Count in the <strong class="c-dvs">divisor</strong>. Write the digit on top. If it does not go, write <strong>0</strong>.</p></div>
+        <div class="routine-step r3"><span class="rs-num">3</span><h4>Carry</h4><p>Trade what is left for the next place. Write it small, in blue, in front of the next digit.</p></div>
+        <div class="routine-step r4"><span class="rs-num">4</span><h4>Check</h4><p><strong>divisor × quotient + remainder = dividend</strong></p></div>
+      </div>
+      <div class="book-note">
+        <span class="bn-tag">In your book</span>
+        <p>Copy the key idea in a box. Underneath, write the four steps: Partition, Divide, Carry, Check.</p>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 7 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: WE DO - Q1 -->
+  <div class="slide" id="slide-7">
+    <div class="card" id="wd1"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 8 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: WE DO - Q2 -->
+  <div class="slide" id="slide-8">
+    <div class="card" id="wd2"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 9 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: WE DO - Q3 -->
+  <div class="slide" id="slide-9">
+    <div class="card" id="wd3"></div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 10 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: PRACTICE -->
+  <div class="slide" id="slide-10">
+    <div class="card">
+      <h3>Short Division Practice</h3>
+      <p>Choose a level. Each level has <strong>4</strong> questions. Partition the dividend, then work one column at a time: type the quotient digit on top and what is left in the small blue carry box.</p>
+      <div class="book-note">
+        <span class="bn-tag">On your laptop</span>
+        <p>No writing for this part. Type each digit. Use the hints if you get stuck.</p>
+      </div>
+
+      <div class="level-grid" id="level-grid">
+        <button class="level-card l1" id="level-card-1" onclick="startLevel(1)">
+          <h4>Level 1</h4>
+          <p>3-digit numbers divided by 2 to 9. No remainders.</p>
+          <div class="level-meta">4 questions</div>
+          <div class="done-tag">Completed</div>
+        </button>
+        <button class="level-card l2" id="level-card-2" onclick="startLevel(2)">
+          <h4>Level 2</h4>
+          <p>3-digit and 4-digit numbers divided by 3 to 9. Some remainders.</p>
+          <div class="level-meta">4 questions</div>
+          <div class="done-tag">Completed</div>
+        </button>
+        <button class="level-card l3" id="level-card-3" onclick="startLevel(3)">
+          <h4>Level 3</h4>
+          <p>4-digit numbers where the quotient has a zero. Watch for the place holder.</p>
+          <div class="level-meta">4 questions</div>
+          <div class="done-tag">Completed</div>
+        </button>
+        <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled>
+          <h3><span class="lock-icon" style="font-size:1.3rem;">&#x1F512;</span> Go Deeper: Zero Hunters</h3>
+          <p>Complete Level 3 to unlock</p>
+        </button>
+      </div>
+
+      <div class="practice-area hide" id="practice-area">
+        <div class="practice-head">
+          <div class="practice-label" id="practice-label">Level 1: Question 1 of 4</div>
+          <div class="dot-counter" id="practice-dots"></div>
+        </div>
+        <div id="practice-builder"></div>
+        <div style="margin-top:12px;"><button class="btn btn-primary hide" id="practice-next" onclick="nextPractice()">Next question &rarr;</button></div>
+      </div>
+
+      <div class="summary-card" id="practice-summary">
+        <h3 id="summary-title">Level complete</h3>
+        <div class="summary-score" id="summary-score"></div>
+        <p id="summary-message" style="color:var(--muted);"></p>
+        <div class="summary-btns">
+          <button class="btn btn-primary" id="try-again-btn" onclick="startLevel(currentLevel)">Try Again</button>
+          <button class="btn btn-dark" id="next-level-btn" onclick="startLevel(currentLevel + 1)">Next Level</button>
+          <button class="btn btn-primary hide" id="go-deeper-summary-btn" onclick="openGoDeeper()">Go Deeper</button>
+        </div>
+      </div>
+
+      <!-- GO DEEPER -->
+      <div class="go-deeper-card" id="go-deeper-section" style="display:none;">
+        <h2>&#x1F513; Go Deeper: Zero Hunters</h2>
+        <p>These tasks will push your thinking beyond finding answers. You will explore, make conjectures, and reason like a mathematician.</p>
+
+        <!-- TASK 1: SPECIALISING -->
+        <div class="ext-task">
+          <div class="ext-task-label">Specialising</div>
+          <div class="ext-task-prompt">
+            Find three different 4-digit numbers that give a zero in the quotient when you divide them by <span class="ext-numbers">6</span>. Remainders are allowed. The zero can be in any place of the quotient, but not at the very front.
+          </div>
+          <div class="ext-task-sub">Try some numbers with short division. Which ones gave a zero? Which ones did not?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p>I started with <span class="ext-numbers">2,466</span> because it looked friendly. <span class="ext-numbers">2</span> thousands ÷ <span class="ext-numbers">6</span> does not go, so I carried and did <span class="ext-numbers">24</span> hundreds ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">4</span>. Then <span class="ext-numbers">6</span> tens ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">1</span> and <span class="ext-numbers">6</span> ones ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">1</span>. So <span class="ext-numbers">2,466</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">411</span>. No zero. That one did not work.</p>
+            <p>Next I tried <span class="ext-numbers">1,234</span>. <span class="ext-numbers">12</span> hundreds ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">2</span>, with nothing left. Then <span class="ext-numbers">3</span> tens ÷ <span class="ext-numbers">6</span> does not go, so I wrote <span class="ext-numbers">0</span> and carried the <span class="ext-numbers">3</span> tens. <span class="ext-numbers">34</span> ones ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">5</span> remainder <span class="ext-numbers">4</span>. So <span class="ext-numbers">1,234</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">205</span> remainder <span class="ext-numbers">4</span>. A zero!</p>
+            <p>I noticed the zero came when the tens digit <span class="ext-numbers">3</span> was smaller than <span class="ext-numbers">6</span> and nothing was carried into it. So I built two more like that on purpose. <span class="ext-numbers">4,830</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">805</span>, because <span class="ext-numbers">3</span> tens ÷ <span class="ext-numbers">6</span> does not go. And <span class="ext-numbers">6,036</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">1,006</span>, which has two zeros.</p>
+            <p>My three numbers are <span class="ext-numbers">1,234</span>, <span class="ext-numbers">4,830</span> and <span class="ext-numbers">6,036</span>.</p>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.
+          </div>
+        </div>
+
+        <!-- TASK 2: CONJECTURING -->
+        <div class="ext-task">
+          <div class="ext-task-label">Conjecturing</div>
+          <div class="ext-task-prompt">
+            Kai says: "You only get a zero in the quotient when the dividend has a <span class="ext-numbers">0</span> in it."
+          </div>
+          <div class="ext-task-sub">Is Kai's statement always true, sometimes true or never true? Test it, then write your own conjecture: when does a zero appear in the quotient?</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p>My first thought was that Kai was right. <span class="ext-numbers">4,830</span> has a <span class="ext-numbers">0</span>, and <span class="ext-numbers">4,830</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">805</span> has a zero too.</p>
+            <p>But then I looked at <span class="ext-numbers">1,234</span> from Task 1. It has no <span class="ext-numbers">0</span> at all, and still <span class="ext-numbers">1,234</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">205</span> remainder <span class="ext-numbers">4</span>. So a zero can appear without a <span class="ext-numbers">0</span> in the dividend.</p>
+            <p>Then I tried <span class="ext-numbers">1,404</span>, which does have a <span class="ext-numbers">0</span>. <span class="ext-numbers">14</span> hundreds ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">2</span>, with <span class="ext-numbers">2</span> hundreds left. Carrying them turned the <span class="ext-numbers">0</span> tens into <span class="ext-numbers">20</span> tens. <span class="ext-numbers">20</span> tens ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">3</span>, with <span class="ext-numbers">2</span> left. <span class="ext-numbers">24</span> ones ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">4</span>. So <span class="ext-numbers">1,404</span> ÷ <span class="ext-numbers">6</span> = <span class="ext-numbers">234</span>. No zero!</p>
+            <p>So Kai's statement is only <strong>sometimes true</strong>. A <span class="ext-numbers">0</span> in the dividend does not decide it. What decides it is the number in each place after you add the carry.</p>
+            <p>My conjecture: a zero appears in the quotient whenever the number in a place (the carry and the digit together) is smaller than the divisor, so the divisor does not go. The only exception is the very front, where we leave the place empty.</p>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be tested.
+          </div>
+        </div>
+
+        <!-- TASK 3: JUSTIFYING -->
+        <div class="ext-task">
+          <div class="ext-task-label">Justifying</div>
+          <div class="ext-task-prompt">
+            Mia says <span class="ext-numbers">4,832</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">64</span>. Her working was: <span class="ext-numbers">48</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">6</span>, then <span class="ext-numbers">32</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">4</span>.
+          </div>
+          <div class="ext-task-sub">Is Mia right? Explain what went wrong using place value, and prove the correct answer.</div>
+          <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+          <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+          <div class="ext-model-response">
+            <div class="model-label">A mathematician's response</div>
+            <p>At first I thought Mia might be right, because <span class="ext-numbers">48</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">6</span> and <span class="ext-numbers">32</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">4</span> are both true facts.</p>
+            <p>Then I used my Radar. <span class="ext-numbers">4,832</span> is close to <span class="ext-numbers">4,800</span>, and <span class="ext-numbers">4,800</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">600</span>. Mia's answer of <span class="ext-numbers">64</span> is far too small, so something is wrong.</p>
+            <p>I partitioned: <span class="ext-numbers">4,832</span> = <span class="ext-numbers">4</span> thousands, <span class="ext-numbers">8</span> hundreds, <span class="ext-numbers">3</span> tens and <span class="ext-numbers">2</span> ones. <span class="ext-numbers">4</span> thousands ÷ <span class="ext-numbers">8</span> does not go, so I traded them: <span class="ext-numbers">48</span> hundreds ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">6</span> hundreds. Next comes <span class="ext-numbers">3</span> tens ÷ <span class="ext-numbers">8</span>. It does not go. Mia skipped this place. I write <span class="ext-numbers">0</span> in the tens and carry the <span class="ext-numbers">3</span> tens: <span class="ext-numbers">32</span> ones ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">4</span>.</p>
+            <p>So <span class="ext-numbers">4,832</span> ÷ <span class="ext-numbers">8</span> = <span class="ext-numbers">604</span>. Mia's <span class="ext-numbers">6</span> should mean <span class="ext-numbers">6</span> hundreds, but without the <span class="ext-numbers">0</span> it slid into the tens place and became <span class="ext-numbers">60</span>.</p>
+            <p>Proof: <span class="ext-numbers">8</span> × <span class="ext-numbers">604</span> = <span class="ext-numbers">4,832</span>. And <span class="ext-numbers">8</span> × <span class="ext-numbers">64</span> = <span class="ext-numbers">512</span>, which is nowhere near <span class="ext-numbers">4,832</span>.</p>
+          </div>
+          <div class="mathematician-box">
+            <strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just finding the right answer, you are explaining <em>why</em> the wrong answer is wrong and proving the right one.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 11 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: IN YOUR BOOK -->
+  <div class="slide" id="slide-11">
+    <div class="card">
+      <h3>In Your Book</h3>
+      <div class="book-note" style="margin-top:0;">
+        <span class="bn-tag">In your book</span>
+        <p><strong>For each question write: E: your estimate, the place value partition, the short division, and the check using the formal multiplication algorithm.</strong></p>
+      </div>
+      <div class="tier-grid" id="tier-grid"></div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 12 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: PLENARY -->
+  <div class="slide" id="slide-12">
+    <div class="card">
+      <h3>Plenary: Where Is the Tens Chunk Hiding?</h3>
+      <div class="big-idea">
+        <p>Point to the place in your short division where the area model's <strong>tens chunk</strong> is hiding.</p>
+      </div>
+      <div class="callout callout-blue" style="margin-top:18px;">
+        <span class="label">Think, pair, share</span>
+        <p>Why does the <strong>0</strong> in <strong>609</strong> matter? What would <strong>2,436 ÷ 4</strong> look like without it?</p>
+      </div>
+      <div class="callout callout-green hide" id="pl-why">
+        <span class="label">Why the zero matters</span>
+        <p>Without the <strong>0</strong>, <strong>609</strong> becomes <strong>69</strong>. The <strong>6</strong> would mean <strong>6</strong> tens, not <strong>6</strong> hundreds. And <strong>4 × 69 = 276</strong>, nowhere near <strong>2,436</strong>. The <strong>0</strong> holds the tens place.</p>
+      </div>
+      <div class="preview">
+        <span class="label">Next lesson</span>
+        <p>Tomorrow the division is hidden inside a story, and you decide what the remainder means.</p>
+      </div>
+      <div class="book-note">
+        <span class="bn-tag">In your book</span>
+        <p>Tick each success criterion you can do today. Circle the tens chunk in one of your short divisions.</p>
+      </div>
+      <div class="reveal-row">
+        <button class="am-reveal-btn" id="pl-btn" onclick="document.getElementById('pl-why').classList.remove('hide'); this.classList.add('hide');">Show why the zero matters &rarr;</button>
+      </div>
+    </div>
+    <div class="slide-nav">
+      <button class="nav-btn" onclick="prevSlide()">Previous</button>
+      <span class="slide-counter">Card 13 of 13</span>
+      <button class="nav-btn" onclick="nextSlide()" disabled>Next</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── SLIDES AND NAVIGATION ──
+var slides = [
+  { id: 'slide-0', title: 'Learning Intention', section: 'Learning' },
+  { id: 'slide-1', title: 'Fact Warm-up: ÷ 8', section: 'Hook' },
+  { id: 'slide-2', title: 'Two Ways: 954 ÷ 6', section: 'Hook' },
+  { id: 'slide-3', title: 'Example 1: 852 ÷ 4', section: 'I Do' },
+  { id: 'slide-4', title: 'Example 2: 2,436 ÷ 4', section: 'I Do' },
+  { id: 'slide-5', title: 'Example 3: 8,754 ÷ 3', section: 'I Do' },
+  { id: 'slide-6', title: 'Key Idea: Every Digit Is a Chunk', section: 'I Do' },
+  { id: 'slide-7', title: 'Q1: 693 ÷ 3', section: 'We Do' },
+  { id: 'slide-8', title: 'Q2: 745 ÷ 5', section: 'We Do' },
+  { id: 'slide-9', title: 'Q3: 4,218 ÷ 7', section: 'We Do' },
+  { id: 'slide-10', title: 'Short Division Practice', section: 'Practice' },
+  { id: 'slide-11', title: 'In Your Book', section: 'Practice' },
+  { id: 'slide-12', title: 'Plenary', section: 'Practice' }
+];
+
+var sectionToPhase = {
+  'Learning': 'learning', 'Hook': 'hook', 'I Do': 'ido',
+  'We Do': 'wedo', 'Practice': 'practice'
+};
+
+var currentSlide = 0;
+
+function goToSlide(index) {
+  if (index < 0 || index >= slides.length) return;
+  document.querySelectorAll('.slide').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(slides[index].id).classList.add('active');
+  currentSlide = index;
+  updateNavButtons();
+  updatePhaseNav();
+  updateSidebarActive();
+  setHeaderHeight();
+  window.scrollTo(0, 0);
+}
+
+function goToPhase(sectionName) {
+  var idx = slides.findIndex(function(s) { return s.section === sectionName; });
+  if (idx >= 0) goToSlide(idx);
+}
+
+function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+
+function updateNavButtons() {
+  var slide = document.querySelector('.slide.active');
+  var prevBtn = slide.querySelector('.slide-nav .nav-btn:first-of-type');
+  var nextBtn = slide.querySelector('.slide-nav .nav-btn:last-of-type');
+  if (prevBtn) prevBtn.disabled = currentSlide === 0;
+  if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+  var counter = slide.querySelector('.slide-counter');
+  if (counter) counter.textContent = 'Card ' + (currentSlide + 1) + ' of ' + slides.length;
+}
+
+function updatePhaseNav() {
+  var phase = sectionToPhase[slides[currentSlide].section];
+  document.querySelectorAll('.phase-btn').forEach(function(b) { b.classList.remove('active'); });
+  var btn = document.querySelector('.phase-btn[data-phase="' + phase + '"]');
+  if (btn) btn.classList.add('active');
+}
+
+function updateSidebarActive() {
+  var items = document.querySelectorAll('.sidebar-item');
+  items.forEach(function(item) { item.classList.remove('active'); });
+  if (items[currentSlide]) items[currentSlide].classList.add('active');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('main').classList.toggle('sidebar-collapsed');
+}
+
+function setHeaderHeight() {
+  var h = document.querySelector('header');
+  var nav = document.getElementById('phaseNav');
+  var total = (h ? h.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+  document.documentElement.style.setProperty('--header-h', total + 'px');
+}
+
+// ── SHORT DIVISION LOGIC (pure functions, tested in node) ──
+// GEN-START
+function fmt(n) { return Number(n).toLocaleString('en-GB'); }
+function mono(s) { return '<span class="mono">' + s + '</span>'; }
+var PLACE_ONE = ['one', 'ten', 'hundred', 'thousand'];
+var PLACE_MANY = ['ones', 'tens', 'hundreds', 'thousands'];
+function placeWord(n, p) { return n === 1 ? PLACE_ONE[p] : PLACE_MANY[p]; }
+function placeCount(n, p) { return n + ' ' + placeWord(n, p); }
+
+// Break N ÷ d into short division columns, left to right
+function analyse(N, d) {
+  var digits = String(N).split('').map(Number);
+  var n = digits.length, carry = 0, started = false, cols = [];
+  digits.forEach(function(dg, i) {
+    var p = carry * 10 + dg, q = Math.floor(p / d), r = p % d;
+    var leading = !started && q === 0;
+    if (q > 0) started = true;
+    cols.push({ i: i, dg: dg, carryIn: carry, p: p, q: q, r: r, leading: leading, place: n - 1 - i, last: i === n - 1 });
+    carry = r;
+  });
+  return { N: N, d: d, n: n, cols: cols, q: Math.floor(N / d), r: N % d };
+}
+
+function parseDigitInput(raw) {
+  var s = String(raw == null ? '' : raw).replace(/\s/g, '');
+  if (s === '') return { blank: true, ok: true, value: null, text: '(blank)' };
+  if (!/^\d+$/.test(s)) return { blank: false, ok: false, value: null, text: String(raw).trim() };
+  return { blank: false, ok: true, value: parseInt(s, 10), text: s };
+}
+
+// Check one column of short division. qRaw is the quotient digit typed, cRaw is the carry (or the remainder in the last column)
+function checkColumn(A, i, qRaw, cRaw) {
+  var c = A.cols[i], d = A.d, P = c.place, pw = PLACE_MANY[P];
+  var q = parseDigitInput(qRaw), cr = parseDigitInput(cRaw);
+  var isLast = c.last;
+  var cWord = isLast ? 'remainder' : 'carry';
+  var qd = c.q * d;
+  // 1. The quotient digit
+  if (c.leading) {
+    if (!q.ok) return { ok: false, part: 'q', kind: 'notdigit', msg: 'You answered ' + q.text + '. Type one digit only, or leave the box empty.' };
+    if (!q.blank && q.value !== 0) {
+      return { ok: false, part: 'q', kind: 'leading', msg: 'You answered ' + mono(q.text) + '. ' + mono(d + ' × ' + q.value + ' = ' + (d * q.value)) + ', which is more than ' + mono(c.dg) + '. ' + mono(d) + ' does not go into ' + mono(c.dg) + ' ' + placeWord(c.dg, P) + ', so leave the front empty and carry the ' + mono(c.dg) + '.' };
+    }
+  } else {
+    if (q.blank) {
+      if (c.q === 0) return { ok: false, part: 'q', kind: 'missingzero', msg: 'You answered (blank). ' + mono(c.p) + ' ' + placeWord(c.p, P) + ' ÷ ' + mono(d) + ' does not go, but we must not leave the ' + PLACE_MANY[P] + ' place empty. Write ' + mono('0') + ' to hold the place. Without it, every digit after it slides into the wrong place, just like ' + mono('624 ÷ 3 = 28') + ' in Lesson 1.' };
+      return { ok: false, part: 'q', kind: 'blank', msg: 'You answered (blank). How many ' + d + 's fit into ' + mono(c.p) + ' ' + placeWord(c.p, P) + '? Count in ' + d + 's to find out.' };
+    }
+    if (!q.ok || q.value > 9) return { ok: false, part: 'q', kind: 'notdigit', msg: 'You answered ' + (q.ok ? mono(q.text) : q.text) + '. Only one digit (0 to 9) goes in each place.' };
+    var qv = q.value, prod = qv * d;
+    if (prod > c.p) {
+      return { ok: false, part: 'q', kind: 'toobig', msg: 'You answered ' + mono(qv) + '. ' + mono(d + ' × ' + qv + ' = ' + prod) + ', which is more than ' + mono(c.p) + '. Try a smaller digit.' };
+    }
+    if (c.p - prod >= d) {
+      if (c.carryIn > 0 && qv === Math.floor(c.dg / d)) {
+        return { ok: false, part: 'q', kind: 'forgotcarry', msg: 'You answered ' + mono(qv) + '. It looks like you divided ' + mono(c.dg) + ' ' + placeWord(c.dg, P) + ' and forgot the carry. The carried ' + placeCount(c.carryIn, P + 1) + ' is ' + mono(c.carryIn * 10) + ' ' + PLACE_MANY[P] + '. ' + mono(c.carryIn * 10 + ' + ' + c.dg + ' = ' + c.p) + ' ' + placeWord(c.p, P) + '.' };
+      }
+      return { ok: false, part: 'q', kind: 'toosmall', msg: 'You answered ' + mono(qv) + '. ' + mono(d + ' × ' + qv + ' = ' + prod) + ' and ' + mono(c.p + ' − ' + prod + ' = ' + (c.p - prod)) + '. ' + mono(c.p - prod) + ' is not smaller than ' + mono(d) + ', so another ' + d + ' fits. The digit is bigger.' };
+    }
+  }
+  // 2. The carry or remainder
+  if (!cr.ok) return { ok: false, part: 'c', kind: 'notdigit', msg: 'You typed ' + cr.text + ' for the ' + cWord + '. Type a number, or leave it empty if nothing is left.' };
+  var cv = cr.blank ? 0 : cr.value;
+  if (cv !== c.r) {
+    var verb = isLast ? 'wrote a remainder of ' : 'carried ';
+    var shown = cr.blank ? '(blank)' : mono(cr.text);
+    if (c.leading) {
+      return { ok: false, part: 'c', kind: 'carrywrong', msg: 'You ' + verb + shown + '. Nothing was shared in the ' + pw + ' place, so all ' + placeCount(c.dg, P) + ' must be traded and carried. Carry ' + mono(c.dg) + '.' };
+    }
+    if (cr.blank) {
+      return { ok: false, part: 'c', kind: 'carrymissing', msg: 'You ' + (isLast ? 'left the remainder' : 'carried nothing') + ' (blank). ' + mono(d + ' × ' + c.q + ' = ' + qd) + '. ' + mono(c.p + ' − ' + qd + ' = ' + c.r) + ', so ' + placeCount(c.r, P) + (isLast ? ' is the remainder.' : ' is left to carry.') };
+    }
+    if (cv >= d) {
+      return { ok: false, part: 'c', kind: 'carrytoobig', msg: 'You ' + verb + shown + '. What is left must always be smaller than the divisor ' + mono(d) + '. ' + mono(d + ' × ' + c.q + ' = ' + qd) + ' and ' + mono(c.p + ' − ' + qd + ' = ' + c.r) + '.' };
+    }
+    if (cv === c.q) {
+      return { ok: false, part: 'c', kind: 'carryquotient', msg: 'You ' + verb + shown + ', which is the quotient digit. The ' + cWord + ' is what is left over: ' + mono(c.p + ' − ' + qd + ' = ' + c.r) + '.' };
+    }
+    return { ok: false, part: 'c', kind: 'carrywrong', msg: 'You ' + verb + shown + '. ' + mono(d + ' × ' + c.q + ' = ' + qd) + '. ' + mono(c.p + ' − ' + qd + ' = ' + c.r) + ', so the ' + cWord + ' is ' + mono(c.r) + '.' };
+  }
+  // 3. Correct
+  if (c.leading) return { ok: true, kind: 'ok', msg: 'Correct. ' + mono(d) + ' does not go into ' + mono(c.dg) + ', so the front stays empty and you carry ' + mono(c.dg) + '.' };
+  var m = 'Correct. ' + mono(c.p) + ' ' + placeWord(c.p, P) + ' ÷ ' + mono(d) + ' = ' + mono(c.q);
+  if (c.r > 0) m += (isLast ? ' remainder ' : ' with ') + mono(c.r) + (isLast ? '' : ' left to carry');
+  m += '.';
+  if (c.q === 0) m += ' The ' + mono('0') + ' holds the ' + PLACE_MANY[P] + ' place.';
+  return { ok: true, kind: 'ok', msg: m };
+}
+
+function hintsFor(A, i) {
+  var c = A.cols[i], d = A.d, P = c.place, pw = PLACE_MANY[P];
+  var h1 = c.carryIn > 0 ?
+    'Make the number for this column. You carried ' + placeCount(c.carryIn, P + 1) + ', which is ' + mono(c.carryIn * 10) + ' ' + PLACE_MANY[P] + '. ' + mono(c.carryIn * 10 + ' + ' + c.dg + ' = ' + c.p) + ' ' + placeWord(c.p, P) + '.' :
+    'Look at the ' + pw + ' column. You have ' + placeCount(c.dg, P) + '. Nothing was carried in.';
+  var mults = [];
+  for (var k = 1; k <= c.q + 1; k++) mults.push(k * d);
+  var h2 = 'Count in ' + d + 's: ' + mono(mults.join(', ')) + '. Stop before you pass ' + mono(c.p) + '.';
+  var h3;
+  if (c.leading) h3 = mono(d) + ' is more than ' + mono(c.dg) + ', so it does not go. Leave the top box empty and carry ' + mono(c.dg) + '.';
+  else if (c.q === 0) h3 = mono(d) + ' is more than ' + mono(c.p) + ', so write ' + mono('0') + ' on top. ' + (c.last ? 'The remainder is ' + mono(c.r) + '.' : 'Carry ' + mono(c.r) + '.');
+  else h3 = mono(d + ' × ' + c.q + ' = ' + (c.q * d)) + '. ' + mono(c.p + ' − ' + (c.q * d) + ' = ' + c.r) + '. Write ' + mono(c.q) + ' on top' + (c.last ? ' and the remainder ' + mono(c.r) + '.' : ' and carry ' + mono(c.r) + '.');
+  return [h1, h2, h3];
+}
+
+// ── PRACTICE QUESTION GENERATION ──
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function randInt(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+function quotientHasZero(N, d) { return String(Math.floor(N / d)).indexOf('0') >= 0; }
+
+// Every dividend used elsewhere in this lesson is never a practice dividend
+var EXCLUDED = [954, 852, 2436, 8754, 624, 693, 745, 4218, 484, 375, 432, 217, 1872, 3245, 6328, 4153,
+  3624, 1758, 5040, 2466, 1234, 6036, 4830, 1404, 1206, 4832, 2400, 2700, 6000, 9000, 4200, 4214, 1757,
+  800, 690, 750, 480, 400, 450, 210, 1800, 3000, 3500, 6400, 4000, 960, 600, 300, 4800, 512, 276];
+
+var LEVELS = {
+  1: { dmin: 2, dmax: 9, sizes: [3, 3, 3, 3], rem: [0, 0, 0, 0], zero: false },
+  2: { dmin: 3, dmax: 9, sizes: [3, 3, 4, 4], rem: [1, 1, 0, 0], zero: false },
+  3: { dmin: 3, dmax: 9, sizes: [4, 4, 4, 4], rem: [1, 1, 0, 0], zero: true }
+};
+
+function genOne(level, size, withRem, used) {
+  var L = LEVELS[level];
+  for (var tries = 0; tries < 5000; tries++) {
+    var d = randInt(L.dmin, L.dmax);
+    var lo = size === 3 ? 100 : 1000, hi = size === 3 ? 999 : 9999;
+    var q = randInt(Math.ceil(lo / d), Math.floor(hi / d));
+    var r = withRem ? randInt(1, d - 1) : 0;
+    var N = d * q + r;
+    if (N < lo || N > hi) continue;
+    if (EXCLUDED.indexOf(N) >= 0 || used.indexOf(N) >= 0) continue;
+    if (L.zero !== quotientHasZero(N, d)) continue;
+    if (q < 12) continue;
+    return { N: N, d: d, q: q, r: r };
+  }
+  return null;
+}
+
+function generateLevelQuestions(level) {
+  var L = LEVELS[level];
+  var pairs = shuffle(L.sizes.map(function(s, k) { return [s, L.rem[k]]; }));
+  if (level === 2) pairs = shuffle([[3, 1], [3, 0], [4, 1], [4, 0]]);
+  var used = [], qs = [];
+  pairs.forEach(function(pr) {
+    var item = genOne(level, pr[0], pr[1] === 1, used);
+    used.push(item.N);
+    qs.push(item);
+  });
+  return qs;
+}
+// GEN-END
+
+// ── SHORT DIVISION RENDERER (bus stop on top, area model beneath, columns aligned) ──
+var PV_KEY = ['o', 't', 'h', 'th'];
+
+// view: { frame, part, q[], carry[], chunk[], rem, active, rings{}, input{col}, area, tags }
+function ldGridHTML(A, v, size) {
+  var n = A.n, d = A.d;
+  var s = '<div class="ld' + (size ? ' ' + size : '') + '" style="grid-template-columns: var(--ldd) repeat(' + n + ', var(--ldc)) var(--ldr);">';
+  var cell = function(cls, inner) { return '<div class="ld-c ' + cls + '">' + (inner || '') + '</div>'; };
+  var ringOf = function(i) { return v.rings && v.rings[i] ? ' ring-' + v.rings[i] : ''; };
+  // Row 1: partition chips
+  if (v.area !== false) {
+    s += cell('ld-r-head', '');
+    A.cols.forEach(function(c) {
+      s += cell('ld-r-head', v.part ? '<span class="ld-pvchip bg-' + PV_KEY[c.place] + '">' + mono(c.dg) + ' ' + (c.dg === 1 ? PLACE_ONE[c.place] : PLACE_MANY[c.place]) + '</span>' : '');
+    });
+    s += cell('ld-r-head', '');
+  }
+  // Row 2: quotient
+  s += cell('ld-r-q right', v.frame ? '<span class="ld-tag t-quo">QUOTIENT</span>' : '');
+  var qStarted = false;
+  A.cols.forEach(function(c, i) {
+    var inner = '', cls = 'ld-r-q ld-qd';
+    if (v.input && v.input.col === i) {
+      inner = '<input class="ld-in q" data-k="q" maxlength="2" autocomplete="off" inputmode="numeric">';
+    } else if (v.q[i] && !c.leading) {
+      var comma = (c.place === 2 && qStarted && n === 4) ? '<span class="ld-comma">,</span>' : '';
+      inner = comma + '<span class="ld-big">' + c.q + '</span>';
+      if (c.q === 0) cls += ' zero';
+    }
+    if (v.q[i] && !c.leading) qStarted = true;
+    if (v.active === i) cls += ' ld-act';
+    cls += ringOf(i);
+    s += cell(cls, inner);
+  });
+  var lastIdx = n - 1;
+  if (v.input && v.input.col === lastIdx) {
+    s += cell('ld-r-q left', '<span class="ld-rlabel">r</span><input class="ld-in r" data-k="c" maxlength="1" autocomplete="off" inputmode="numeric">');
+  } else {
+    s += cell('ld-r-q left', v.rem && A.r > 0 ? '<span class="ld-rem">r ' + A.r + '</span>' : '');
+  }
+  // Row 3: divisor and dividend
+  s += cell('ld-r-d right', v.frame ? ((v.tags !== false ? '<span class="ld-tag t-dvs">DIVISOR</span>' : '') + '<span class="ld-big ld-dvs">' + d + '</span>') : '');
+  A.cols.forEach(function(c, i) {
+    var inner = '';
+    if (v.frame) {
+      if (i > 0 && v.input && v.input.col === i - 1) inner += '<input class="ld-in c" data-k="c" maxlength="1" autocomplete="off" inputmode="numeric">';
+      else if (i > 0 && v.carry[i - 1] && A.cols[i - 1].r > 0) inner += '<span class="ld-carry">' + A.cols[i - 1].r + '</span>';
+      if (n === 4 && c.place === 2) inner += '<span class="ld-comma">,</span>';
+      inner += '<span class="ld-big">' + c.dg + '</span>';
+    }
+    var cls = 'ld-r-d' + (v.frame ? ' ld-dd' + (i === 0 ? ' first' : '') : '');
+    if (v.active === i) cls += ' ld-act';
+    s += cell(cls, inner);
+  });
+  s += cell('ld-r-d left', v.frame && v.tags !== false ? '<span class="ld-tag t-dvd">DIVIDEND</span>' : '');
+  if (v.area === false) return s + '</div>';
+  // Row 4: section widths (above the area model)
+  var anyChunk = v.chunk.some(function(x, i) { return x && !A.cols[i].leading; });
+  s += cell('ld-r-w right', anyChunk ? '<span class="ld-area-label">Area model</span>' : '');
+  A.cols.forEach(function(c, i) {
+    var inner = '';
+    if (v.chunk[i] && !c.leading) {
+      var w = c.q * Math.pow(10, c.place);
+      inner = '<span class="ld-wchip' + (c.q === 0 ? ' zero' : '') + '">' + fmt(w) + '</span>';
+    }
+    s += cell('ld-r-w', inner);
+  });
+  s += cell('ld-r-w left', v.rem && A.r > 0 ? '<span class="ld-wchip rem">r ' + A.r + '</span>' : '');
+  // Row 5: the area model sections
+  s += cell('ld-r-a right', anyChunk ? '<span class="ld-side">' + d + '</span>' : '');
+  var vis = [];
+  A.cols.forEach(function(c, i) { if (v.chunk[i] && !c.leading) vis.push(i); });
+  A.cols.forEach(function(c, i) {
+    if (vis.indexOf(i) < 0) { s += cell('ld-r-a', ''); return; }
+    var w = c.q * Math.pow(10, c.place);
+    var cls = 'ld-r-a ld-sec ' + (c.q === 0 ? 's-zero' : 's-' + PV_KEY[c.place]);
+    if (i === vis[0]) cls += ' first';
+    if (i === vis[vis.length - 1]) cls += ' last';
+    cls += ringOf(i);
+    s += cell(cls, '<span class="cc">' + d + ' × ' + fmt(w) + '</span><span class="pp">' + fmt(d * w) + '</span>');
+  });
+  s += cell('ld-r-a', v.rem && A.r > 0 ? '<div class="ld-strip"></div>' : '');
+  return s + '</div>';
+}
+
+// Formal multiplication algorithm: a × m, laid out vertically with blue carries
+function algoHTML(a, m) {
+  var aD = String(a).split(''), ans = String(a * m).split('');
+  var cols = Math.max(ans.length, aD.length + 1);
+  var carries = new Array(cols).fill('');
+  var carry = 0;
+  for (var k = aD.length - 1, col = cols - 1; k >= 0; k--, col--) {
+    var prod = Number(aD[k]) * m + carry;
+    carry = Math.floor(prod / 10);
+    if (carry > 0 && col - 1 >= 0) carries[col - 1] = carry;
+  }
+  var pad = function(arr) { var out = new Array(cols - arr.length).fill(''); return out.concat(arr); };
+  var row = function(arr, cls) { return '<tr' + (cls ? ' class="' + cls + '"' : '') + '>' + arr.map(function(x) { return '<td>' + x + '</td>'; }).join('') + '</tr>'; };
+  var multRow = new Array(cols).fill(''); multRow[0] = '×'; multRow[cols - 1] = m;
+  // a carry sitting over a column the top number does not reach would be the final digit, so it is never drawn there
+  var topStart = cols - aD.length;
+  carries = carries.map(function(x, i) { return i < topStart ? '' : x; });
+  return '<table class="algo-table">' + row(carries, 'carry-row') + row(pad(aD)) + row(multRow, 'mult-row') + row(pad(ans)) + '</table>';
+}
+
+function checkRowsHTML(A, withAlgo) {
+  var q = A.q, d = A.d, N = A.N, r = A.r;
+  var h = '<div class="ld-check"><div class="panel-title">Check</div>' +
+    '<div class="ld-check-words">divisor × quotient' + (r ? ' + remainder' : '') + ' = dividend</div>';
+  if (withAlgo) {
+    h += algoHTML(q, d);
+  } else {
+    h += '<div class="ld-check-row"><span class="c-dvs">' + d + '</span> × <span class="c-quo">' + fmt(q) + '</span> = ' + (r ? fmt(d * q) : '<span class="c-dvd">' + fmt(N) + '</span>') + '</div>';
+    if (r) h += '<div class="ld-check-row">' + fmt(d * q) + ' + <span class="c-rem">' + r + '</span> = <span class="c-dvd">' + fmt(N) + '</span></div>';
+  }
+  return h + '</div>';
+}
+
+function quotientText(A) { return fmt(A.q) + (A.r ? ' r ' + A.r : ''); }
+
+// ── NARRATION FOR EACH STEP ──
+function partitionNarr(A) {
+  var parts = A.cols.map(function(c) { return '<strong>' + placeCount(c.dg, c.place) + '</strong>'; });
+  var last = parts.pop();
+  return 'Partition the <strong class="c-dvd">dividend</strong> first: <strong>' + fmt(A.N) + '</strong> = ' + parts.join(', ') + ' and ' + last + '.';
+}
+function leadNarr(A, c) {
+  var d = A.d, P = c.place;
+  return 'How many <strong>' + d + 's</strong> in <strong>' + placeCount(c.dg, P) + '</strong>? <strong>' + d + '</strong> is more than <strong>' + c.dg + '</strong>, so it does not go. Leave the front empty. Trade the <strong>' + placeCount(c.dg, P) + '</strong> for <strong>' + (c.dg * 10) + ' ' + PLACE_MANY[P - 1] + '</strong> and carry: <strong>' + A.cols[c.i + 1].p + ' ' + PLACE_MANY[P - 1] + '</strong>.';
+}
+function divNarr(A, c) {
+  var d = A.d, pw = PLACE_MANY[c.place];
+  if (c.q === 0) return 'How many <strong>' + d + 's</strong> in <strong>' + placeCount(c.p, c.place) + '</strong>? Count in ' + d + 's: <strong>' + d + '</strong> is already more than <strong>' + c.p + '</strong>. The divisor does not go, so we write <strong>0</strong> to hold the ' + pw + ' place.';
+  return 'How many <strong>' + d + 's</strong> in <strong>' + placeCount(c.p, c.place) + '</strong>? Count in ' + d + 's. <strong>' + d + ' × ' + c.q + ' = ' + (d * c.q) + '</strong>, so write <strong class="c-quo">' + c.q + '</strong> above the ' + pw + '.';
+}
+function carryNarr(A, c) {
+  var d = A.d, P = c.place, qd = c.q * d, w = c.q * Math.pow(10, P);
+  var chunk = ' Area model chunk: <strong>' + d + ' × ' + fmt(w) + ' = ' + fmt(d * w) + '</strong>.';
+  if (c.last) {
+    if (c.r === 0) return '<strong>' + d + ' × ' + c.q + ' = ' + qd + '</strong>. <strong>' + c.p + ' − ' + qd + ' = 0</strong>. Nothing is left over.' + chunk;
+    return '<strong>' + d + ' × ' + c.q + ' = ' + qd + '</strong>. <strong>' + c.p + ' − ' + qd + ' = ' + c.r + '</strong>. <strong>' + c.r + '</strong> is smaller than <strong>' + d + '</strong>, so it is the <strong class="c-rem">remainder</strong>.' + chunk;
+  }
+  var next = A.cols[c.i + 1];
+  if (c.q === 0) return 'Nothing was shared, so all <strong>' + placeCount(c.r, P) + '</strong> are left. Trade them for <strong>' + (c.r * 10) + ' ' + PLACE_MANY[P - 1] + '</strong> and carry: <strong>' + next.p + ' ' + PLACE_MANY[P - 1] + '</strong>. Area model chunk: <strong>' + d + ' × 0 = 0</strong>, an empty chunk.';
+  if (c.r === 0) return '<strong>' + d + ' × ' + c.q + ' = ' + qd + '</strong>. <strong>' + c.p + ' − ' + qd + ' = 0</strong>, so nothing is left to carry.' + chunk;
+  return '<strong>' + d + ' × ' + c.q + ' = ' + qd + '</strong>. <strong>' + c.p + ' − ' + qd + ' = ' + c.r + '</strong>, so <strong>' + placeCount(c.r, P) + '</strong> ' + (c.r === 1 ? 'is' : 'are') + ' left. Trade for <strong>' + (c.r * 10) + ' ' + PLACE_MANY[P - 1] + '</strong> and carry: <strong>' + next.p + ' ' + PLACE_MANY[P - 1] + '</strong>.' + chunk;
+}
+
+// One short line explaining a finished column (We Do)
+function doneNarr(A, c) {
+  var d = A.d, P = c.place;
+  if (c.leading) return '<strong>' + placeCount(c.dg, P) + ' ÷ ' + d + '</strong> does not go. Leave the front empty and carry: <strong>' + A.cols[c.i + 1].p + ' ' + PLACE_MANY[P - 1] + '</strong>.';
+  var w = c.q * Math.pow(10, P);
+  var t = (c.q === 0 ? 'The divisor does not go, so <strong>0</strong> holds the place. ' : '') + '<strong>' + placeCount(c.p, P) + ' ÷ ' + d + ' = ' + c.q + '</strong>';
+  if (c.last) t += c.r ? ' remainder <strong class="c-rem">' + c.r + '</strong>' : ', nothing left over';
+  else t += c.r ? ', <strong>' + placeCount(c.r, P) + '</strong> left to carry' : ', nothing to carry';
+  return t + '. Area model chunk: <strong>' + d + ' × ' + fmt(w) + ' = ' + fmt(d * w) + '</strong>.';
+}
+
+// Times-table count chips for one column
+function countChips(container, A, c, animate) {
+  container.innerHTML = '';
+  var d = A.d, chips = [];
+  var add = function(text, cls) { var e = document.createElement('span'); e.className = 'xe-chip ' + (cls || ''); e.textContent = text; container.appendChild(e); chips.push(e); };
+  var top = c.q + 1;
+  if (c.q === 0) add(c.p + ' is here', 'pin');
+  for (var k = 1; k <= top; k++) {
+    var m = k * d;
+    add(m, k === c.q ? 'hit' : (k === top ? 'over' : ''));
+    if (k === c.q && c.p > m) add(c.p + ' is here', 'pin');
+  }
+  chips.forEach(function(e, idx) {
+    if (animate) setTimeout(function() { e.classList.add('on'); }, 220 * idx);
+    else e.classList.add('on');
+  });
+}
+
+// ── LINKED DIVISION CARD: I Do (staged), We Do (teacher types), Practice (student types) ──
+var lds = {};
+function LD(root, cfg) {
+  this.root = root; this.cfg = cfg; this.mode = cfg.mode;
+  this.A = analyse(cfg.N, cfg.d);
+  var n = this.A.n;
+  this.v = { frame: true, part: false, q: new Array(n).fill(false), carry: new Array(n).fill(false), chunk: new Array(n).fill(false), rem: false, active: -1, rings: {}, input: null };
+  this.est = false; this.check = false; this.zeroNote = false;
+  this.build();
+  if (this.mode === 'ido') { this.stages = this.makeStages(); this.stage = 0; this.applyStage(); }
+  else { this.phase = this.mode === 'wedo' ? 'est' : 'part'; this.col = 0; this.tries = 0; this.firstTry = true; this.hintLevel = 0; this.renderInputMode(); }
+}
+
+LD.prototype.build = function() {
+  var c = this.cfg, A = this.A, id = c.key;
+  var size = this.mode === 'practice' ? 'sm' : this.mode === 'wedo' ? 'wd' : '';
+  this.size = size;
+  var head = '<div class="xe-head">' + (c.title ? '<h3>' + c.title + '</h3>' : '') +
+    '<div class="xe-eq">' +
+      '<div class="pv-term pv-dividend"><div class="pv-num">' + fmt(A.N) + '</div><div class="pv-lab"><span class="w">DIVIDEND</span></div></div>' +
+      '<div class="pv-op">÷</div>' +
+      '<div class="pv-term pv-divisor"><div class="pv-num">' + A.d + '</div><div class="pv-lab"><span class="w">DIVISOR</span></div></div>' +
+      '<div class="pv-op">=</div>' +
+      '<div class="pv-term pv-quotient"><div class="pv-num" id="' + id + '-q">?</div><div class="pv-lab"><span class="w">QUOTIENT</span></div></div>' +
+    '</div></div>';
+  var html = head +
+    '<div class="xe-narr" id="' + id + '-narr"></div>' +
+    '<div class="ld-count' + (this.mode === 'practice' ? ' hide' : '') + '"><span class="ld-count-label" id="' + id + '-cl"></span><div class="xe-tt" id="' + id + '-tt"></div></div>' +
+    '<div class="ld-wrap"><div id="' + id + '-grid"></div><div class="ld-zone" id="' + id + '-zone"></div></div>';
+  if (this.mode === 'practice') html += '<div class="feedback" id="' + id + '-fb"></div><div class="hint-box" id="' + id + '-hint"></div>';
+  if (c.book) html += '<div class="book-note"><span class="bn-tag">' + c.bookTag + '</span><p>' + c.book + '</p></div>';
+  if (this.mode === 'wedo') html += '<div class="ld-ctrl"><div class="reveal-row" id="' + id + '-row"></div><div class="feedback" id="' + id + '-fb"></div></div>';
+  else html += '<div class="reveal-row" id="' + id + '-row"></div>';
+  this.root.innerHTML = html;
+  this.el = {
+    narr: document.getElementById(id + '-narr'), grid: document.getElementById(id + '-grid'),
+    zone: document.getElementById(id + '-zone'), tt: document.getElementById(id + '-tt'), cl: document.getElementById(id + '-cl'),
+    q: document.getElementById(id + '-q'), row: document.getElementById(id + '-row'),
+    fb: document.getElementById(id + '-fb'), hint: document.getElementById(id + '-hint')
+  };
+};
+
+LD.prototype.drawGrid = function() { this.el.grid.innerHTML = ldGridHTML(this.A, this.v, this.size); };
+
+LD.prototype.drawZone = function() {
+  var c = this.cfg, h = '';
+  if (this.est && c.est) h += '<span class="xe-est">E: ' + c.est + '</span>';
+  if (this.zeroNote && c.zeroNote) h += '<div class="callout callout-amber" style="margin:0;"><span class="label">Remember Lesson 1?</span><p>' + c.zeroNote + '</p></div>';
+  if (this.check) {
+    h += checkRowsHTML(this.A, c.algo);
+    if (c.verdict) h += '<span class="ld-ok">' + c.verdict + '</span>';
+  }
+  this.el.zone.innerHTML = h;
+};
+
+LD.prototype.showCount = function(c, animate) {
+  this.el.cl.textContent = 'Count in ' + this.A.d + 's:';
+  countChips(this.el.tt, this.A, c, animate);
+};
+LD.prototype.clearCount = function() { this.el.cl.textContent = ''; this.el.tt.innerHTML = ''; };
+
+// I Do: staged reveal
+LD.prototype.makeStages = function() {
+  var A = this.A, st = [{ t: 'start' }];
+  if (this.cfg.est) st.push({ t: 'est' });
+  st.push({ t: 'part' });
+  A.cols.forEach(function(c, i) {
+    if (c.leading) st.push({ t: 'lead', i: i });
+    else { st.push({ t: 'div', i: i }); st.push({ t: 'carry', i: i }); }
+  });
+  st.push({ t: 'check' });
+  return st;
+};
+
+LD.prototype.stageButton = function(s) {
+  var A = this.A;
+  if (!s) return null;
+  if (s.t === 'est') return 'Make a Radar estimate';
+  if (s.t === 'part') return 'Partition the dividend';
+  if (s.t === 'lead' || s.t === 'div') return 'Divide the ' + PLACE_MANY[A.cols[s.i].place];
+  if (s.t === 'carry') {
+    var c = A.cols[s.i];
+    if (c.last) return c.r ? 'Find the remainder' : 'What is left?';
+    return c.r ? 'Carry what is left' : 'Anything left to carry?';
+  }
+  if (s.t === 'check') return 'Check the answer';
+  return null;
+};
+
+LD.prototype.applyStage = function() {
+  var A = this.A, v = this.v, self = this;
+  var n = A.n;
+  v.part = false; v.q = new Array(n).fill(false); v.carry = new Array(n).fill(false); v.chunk = new Array(n).fill(false);
+  v.rem = false; v.active = -1; this.est = false; this.check = false; this.zeroNote = false;
+  for (var k = 0; k <= this.stage; k++) {
+    var s = this.stages[k];
+    if (s.t === 'est') this.est = true;
+    if (s.t === 'part') v.part = true;
+    if (s.t === 'lead') { v.q[s.i] = true; v.carry[s.i] = true; v.active = s.i; }
+    if (s.t === 'div') { v.q[s.i] = true; v.active = s.i; if (A.cols[s.i].q === 0) this.zeroNote = true; }
+    if (s.t === 'carry') { v.carry[s.i] = true; v.chunk[s.i] = true; v.active = s.i; if (A.cols[s.i].last) v.rem = true; }
+    if (s.t === 'check') { v.active = -1; this.check = true; }
+  }
+  var cur = this.stages[this.stage];
+  var narr = '';
+  if (cur.t === 'start') narr = this.cfg.startNarr || ('Here is <strong>' + fmt(A.N) + ' ÷ ' + A.d + '</strong> set out as short division. The <strong class="c-dvs">divisor</strong> sits outside. The <strong class="c-dvd">dividend</strong> sits inside. The <strong class="c-quo">quotient</strong> goes on top.');
+  if (cur.t === 'est') narr = this.cfg.estNarr;
+  if (cur.t === 'part') narr = partitionNarr(A);
+  if (cur.t === 'lead') narr = leadNarr(A, A.cols[cur.i]);
+  if (cur.t === 'div') narr = divNarr(A, A.cols[cur.i]);
+  if (cur.t === 'carry') narr = carryNarr(A, A.cols[cur.i]);
+  if (cur.t === 'check') narr = 'Quotient <strong class="c-quo">' + quotientText(A) + '</strong>. Check: divisor × quotient' + (A.r ? ' + remainder' : '') + ' = dividend. ' + (this.cfg.checkNarr || '');
+  this.el.narr.innerHTML = narr;
+  if (cur.t === 'lead' || cur.t === 'div') this.showCount(A.cols[cur.i], true);
+  else if (cur.t === 'carry') this.showCount(A.cols[cur.i], false);
+  else this.clearCount();
+  this.el.q.textContent = cur.t === 'check' ? quotientText(A) : '?';
+  this.drawGrid();
+  this.drawZone();
+  var nb = this.stageButton(this.stages[this.stage + 1]);
+  this.el.row.innerHTML = (nb ? '<button class="am-reveal-btn" id="' + this.cfg.key + '-btn">' + nb + ' &rarr;</button>' : '') +
+    '<span class="stage-count">Step ' + (this.stage + 1) + ' of ' + this.stages.length + '</span>';
+  var b = document.getElementById(this.cfg.key + '-btn');
+  if (b) b.onclick = function() { self.next(); };
+};
+
+LD.prototype.next = function() {
+  if (this.mode !== 'ido' || this.stage >= this.stages.length - 1) return;
+  this.stage++;
+  this.applyStage();
+};
+
+// We Do and Practice: inputs inside the bus stop
+LD.prototype.colPrompt = function(c) {
+  var A = this.A, pw = PLACE_MANY[c.place];
+  var p = 'The <strong>' + pw + '</strong> column' + (c.carryIn > 0 ? ' (remember the carry)' : '') + '. How many <strong>' + A.d + 's</strong> fit? Type the digit on top' + (c.leading ? ', or leave it empty if it does not go' : '') + '. ';
+  p += c.last ? 'Then type the <strong class="c-rem">remainder</strong> (leave it empty if nothing is left).' : 'Then type what is left in the small <strong style="color:var(--blue);">blue carry box</strong>.';
+  return p;
+};
+
+LD.prototype.renderInputMode = function() {
+  var self = this, A = this.A, v = this.v, id = this.cfg.key;
+  var btns = '';
+  if (this.phase === 'est') {
+    this.el.narr.innerHTML = 'Mini-whiteboards: write <strong>E:</strong> and your estimate. Boards up, then show the estimate.';
+    btns = '<button class="am-reveal-btn amber" data-a="est">Show estimate &rarr;</button>';
+  } else if (this.phase === 'part') {
+    this.el.narr.innerHTML = this.mode === 'wedo' ? 'Now write the place value partition above the dividend. Then show it.' : 'Step 1: partition the <strong class="c-dvd">dividend</strong> by place value.';
+    btns = '<button class="am-reveal-btn" data-a="part">Partition the dividend &rarr;</button>';
+  } else if (this.phase === 'cols') {
+    var c = A.cols[this.col];
+    v.active = this.col; v.input = { col: this.col };
+    if (!this.keepNarr) this.el.narr.innerHTML = this.colPrompt(c);
+    this.keepNarr = false;
+    btns = '<button class="check-btn" data-a="check">Check this column</button>';
+    if (this.mode === 'wedo') btns += '<button class="am-reveal-btn ghost" data-a="show">Show this step</button>';
+    if (this.mode === 'practice') btns += '<button class="hint-btn" data-a="hint"' + (this.hintLevel >= 3 ? ' disabled' : '') + '>' + (this.hintLevel === 0 ? 'Show hint' : this.hintLevel >= 3 ? 'No more hints' : 'Show another hint') + '</button>';
+  } else if (this.phase === 'check') {
+    v.active = -1; v.input = null;
+    this.el.narr.innerHTML = 'All columns done. Quotient <strong class="c-quo">' + quotientText(A) + '</strong>. Now check it on your board: divisor × quotient' + (A.r ? ' + remainder' : '') + ' = dividend.';
+    btns = '<button class="am-reveal-btn green" data-a="checkshow">Show the check &rarr;</button>';
+  } else if (this.phase === 'done') {
+    v.active = -1; v.input = null;
+  }
+  if (this.phase !== 'cols') v.input = null;
+  this.drawGrid();
+  this.drawZone();
+  this.el.q.textContent = (this.phase === 'check' || this.phase === 'done') ? quotientText(A) : '?';
+  this.el.row.innerHTML = btns;
+  this.el.row.querySelectorAll('button').forEach(function(b) { b.onclick = function() { self.action(b.getAttribute('data-a')); }; });
+  var ins = this.el.grid.querySelectorAll('input');
+  ins.forEach(function(inp, k) {
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); if (k < ins.length - 1) ins[k + 1].focus(); else self.action('check'); }
+    });
+    inp.addEventListener('input', function() { inp.classList.remove('wrong'); if (inp.value.length >= 1 && inp.getAttribute('data-k') === 'q' && k < ins.length - 1 && /^\d$/.test(inp.value)) ins[k + 1].focus(); });
+  });
+  if (this.phase === 'cols' && ins[0] && this.focusInputs) ins[0].focus();
+};
+
+LD.prototype.feedback = function(cls, html) {
+  this.el.fb.className = 'feedback show ' + cls;
+  this.el.fb.innerHTML = html;
+};
+
+LD.prototype.completeColumn = function(i) {
+  var v = this.v, A = this.A, c = A.cols[i];
+  v.q[i] = true; v.carry[i] = true; v.chunk[i] = true;
+  if (c.last) v.rem = true;
+  if (this.mode === 'wedo') this.showCount(c, false);
+  if (this.mode === 'wedo') {
+    this.el.narr.innerHTML = doneNarr(A, c);
+    this.keepNarr = true;
+  }
+  this.hintLevel = 0; this.tries = 0;
+  if (this.el.hint) { this.el.hint.classList.remove('show'); this.el.hint.innerHTML = ''; }
+  if (i < A.n - 1) { this.col = i + 1; this.phase = 'cols'; }
+  else {
+    v.input = null;
+    if (this.mode === 'wedo') { this.phase = 'check'; this.keepNarr = false; }
+    else { this.phase = 'done'; this.check = true; }
+  }
+  this.renderInputMode();
+  if (this.mode === 'wedo' && this.phase === 'cols') {
+    // keep the explanation of the column just finished, then add the next prompt
+    this.el.narr.innerHTML += ' <span class="muted">Next: the ' + PLACE_MANY[A.cols[this.col].place] + '.</span>';
+  }
+  if (this.phase === 'done') {
+    this.el.narr.innerHTML = 'Quotient <strong class="c-quo">' + quotientText(A) + '</strong>. The check is on the right: divisor × quotient' + (A.r ? ' + remainder' : '') + ' = dividend.';
+    if (this.cfg.onDone) this.cfg.onDone(this.firstTry);
+  }
+};
+
+LD.prototype.action = function(a) {
+  var A = this.A;
+  if (a === 'est') { this.est = true; this.phase = 'part'; this.renderInputMode(); return; }
+  if (a === 'part') { this.v.part = true; this.phase = 'cols'; this.col = 0; this.focusInputs = this.mode === 'practice'; this.renderInputMode(); return; }
+  if (a === 'checkshow') { this.check = true; this.phase = 'done'; this.renderInputMode();
+    this.el.narr.innerHTML = 'Check: divisor × quotient' + (A.r ? ' + remainder' : '') + ' = dividend. ' + (this.cfg.checkNarr || '');
+    return; }
+  if (a === 'show') {
+    this.feedback('info', 'Here is the ' + PLACE_MANY[A.cols[this.col].place] + ' column, step by step.');
+    this.completeColumn(this.col);
+    return;
+  }
+  if (a === 'hint') {
+    if (this.hintLevel >= 3) return;
+    this.hintLevel++;
+    var hs = hintsFor(A, this.col);
+    this.el.hint.innerHTML = '<strong>Hint ' + this.hintLevel + ' of 3:</strong> ' + hs[this.hintLevel - 1];
+    this.el.hint.classList.add('show');
+    var hb = this.el.row.querySelector('[data-a="hint"]');
+    if (hb) { hb.textContent = this.hintLevel >= 3 ? 'No more hints' : 'Show another hint'; hb.disabled = this.hintLevel >= 3; }
+    return;
+  }
+  if (a === 'check' && this.phase === 'cols') {
+    var qIn = this.el.grid.querySelector('input[data-k="q"]');
+    var cIn = this.el.grid.querySelector('input[data-k="c"]');
+    var res = checkColumn(A, this.col, qIn ? qIn.value : '', cIn ? cIn.value : '');
+    if (res.ok) {
+      this.feedback('correct', res.msg);
+      this.completeColumn(this.col);
+      return;
+    }
+    this.firstTry = false;
+    this.tries++;
+    (res.part === 'q' ? qIn : cIn).classList.add('wrong');
+    if (this.mode === 'practice' && this.tries >= 2) {
+      var col = this.col;
+      this.feedback('incorrect', res.msg + '<br>Here is this column done for you. Look at it carefully, then carry on.');
+      this.completeColumn(col);
+      return;
+    }
+    this.feedback('incorrect', res.msg + (this.mode === 'practice' ? '<br>Fix it and check again.' : ''));
+  }
+};
+
+// ── HOOK 1: FACT WARM-UP (÷ 8) ──
+var facts = [56, 24, 72, 40, 64, 16, 48, 32, 8, 80];
+var factIdx = -1;
+var factShown = false;
+function show(id) { var el = document.getElementById(id); if (el) el.classList.remove('hide'); }
+function nextFact() {
+  if (factIdx >= facts.length - 1) return;
+  if (factIdx >= 0 && !factShown) showFactAnswer();
+  factIdx++;
+  factShown = false;
+  document.getElementById('fact-wait').classList.add('hide');
+  show('fact-num'); show('fact-eq');
+  document.getElementById('fact-num').textContent = 'Fact ' + (factIdx + 1) + ' of ' + facts.length;
+  document.getElementById('fact-q').textContent = facts[factIdx] + ' ÷ 8';
+  var ans = document.getElementById('fact-ans');
+  ans.className = 'fact-ans hidden-ans';
+  ans.textContent = '?';
+  document.getElementById('fact-show-btn').disabled = false;
+  document.getElementById('fact-next-btn').disabled = true;
+}
+function showFactAnswer() {
+  if (factIdx < 0 || factShown) return;
+  factShown = true;
+  var a = facts[factIdx] / 8;
+  var ans = document.getElementById('fact-ans');
+  ans.className = 'fact-ans shown';
+  ans.textContent = a;
+  document.getElementById('fact-show-btn').disabled = true;
+  document.getElementById('fact-log').innerHTML += '<div class="fact-log-item">' + facts[factIdx] + ' ÷ 8 = ' + a + '</div>';
+  var nb = document.getElementById('fact-next-btn');
+  if (factIdx >= facts.length - 1) {
+    nb.classList.add('hide');
+    document.getElementById('fact-count').textContent = 'All 10 facts done. Count how many you got right.';
+  } else {
+    nb.disabled = false;
+  }
+}
+
+// ── HOOK 2: TWO WAYS TO SOLVE 954 ÷ 6 ──
+var HK = analyse(954, 6);
+var hkChunks = [100, 50, 9];
+var hkStage = 0;
+var hkSteps = [
+  { narr: 'Two students both worked out <strong>954 ÷ 6</strong>. Solution A uses the area model. Solution B uses short division. Watch both.', btn: 'Chip away 6 × 100' },
+  { narr: 'Solution A chips away <strong>6 × 100 = 600</strong>. <strong>954 − 600 = 354</strong> is left.', btn: 'Chip away 6 × 50' },
+  { narr: '<strong>6 × 50 = 300</strong>. <strong>354 − 300 = 54</strong> is left.', btn: 'Chip away 6 × 9' },
+  { narr: '<strong>6 × 9 = 54</strong>. <strong>54 − 54 = 0</strong>. Add the widths: <strong>100 + 50 + 9 = 159</strong>.', btn: 'Set out the short division' },
+  { narr: 'Solution B sets out <strong>954 ÷ 6</strong> as short division. The <strong class="c-dvs">divisor</strong> sits outside, the <strong class="c-dvd">dividend</strong> inside.', btn: 'Divide the hundreds' },
+  { narr: '<strong>9 ÷ 6 = 1</strong> remainder <strong>3</strong>. Write <strong class="c-quo">1</strong> on top. Carry the <strong>3</strong> to make <strong>35</strong>.', btn: 'Divide the tens' },
+  { narr: '<strong>35 ÷ 6 = 5</strong> remainder <strong>5</strong>. Write <strong class="c-quo">5</strong> on top. Carry the <strong>5</strong> to make <strong>54</strong>.', btn: 'Divide the ones' },
+  { narr: '<strong>54 ÷ 6 = 9</strong>. Write <strong class="c-quo">9</strong> on top. Short division also gives <strong class="c-quo">159</strong>.', btn: 'Ask the question' },
+  { narr: 'Same answer. <strong>Where is each chunk of the area model hiding in the short division?</strong> Think, then tell your partner.', btn: 'Find the 100 chunk' },
+  { narr: 'The <strong class="c-quo">1</strong> is in the <strong>hundreds</strong> place, so it means <strong>1 hundred</strong>. That is the <strong>100</strong> chunk: <strong>6 × 100 = 600</strong>.', btn: 'Find the 50 chunk' },
+  { narr: 'The <strong class="c-quo">5</strong> is in the <strong>tens</strong> place, so it means <strong>5 tens</strong>, which is <strong>50</strong>. That is the <strong>50</strong> chunk: <strong>6 × 50 = 300</strong>.', btn: 'Find the 9 chunk' },
+  { narr: 'The <strong class="c-quo">9</strong> is in the <strong>ones</strong> place. That is the <strong>9</strong> chunk: <strong>6 × 9 = 54</strong>. Every digit in the quotient is one chunk.', btn: null }
+];
+
+function hookAreaHTML(nChunks, rings) {
+  var pv = ['s-h', 's-t', 's-o'], ringCls = ['ring-h', 'ring-t', 'ring-o'];
+  var h = '<div class="cm"><div class="cm-row"><div class="cm-side">6</div><div class="cm-box' + (nChunks === 0 ? ' empty' : '') + '">';
+  var used = 0;
+  for (var k = 0; k < nChunks; k++) {
+    var g = hkChunks[k]; used += g;
+    h += '<div class="cm-sec ' + pv[k] + (rings[k] ? ' ' + ringCls[k] : '') + '" style="flex:' + Math.max(g, 16) + ' 1 0; min-width:110px;"><div class="cm-top">' + g + '</div><div class="cm-calc">6 × ' + g + '</div><div class="cm-prod">' + fmt(6 * g) + '</div></div>';
+  }
+  var left = 954 - 6 * used;
+  if (left > 0) h += '<div class="cm-sec todo" style="flex:' + Math.max(left / 6, 16) + ' 1 0; min-width:110px;"><div class="cm-left">' + left + '</div><div class="cm-calc">to chip</div></div>';
+  return h + '</div></div></div>';
+}
+
+function renderHook() {
+  var st = hkSteps[hkStage];
+  document.getElementById('hk-narr').innerHTML = st.narr;
+  var nChunks = Math.min(hkStage, 3);
+  var rings = [hkStage >= 9, hkStage >= 10, hkStage >= 11];
+  document.getElementById('hk-area').innerHTML = hookAreaHTML(nChunks, rings);
+  document.getElementById('hk-sum').classList.toggle('hide', hkStage < 3);
+  // short division view
+  var v = { frame: hkStage >= 4, part: false, q: [hkStage >= 5, hkStage >= 6, hkStage >= 7], carry: [hkStage >= 5, hkStage >= 6, hkStage >= 7],
+    chunk: [false, false, false], rem: false, active: (hkStage >= 5 && hkStage <= 7) ? hkStage - 5 : -1, rings: {}, input: null, area: false };
+  if (rings[0]) v.rings[0] = 'h';
+  if (rings[1]) v.rings[1] = 't';
+  if (rings[2]) v.rings[2] = 'o';
+  document.getElementById('hk-sd').innerHTML = hkStage >= 4 ? ldGridHTML(HK, v, 'md') : '<div class="cm-box empty" style="min-height:220px; border-width:3px; border-radius:12px;"></div>';
+  document.getElementById('hk-q').textContent = hkStage >= 3 ? '159' : '?';
+  document.getElementById('hk-ask').classList.toggle('hide', hkStage < 8);
+  if (hkStage >= 11) document.getElementById('hk-book-text').innerHTML = 'Write: the <strong>1</strong> on top is the <strong>100</strong> chunk, the <strong>5</strong> is the <strong>50</strong> chunk, the <strong>9</strong> is the <strong>9</strong> chunk.';
+  var btn = document.getElementById('hk-btn');
+  if (st.btn) btn.innerHTML = st.btn + ' &rarr;'; else btn.classList.add('hide');
+  document.getElementById('hk-count').textContent = hkStage > 0 ? 'Step ' + hkStage + ' of ' + (hkSteps.length - 1) : '';
+}
+function nextHook() {
+  if (hkStage >= hkSteps.length - 1) return;
+  hkStage++;
+  renderHook();
+}
+
+// ── I DO AND WE DO CONFIG ──
+var cards = {
+  ex1: { mode: 'ido', N: 852, d: 4, title: 'Example 1',
+    est: 'about 200', estNarr: 'Radar first. <strong>852</strong> is close to <strong>800</strong>. <strong>800 ÷ 4 = 200</strong>, so the quotient is about <strong>200</strong>.',
+    checkNarr: '<strong>4 × 213 = 852</strong>. And <strong>213</strong> is close to our estimate of <strong>200</strong>.', verdict: 'Close to E: 200',
+    bookTag: 'In your book', book: 'Watch first. At the end, copy the partition, the short division and the check.' },
+  ex2: { mode: 'ido', N: 2436, d: 4, title: 'Example 2: A zero in the quotient',
+    est: 'about 600', estNarr: 'Radar first. <strong>2,436</strong> is close to <strong>2,400</strong>. <strong>2,400 ÷ 4 = 600</strong>, so the quotient is about <strong>600</strong>.',
+    zeroNote: '<strong>624 ÷ 3 = 28</strong> was wrong. The student skipped the <strong>0</strong>. The right answer is <strong>208</strong>. The <strong>0</strong> holds the tens place.',
+    checkNarr: '<strong>4 × 609 = 2,436</strong>. Without the <strong>0</strong> we would get <strong>69</strong>, and our Radar would go off.', verdict: 'Close to E: 600',
+    bookTag: 'In your book', book: 'Copy it, and circle the 0 in the quotient. Write: "The divisor does not go, so I write 0 to hold the place."' },
+  ex3: { mode: 'ido', N: 8754, d: 3, title: 'Example 3: A 4-digit quotient',
+    est: 'about 3,000', estNarr: 'Radar first. <strong>8,754</strong> is close to <strong>9,000</strong>. <strong>9,000 ÷ 3 = 3,000</strong>, so the quotient is about <strong>3,000</strong>.',
+    algo: true, checkNarr: 'Use the formal algorithm: <strong>2,918 × 3 = 8,754</strong>. The carries are blue.', verdict: 'Back to 8,754',
+    bookTag: 'In your book', book: 'Copy the short division. Underneath, check it with the formal multiplication algorithm.' },
+  wd1: { mode: 'wedo', N: 693, d: 3, title: 'Q1: Together',
+    est: 'about 230', checkNarr: '<strong>3 × 231 = 693</strong>. Close to our estimate of <strong>230</strong>.', verdict: 'Close to E: 230',
+    bookTag: 'Mini-whiteboard', book: 'Write E:, the partition, then the short division. Hold your board up after each column.' },
+  wd2: { mode: 'wedo', N: 745, d: 5, title: 'Q2: Together',
+    est: 'about 150', checkNarr: '<strong>5 × 149 = 745</strong>. Close to our estimate of <strong>150</strong>.', verdict: 'Close to E: 150',
+    bookTag: 'Mini-whiteboard', book: 'Write E:, the partition, then the short division. Show your carries in blue.' },
+  wd3: { mode: 'wedo', N: 4218, d: 7, title: 'Q3: Together',
+    est: 'about 600', checkNarr: '<strong>7 × 602 = 4,214</strong>. Then <strong>4,214 + 4 = 4,218</strong>. Back to the dividend.', verdict: 'Close to E: 600',
+    bookTag: 'Mini-whiteboard', book: 'Write E:, the partition, the short division with the remainder, and the check in two rows.' }
+};
+
+function buildCards() {
+  Object.keys(cards).forEach(function(key) {
+    var cfg = cards[key]; cfg.key = key;
+    lds[key] = new LD(document.getElementById(key), cfg);
+  });
+}
+
+// ── PRACTICE ──
+var currentLevel = 1;
+var practiceQs = [];
+var practiceIdx = 0;
+var practiceResults = [];
+var levelsDone = {};
+
+function startLevel(level) {
+  if (level < 1 || level > 3) return;
+  currentLevel = level;
+  practiceQs = generateLevelQuestions(level);
+  practiceIdx = 0;
+  practiceResults = [];
+  document.querySelectorAll('.level-card').forEach(function(c, i) { c.classList.toggle('current', i + 1 === level); });
+  document.getElementById('practice-summary').classList.remove('show');
+  document.getElementById('practice-area').classList.remove('hide');
+  var dots = '';
+  for (var i = 0; i < 4; i++) dots += '<div class="dot" id="pdot-' + i + '">' + (i + 1) + '</div>';
+  document.getElementById('practice-dots').innerHTML = dots;
+  showPracticeQuestion();
+  document.getElementById('practice-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showPracticeQuestion() {
+  var item = practiceQs[practiceIdx];
+  document.getElementById('practice-label').textContent = 'Level ' + currentLevel + ': Question ' + (practiceIdx + 1) + ' of 4';
+  for (var i = 0; i < 4; i++) document.getElementById('pdot-' + i).classList.toggle('current', i === practiceIdx);
+  document.getElementById('practice-next').classList.add('hide');
+  lds.practice = new LD(document.getElementById('practice-builder'), {
+    mode: 'practice', key: 'pr', N: item.N, d: item.d, onDone: practiceAnswered
+  });
+}
+
+function practiceAnswered(correct) {
+  practiceResults[practiceIdx] = correct;
+  var dot = document.getElementById('pdot-' + practiceIdx);
+  dot.classList.remove('current');
+  dot.classList.add(correct ? 'green' : 'red');
+  var nb = document.getElementById('practice-next');
+  nb.innerHTML = practiceIdx < 3 ? 'Next question &rarr;' : 'See my score &rarr;';
+  nb.classList.remove('hide');
+}
+
+function nextPractice() {
+  if (practiceIdx < 3) { practiceIdx++; showPracticeQuestion(); }
+  else showPracticeSummary();
+}
+
+function showPracticeSummary() {
+  document.getElementById('practice-area').classList.add('hide');
+  var correct = practiceResults.filter(function(r) { return r; }).length;
+  levelsDone[currentLevel] = true;
+  document.getElementById('level-card-' + currentLevel).classList.add('done');
+  document.getElementById('summary-title').textContent = 'Level ' + currentLevel + ' complete';
+  var sc = document.getElementById('summary-score');
+  sc.textContent = correct + ' / 4';
+  sc.style.color = correct >= 3 ? 'var(--green-dark)' : correct >= 2 ? 'var(--amber-dark)' : 'var(--red-dark)';
+  var msg = correct === 4 ? 'Excellent. Every column was right first time.' :
+            correct === 3 ? 'Great work. Look back at the one that tripped you up.' :
+            correct === 2 ? 'Getting there. Partition first, then count in the divisor for each column.' :
+            'Look back at the I Do examples, then try again.';
+  document.getElementById('summary-message').textContent = msg;
+  document.getElementById('next-level-btn').classList.toggle('hide', currentLevel >= 3);
+  document.getElementById('practice-summary').classList.add('show');
+  document.getElementById('practice-summary').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (currentLevel === 3) unlockGoDeeper();
+}
+
+// ── GO DEEPER ──
+var goUnlocked = false;
+function unlockGoDeeper() {
+  if (goUnlocked) return;
+  goUnlocked = true;
+  var card = document.getElementById('go-deeper-card');
+  card.classList.remove('locked');
+  card.disabled = false;
+  card.querySelector('h3').innerHTML = '<span class="lock-icon" style="font-size:1.3rem;">&#x1F513;</span> Go Deeper: Zero Hunters';
+  card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician';
+  document.getElementById('go-deeper-summary-btn').classList.remove('hide');
+}
+function openGoDeeper() {
+  if (!goUnlocked) return;
+  var sec = document.getElementById('go-deeper-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── IN YOUR BOOK ──
+var bookTiers = [
+  { cls: 't1', title: 'Tier 1', note: 'Partition first. Use the place value chart and blocks if you need them.',
+    qs: [[484, 4, 'about 120'], [375, 5, 'about 80'], [432, 3, 'about 150'], [217, 7, 'about 30']] },
+  { cls: 't2', title: 'Tier 2', note: 'Check each one with 4-digit × 1-digit multiplication.',
+    qs: [[1872, 6, 'about 300'], [3245, 5, 'between 600 and 700'], [6328, 8, 'about 800'], [4153, 4, 'about 1,000']] },
+  { cls: 't3', title: 'Tier 3', note: 'Error hunt. Which are wrong? Find the error, correct it, and explain it in one sentence.',
+    errors: [
+      { q: '3,624 ÷ 6 = 64', ans: '<strong>Wrong.</strong> ' + mono('2') + ' tens ÷ ' + mono('6') + ' does not go, so a ' + mono('0') + ' must hold the tens place.<br>' + mono('3,624 ÷ 6 = 604') + '<br>Check: ' + mono('6 × 604 = 3,624') },
+      { q: '1,758 ÷ 7 = 251 r1', ans: '<strong>Correct.</strong><br>Check: ' + mono('7 × 251 = 1,757') + '<br>' + mono('1,757 + 1 = 1,758') },
+      { q: '5,040 ÷ 8 = 63', ans: '<strong>Wrong.</strong> ' + mono('0') + ' ones ÷ ' + mono('8') + ' does not go, so a ' + mono('0') + ' must hold the ones place.<br>' + mono('5,040 ÷ 8 = 630') + '<br>Check: ' + mono('8 × 630 = 5,040') }
+    ],
+    extra: 'Then: Remainder Investigation Part 2 (Zero Hunters) in the back of your book.' }
+];
+
+function bookAnswer(N, d, est) {
+  var q = Math.floor(N / d), r = N % d;
+  var s = 'E: ' + est + '<br>' + mono(fmt(N) + ' ÷ ' + d + ' = ' + fmt(q) + (r ? ' r ' + r : '')) + '<br>Check: ' + mono(d + ' × ' + fmt(q) + ' = ' + fmt(d * q));
+  if (r) s += '<br>' + mono(fmt(d * q) + ' + ' + r + ' = ' + fmt(N));
+  return s;
+}
+
+function buildBook() {
+  var html = '';
+  bookTiers.forEach(function(t) {
+    html += '<div class="tier-col ' + t.cls + '"><h4>' + t.title + '</h4><div class="tier-note">' + t.note + '</div>';
+    (t.qs || []).forEach(function(item) {
+      html += '<div class="bw-card"><div class="bw-line"><span class="bw-problem">' + fmt(item[0]) + ' ÷ ' + item[1] + '</span>' +
+        '<button class="bw-reveal-btn" onclick="toggleBW(this)">Show answer</button></div>' +
+        '<div class="bw-answer">' + bookAnswer(item[0], item[1], item[2]) + '</div></div>';
+    });
+    (t.errors || []).forEach(function(e) {
+      html += '<div class="bw-card"><div class="bw-line"><span class="bw-problem" style="font-size:21px;">' + e.q + '</span>' +
+        '<button class="bw-reveal-btn" onclick="toggleBW(this)">Show answer</button></div>' +
+        '<div class="bw-answer">' + e.ans + '</div></div>';
+    });
+    if (t.extra) html += '<div class="bw-extra">' + t.extra + '</div>';
+    html += '</div>';
+  });
+  document.getElementById('tier-grid').innerHTML = html;
+}
+
+function toggleBW(btn) {
+  var ans = btn.closest('.bw-card').querySelector('.bw-answer');
+  var on = !ans.classList.contains('show');
+  ans.classList.toggle('show', on);
+  btn.textContent = on ? 'Hide answer' : 'Show answer';
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function() {
+  setHeaderHeight();
+  renderHook();
+  buildCards();
+  buildBook();
+  goToSlide(0);
+  document.addEventListener('keydown', function(e) {
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+  window.addEventListener('resize', setHeaderHeight);
+});
+</script>
+</body>
+</html>
