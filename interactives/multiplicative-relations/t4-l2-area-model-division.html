@@ -189,6 +189,12 @@
     font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
   }
   .am-reveal-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+  .am-back-btn {
+    background: #fff; color: var(--blue); border: 2px solid var(--blue); border-radius: 30px;
+    padding: 10px 22px; font-family: 'Fredoka', sans-serif; font-size: 17px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .am-back-btn:hover { background: #eaf4fb; transform: translateY(-2px); }
   .reveal-row { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
   .stage-count { font-size: 15px; font-weight: 600; color: var(--muted); }
 
@@ -593,6 +599,7 @@
         <p>Write: 237 ÷ 3 = 79. Underneath, write the check: 3 × 79 = 237.</p>
       </div>
       <div class="reveal-row">
+        <button class="am-back-btn hide" id="hook-back" onclick="prevHook()">&larr; Back</button>
         <button class="am-reveal-btn" id="hook-btn" onclick="nextHook()">Show 237 in place value blocks &rarr;</button>
         <span class="stage-count" id="hook-count"></span>
       </div>
@@ -662,6 +669,7 @@
         </div>
       </div>
       <div class="reveal-row">
+        <button class="am-back-btn hide" id="ladder-back" onclick="prevLadder()">&larr; Back</button>
         <button class="am-reveal-btn" id="ladder-btn" onclick="nextLadder()">Show 7 × 1 &rarr;</button>
       </div>
     </div>
@@ -1069,15 +1077,28 @@ function renderHook() {
     document.getElementById('hook-step-title').textContent = s.title;
     document.getElementById('hook-log').innerHTML = s.log.map(function(r) { return '<div class="log-row">' + r + '</div>'; }).join('');
     document.getElementById('hook-count').textContent = 'Step ' + hookStage + ' of ' + hookStages.length;
+  } else {
+    document.getElementById('hook-step-title').textContent = 'What is happening';
+    document.getElementById('hook-log').innerHTML = '<div class="log-row muted">Press the button to show the balloons as place value blocks.</div>';
+    document.getElementById('hook-count').textContent = '';
   }
   var btn = document.getElementById('hook-btn');
-  if (s && !s.btn) { btn.classList.add('hide'); document.getElementById('hook-book').classList.remove('hide'); }
-  else if (s) btn.innerHTML = s.btn + ' &rarr;';
+  var last = s && !s.btn;
+  btn.classList.toggle('hide', !!last);
+  document.getElementById('hook-book').classList.toggle('hide', !last);
+  btn.innerHTML = (s ? s.btn : 'Show 237 in place value blocks') + ' &rarr;';
+  document.getElementById('hook-back').classList.toggle('hide', hookStage === 0);
 }
 
 function nextHook() {
   if (hookStage >= hookStages.length) return;
   hookStage++;
+  renderHook();
+}
+
+function prevHook() {
+  if (hookStage <= 0) return;
+  hookStage--;
   renderHook();
 }
 
@@ -1093,19 +1114,30 @@ var ladderNarr = [
   'A hundred groups of 7 is <strong>700</strong>. The 7 moves two places to the left.'
 ];
 var ladderBtns = ['Show 7 × 2', 'Show 7 × 5', 'Show 7 × 10', 'Show 7 × 20', 'Show 7 × 50', 'Show 7 × 100', 'Where do friendly chunks come from?'];
-function nextLadder() {
+// ladderStage: 0 = empty ladder, 1 to 7 = rows shown, 8 = friendly chunks callout
+function renderLadder() {
   var rows = document.querySelectorAll('#ladder-7 .ladder-row');
   var btn = document.getElementById('ladder-btn');
-  if (ladderStage < rows.length) {
-    rows[ladderStage].classList.remove('step-hidden');
-    document.getElementById('ladder-narration').innerHTML = ladderNarr[ladderStage];
-    btn.innerHTML = ladderBtns[ladderStage] + ' &rarr;';
-    ladderStage++;
-  } else {
-    document.getElementById('ladder-callout').classList.remove('hide');
-    document.getElementById('ladder-book').classList.remove('hide');
-    btn.classList.add('hide');
-  }
+  var shown = Math.min(ladderStage, rows.length);
+  rows.forEach(function(r, i) { r.classList.toggle('step-hidden', i >= shown); });
+  document.getElementById('ladder-narration').innerHTML = shown > 0 ? ladderNarr[shown - 1] : 'We start at the bottom of the ladder: one group of 7.';
+  btn.innerHTML = (shown > 0 ? ladderBtns[shown - 1] : 'Show 7 × 1') + ' &rarr;';
+  var done = ladderStage > rows.length;
+  btn.classList.toggle('hide', done);
+  document.getElementById('ladder-callout').classList.toggle('hide', !done);
+  document.getElementById('ladder-book').classList.toggle('hide', !done);
+  document.getElementById('ladder-back').classList.toggle('hide', ladderStage === 0);
+}
+function nextLadder() {
+  var rows = document.querySelectorAll('#ladder-7 .ladder-row');
+  if (ladderStage > rows.length) return;
+  ladderStage++;
+  renderLadder();
+}
+function prevLadder() {
+  if (ladderStage <= 0) return;
+  ladderStage--;
+  renderLadder();
 }
 
 // ── CHIP-AWAY AREA MODEL RENDERER (used by I Do, We Do and Practice) ──
@@ -1195,7 +1227,7 @@ function buildExample(key) {
       '</div>' +
     '</div>' +
     '<div class="book-note hide" id="' + key + '-book"><span class="bn-tag">In your book</span><p>' + ex.book + '</p></div>' +
-    '<div class="reveal-row"><button class="am-reveal-btn" id="' + key + '-btn" onclick="nextExample(\'' + key + '\')"></button><span class="stage-count" id="' + key + '-count"></span></div>';
+    '<div class="reveal-row"><button class="am-back-btn hide" id="' + key + '-back" onclick="prevExample(\'' + key + '\')">&larr; Back</button><button class="am-reveal-btn" id="' + key + '-btn" onclick="nextExample(\'' + key + '\')"></button><span class="stage-count" id="' + key + '-count"></span></div>';
   exState[key] = { stage: 0 };
   ex.stages = buildExampleStages(ex);
   renderExample(key);
@@ -1259,6 +1291,7 @@ function renderExample(key) {
     ans.innerHTML = rows;
     ans.classList.remove('hide');
   } else {
+    ans.innerHTML = '';
     ans.classList.add('hide');
   }
   var co = document.getElementById(key + '-callout');
@@ -1268,12 +1301,20 @@ function renderExample(key) {
   if (stage.btn) { btn.classList.remove('hide'); btn.innerHTML = stage.btn + ' &rarr;'; }
   else btn.classList.add('hide');
   document.getElementById(key + '-count').textContent = 'Step ' + (st + 1) + ' of ' + ex.stages.length;
+  document.getElementById(key + '-back').classList.toggle('hide', st === 0);
 }
 
 function nextExample(key) {
   var ex = examples[key];
   if (exState[key].stage < ex.stages.length - 1) {
     exState[key].stage++;
+    renderExample(key);
+  }
+}
+
+function prevExample(key) {
+  if (exState[key].stage > 0) {
+    exState[key].stage--;
     renderExample(key);
   }
 }
