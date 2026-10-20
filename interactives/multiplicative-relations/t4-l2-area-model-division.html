@@ -332,15 +332,12 @@
     background: var(--purple); border-radius: 8px; padding: 1px 10px; white-space: nowrap;
   }
 
-  /* TRACKER AND SIDE PANELS */
+  /* SIDE PANELS */
   .ex-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start; }
   .panel-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
-  .tracker { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 12px 16px; }
-  .tracker .panel-title { color: var(--muted); }
-  .tracker-rows { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; }
-  .tracker-row { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 22px; padding: 2px 8px; border-radius: 8px; white-space: nowrap; }
-  .tracker-row.latest { background: #fff3c4; }
-  .tracker-row.start { color: var(--muted); font-size: 18px; }
+  .alt-box { margin-top: 22px; padding: 16px 20px 18px; border: 2px dashed var(--teal); border-radius: 16px; background: #f0fdfa; }
+  .alt-box .panel-title { color: var(--teal-dark); }
+  .alt-box .answer-row-line { margin-top: 6px; }
   .radar-box { background: linear-gradient(135deg, #fffbf0, #fff8e8); border: 2px solid var(--amber); border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; }
   .radar-box .panel-title { color: var(--amber-dark); }
   .radar-row { font-size: 1.25rem; line-height: 1.5; }
@@ -360,6 +357,8 @@
   .tool-btn:hover:not(:disabled) { border-color: var(--teal); background: #f0fdfa; }
   .tool-btn:disabled { opacity: 0.4; cursor: default; }
   .cb-main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+  .cb-main.no-side { grid-template-columns: minmax(0, 1fr); }
+  .cb-main.no-side .cb-side { display: none; }
   .cb-ladder { background: #fff; border: 2px solid var(--teal); border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; }
   .cb-ladder .panel-title { color: var(--teal-dark); }
   .cb-ladder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; }
@@ -1174,30 +1173,20 @@ function modelHTML(o) {
   return html;
 }
 
-// What is left tracker: one subtraction per row
-function trackerHTML(d, N, chunks) {
-  var rows = '<div class="tracker-row start">Start: ' + fmt(N) + '</div>';
-  var left = N;
-  chunks.forEach(function(g, i) {
-    var p = g * d;
-    rows += '<div class="tracker-row' + (i === chunks.length - 1 ? ' latest' : '') + '">' + fmt(left) + ' − ' + fmt(p) + ' = ' + fmt(left - p) + '</div>';
-    left -= p;
-  });
-  return '<div class="panel-title">What is left</div><div class="tracker-rows">' + rows + '</div>';
-}
-
 // ── I DO WORKED EXAMPLES (staged) ──
 var examples = {
   ex1: {
     title: 'Example 1: Chip away', d: 7, N: 196, chunks: [20, 8],
     radar: ['Round <strong>196</strong> up to <strong>210</strong>, a multiple of 7.', mono('210 ÷ 7 = 30'), 'So the answer is <strong>a bit less than 30</strong>.'],
     radarNarr: 'Radar first. <strong>210</strong> is close to <strong>196</strong> and is easy to divide by 7.',
-    book: 'Draw this area model. Write the "What is left" rows beside it and the check underneath.'
+    book: 'Draw this area model. Write the answer and the check underneath.'
   },
   ex2: {
     title: 'Example 2: Something left over', d: 4, N: 517, chunks: [100, 20, 9],
     radar: ['Round <strong>517</strong> to <strong>520</strong>.', mono('520 ÷ 4 = 130'), 'So the answer is <strong>a bit less than 130</strong>.'],
     radarNarr: 'Radar first. <strong>520</strong> is close to <strong>517</strong> and easy to divide by 4.',
+    alt: { chunks: [100, 25, 4],
+      narr: 'There is more than one way to chip. <strong>4 × 25 = 100</strong> is a friendly fact, so after the <strong>400</strong> we can chip <strong>25</strong> groups in one go. Different chunks, same answer.' },
     book: 'Draw this area model. Shade the remainder strip and write the check underneath.'
   },
   ex3: {
@@ -1222,10 +1211,10 @@ function buildExample(key) {
       '</div>' +
       '<div><div class="radar-box hide" id="' + key + '-radar"><div class="panel-title">Radar estimate</div>' +
         ex.radar.map(function(r) { return '<div class="radar-row">' + r + '</div>'; }).join('') + '</div>' +
-        '<div class="tracker hide" id="' + key + '-tracker"></div>' +
         (ex.callout ? '<div class="callout callout-teal hide" id="' + key + '-callout">' + ex.callout + '</div>' : '') +
       '</div>' +
     '</div>' +
+    (ex.alt ? '<div class="alt-box hide" id="' + key + '-alt"></div>' : '') +
     '<div class="book-note hide" id="' + key + '-book"><span class="bn-tag">In your book</span><p>' + ex.book + '</p></div>' +
     '<div class="reveal-row"><button class="am-back-btn hide" id="' + key + '-back" onclick="prevExample(\'' + key + '\')">&larr; Back</button><button class="am-reveal-btn" id="' + key + '-btn" onclick="nextExample(\'' + key + '\')"></button><span class="stage-count" id="' + key + '-count"></span></div>';
   exState[key] = { stage: 0 };
@@ -1257,7 +1246,8 @@ function buildExampleStages(ex) {
     stages.push({ kind: 'stop', narr: '<strong>' + rem + '</strong> is smaller than <strong>' + d + '</strong>, so we stop. Not even one more group of ' + d + ' fits. The <strong>' + rem + '</strong> left over is the <strong>remainder</strong>, shown as a thin strip.', btn: 'Add the section widths' });
   }
   stages.push({ kind: 'quotient', narr: 'Add the widths above the box to find the <strong>quotient</strong>.', btn: 'Check the answer' });
-  stages.push({ kind: 'check', narr: 'Check: divisor × quotient + remainder = dividend. We are back to <strong>' + fmt(N) + '</strong>, so the answer is right.', btn: null });
+  stages.push({ kind: 'check', narr: 'Check: divisor × quotient + remainder = dividend. We are back to <strong>' + fmt(N) + '</strong>, so the answer is right.', btn: ex.alt ? 'Show another way' : null });
+  if (ex.alt) stages.push({ kind: 'alt', narr: ex.alt.narr, btn: null });
   ex.rem = rem;
   ex.q = sum(ex.chunks);
   return stages;
@@ -1275,9 +1265,20 @@ function renderExample(key) {
   document.getElementById(key + '-model').innerHTML = modelHTML({ d: ex.d, N: ex.N, chunks: chunks, dims: dims, leftover: has('stop') });
   document.getElementById(key + '-narr').innerHTML = stage.narr;
   document.getElementById(key + '-radar').classList.toggle('hide', !has('radar'));
-  var tr = document.getElementById(key + '-tracker');
-  tr.classList.toggle('hide', !dims);
-  tr.innerHTML = trackerHTML(ex.d, ex.N, chunks);
+  var alt = document.getElementById(key + '-alt');
+  if (alt) {
+    if (has('alt')) {
+      var ac = ex.alt.chunks, aq = sum(ac), ar = ex.N - ex.d * aq;
+      alt.innerHTML = '<div class="panel-title">Another way</div>' +
+        modelHTML({ d: ex.d, N: ex.N, chunks: ac, dims: true, leftover: true }) +
+        '<div class="answer-row-line">' + ac.map(fmt).join(' + ') + ' = ' + fmt(aq) + '</div>' +
+        '<div class="answer-row-line">' + fmt(ex.N) + ' ÷ ' + ex.d + ' = ' + fmt(aq) + (ar > 0 ? ' remainder ' + ar : '') + '</div>';
+      alt.classList.remove('hide');
+    } else {
+      alt.innerHTML = '';
+      alt.classList.add('hide');
+    }
+  }
   var ans = document.getElementById(key + '-answer');
   if (has('quotient')) {
     var rows = '<div class="panel-title">Answer</div>';
@@ -1446,13 +1447,12 @@ ChipBuilder.prototype.build = function() {
         '<button class="tool-btn cb-ladder-btn">Show the multiples ladder for ' + d + '</button>' +
         '<button class="tool-btn cb-undo" disabled>Undo last chunk</button>' +
       '</div>' +
-      '<div class="cb-main">' +
+      '<div class="cb-main no-side">' +
         '<div class="cb-model"></div>' +
         '<div class="cb-side" style="padding-top:10px;">' +
           '<div class="cb-ladder hide"><div class="panel-title">Multiples ladder for ' + d + '</div><div class="cb-ladder-grid">' +
             this.ladderMultipliers().map(function(m) { return '<span class="mono">' + d + ' × ' + fmt(m) + ' = ' + fmt(d * m) + '</span>'; }).join('') +
           '</div></div>' +
-          '<div class="tracker cb-tracker"></div>' +
         '</div>' +
       '</div>' +
       '<div class="cb-chip-row">' +
@@ -1471,7 +1471,7 @@ ChipBuilder.prototype.build = function() {
     '</div>';
   var q = function(sel) { return self.root.querySelector(sel); };
   this.el = {
-    model: q('.cb-model'), tracker: q('.cb-tracker'), ladder: q('.cb-ladder'), ladderBtn: q('.cb-ladder-btn'),
+    model: q('.cb-model'), main: q('.cb-main'), ladder: q('.cb-ladder'), ladderBtn: q('.cb-ladder-btn'),
     undo: q('.cb-undo'), chipRow: q('.cb-chip-row'), groups: q('.cb-groups'), chip: q('.cb-chip'),
     msg: q('.cb-msg'), answerRow: q('.cb-answer-row'), qIn: q('.cb-q'), rIn: q('.cb-r'), check: q('.cb-check'),
     result: q('.cb-result'), hint: q('.cb-hint'), hintBox: q('.cb-hint-box')
@@ -1492,6 +1492,7 @@ ChipBuilder.prototype.build = function() {
 ChipBuilder.prototype.toggleLadder = function(forceOpen) {
   var open = forceOpen === true ? true : this.el.ladder.classList.contains('hide');
   this.el.ladder.classList.toggle('hide', !open);
+  this.el.main.classList.toggle('no-side', !open);
   this.el.ladderBtn.textContent = (open ? 'Hide' : 'Show') + ' the multiples ladder for ' + this.d;
 };
 
@@ -1499,9 +1500,6 @@ ChipBuilder.prototype.render = function() {
   var left = this.left();
   var stopped = left < this.d;
   this.el.model.innerHTML = modelHTML({ d: this.d, N: this.N, chunks: this.chunks, dims: true, leftover: stopped });
-  this.el.tracker.innerHTML = trackerHTML(this.d, this.N, this.chunks);
-  var rowsEl = this.el.tracker.querySelector('.tracker-rows');
-  if (rowsEl) rowsEl.scrollTop = rowsEl.scrollHeight;
   this.el.undo.disabled = this.finished || this.chunks.length === 0;
   this.el.chipRow.classList.toggle('hide', stopped);
   this.el.answerRow.classList.toggle('hide', !stopped);
@@ -1587,10 +1585,10 @@ ChipBuilder.prototype.checkAnswer = function() {
   } else this.el.qIn.classList.add('correct');
   if (!ev.rOK) {
     this.el.rIn.classList.add('wrong');
-    if (ev.r.blank) msgs.push('Your remainder is ' + mono('(blank)') + '. The remainder is what is left at the end of the tracker. If nothing is left, write ' + mono('0') + '.');
-    else if (!ev.r.ok) msgs.push('Your remainder is ' + mono(esc(ev.r.text)) + '. Type a whole number. Look at what is left at the end of the tracker.');
+    if (ev.r.blank) msgs.push('Your remainder is ' + mono('(blank)') + '. The remainder is the leftover strip. If nothing is left, write ' + mono('0') + '.');
+    else if (!ev.r.ok) msgs.push('Your remainder is ' + mono(esc(ev.r.text)) + '. Type a whole number. Look at the leftover strip.');
     else if (ev.r.value >= d) msgs.push('Your remainder is ' + mono(fmt(ev.r.value)) + ', but ' + mono(fmt(ev.r.value)) + ' is not smaller than ' + mono(d) + ', so one more group fits. The remainder must be smaller than the divisor.');
-    else msgs.push('Your remainder is ' + mono(ev.r.value) + '. Look at the end of the "What is left" tracker: ' + mono(ev.trueR) + ' is left over.');
+    else msgs.push('Your remainder is ' + mono(ev.r.value) + '. Look at the leftover strip: ' + mono(ev.trueR) + ' is left over.');
   } else this.el.rIn.classList.add('correct');
 
   var correct = ev.qOK && ev.rOK;
