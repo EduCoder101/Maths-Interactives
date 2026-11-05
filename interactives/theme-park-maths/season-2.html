@@ -593,6 +593,7 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
     <div id="teacher-body"></div>
 </div>
 
+<script src="results-to-sheet.js?v=2"></script>
 <script>
 // ============================================================
 // SEED: Season 1 as recorded in the class tracker
@@ -867,6 +868,21 @@ function taxExpected() {
     return { p, tax, after, ins, fin, bank, loan, net: round2(bank - loan) };
 }
 
+
+// ============================================================
+// TEACHER VISIBILITY: posts to the class Google Sheet via results-to-sheet.js
+// One tab, "Theme Park Maths S2". Score = boxes correct, Total = boxes checked.
+// ============================================================
+function logEvent(label, score, total, extra) {
+    try {
+        if (typeof submitResult !== 'function') return;
+        const g = group(); if (!g) return;
+        sessionStorage.setItem('maths_interactives_student_name', g.name);
+        if (!sessionStorage.getItem('maths_interactives_student_class')) sessionStorage.setItem('maths_interactives_student_class', 'Year 5');
+        const data = Object.assign({ stage: currentStage, unlocked: state.unlocked, fee: state.fee, advert: state.advert }, extra || {});
+        submitResult('theme-park-s2', 'Theme Park Maths S2', score, total, label, [data]);
+    } catch (e) {}
+}
 // ============================================================
 // NAVIGATION
 // ============================================================
@@ -1132,7 +1148,7 @@ function renderCrateCounts() {
 }
 function finishPlacing() {
     const rem = crateRemaining(); if (!Object.values(rem).every(v => v === 0)) return;
-    state.placed = true; playSound('win');
+    state.placed = true; playSound('win'); logEvent('Park laid out', 1, 1);
     renderCrateCounts(); goStage(2);
 }
 
@@ -1185,8 +1201,8 @@ function restoreImprove() {
 function checkStepA() {
     const msg = diagnose(parseMoney($('imp-40').value), budget40(), { blank: 'Find 40% of the bank balance.', wrong: 'Find 10% (divide by 10), then multiply by 4.', special: [{ value: round2(bankS1() * 0.1), msg: 'That is 10%. You may spend four times that.' }, { value: round2(bankS1() * 0.6), msg: 'That is 60%, which is what you keep.' }, { value: round2(bankS1() * 4), msg: 'You multiplied by 4 without finding 10% first.' }, { value: round2(bankS1() / 3), msg: 'That is one third. The one-third rule comes later, for new features.' }] });
     setInput('imp-40', msg ? 'bad' : 'ok');
-    if (msg) { playSound('bad'); showFb('fb-a', 'bad', msg); return; }
-    playSound('good'); showFb('fb-a', 'good', '<strong>Correct.</strong> The park is unlocked. Clear, buy land and advertise, then fill in Step C.');
+    if (msg) { playSound('bad'); showFb('fb-a', 'bad', msg); logEvent('Task 7 step A: wrong', 0, 1, { answer: $('imp-40').value }); return; }
+    playSound('good'); logEvent('Task 7 step A: correct', 1, 1); showFb('fb-a', 'good', '<strong>Correct.</strong> The park is unlocked. Clear, buy land and advertise, then fill in Step C.');
     state.stepA = true; $('imp-40').disabled = true;
     ['step-b', 'step-c'].forEach(id => $(id).classList.add('live'));
     renderProgress(); saveNow(false);
@@ -1211,6 +1227,7 @@ function checkStepC() {
     ok += checkRow('imp-now', 'f-imp-now', n, { blank: 'Bank minus improvements.', wrong: 'Take the improvements away from the whole bank balance, not from the 40%.', special: [{ value: round2(budget40() - t), msg: 'You took it from the 40%. Take it from the whole bank balance.' }] });
     ok += checkRow('imp-third', 'f-imp-third', th, { blank: 'Divide "now in the bank" by 3.', wrong: 'One third means divide by 3. Round to the nearest cent.', special: [{ value: round2(n * 0.3), msg: 'That is 30%, not one third.' }, { value: round2(bankS1() / 3), msg: 'You used the old bank balance. Use "now in the bank".' }] });
     state.working.improve = $('working-improve').value;
+    logEvent('Task 7 step C' + (ok === 6 ? ': correct' : ': wrong'), ok, 6, { clearing: clearingCost(), land: landSquares(), advert: state.advert });
     if (ok === 6) { state.stepC = true; playSound('win'); lockRows(['imp-clear', 'imp-landcost', 'imp-ad', 'imp-total', 'imp-now', 'imp-third']); miniFb('fb-c', 'good', 'The shop is open.'); $('step-d').classList.add('live'); renderShop2(); }
     else { playSound('bad'); miniFb('fb-c', 'bad', ok + ' of 6 correct.'); }
     renderProgress(); saveNow(false);
@@ -1222,6 +1239,7 @@ function checkStepD() {
     ok += checkRow('imp-feat', 'f-imp-feat', f, { blank: f === 0 ? 'You bought nothing new, so 0.' : 'Add the price of everything you bought this season.', wrong: 'Add up the shop prices of every new item, paths at $40 a square.' });
     ok += checkRow('imp-start', 'f-imp-start', s, { blank: '"Now in the bank" minus new features.', wrong: 'Take the new features away from "now in the bank".', special: [{ value: round2(thirdBudget() - f), msg: 'You took it from the one third. Take it from "now in the bank".' }] });
     state.working.improve = $('working-improve').value;
+    logEvent('Task 7 step D' + (ok === 2 ? ': correct' : ': wrong'), ok, 2, { newFeatures: newFeaturesSpend(), bankStartS2: bankStartS2() });
     if (ok === 2) { state.stepD = true; playSound('win'); lockRows(['imp-feat', 'imp-start']); miniFb('fb-d', 'good', 'Season 2 can begin.'); $('btn-finish-improve').disabled = false; document.querySelectorAll('#advert-choice button').forEach(b => b.disabled = true); renderGrid('grid-wrap-2', 28, true); }
     else { playSound('bad'); miniFb('fb-d', 'bad', ok + ' of 2 correct.'); }
     renderProgress(); updateHeader(); saveNow(false);
@@ -1273,6 +1291,7 @@ function checkCosts() {
     const totMsg = diagnose(parseMoney($('c-total').value), expTot, { blank: 'Add up the Total per day column.', wrong: 'Add all six rows. Line up the cents.', special: [{ value: round2(expTot - r.tb - r.ttr), msg: 'You left out the bins and trees.' }, { value: round2(expTot - r.ttr), msg: 'So close. You left out the trees.' }] });
     if (totMsg) { setInput('c-total', 'bad'); miniFb('c-ftotal', 'bad', totMsg); } else { setInput('c-total', 'ok'); miniFb('c-ftotal', 'good', 'Correct'); correct++; }
     state.working.costs = $('working-costs').value;
+    logEvent('Task 8 running costs' + (correct === total ? ': correct' : ': wrong'), correct, total, { dailyCost: dailyCost() });
     if (correct === total) { state.costsDone = true; playSound('win'); document.querySelectorAll('#cost-table input').forEach(i => i.disabled = true); $('btn-finish-costs').disabled = false; $('cost-hint-btn').disabled = true; miniFb('cost-progress', 'good', 'Your day is right.'); }
     else { playSound('bad'); miniFb('cost-progress', 'bad', correct + ' of ' + total + ' boxes correct.'); }
     renderProgress(); saveNow(false);
@@ -1306,7 +1325,7 @@ function checkFee() {
     if (given === null || isNaN(given)) { showFb('fb-fee', 'bad', 'Type the entry fee as a number.'); return; }
     if (![10, 15, 20, 25].includes(given)) { playSound('bad'); setInput('fee-input', 'bad'); showFb('fb-fee', 'bad', 'You entered ' + money(given) + '. Season 2 fees are $25, $20, $15 or $10.'); return; }
     if (!same(given, exp)) { playSound('bad'); setInput('fee-input', 'bad'); showFb('fb-fee', 'bad', 'You entered ' + money(given) + '. Look again at which column has <strong>every</strong> line ticked or marked Y. ' + (given > exp ? 'Your park does not meet all the lines for that price.' : 'Your park meets the lines for a higher price.')); return; }
-    playSound('win'); setInput('fee-input', 'ok');
+    playSound('win'); setInput('fee-input', 'ok'); logEvent('Task 9 entry fee: correct', 1, 1, { category: cat, fee: exp });
     state.fee = exp; state.cat = cat; state.feeDone = true; $('fee-input').disabled = true;
     document.querySelectorAll('#rubric input').forEach(i => i.disabled = true);
     showFb('fb-fee', 'good', '<strong>Agreed.</strong> ' + group().name + ' is Price Category ' + cat + ' and will charge ' + money(exp) + ' per person.');
@@ -1336,6 +1355,7 @@ function checkVisitors() {
     const tot = diagnose(parseMoney($('v-total').value), totalVisitors(), { blank: 'Add the five monthly totals.', wrong: 'Add the Total visitors column.', special: [{ value: 29510, msg: up === 0 ? 'Check your adding.' : 'That is without advertising. Add the extra visitors.' }] });
     setInput('v-total', tot ? 'bad' : 'ok'); miniFb('f-v-total', tot ? 'bad' : 'good', tot || 'Correct'); if (!tot) ok++;
     state.working.visitors = $('working-visitors').value;
+    logEvent('Task 10 visitors' + (ok === 6 ? ': correct' : ': wrong'), ok, 6, { visitors: totalVisitors() });
     if (ok === 6) { state.visDone = true; playSound('win'); document.querySelectorAll('#month-table input').forEach(i => i.disabled = true); $('btn-finish-vis').disabled = false; miniFb('vis-fb', 'good', fmtInt(totalVisitors()) + ' visitors are coming.'); }
     else { playSound('bad'); miniFb('vis-fb', 'bad', ok + ' of 6 correct.'); }
     renderProgress(); saveNow(false);
@@ -1368,6 +1388,7 @@ function checkProfit() {
     ok += checkRow('p-attr', 'f-p-attr', e.attr, { blank: 'Add the six rows above.', wrong: 'Add restaurant, cafes, sweet shops, shops, ice cream and kiosks.' });
     ok += checkRow('p-total', 'f-p-total', e.total, { blank: 'Profit so far plus attractions.', wrong: 'Add the attractions income to the profit so far.', special: [{ value: round2(e.gate + e.attr), msg: 'You forgot to take away the season cost.' }] });
     state.working.profit = $('working-profit').value;
+    logEvent('Task 11 profit' + (ok === 11 ? ': correct' : ': wrong'), ok, 11, { profit: e.total });
     if (ok === 11) { state.profitDone = true; playSound('win'); document.querySelectorAll('#profit-table input').forEach(i => i.disabled = true); $('btn-finish-profit').disabled = false; miniFb('profit-fb', 'good', 'A letter has arrived from the tax office.'); }
     else { playSound('bad'); miniFb('profit-fb', 'bad', ok + ' of 11 correct.'); }
     renderProgress(); saveNow(false);
@@ -1393,11 +1414,12 @@ function checkTax() {
     ok += checkRow('t-loan', 'f-t-loan', e.loan, { blank: '$500 000 plus 11%.', wrong: '11% of 500 000 is 55 000. Add it to the loan.', special: [{ value: 55000, msg: 'That is the interest only. Add it to the loan.' }, { value: 550000, msg: 'That is 10%. The interest is 11%.' }] });
     ok += checkRow('t-net', 'f-t-net', e.net, { blank: 'Bank minus loan.', wrong: 'Take the loan owed away from the bank balance.' });
     state.working.tax = $('working-tax').value;
+    logEvent('Tasks 12 and 13' + (ok === 7 ? ': correct' : ': wrong'), ok, 7, { bankEndS2: e.bank, net: e.net });
     if (ok === 7) { state.taxDone = true; playSound('win'); document.querySelectorAll('#stage-7 input').forEach(i => i.disabled = true); $('btn-finish-tax').disabled = false; miniFb('tax-fb', 'good', 'Season 2 is in the books.'); }
     else { playSound('bad'); miniFb('tax-fb', 'bad', ok + ' of 7 correct.'); }
     renderProgress(); updateHeader(); saveNow(false);
 }
-function finishSeason() { state.seasonDone = true; goStage(8); }
+function finishSeason() { state.seasonDone = true; logEvent('Season 2 finished', 1, 1, leaderboardPayload()); goStage(8); }
 
 // ============================================================
 // STAGE 8

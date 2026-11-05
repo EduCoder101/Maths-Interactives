@@ -772,6 +772,7 @@ input, textarea { font-family: 'Fredoka', sans-serif; }
     </div>
 </div>
 
+<script src="results-to-sheet.js?v=2"></script>
 <script>
 // ============================================================
 // DATA
@@ -1048,6 +1049,19 @@ function improveExpected() {
     return { bank: a.bank, budget, spent, after: spent === null ? null : round2(a.bank - spent) };
 }
 
+
+// ============================================================
+// TEACHER VISIBILITY: posts to the class Google Sheet via results-to-sheet.js
+// ============================================================
+function logEvent(label, score, total, extra) {
+    try {
+        if (typeof submitResult !== 'function' || !state.parkName) return;
+        sessionStorage.setItem('maths_interactives_student_name', (state.owner ? state.owner + ' / ' : '') + state.parkName);
+        if (!sessionStorage.getItem('maths_interactives_student_class')) sessionStorage.setItem('maths_interactives_student_class', 'Year 5');
+        const data = Object.assign({ stage: currentStage, unlocked: state.unlocked, fee: state.fee }, extra || {});
+        submitResult('theme-park-s1', 'Theme Park Maths S1', score, total, label, [data]);
+    } catch (e) {}
+}
 // ============================================================
 // PROGRESS MAP AND NAVIGATION
 // ============================================================
@@ -1292,13 +1306,13 @@ function checkSpend() {
     setInput('left-input', msg2 ? 'bad' : 'ok');
     if (msg1 || msg2) {
         showFb('fb-spend', 'bad', (msg1 ? '<div><strong>Spent:</strong> ' + msg1 + '</div>' : '') + (msg2 ? '<div><strong>Left:</strong> ' + msg2 + '</div>' : ''));
-        playSound('bad');
+        playSound('bad'); logEvent('Task 1 ledger: wrong', (msg1 ? 0 : 1) + (msg2 ? 0 : 1), 2);
         state.buildChecked = false;
         $('btn-finish-build').disabled = true;
         return;
     }
     state.buildChecked = true;
-    playSound('good');
+    playSound('good'); logEvent('Task 1 ledger: correct', 2, 2, { spend: spendTotal(), left: moneyLeft() });
     const c = counts();
     const missing = [];
     if (c.carpark === 0) missing.push('a car park');
@@ -1417,6 +1431,7 @@ function checkCosts() {
     const totMsg = diagnose(tot, expTot, { blank: 'Add up the Total per day column.', wrong: 'Add all six rows. Line up the cents carefully.', special: [{ value: round2(expTot - r.tb - r.ttr), msg: 'You have left out the bins and trees.' }, { value: round2(expTot - r.ttr), msg: 'So close. You have left out the trees.' }, { value: round2(expTot - r.tt), msg: 'You have left out the toilets.' }] });
     if (totMsg) { setInput('c-total', 'bad'); miniFb('c-ftotal', 'bad', totMsg); } else { setInput('c-total', 'ok'); miniFb('c-ftotal', 'good', 'Correct'); correct++; }
     state.working.costs = $('working-costs').value;
+    logEvent('Task 2 running costs' + (correct === total ? ': correct' : ': wrong'), correct, total, { dailyCost: dailyCost() });
     if (correct === total) {
         state.costsDone = true;
         document.querySelectorAll('#cost-table input').forEach(i => i.disabled = true);
@@ -1493,7 +1508,7 @@ function checkFee() {
         return;
     }
     setInput('fee-input', 'ok');
-    playSound('win');
+    playSound('win'); logEvent('Task 3 entry fee: correct', 1, 1, { fee: exp });
     state.fee = exp; state.feeDone = true;
     $('fee-input').disabled = true;
     document.querySelectorAll('#rubric input').forEach(i => i.disabled = true);
@@ -1604,6 +1619,7 @@ function checkDay() {
         miniFb(fid, msg ? 'bad' : 'good', msg || 'Correct');
         if (msg) allOk = false;
     });
+    if (allOk || d === 1 || d === 10) logEvent('Day ' + d + (allOk ? ': correct' : ': wrong'), checks.filter(([id]) => $(id).classList.contains('ok')).length, checks.length);
     if (allOk) {
         state.dayDone[d - 1] = true;
         state.dayProfits[d - 1] = e.profit;
@@ -1654,8 +1670,8 @@ function checkMonth() {
     const exp = monthExpected();
     const msg = diagnose(given, exp, { blank: 'Add the 30 daily profits.', wrong: 'Add all 30 days. Try adding in groups of ten and checking each group.' });
     setInput('month-total', msg ? 'bad' : 'ok');
-    if (msg) { playSound('bad'); showFb('fb-month', 'bad', msg); return; }
-    playSound('win');
+    if (msg) { playSound('bad'); showFb('fb-month', 'bad', msg); logEvent('Task 5 month total: wrong', 0, 1); return; }
+    playSound('win'); logEvent('Task 5 month total: correct', 1, 1, { monthProfit: exp });
     state.monthDone = true;
     $('month-total').disabled = true; $('btn-month').disabled = true;
     showFb('fb-month', 'good', '<strong>Correct.</strong> ' + (exp >= 0 ? 'Your first month made a profit.' : 'Your first month made a loss. Months 2 to 6 will show whether it recovers.') + ' The bank has written to you.');
@@ -1742,6 +1758,7 @@ function checkAnnual() {
     const b = diagnose(parseMoney($('m-bank').value), a.bank, { blank: 'First year profit plus the money left over.', wrong: 'Add the first year profit to the money left after building.', special: [{ value: round2(a.left - a.year), msg: 'You subtracted. A profit is added to the bank.' }] });
     setInput('m-bank', b ? 'bad' : 'ok'); miniFb('f-m-bank', b ? 'bad' : 'good', b || 'Correct'); if (!b) correct++;
     state.working.annual = $('working-annual').value;
+    logEvent('Task 6 annual profit' + (correct === 9 ? ': correct' : ': wrong'), correct, 9, { bank: a.bank });
     if (correct === 9) {
         state.annualDone = true;
         document.querySelectorAll('#stage-5 input').forEach(i => i.disabled = true);
@@ -1794,6 +1811,7 @@ function checkImprove() {
     const af = diagnose(parseMoney($('i-after').value), e.after, { blank: 'Bank balance minus what you spent.', wrong: 'Take what you spent away from the whole bank balance, not from the 40%.', special: [{ value: round2(e.budget - e.spent), msg: 'You took it from the 40%. Take it from the whole bank balance.' }] });
     setInput('i-after', af ? 'bad' : 'ok'); miniFb('f-i-after', af ? 'bad' : 'good', af || 'Correct'); if (!af) correct++;
     state.working.improve = $('working-improve').value;
+    logEvent('Task 7 improvements' + (correct === 4 ? ': correct' : ': wrong'), correct, 4, { advert: state.advert });
     if (correct === 4) {
         state.improveDone = true;
         document.querySelectorAll('#stage-6 input').forEach(i => i.disabled = true);
@@ -1810,6 +1828,7 @@ function checkImprove() {
 }
 function finishSeason() {
     state.seasonDone = true;
+    logEvent('Season 1 finished', 1, 1, leaderboardPayload());
     goStage(7);
 }
 
