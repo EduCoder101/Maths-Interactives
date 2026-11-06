@@ -292,7 +292,7 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
         <div>
             <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:10px;flex-wrap:wrap">
                 <div class="stage-title">Task 1: Build your park</div>
-                <div style="font-size:14px;color:var(--text-light)">Pick an item, hover over the park to see its footprint, click to place. Click a placed item to remove it.</div>
+                <div style="font-size:14px;color:var(--text-light)">Pick an item, hover over the park to see its footprint, click to place. For paths and other single squares, click and drag. Click a placed item to remove it.</div>
             </div>
             <div id="grid-wrap-build"></div>
             <div style="display:flex;gap:14px;font-size:13px;color:var(--text-light);flex-wrap:wrap;margin-top:8px" id="legend-build"></div>
@@ -329,7 +329,7 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
         <div>
             <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:10px;flex-wrap:wrap">
                 <div class="stage-title">Lay out your park</div>
-                <div style="font-size:14px;color:var(--text-light)">Everything you bought in Season 1 is in the crate. Place all of it. One path length from your plan is <span class="num">5</span> squares here.</div>
+                <div style="font-size:14px;color:var(--text-light)">Everything you bought in Season 1 is in the crate. Place all of it. Click and drag to lay paths. One path length from your plan is <span class="num">5</span> squares here.</div>
             </div>
             <div class="grid-wrap" id="grid-wrap-1"></div>
             <div style="display:flex;gap:14px;font-size:13px;color:var(--text-light);flex-wrap:wrap;margin-top:8px" id="legend"></div>
@@ -1047,7 +1047,7 @@ function freshState() {
 let state = freshState();
 let currentStage = 0;
 let tool = null, rideName = null, rotated = false, mode = 'place'; // mode: place | remove | land
-let hoverCells = [], visitorTimer = null;
+let hoverCells = [], visitorTimer = null, dragging = false, dragHandled = false;
 
 function group() { if (state.newGroup) return state.newGroup; return GROUPS.find(g => g.id === state.groupId); }
 function isLayoutStage() { return currentStage === 1 && state.seeded; }
@@ -1696,7 +1696,11 @@ function renderGrid(wrapId, cellPx, editable) {
         const g = wrap.querySelector('.park-grid');
         for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) {
             const cell = document.createElement('div'); cell.className = 'cell';
-            if (editable) { cell.onmouseenter = () => previewAt(wrapId, x, y); cell.onclick = () => clickCell(wrapId, x, y); }
+            if (editable) {
+                cell.onmouseenter = () => { previewAt(wrapId, x, y); if (dragging) clickCell(wrapId, x, y); };
+                cell.onmousedown = (e) => { if (e.button !== 0) return; const fp = currentFootprint(); if (mode === 'remove' || mode === 'land' || (fp && fp.def.paint)) { dragging = true; dragHandled = true; clickCell(wrapId, x, y); e.preventDefault(); } };
+                cell.onclick = () => { if (dragHandled) { dragHandled = false; return; } clickCell(wrapId, x, y); };
+            }
             g.appendChild(cell);
         }
         if (editable) g.onmouseleave = clearPreview;
@@ -1755,6 +1759,7 @@ function clickCellBuild(x, y) {
     if (mode === 'land') { showFb('fb-build', 'hint', 'Extra land goes on sale in Season 2.'); return; }
     const fp = currentFootprint();
     if (!fp) { showFb('fb-build', 'hint', 'Pick something from the shop first.'); return; }
+    if (dragging && (occupied(x, y) || !usable(x, y))) return;
     if (!canPlace(x, y, fp.w, fp.h)) { showFb('fb-build', 'bad', 'That does not fit there. The footprint must be empty and inside the park.'); return; }
     if (fp.def.price > moneyLeft() + 0.005) { showFb('fb-build', 'bad', '<strong>The bank says no.</strong> You do not have enough of your loan left for that. Check your ledger.'); return; }
     if (fp.def.paint) state.paint[key] = { t: fp.name, season: 1 };
@@ -1789,9 +1794,10 @@ function clickCell(wrapId, x, y) {
     }
     const fp = currentFootprint();
     if (!fp) { showFb(fbId(), 'hint', 'Pick something from the ' + (isLayoutStage() ? 'crate' : 'shop') + ' first.'); return; }
+    if (dragging && (occupied(x, y) || !usable(x, y))) return;
     if (isLayoutStage()) {
         const rem = crateRemaining();
-        if (!(rem[fp.name] > 0)) { showFb('fb-place', 'hint', 'There are no more of those in the crate.'); return; }
+        if (!(rem[fp.name] > 0)) { if (!dragging) showFb('fb-place', 'hint', 'There are no more of those in the crate.'); return; }
     }
     if (!canPlace(x, y, fp.w, fp.h)) { showFb(fbId(), 'bad', 'That does not fit there. The footprint must be empty, inside the park, and on land you own.'); return; }
     if (fp.def.nearRide && !nearRide(x, y, fp.w, fp.h)) { showFb(fbId(), 'bad', 'A photo kiosk must be within 2 squares of a ride.'); return; }
@@ -2281,6 +2287,7 @@ function leaderboardPayload() {
     const lastId = last && /^new-/.test(last) ? last : Number(last);
     if (last && loadSaved(lastId)) { goStage(Math.min(state.unlocked, 12)); }
     else { renderGroupPick(); renderProgress(); updateHeader(); }
+    document.addEventListener('mouseup', () => { dragging = false; });
     document.addEventListener('keydown', (e) => { if ((currentStage === 1 || currentStage === 6) && (e.key === 'r' || e.key === 'R') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') rotated = !rotated; });
 })();
 </script>
