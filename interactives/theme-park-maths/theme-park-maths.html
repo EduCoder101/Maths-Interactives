@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Theme Park Maths: Season 2</title>
+<title>Theme Park Maths</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -232,12 +232,13 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
 <body>
 
 <div class="topbar">
-    <div class="title" id="app-title" onclick="titleTap()">Theme Park Maths</div>
-    <div class="season">Season 2</div>
+    <div class="title" id="app-title">Theme Park Maths</div>
+    <div class="season" id="hdr-season">Season 1</div>
     <div class="park-name" id="hdr-park-name"></div>
     <div class="spacer"></div>
     <div class="bank">In the bank <span class="num" id="hdr-bank">?</span></div>
     <button class="save-btn" id="sound-btn" onclick="toggleSound()">Sound on</button>
+    <button class="save-btn" onclick="openTeacher()">Teacher</button>
     <button class="save-btn" onclick="saveNow(true)">Save</button>
     <button class="save-btn" onclick="downloadPark()">Download</button>
     <label class="save-btn" style="cursor:pointer">Load<input type="file" accept=".json" style="display:none" onchange="uploadPark(this)"></label>
@@ -250,20 +251,33 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
         <div>
             <div class="card">
                 <h2>Which park is yours?</h2>
-                <p class="lead">Season 1 was done in your booklets. The bank has your figures. Choose your group to carry on.</p>
+                <p class="lead">Choose your class, then your group. If your Season 1 is in your booklet, pick "Start from our booklet". If you are starting fresh, pick "Play Season 1".</p>
+                <div class="row-inline" style="margin-bottom:14px">
+                    <label for="class-select" style="font-size:15px;font-weight:600">Class</label>
+                    <select id="class-select" class="ledger-input" style="font-family:'Fredoka',sans-serif;max-width:160px" onchange="setClass(this.value)"><option value="">Choose</option><option>5EG</option><option>5A</option><option>5S</option></select>
+                </div>
                 <div class="group-pick" id="group-pick"></div>
+                <div style="margin-top:18px;border-top:2px dashed #f1e6d6;padding-top:14px">
+                    <h3>New group</h3>
+                    <div class="row-inline">
+                        <input id="new-park-name" class="ledger-input" style="font-family:'Fredoka',sans-serif;font-weight:600;max-width:260px" placeholder="Park name" maxlength="40">
+                        <input id="new-members" class="ledger-input" style="font-family:'Fredoka',sans-serif;max-width:300px" placeholder="Your names" maxlength="80">
+                        <button class="btn btn-primary" onclick="createGroup()">Play Season 1</button>
+                    </div>
+                    <div class="feedback" id="fb-newgroup"></div>
+                </div>
             </div>
             <div class="learning-card">
                 <h2 onclick="toggleLearningSection()">Learning Intention &amp; Success Criteria <span class="toggle-icon" id="learningToggle">&#9660;</span></h2>
                 <div class="learning-content" id="learningContent">
                     <h3>Learning Intention</h3>
-                    <p>We are learning to use percentages and multi-step calculations with large amounts of money to make and check business decisions.</p>
+                    <p>We are learning to use addition, subtraction, multiplication and percentages with large amounts of money to plan a budget, make business decisions, and check our own calculations.</p>
                     <h3>Success Criteria</h3>
                     <ul class="success-criteria">
-                        <li>I can find 40%, one third, 10%, 20%, 30% and 11% of a large amount of money.</li>
-                        <li>I can work out a running cost for a day and then for a whole season of 153 days.</li>
-                        <li>I can calculate income from thousands of visitors and find a profit by subtracting the costs.</li>
-                        <li>I can follow a chain of calculations (profit, tax, insurance, loan) in the right order and explain why the order matters.</li>
+                        <li>I can find the total cost of a list of items and work out how much money is left.</li>
+                        <li>I can calculate a daily running cost, including changing a weekly or yearly amount into a daily amount, and scale it to a month or a season.</li>
+                        <li>I can calculate income from visitors and find a profit by subtracting the costs.</li>
+                        <li>I can find 10%, 30%, 40%, 11% and one third of an amount, and follow a chain of calculations in the right order.</li>
                     </ul>
                 </div>
             </div>
@@ -272,8 +286,45 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
     </div>
 </div>
 
-<!-- ============ STAGE 1: LAY OUT YOUR PARK ============ -->
+<!-- ============ STAGE 1 (new group): BUILD YOUR PARK ============ -->
 <div class="stage" id="stage-1">
+    <div class="park-layout">
+        <div>
+            <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:10px;flex-wrap:wrap">
+                <div class="stage-title">Task 1: Build your park</div>
+                <div style="font-size:14px;color:var(--text-light)">Pick an item, hover over the park to see its footprint, click to place. Click a placed item to remove it.</div>
+            </div>
+            <div id="grid-wrap-build"></div>
+            <div style="display:flex;gap:14px;font-size:13px;color:var(--text-light);flex-wrap:wrap;margin-top:8px" id="legend-build"></div>
+            <div class="feedback" id="fb-build"></div>
+        </div>
+        <div class="park-right">
+            <div class="shop" id="shop1"></div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+                <div class="card" style="border-top-color:var(--purple)">
+                    <h2>What is in your park</h2>
+                    <p class="lead">The game counts. You do the money.</p>
+                    <div id="counts1"></div>
+                </div>
+                <div class="card" style="border-top-color:var(--amber)">
+                    <h2>Your spending ledger</h2>
+                    <div class="count-row"><span>Bank loan</span><span class="num">$500 000</span></div>
+                    <div class="field" style="margin-top:10px">
+                        <label for="spend-input">Total spent so far (work it out in your book, then type it here)</label>
+                        <div class="row-inline"><input id="spend-input" class="ledger-input" placeholder="$"><button class="btn btn-primary" onclick="checkSpend()">Check</button></div>
+                    </div>
+                    <div class="field"><label for="left-input">Money left to spend</label><div class="row-inline"><input id="left-input" class="ledger-input" placeholder="$"></div></div>
+                    <div class="feedback" id="fb-spend"></div>
+                    <div style="font-size:13px;color:var(--text-light);margin-top:8px">The bank will not let you spend more than your loan, and will not open the park until your ledger matches what you built.</div>
+                </div>
+                <div class="stage-footer" style="margin-top:0"><span class="locked-note" id="build-lock-note"></span><button class="btn btn-dark" id="btn-finish-build" onclick="finishBuild()" disabled>Finish building</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ STAGE 1 (seeded group): LAY OUT YOUR PARK ============ -->
+<div class="stage" id="stage-1s">
     <div class="park-layout">
         <div>
             <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:10px;flex-wrap:wrap">
@@ -294,15 +345,272 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
                 </div>
                 <div class="stage-footer" style="margin-top:0">
                     <span class="locked-note" id="place-note"></span>
-                    <button class="btn btn-dark" id="btn-finish-place" onclick="finishPlacing()" disabled>Open Season 2</button>
+                    <button class="btn btn-dark" id="btn-finish-place" onclick="finishPlacing()" disabled>Open the park</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ============ STAGE 2: TASK 7 IMPROVEMENTS ============ -->
+<!-- ============ STAGE 2: RUNNING COSTS ============ -->
 <div class="stage" id="stage-2">
+    <div class="two-col">
+        <div>
+            <div style="font-size:26px;font-weight:700">Task 2: What does one day cost?</div>
+            <p class="lead" style="margin:4px 0 14px">Fill in the two blank columns for each row. Toilets, bins and trees are charged once for the whole park, not per item. A week has <span class="num">7</span> days. A year has <span class="num">365</span> days.</p>
+            <div class="card table-scroll" style="padding:0">
+                <table class="ledger-table" id="cost-table1" style="min-width:860px">
+                    <thead><tr><th>Item</th><th>Staff</th><th>Electricity and repairs</th><th style="width:140px">Number in park</th><th style="width:170px">Total per day</th><th></th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Category 1 ride</strong><span class="sub">per ride</span></td><td class="num">$40 a day</td><td class="num">$50 a day</td><td><input class="ledger-input" id="a-n1" aria-label="Number of category 1 rides"></td><td><input class="ledger-input" id="a-t1" aria-label="Total per day for category 1"></td><td class="mini-fb" id="a-f1"></td></tr>
+                        <tr><td><strong>Category 2 ride</strong><span class="sub">per ride</span></td><td class="num">$30 a day</td><td class="num">$30 a day</td><td><input class="ledger-input" id="a-n2" aria-label="Number of category 2 rides"></td><td><input class="ledger-input" id="a-t2" aria-label="Total per day for category 2"></td><td class="mini-fb" id="a-f2"></td></tr>
+                        <tr><td><strong>Category 3 facility</strong><span class="sub">per facility</span></td><td class="num">$20 a day</td><td class="num">$20 a day</td><td><input class="ledger-input" id="a-n3" aria-label="Number of category 3 facilities"></td><td><input class="ledger-input" id="a-t3" aria-label="Total per day for category 3"></td><td class="mini-fb" id="a-f3"></td></tr>
+                        <tr><td><strong>Toilets</strong><span class="sub">for all toilets</span></td><td class="num">$5 a day</td><td class="num">$5 a day</td><td class="na">NA</td><td><input class="ledger-input" id="a-tt" aria-label="Total per day for toilets"></td><td class="mini-fb" id="a-ft"></td></tr>
+                        <tr><td><strong>Bins</strong><span class="sub">for all bins</span></td><td class="num">$31.50 a week</td><td class="num">$5.25 a week</td><td class="na">NA</td><td><input class="ledger-input" id="a-tb" aria-label="Total per day for bins"></td><td class="mini-fb" id="a-fb"></td></tr>
+                        <tr><td><strong>Trees</strong><span class="sub">for all trees</span></td><td class="num">$91.25 a year</td><td>None</td><td class="na">NA</td><td><input class="ledger-input" id="a-ttr" aria-label="Total per day for trees"></td><td class="mini-fb" id="a-ftr"></td></tr>
+                        <tr class="total"><td>Total cost per day</td><td></td><td></td><td></td><td><input class="ledger-input" id="a-total" aria-label="Total cost per day"></td><td class="mini-fb" id="a-ftotal"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="s1CheckCosts()">Check my table</button>
+                <button class="btn btn-amber" id="cost-hint-btn1" onclick="s1ShowCostHint()">Show hint</button>
+                <span class="mini-fb" id="cost-progress1"></span>
+            </div>
+            <div class="feedback" id="fb-cost-hint1"></div>
+            <div class="card" style="margin-top:16px;border-top-color:var(--amber)">
+                <h2 style="font-size:18px">Show your working</h2>
+                <textarea class="working" id="working-costs1" placeholder="Show your thinking here..."></textarea>
+            </div>
+            <div class="card" style="margin-top:16px;border-top-color:var(--blue)">
+                <h2 style="font-size:18px">Extension</h2>
+                <p class="lead">Once your day is right, how much does it cost for one week? For one year of <span class="num">365</span> days?</p>
+                <div class="row-inline" style="flex-wrap:wrap">
+                    <label for="a-week" style="font-size:14px">One week</label><input class="ledger-input" id="a-week" style="width:170px" placeholder="$">
+                    <label for="a-year" style="font-size:14px">One year</label><input class="ledger-input" id="a-year" style="width:170px" placeholder="$">
+                    <button class="btn btn-amber" onclick="s1CheckCostExt()">Check</button>
+                </div>
+                <div class="feedback" id="fb-cost-ext1"></div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card" style="border-top-color:var(--purple)">
+                <h2 style="font-size:18px">Your park</h2>
+                <div id="mini-park-a2"></div>
+                <div style="font-size:13px;color:var(--text-light);margin-top:8px">The checker uses what is in this park. It never shows you the totals.</div>
+            </div>
+            <div class="card" style="border-top-color:var(--red)">
+                <h2 style="font-size:18px">Things to remember</h2>
+                <ul class="vocab-list">
+                    <li>Each ride has <strong>two</strong> costs: staff, and electricity and repairs.</li>
+                    <li>Toilets, bins and trees are charged once, however many you have.</li>
+                    <li>Money answers can have cents, like <span class="num">5.25</span>.</li>
+                </ul>
+            </div>
+            <div class="stage-footer" style="margin-top:0">
+                <button class="btn btn-dark" id="btn-finish-costs1" onclick="goStage(3)" disabled>Go to the Park Inspector</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ STAGE 3: PARK INSPECTOR / ENTRY FEE ============ -->
+<div class="stage" id="stage-3">
+    <div style="font-size:26px;font-weight:700">Task 3: The Park Inspector decides your entry fee</div>
+    <p class="lead" style="margin:4px 0 14px">Give your screen to a partner. They must not be told anything about your park. The game has already checked everything it can count. Your partner looks at the park and ticks the two boxes about layout.</p>
+    <div class="two-col" style="grid-template-columns:minmax(300px,380px) minmax(0,1fr)">
+        <div class="card" style="border-top-color:var(--purple)">
+            <h2 style="font-size:18px">The park being inspected</h2>
+            <div id="mini-park-a3"></div>
+            </div>
+        <div>
+            <div class="rubric" id="s1-rubric"></div>
+            <div class="card" style="margin-top:16px;border-top-color:var(--amber)">
+                <h2 style="font-size:18px">Decide the entry fee</h2>
+                <p class="lead">A park gets the highest price category where <strong>every</strong> line is ticked. If none are fully ticked, it is Price Category 4.</p>
+                <div class="row-inline" style="flex-wrap:wrap">
+                    <label for="s1-fee-input" style="font-size:15px">Entry fee per person $</label>
+                    <input class="ledger-input" id="s1-fee-input" style="width:140px" placeholder="?">
+                    <button class="btn btn-primary" onclick="s1CheckFee()">Check</button>
+                </div>
+                <div class="feedback" id="s1-fb-fee"></div>
+            </div>
+            <div class="stage-footer">
+                <button class="btn btn-dark" id="s1-btn-finish-fee" onclick="goStage(4)" disabled>Open the park</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ STAGE 4: OPEN THE PARK ============ -->
+<div class="stage" id="stage-4">
+    <div class="day-layout">
+        <div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap">
+                <div style="font-size:26px;font-weight:700" id="day-title">Day 1</div>
+                <div style="background:var(--text-dark);color:#fff;border-radius:30px;padding:5px 14px;font-size:14px" id="day-visitors-badge"></div>
+                <div style="font-size:14px;color:var(--text-light)" id="day-fee-badge"></div>
+            </div>
+            <div id="grid-wrap-days"></div>
+            <div style="font-size:13px;color:var(--text-light);margin-top:8px" id="day-note">Visitors arrive, wander your paths, then the day's ledger opens.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card" style="border-top-color:var(--amber)" id="day-ledger-card">
+                <h2 style="font-size:18px" id="day-ledger-title">Day 1 ledger</h2>
+                <p class="lead">Every visitor spends <span class="num">$8</span> at <strong>each</strong> cafe, <span class="num">$6</span> at <strong>each</strong> shop and <span class="num">$3</span> at <strong>every</strong> ice cream stand you have.</p>
+                <table class="ledger-table" id="day-table">
+                    <tbody>
+                        <tr><td style="width:150px">Admission</td><td class="sub" id="d-sub-adm"></td><td style="width:180px"><input class="ledger-input" id="d-adm" aria-label="Admission income"></td><td class="mini-fb" id="d-f-adm"></td></tr>
+                        <tr><td>Cafe</td><td class="sub" id="d-sub-cafe"></td><td><input class="ledger-input" id="d-cafe" aria-label="Cafe income"></td><td class="mini-fb" id="d-f-cafe"></td></tr>
+                        <tr><td>Shop</td><td class="sub" id="d-sub-shop"></td><td><input class="ledger-input" id="d-shop" aria-label="Shop income"></td><td class="mini-fb" id="d-f-shop"></td></tr>
+                        <tr><td>Ice cream</td><td class="sub" id="d-sub-ice"></td><td><input class="ledger-input" id="d-ice" aria-label="Ice cream income"></td><td class="mini-fb" id="d-f-ice"></td></tr>
+                        <tr class="total"><td>Total income (a)</td><td></td><td><input class="ledger-input" id="d-total" aria-label="Total income"></td><td class="mini-fb" id="d-f-total"></td></tr>
+                        <tr><td>Total costs (b)</td><td class="sub">From Task 2</td><td><input class="ledger-input" id="d-cost" aria-label="Total costs"></td><td class="mini-fb" id="d-f-cost"></td></tr>
+                        <tr class="total"><td>Profit (a minus b)</td><td></td><td><input class="ledger-input" id="d-profit" aria-label="Profit"></td><td class="mini-fb" id="d-f-profit"></td></tr>
+                    </tbody>
+                </table>
+                <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
+                    <button class="btn btn-primary" id="btn-check-day" onclick="checkDay()">Check this day</button>
+                    <button class="btn btn-dark" id="btn-next-day" onclick="nextDay()" disabled>Next day</button>
+                    <span class="mini-fb" id="day-fb"></span>
+                </div>
+            </div>
+
+            <div class="card" style="border-top-color:var(--blue);display:none" id="quick-card">
+                <h2 style="font-size:18px">Days 11 to 30: the quick ledger</h2>
+                <p class="lead">You know the pattern now. For each day, work out the profit and type it in. The visitor numbers are given.</p>
+                <table class="ledger-table quick-table" id="quick-table"></table>
+                <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
+                    <button class="btn btn-primary" onclick="checkQuick()">Check these days</button>
+                    <span class="mini-fb" id="quick-fb"></span>
+                </div>
+            </div>
+
+            <div class="card" style="border-top-color:var(--blue)">
+                <h2 style="font-size:18px">The first month</h2>
+                <div class="day-strip" id="day-strip"></div>
+                <div class="field" style="margin-top:14px">
+                    <label for="month-total">Total profit or loss for the month (add up all 30 days)</label>
+                    <div class="row-inline">
+                        <input class="ledger-input" id="month-total" placeholder="$" disabled>
+                        <button class="btn btn-primary" id="btn-month" onclick="checkMonth()" disabled>Check</button>
+                    </div>
+                </div>
+                <div class="feedback" id="fb-month"></div>
+            </div>
+            <div class="stage-footer" style="margin-top:0">
+                <button class="btn btn-dark" id="btn-finish-month" onclick="goStage(5)" disabled>End of month statement</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ STAGE 5: ANNUAL PROFIT ============ -->
+<div class="stage" id="stage-5">
+    <div class="two-col">
+        <div>
+            <div class="letter" style="margin-bottom:18px">
+                <div class="from">Commonwealth Bank, Business Lending</div>
+                <p>Dear Owner of <span id="letter-park-5"></span>,</p>
+                <p>Your first month is complete. Our forecasters say that your monthly profit will grow by <span class="num">10%</span> each month for the next five months, as more people hear about your park.</p>
+                <p>Please calculate your profit for each month, your first-year profit, and how much you will have in the bank at the end of the season.</p>
+                <p class="sig">Regards,<br>The Bank</p>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden">
+                <table class="ledger-table">
+                    <thead><tr><th>Task 6: Finding your annual profit</th><th style="width:220px">Amount</th><th></th></tr></thead>
+                    <tbody>
+                        <tr><td>Month 1 profit <span class="sub">from your month total</span></td><td><input class="ledger-input" id="m1"></td><td class="mini-fb" id="f-m1"></td></tr>
+                        <tr><td>Month 2 profit <span class="sub">Month 1 plus 10%</span></td><td><input class="ledger-input" id="m2"></td><td class="mini-fb" id="f-m2"></td></tr>
+                        <tr><td>Month 3 profit <span class="sub">Month 2 plus 10%</span></td><td><input class="ledger-input" id="m3"></td><td class="mini-fb" id="f-m3"></td></tr>
+                        <tr><td>Month 4 profit</td><td><input class="ledger-input" id="m4"></td><td class="mini-fb" id="f-m4"></td></tr>
+                        <tr><td>Month 5 profit</td><td><input class="ledger-input" id="m5"></td><td class="mini-fb" id="f-m5"></td></tr>
+                        <tr><td>Month 6 profit</td><td><input class="ledger-input" id="m6"></td><td class="mini-fb" id="f-m6"></td></tr>
+                        <tr class="total"><td>First year profit <span class="sub">all six months added</span></td><td><input class="ledger-input" id="m-year"></td><td class="mini-fb" id="f-m-year"></td></tr>
+                        <tr><td>Money left over after building <span class="sub">from Task 1</span></td><td><input class="ledger-input" id="m-left"></td><td class="mini-fb" id="f-m-left"></td></tr>
+                        <tr><td>Bonuses and fines this season <span class="sub">from your teacher</span></td><td class="given" id="m-bonus"></td><td></td></tr>
+                        <tr class="total"><td>Total in the bank at the end of the first year <span class="sub">profit plus money left, plus bonuses and fines</span></td><td><input class="ledger-input" id="m-bank"></td><td class="mini-fb" id="f-m-bank"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="checkAnnual()">Check my figures</button>
+                <span class="mini-fb" id="annual-fb"></span>
+            </div>
+            <div class="feedback hint" id="fb-annual-hint"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card" style="border-top-color:var(--red)">
+                <h2 style="font-size:18px">Things to remember</h2>
+                <ul class="vocab-list">
+                    <li>To add <span class="num">10%</span>, find one tenth and add it on. Or multiply by <span class="num">1.1</span>.</li>
+                    <li>Each month grows from the month <strong>before it</strong>, not from Month 1 every time.</li>
+                    <li>Round each month to the nearest cent before using it for the next month.</li>
+                    <li>If your month was a loss, a 10% increase makes the loss bigger. Think about what that means.</li>
+                </ul>
+            </div>
+            <div class="card" style="border-top-color:var(--amber)">
+                <h2 style="font-size:18px">Show your working</h2>
+                <textarea class="working" id="working-annual" placeholder="Show your thinking here..."></textarea>
+            </div>
+            <div class="stage-footer" style="margin-top:0">
+                <button class="btn btn-dark" id="btn-finish-annual" onclick="goStage(6)" disabled>Begin Season 2</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="go-deeper-level-btn locked" id="go-deeper-card-1" onclick="openGoDeeper1()" disabled><h3>Go Deeper: Season 1 Investigations</h3><p>Complete Task 6 to unlock</p></button>
+    <div class="go-deeper-card" id="go-deeper-section-1" style="display:none">
+        <h2>Go Deeper: Season 1 Investigations</h2>
+        <p class="lead">These tasks push your thinking beyond finding answers. You will explore, make conjectures and reason like a mathematician.</p>
+        <div class="ext-task">
+            <div class="ext-task-label">Specialising</div>
+            <div class="ext-task-prompt">A Category 1 ride costs <span class="ext-numbers">$50 000</span> to build and <span class="ext-numbers">$90</span> a day to run. A Category 2 ride costs <span class="ext-numbers">$25 000</span> to build and <span class="ext-numbers">$60</span> a day to run. Work out the total cost of owning each ride (building it plus running it) after <span class="ext-numbers">30</span> days. Then try <span class="ext-numbers">60</span> days and <span class="ext-numbers">90</span> days.</div>
+            <div class="ext-task-sub">What happens to the gap between the two rides as the days go on? Does it stay the same?</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+                <div class="model-label">A mathematician's response</div>
+                <p>I started with <span class="ext-numbers">30</span> days. Category 1: <span class="ext-numbers">30</span> x <span class="ext-numbers">90</span> = <span class="ext-numbers">2 700</span> to run, so <span class="ext-numbers">50 000</span> + <span class="ext-numbers">2 700</span> = <span class="ext-numbers">52 700</span>. Category 2: <span class="ext-numbers">30</span> x <span class="ext-numbers">60</span> = <span class="ext-numbers">1 800</span>, so <span class="ext-numbers">25 000</span> + <span class="ext-numbers">1 800</span> = <span class="ext-numbers">26 800</span>. The gap is <span class="ext-numbers">25 900</span>.</p>
+                <p>At first I guessed the gap would stay at <span class="ext-numbers">25 000</span>, because that is the difference in building cost. It did not. So I tried <span class="ext-numbers">60</span> days: <span class="ext-numbers">55 400</span> and <span class="ext-numbers">28 600</span>, gap <span class="ext-numbers">26 800</span>. Then <span class="ext-numbers">90</span> days: <span class="ext-numbers">58 100</span> and <span class="ext-numbers">30 400</span>, gap <span class="ext-numbers">27 700</span>.</p>
+                <p>The gap grows by <span class="ext-numbers">900</span> every <span class="ext-numbers">30</span> days. That makes sense: the Category 1 ride costs <span class="ext-numbers">30</span> more a day to run, and <span class="ext-numbers">30</span> x <span class="ext-numbers">30</span> = <span class="ext-numbers">900</span>. The big ride gets more expensive compared with the small one the longer you own it.</p>
+            </div>
+            <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.</div>
+        </div>
+        <div class="ext-task">
+            <div class="ext-task-label">Conjecturing</div>
+            <div class="ext-task-prompt">"Adding a first aid centre is always worth it. It only costs <span class="ext-numbers">$8 000</span> and it can lift your park a whole price category, which is <span class="ext-numbers">$5</span> more from every visitor."</div>
+            <div class="ext-task-sub">Is this always true, sometimes true, or never true? Write your conjecture and give examples from your own park to support it.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+                <div class="model-label">A mathematician's response</div>
+                <p>My conjecture: <strong>sometimes true.</strong></p>
+                <p>I first thought it was always true, because <span class="ext-numbers">$5</span> extra from every visitor sounds huge. I checked with a park that gets <span class="ext-numbers">50</span> visitors a day. That is <span class="ext-numbers">50</span> x <span class="ext-numbers">5</span> = <span class="ext-numbers">250</span> extra a day. The centre also costs <span class="ext-numbers">$40</span> a day to run, so the real gain is <span class="ext-numbers">210</span> a day. <span class="ext-numbers">8 000</span> divided by <span class="ext-numbers">210</span> is about <span class="ext-numbers">38</span>, so after <span class="ext-numbers">38</span> days it has paid for itself. Worth it.</p>
+                <p>Then I re-read the rubric. To reach Price Category 2 you also need two Category 1 rides, seven rides in total and four Category 3 facilities. If a park has only one Category 1 ride, the first aid centre lifts nothing. The owner has spent <span class="ext-numbers">8 000</span> and pays <span class="ext-numbers">40</span> a day for no extra income.</p>
+                <p>So the claim is only true when the first aid centre is the <strong>last</strong> thing missing from a price category. That is why it is sometimes, not always.</p>
+            </div>
+            <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be tested.</div>
+        </div>
+        <div class="ext-task">
+            <div class="ext-task-label">Justifying</div>
+            <div class="ext-task-prompt">A student says: "My profit went up by <span class="ext-numbers">10%</span> each month for five months. So after five months my monthly profit is <span class="ext-numbers">50%</span> bigger than it was in Month 1."</div>
+            <div class="ext-task-sub">Is she right? Test it with a Month 1 profit of $1 000. Explain carefully what is going on.</div>
+            <textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea>
+            <button class="ext-reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible'); this.textContent = this.nextElementSibling.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this';">See how a mathematician thought about this</button>
+            <div class="ext-model-response">
+                <div class="model-label">A mathematician's response</div>
+                <p>It sounds right: five lots of <span class="ext-numbers">10%</span> should be <span class="ext-numbers">50%</span>. I tested it with <span class="ext-numbers">1 000</span>.</p>
+                <p>Month 2: <span class="ext-numbers">1 000</span> + <span class="ext-numbers">100</span> = <span class="ext-numbers">1 100</span>. Month 3: <span class="ext-numbers">10%</span> of <span class="ext-numbers">1 100</span> is <span class="ext-numbers">110</span>, so <span class="ext-numbers">1 210</span>. Month 4: <span class="ext-numbers">1 331</span>. Month 5: <span class="ext-numbers">1 464.10</span>. Month 6: <span class="ext-numbers">1 610.51</span>.</p>
+                <p>After five increases the profit is <span class="ext-numbers">1 610.51</span>, which is about <span class="ext-numbers">61%</span> bigger, not <span class="ext-numbers">50%</span>. The student is wrong, and I can explain why. Each <span class="ext-numbers">10%</span> is taken from the <strong>new</strong> month, which is bigger than the one before, so each increase is a bit larger than the last: <span class="ext-numbers">100</span>, then <span class="ext-numbers">110</span>, then <span class="ext-numbers">121</span>, and so on. The increases themselves are growing. If every increase had been <span class="ext-numbers">100</span>, she would have been right, but that is not what "10% each month" means.</p>
+            </div>
+            <div class="mathematician-box"><strong>Mathematician's thinking:</strong> You are <em>justifying</em>. That means you are not just checking whether an answer is right, you are explaining <em>why</em> the reasoning works or fails.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ STAGE 6: TASK 7 IMPROVEMENTS ============ -->
+<div class="stage" id="stage-6">
     <div class="park-layout">
         <div>
             <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:10px;flex-wrap:wrap">
@@ -370,14 +678,14 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
                     <div class="row-inline" style="margin-top:10px"><button class="btn btn-primary" onclick="checkStepD()">Check</button><span class="mini-fb" id="fb-d"></span></div>
                 </div>
                 <div class="card" style="border-top-color:var(--amber)"><h3>Show your working</h3><textarea class="working" id="working-improve" placeholder="Show your thinking here..."></textarea></div>
-                <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-improve" onclick="goStage(3)" disabled>Go to running costs</button></div>
+                <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-improve" onclick="goStage(7)" disabled>Go to running costs</button></div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ============ STAGE 3: TASK 8 RUNNING COSTS ============ -->
-<div class="stage" id="stage-3">
+<div class="stage" id="stage-7">
     <div class="two-col">
         <div>
             <div class="stage-title">Task 8: What does one day cost now?</div>
@@ -403,13 +711,13 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
         <div style="display:flex;flex-direction:column;gap:16px">
             <div class="card" style="border-top-color:var(--purple)"><h3>Your park now</h3><div id="mini-park-3"></div><div style="font-size:13px;color:var(--text-light);margin-top:8px">Green outlines are new this season.</div></div>
             <div class="card" style="border-top-color:var(--red)"><h3>Things to remember</h3><ul class="vocab-list"><li>A week has <span class="num">7</span> days, a year has <span class="num">365</span>.</li><li>Each ride has two costs. Add them before you multiply.</li><li>The restaurant is Category 2 for costs, even though it is not a ride for the entry fee.</li></ul></div>
-            <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-costs" onclick="goStage(4)" disabled>Go to the Park Inspector</button></div>
+            <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-costs" onclick="goStage(8)" disabled>Go to the Park Inspector</button></div>
         </div>
     </div>
 </div>
 
 <!-- ============ STAGE 4: TASK 9 ENTRY FEE ============ -->
-<div class="stage" id="stage-4">
+<div class="stage" id="stage-8">
     <div class="stage-title">Task 9: The Park Inspector returns</div>
     <p class="lead" style="margin:4px 0 14px">The bar is higher this season. Give the screen to a partner for the two layout judgements. The restaurant does not count as a ride.</p>
     <div class="two-col" style="grid-template-columns:minmax(300px,380px) minmax(0,1fr)">
@@ -422,13 +730,13 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
                 <div class="row-inline"><label for="fee-input" style="font-size:15px">Entry fee per person $</label><input class="ledger-input" id="fee-input" style="max-width:160px" placeholder="?"><button class="btn btn-primary" onclick="checkFee()">Check</button></div>
                 <div class="feedback" id="fb-fee"></div>
             </div>
-            <div class="stage-footer"><button class="btn btn-dark" id="btn-finish-fee" onclick="goStage(5)" disabled>Count the visitors</button></div>
+            <div class="stage-footer"><button class="btn btn-dark" id="btn-finish-fee" onclick="goStage(9)" disabled>Count the visitors</button></div>
         </div>
     </div>
 </div>
 
 <!-- ============ STAGE 5: TASK 10 VISITORS ============ -->
-<div class="stage" id="stage-5">
+<div class="stage" id="stage-9">
     <div class="two-col">
         <div>
             <div class="stage-title">Task 10: How many visitors?</div>
@@ -442,13 +750,13 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
         <div style="display:flex;flex-direction:column;gap:16px">
             <div class="card" style="border-top-color:var(--purple)"><h3>Opening day</h3><div class="grid-wrap" id="grid-wrap-5" style="--cell:15px;width:306px;height:366px"></div><div style="font-size:13px;color:var(--text-light);margin-top:8px" id="advert-note"></div></div>
             <div class="card" style="border-top-color:var(--red)"><h3>Things to remember</h3><ul class="vocab-list"><li>10% is one tenth. 20% is two tenths. 30% is three tenths.</li><li>Extra visitors = booklet number x your percentage.</li><li>With no advertising the extra is <span class="num">0</span>.</li></ul></div>
-            <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-vis" onclick="goStage(6)" disabled>Work out the profit</button></div>
+            <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-vis" onclick="goStage(10)" disabled>Work out the profit</button></div>
         </div>
     </div>
 </div>
 
 <!-- ============ STAGE 6: TASK 11 PROFIT ============ -->
-<div class="stage" id="stage-6">
+<div class="stage" id="stage-10">
     <div class="two-col">
         <div>
             <div class="stage-title">Task 11: What is your profit?</div>
@@ -477,13 +785,13 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
         </div>
         <div style="display:flex;flex-direction:column;gap:16px">
             <div class="card" style="border-top-color:var(--red)"><h3>Things to remember</h3><ul class="vocab-list"><li>Season 2 spending per visitor: restaurant <span class="num">$24</span> (half of them, one restaurant), cafe <span class="num">$12</span>, sweet shop <span class="num">$7</span>, shop <span class="num">$4</span>, ice cream <span class="num">$3</span>, photo kiosk <span class="num">$6</span>.</li><li>If you have two cafes, every visitor spends at both.</li><li>Use the total visitors from Task 10.</li></ul></div>
-            <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-profit" onclick="goStage(7)" disabled>Pay your tax</button></div>
+            <div class="stage-footer" style="margin-top:0"><button class="btn btn-dark" id="btn-finish-profit" onclick="goStage(11)" disabled>Pay your tax</button></div>
         </div>
     </div>
 </div>
 
 <!-- ============ STAGE 7: TASK 12 TAX, INSURANCE; TASK 13 LOAN ============ -->
-<div class="stage" id="stage-7">
+<div class="stage" id="stage-11">
     <div class="two-col">
         <div>
             <div class="letter" style="margin-bottom:18px">
@@ -520,7 +828,7 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
 </div>
 
 <!-- ============ STAGE 8: CERTIFICATE AND GO DEEPER ============ -->
-<div class="stage" id="stage-8">
+<div class="stage" id="stage-12">
     <div class="certificate">
         <div style="font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text-light)">Theme Park Maths: Season 2</div>
         <h1 id="cert-park"></h1>
@@ -535,7 +843,7 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
         </div>
         <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn btn-amber" onclick="window.print()">Print certificate</button><button class="btn btn-amber" onclick="downloadPark()">Download my park</button></div>
     </div>
-    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled><h3>Go Deeper: Season 2 Investigations</h3><p>Complete Season 2 to unlock</p></button>
+    <button class="go-deeper-level-btn locked" id="go-deeper-card" onclick="openGoDeeper()" disabled><h3>Go Deeper: Season 2 Investigations</h3><p>Complete Tasks 12 and 13 to unlock</p></button>
     <div class="go-deeper-card" id="go-deeper-section" style="display:none">
         <h2>Go Deeper: Season 2 Investigations</h2>
         <p class="lead">These tasks push your thinking beyond finding answers. You will explore, make conjectures and reason like a mathematician.</p>
@@ -608,7 +916,7 @@ const GROUPS = [
 {"id":7,"name":"Sold Gold Theme Park","members":"Reem, Alexa, Adeline","inventory":{"Rollercoaster":1,"Water ride":1,"Fun house":1,"Haunted house":1,"Merry-go-round":1,"Spinning ride":1,"Cafe":1,"Shop":1,"Ice cream stand":1,"First aid centre":1,"pathLengths":27,"tree":5,"Toilet block":4,"bin":4,"carpark":4,"bench":3},"spent":244900,"left":255100,"dailyCostS1":595.5,"feeS1":10,"month1Profit":104823,"bonusS1":0,"bankEndS1":1063873.39},
 {"id":8,"name":"Candy Crush","members":"Josie, Emily, Laura","inventory":{"Rollercoaster":1,"Water ride":1,"Ferris wheel":1,"Haunted house":1,"Merry-go-round":1,"Spinning ride":1,"Cafe":2,"Shop":4,"Ice cream stand":2,"First aid centre":4,"pathLengths":22,"tree":15,"lake":9,"Toilet block":4,"bin":20,"carpark":2,"bench":10},"spent":344400,"left":155600,"dailyCostS1":945.5,"feeS1":10,"month1Profit":226099,"bonusS1":-4000,"bankEndS1":1896091.71}
 ];
-const TEACHER_CODE = 'parkboss';
+const TEACHER_CODE = '1239';
 
 // ============================================================
 // CATALOGUE (prices and rules from the booklet, as read by the tracker)
@@ -719,24 +1027,31 @@ function playSound(kind) {
 // ============================================================
 function freshState() {
     return {
-        groupId: null, unlocked: 0,
-        items: [],          // {id, key, cat, name, x, y, w, h, season}
+        groupId: null, unlocked: 0, seeded: false, newGroup: null, klass: '',
+        items: [],          // {id, name, x, y, w, h, season}
         paint: {},          // "x,y" -> {t, season}
         land: {},           // "x,y" -> true (extra squares bought)
-        invAdjust: {},      // teacher adjustments to the Season 1 inventory
+        cleared: {},        // Season 1 items removed in Task 7: name -> count
+        invAdjust: {},      // teacher adjustments to a seeded Season 1 crate
+        bonuses: [],        // {season, amount, reason, at}
+        built: false, buildChecked: false,
+        s1CostsDone: false, s1FeeDone: false, feeS1: null, catS1: null, s1LayoutTicks: { c1: false, c2: false },
+        day: 1, dayDone: [], monthDone: false, annualDone: false, s1Done: false,
         placed: false,
         stepA: false, stepC: false, stepD: false, advert: null,
         costsDone: false, feeDone: false, fee: null, cat: null, layoutTicks: { c1: false, c2: false },
         visDone: false, profitDone: false, taxDone: false, seasonDone: false,
-        bonusS2: 0, working: {}
+        working: {}
     };
 }
 let state = freshState();
 let currentStage = 0;
 let tool = null, rideName = null, rotated = false, mode = 'place'; // mode: place | remove | land
-let hoverCells = [], visitorTimer = null, titleTaps = 0;
+let hoverCells = [], visitorTimer = null;
 
-function group() { return GROUPS.find(g => g.id === state.groupId); }
+function group() { if (state.newGroup) return state.newGroup; return GROUPS.find(g => g.id === state.groupId); }
+function isLayoutStage() { return currentStage === 1 && state.seeded; }
+function isBuildStage() { return currentStage === 1 && !state.seeded; }
 function $(id) { return document.getElementById(id); }
 function money(n) { const neg = n < 0, abs = Math.abs(n); let [w, c] = (Math.round(abs * 100) / 100).toFixed(2).split('.'); w = w.replace(/\B(?=(\d{3})+(?!\d))/g, ' '); return (neg ? '-$' : '$') + (c === '00' ? w : w + '.' + c); }
 function fmtNum(n) { return money(n).replace('$', ''); }
@@ -779,7 +1094,7 @@ function fillRows(map) { for (const id in map) { $(id).value = fmtNum(map[id]); 
 // EXPECTED VALUES (never displayed)
 // ============================================================
 function inventory() {
-    const g = group(); if (!g) return {};
+    const g = group(); if (!g || !state.seeded) return {};
     const inv = Object.assign({}, g.inventory);
     for (const k in state.invAdjust) inv[k] = (inv[k] || 0) + state.invAdjust[k];
     const out = {};
@@ -810,17 +1125,13 @@ function counts() {
     for (const k in state.paint) c[state.paint[k].t]++;
     return c;
 }
-function removedS1() { // what was in the Season 1 inventory but is no longer on the grid
-    const inv = inventory(), p = placedS1(), out = {};
-    for (const k in inv) { const r = inv[k] - (p[k] || 0); if (r > 0) out[k] = r; }
-    return out;
-}
+function removedS1() { return Object.assign({}, state.cleared); }
 function clearingCost() { const r = removedS1(); let t = 0; for (const k in r) t += r[k] * CATALOG[k].clear; return t; }
 function landSquares() { return Object.keys(state.land).length; }
 function landCost() { return landSquares() * S2.landPrice; }
 function advertCost() { return state.advert ? ADVERTS[state.advert].cost : 0; }
 function improvementsTotal() { return clearingCost() + landCost() + advertCost(); }
-function bankS1() { return group().bankEndS1; }
+function bankS1() { return annualExpected().bank; }
 function budget40() { return round2(bankS1() * 0.4); }
 function nowInBank() { return round2(bankS1() - improvementsTotal()); }
 function thirdBudget() { return round2(nowInBank() / 3); }
@@ -864,7 +1175,7 @@ function profitExpected() {
 function taxExpected() {
     const p = profitExpected().total;
     const tax = p > 0 ? round2(p * S2.tax) : 0, after = round2(p - tax), ins = S2.insurance[state.cat], fin = round2(after - ins);
-    const bank = round2(bankStartS2() + fin + state.bonusS2), loan = round2(S2.loan * (1 + S2.interest));
+    const bank = round2(bankStartS2() + fin + bonusTotal(2)), loan = round2(S2.loan * (1 + S2.interest));
     return { p, tax, after, ins, fin, bank, loan, net: round2(bank - loan) };
 }
 
@@ -878,23 +1189,393 @@ function logEvent(label, score, total, extra) {
         if (typeof submitResult !== 'function') return;
         const g = group(); if (!g) return;
         sessionStorage.setItem('maths_interactives_student_name', g.name);
-        if (!sessionStorage.getItem('maths_interactives_student_class')) sessionStorage.setItem('maths_interactives_student_class', 'Year 5');
-        const data = Object.assign({ stage: currentStage, unlocked: state.unlocked, fee: state.fee, advert: state.advert }, extra || {});
-        submitResult('theme-park-s2', 'Theme Park Maths S2', score, total, label, [data]);
+        sessionStorage.setItem('maths_interactives_student_class', state.klass || 'Year 5');
+        const stageEl = $('stage-' + (currentStage === 1 && state.seeded ? '1s' : currentStage));
+        const wrong = [];
+        if (stageEl) {
+            stageEl.querySelectorAll('.mini-fb.bad').forEach(el => {
+                const row = el.closest('tr') || el.parentElement;
+                const inp = row ? row.querySelector('input.bad') : null;
+                wrong.push({ box: inp ? (inp.getAttribute('aria-label') || inp.id) : el.id, msg: el.textContent.trim().slice(0, 160) });
+            });
+            stageEl.querySelectorAll('.feedback.show.bad').forEach(el => wrong.push({ box: el.id, msg: el.textContent.trim().slice(0, 200) }));
+        }
+        const data = Object.assign({ season: currentStage >= 6 ? 2 : 1, stage: currentStage, unlocked: state.unlocked, feeS1: state.feeS1, fee: state.fee, advert: state.advert, wrong }, extra || {});
+        submitResult('theme-park', 'Theme Park Maths', score, total, label, [data]);
     } catch (e) {}
 }
 // ============================================================
+// SEASON 1 RULES
+// ============================================================
+const S1 = {
+    loan: 500000,
+    daily: { c1: 90, c2: 60, c3: 40, toilets: 10, bins: 5.25, trees: 0.25 },
+    staff: { c1: 40, c2: 30, c3: 20 }, elec: { c1: 50, c2: 30, c3: 20 },
+    fees: { 1: 20, 2: 15, 3: 10, 4: 5 },
+    visitors: [50,75,66,49,61,67,102,110,87,21,24,67,66,98,109,89,104,130,209,143,99,111,206,350,300,278,453,294,367,359],
+    spend: { cafe: 8, shop: 6, ice: 3 }
+};
+
+// ============================================================
+// SEASON 1 EXPECTED VALUES (never displayed)
+// ============================================================
+function spendTotal() {
+    let t = 0;
+    for (const it of state.items) if (it.season === 1) t += CATALOG[it.name].price;
+    for (const k in state.paint) if (state.paint[k].season === 1) t += CATALOG[state.paint[k].t].price;
+    return t;
+}
+function moneyLeft() { return S1.loan - spendTotal(); }
+function s1DailyRows() {
+    const c = counts();
+    return { n1: c.c1, t1: c.c1 * S1.daily.c1, n2: c.c2, t2: c.c2 * S1.daily.c2, n3: c.c3, t3: c.c3 * S1.daily.c3, tt: c.toilets > 0 ? S1.daily.toilets : 0, tb: c.bin > 0 ? S1.daily.bins : 0, ttr: c.tree > 0 ? S1.daily.trees : 0 };
+}
+function s1DailyCost() { const r = s1DailyRows(); return round2(r.t1 + r.t2 + r.t3 + r.tt + r.tb + r.ttr); }
+function s1RubricState() {
+    const c = counts();
+    const line = (txt, ok) => ({ text: txt, ok });
+    return {
+        1: [line('Four or more Category 1 rides', c.c1 >= 4), line('10 or more rides in total', c.rides >= 10), line('6 or more Category 3 facilities', c.c3 >= 6), line('A first aid centre', c.firstaid >= 1), { text: 'A well set out park with carefully placed bins, benches, toilets and paths', partner: 'c1' }],
+        2: [line('Two or more Category 1 rides', c.c1 >= 2), line('7 or more rides in total', c.rides >= 7), line('4 or more Category 3 facilities', c.c3 >= 4), line('A first aid centre', c.firstaid >= 1), { text: 'Some thought given to where bins, toilets, benches and paths are placed', partner: 'c2' }],
+        3: [line('One or more Category 1 rides', c.c1 >= 1), line('5 or more rides in total', c.rides >= 5), line('2 or more Category 3 facilities', c.c3 >= 2), line('Some errors in placement are allowed', true)],
+        4: [line('At least 3 rides', c.rides >= 3), line('At least 1 Category 3 facility', c.c3 >= 1), line('Some errors in placement are allowed', true)]
+    };
+}
+function s1CatMet(list) { return list.every(cr => cr.partner ? state.s1LayoutTicks[cr.partner] : cr.ok); }
+function s1ExpectedCategory() { const r = s1RubricState(); if (s1CatMet(r[1])) return 1; if (s1CatMet(r[2])) return 2; if (s1CatMet(r[3])) return 3; return 4; }
+function dayExpected(d) {
+    const c = counts(), v = S1.visitors[d - 1];
+    const adm = v * state.feeS1, cafe = v * S1.spend.cafe * c.cafe, shop = v * S1.spend.shop * c.shop, ice = v * S1.spend.ice * c.ice;
+    const total = adm + cafe + shop + ice, cost = s1DailyCost();
+    return { v, adm, cafe, shop, ice, total, cost, profit: round2(total - cost) };
+}
+function monthExpected() { let t = 0; for (let d = 1; d <= 30; d++) t += dayExpected(d).profit; return round2(t); }
+function bonusTotal(season) { return round2((state.bonuses || []).filter(b => b.season === season).reduce((a, b) => a + b.amount, 0)); }
+function annualExpected() {
+    const m = [monthExpected()];
+    for (let i = 1; i < 6; i++) m.push(round2(m[i - 1] * 1.1));
+    const year = round2(m.reduce((a, b) => a + b, 0)), left = moneyLeft(), bonus = bonusTotal(1);
+    return { m, year, left, bonus, bank: round2(year + left + bonus) };
+}
+
+// ============================================================
+// STAGE 1 (new group): BUILD WITH THE LOAN
+// ============================================================
+function renderShop1() {
+    const el = $('shop1'); el.innerHTML = '<h3>Shop</h3>';
+    const byCat = { c1: [], c2: [], c3: [], toilets: [] };
+    for (const k in CATALOG) if (!CATALOG[k].paint && CATALOG[k].season === 1) byCat[CATALOG[k].cat].push(k);
+    for (const cat of ['c1', 'c2', 'c3', 'toilets']) {
+        const sel = tool && CATALOG[tool].cat === cat && mode === 'place';
+        const b = document.createElement('button');
+        b.className = 'shop-item' + (sel ? ' selected' : '');
+        b.innerHTML = '<div class="sw" style="background:' + RIDE_GROUPS[cat].swatch + '"></div><div><div class="name">' + RIDE_GROUPS[cat].name + '</div><div class="sub">' + RIDE_GROUPS[cat].sub + '</div></div><div class="price num">' + money(CATALOG[byCat[cat][0]].price) + '</div>';
+        b.onclick = () => { mode = 'place'; tool = byCat[cat][0]; renderShop1(); };
+        el.appendChild(b);
+        if (sel) {
+            const picker = document.createElement('div'); picker.className = 'ride-picker';
+            byCat[cat].forEach(k => { const rb = document.createElement('button'); rb.textContent = k; rb.className = tool === k ? 'selected' : ''; rb.onclick = () => { tool = k; renderShop1(); }; picker.appendChild(rb); });
+            el.appendChild(picker);
+        }
+    }
+    for (const k of ['path', 'carpark', 'lake', 'tree', 'bench', 'bin']) {
+        const b = document.createElement('button');
+        b.className = 'shop-item' + (tool === k && mode === 'place' ? ' selected' : '');
+        b.innerHTML = '<div class="sw" style="background:' + PAINT_SWATCH[k] + (['tree', 'bin'].includes(k) ? ';border-radius:50%' : '') + '"></div><div><div class="name">' + CATALOG[k].label + '</div><div class="sub">' + CATALOG[k].sub + '</div></div><div class="price num">' + money(k === 'path' ? 200 : CATALOG[k].price) + '</div>';
+        b.onclick = () => { mode = 'place'; tool = k; renderShop1(); };
+        el.appendChild(b);
+    }
+    const tools = document.createElement('div'); tools.className = 'tools';
+    tools.innerHTML = '<button onclick="rotated=!rotated">Rotate (R)</button><button class="' + (mode === 'remove' ? 'selected' : '') + '" onclick="mode = mode===\'remove\' ? \'place\' : \'remove\'; renderShop1();">Remove</button>';
+    el.appendChild(tools);
+}
+function renderCounts1() {
+    const c = counts();
+    const rows = [['Category 1 rides', c.c1], ['Category 2 rides', c.c2], ['Category 3 facilities', c.c3], ['Toilet blocks', c.toilets], ['Lake squares', c.lake], ['Car park squares', c.carpark], ['Trees', c.tree], ['Path squares', c.path], ['Benches', c.bench], ['Bins', c.bin]];
+    $('counts1').innerHTML = rows.map(r => '<div class="count-row"><span>' + r[0] + '</span><span class="num">' + r[1] + '</span></div>').join('');
+    $('btn-finish-build').disabled = !state.buildChecked;
+}
+function afterBuildChange() {
+    state.buildChecked = false;
+    setInput('spend-input', null); setInput('left-input', null); hideFb('fb-spend');
+    $('build-lock-note').textContent = 'Check your ledger before you finish.';
+    renderGrid('grid-wrap-build', 28, true); renderCounts1(); updateHeader(); saveNow(false);
+}
+function checkSpend() {
+    if (state.built) return;
+    const spend = parseMoney($('spend-input').value), left = parseMoney($('left-input').value), exp = spendTotal();
+    const msg1 = diagnose(spend, exp, { blank: 'Add up everything you have placed.', wrong: 'Add each type of item separately, then add the totals. The counts panel tells you how many of each you have.' });
+    const msg2 = diagnose(left, S1.loan - exp, { blank: 'Take your total spent away from the loan.', wrong: 'Money left is the loan minus what you spent.', special: [{ value: exp, msg: 'That is what you spent, not what is left.' }] });
+    setInput('spend-input', msg1 ? 'bad' : 'ok'); setInput('left-input', msg2 ? 'bad' : 'ok');
+    if (msg1 || msg2) {
+        showFb('fb-spend', 'bad', (msg1 ? '<div><strong>Spent:</strong> ' + msg1 + '</div>' : '') + (msg2 ? '<div><strong>Left:</strong> ' + msg2 + '</div>' : ''));
+        playSound('bad'); state.buildChecked = false; $('btn-finish-build').disabled = true;
+        logEvent('Task 1 ledger: wrong', (msg1 ? 0 : 1) + (msg2 ? 0 : 1), 2);
+        return;
+    }
+    state.buildChecked = true; playSound('good');
+    const c = counts(), missing = [];
+    if (c.carpark === 0) missing.push('a car park'); if (c.toilets === 0) missing.push('toilets'); if (c.path === 0) missing.push('paths');
+    if (c.c3 === 0) missing.push('somewhere to eat or shop'); if (c.rides < 3) missing.push('at least 3 rides');
+    if (missing.length) { showFb('fb-spend', 'hint', '<strong>Ledger correct.</strong> Before the park can open you still need: ' + missing.join(', ') + '.'); $('btn-finish-build').disabled = true; }
+    else { showFb('fb-spend', 'good', '<strong>Correct.</strong> Your ledger matches your park. The bank is happy for you to finish building.'); $('btn-finish-build').disabled = false; }
+    $('build-lock-note').textContent = '';
+    logEvent('Task 1 ledger: correct', 2, 2, { spend: exp, left: S1.loan - exp });
+    updateHeader(); saveNow(false);
+}
+function finishBuild() {
+    if (!state.buildChecked) return;
+    state.built = true; playSound('win'); logEvent('Park built', 1, 1, { spend: spendTotal() });
+    goStage(2);
+}
+function restoreBuild() {
+    renderShop1(); renderGrid('grid-wrap-build', 28, true); renderCounts1();
+    if (state.built) { $('spend-input').value = fmtNum(spendTotal()); $('left-input').value = fmtNum(moneyLeft()); $('spend-input').disabled = true; $('left-input').disabled = true; setInput('spend-input', 'ok'); setInput('left-input', 'ok'); $('build-lock-note').textContent = 'Your park is built and locked.'; $('btn-finish-build').disabled = false; }
+}
+
+// ============================================================
+// STAGE 2: TASK 2 RUNNING COSTS (Season 1 rates)
+// ============================================================
+const COST_FIELDS_1 = [
+    { n: 'a-n1', t: 'a-t1', f: 'a-f1', expN: 'n1', expT: 't1', cat: 'c1' },
+    { n: 'a-n2', t: 'a-t2', f: 'a-f2', expN: 'n2', expT: 't2', cat: 'c2' },
+    { n: 'a-n3', t: 'a-t3', f: 'a-f3', expN: 'n3', expT: 't3', cat: 'c3' },
+    { t: 'a-tt', f: 'a-ft', expT: 'tt', flat: 'toilets' }, { t: 'a-tb', f: 'a-fb', expT: 'tb', flat: 'bins' }, { t: 'a-ttr', f: 'a-ftr', expT: 'ttr', flat: 'trees' }
+];
+let costHints1 = 0;
+function restoreCosts1() {
+    $('working-costs1').value = state.working.costs1 || '';
+    if (state.s1CostsDone) {
+        const r = s1DailyRows();
+        COST_FIELDS_1.forEach(cf => { if (cf.n) { $(cf.n).value = r[cf.expN]; $(cf.n).disabled = true; setInput(cf.n, 'ok'); } $(cf.t).value = fmtNum(r[cf.expT]); $(cf.t).disabled = true; setInput(cf.t, 'ok'); miniFb(cf.f, 'good', 'Correct'); });
+        $('a-total').value = fmtNum(s1DailyCost()); $('a-total').disabled = true; setInput('a-total', 'ok'); miniFb('a-ftotal', 'good', 'Correct');
+        $('btn-finish-costs1').disabled = false; miniFb('cost-progress1', 'good', state.seeded ? 'Done in your booklet. These are your figures.' : 'Your day is right. The Park Inspector is ready.');
+        $('cost-hint-btn1').disabled = true;
+    }
+}
+function s1CheckCosts() {
+    if (state.s1CostsDone) return;
+    const r = s1DailyRows(), c = counts(); let correct = 0, total = 0;
+    COST_FIELDS_1.forEach(cf => {
+        let rowOk = true, msgs = [];
+        if (cf.n) {
+            total++;
+            const n = parseMoney($(cf.n).value);
+            if (n === null || isNaN(n) || !same(n, r[cf.expN])) { rowOk = false; setInput(cf.n, 'bad'); msgs.push(n === null ? 'Count is blank.' : 'Count the ' + (cf.cat === 'c1' ? 'red' : cf.cat === 'c2' ? 'yellow' : 'purple') + ' items on your park again.'); }
+            else { setInput(cf.n, 'ok'); correct++; }
+        }
+        total++;
+        const t = parseMoney($(cf.t).value), expT = r[cf.expT]; let msg;
+        if (cf.n) {
+            const nGiven = parseMoney($(cf.n).value), nn = (nGiven !== null && !isNaN(nGiven)) ? nGiven : r[cf.expN], st = S1.staff[cf.cat], el = S1.elec[cf.cat];
+            msg = diagnose(t, expT, { blank: 'Multiply the number in the park by the cost of one.', wrong: 'Each one costs staff plus electricity. Multiply that by how many you have.', special: [{ value: nn * st, msg: 'That is staff only. Each one also has electricity and repairs.' }, { value: nn * el, msg: 'That is electricity only. Each one also has staff.' }, { value: st + el, msg: 'That is the cost of one. Multiply by how many you have.' }] });
+        } else if (cf.flat === 'toilets') msg = diagnose(t, expT, { blank: 'Add staff and electricity for toilets.', wrong: 'Toilets are charged once for the whole park: staff plus electricity.', special: [{ value: 5, msg: 'That is one of the two costs. Add both.' }, { value: 10 * c.toilets, msg: 'Toilets are charged once for the whole park, not per block.' }] });
+        else if (cf.flat === 'bins') msg = diagnose(t, expT, { blank: 'Add the two weekly costs, then divide by 7.', wrong: 'Add the two weekly amounts, then divide by 7 for one day.', special: [{ value: 36.75, msg: 'That is one week. The table wants one day.' }, { value: 4.5, msg: 'That is staff only, per day. Add the electricity too.' }, { value: 36.75 * c.bin, msg: 'Bins are charged once for the whole park, not per bin.' }] });
+        else msg = diagnose(t, expT, { blank: 'Divide the yearly cost by 365.', wrong: 'Trees cost one amount for the whole year. Divide by 365 for one day.', special: [{ value: 91.25, msg: 'That is one year. The table wants one day.' }, { value: 91.25 * c.tree, msg: 'Trees are charged once for the whole park, not per tree.' }, { value: round2(91.25 / 52), msg: 'You divided by 52 weeks. A year has 365 days.' }, { value: round2(91.25 / 12), msg: 'You divided by 12 months. A year has 365 days.' }] });
+        if (msg) { rowOk = false; setInput(cf.t, 'bad'); msgs.push(msg); } else { setInput(cf.t, 'ok'); correct++; }
+        miniFb(cf.f, rowOk ? 'good' : 'bad', rowOk ? 'Correct' : msgs.join(' '));
+    });
+    total++;
+    const expTot = s1DailyCost();
+    const totMsg = diagnose(parseMoney($('a-total').value), expTot, { blank: 'Add up the Total per day column.', wrong: 'Add all six rows. Line up the cents carefully.', special: [{ value: round2(expTot - r.tb - r.ttr), msg: 'You have left out the bins and trees.' }, { value: round2(expTot - r.ttr), msg: 'So close. You have left out the trees.' }, { value: round2(expTot - r.tt), msg: 'You have left out the toilets.' }] });
+    if (totMsg) { setInput('a-total', 'bad'); miniFb('a-ftotal', 'bad', totMsg); } else { setInput('a-total', 'ok'); miniFb('a-ftotal', 'good', 'Correct'); correct++; }
+    state.working.costs1 = $('working-costs1').value;
+    logEvent('Task 2 running costs' + (correct === total ? ': correct' : ': wrong'), correct, total, { dailyCost: expTot });
+    if (correct === total) { state.s1CostsDone = true; playSound('win'); document.querySelectorAll('#cost-table1 input').forEach(i => i.disabled = true); $('btn-finish-costs1').disabled = false; $('cost-hint-btn1').disabled = true; miniFb('cost-progress1', 'good', 'Your day is right. The Park Inspector is ready.'); }
+    else { playSound('bad'); miniFb('cost-progress1', 'bad', correct + ' of ' + total + ' boxes correct.'); }
+    renderProgress(); saveNow(false);
+}
+function s1ShowCostHint() {
+    const hints = ['Every ride has two daily costs. Add them together first to get the cost of one ride, then multiply by how many you have.', 'Bins: add $31.50 and $5.25 to get one week. One day is that amount divided by 7.', 'Trees: $91.25 a year. One day is that amount divided by 365. It comes out as an exact number of cents.'];
+    if (costHints1 >= hints.length) return;
+    showFb('fb-cost-hint1', 'hint', '<strong>Hint ' + (costHints1 + 1) + ':</strong> ' + hints[costHints1]); costHints1++;
+    if (costHints1 >= hints.length) $('cost-hint-btn1').disabled = true;
+}
+function s1CheckCostExt() {
+    const w = parseMoney($('a-week').value), y = parseMoney($('a-year').value), d = s1DailyCost();
+    const m1 = diagnose(w, round2(d * 7), { blank: 'Multiply one day by 7.', wrong: 'One week is seven days.' });
+    const m2 = diagnose(y, round2(d * 365), { blank: 'Multiply one day by 365.', wrong: 'One year is 365 days.', special: [{ value: round2(d * 7 * 52), msg: 'You used 52 weeks, which is 364 days. Use 365.' }] });
+    setInput('a-week', m1 ? 'bad' : 'ok'); setInput('a-year', m2 ? 'bad' : 'ok');
+    if (!state.s1CostsDone) { showFb('fb-cost-ext1', 'hint', 'Get your daily total right first, then come back to this.'); return; }
+    playSound((m1 || m2) ? 'bad' : 'good');
+    showFb('fb-cost-ext1', (m1 || m2) ? 'bad' : 'good', (m1 || m2) ? ((m1 ? '<div><strong>Week:</strong> ' + m1 + '</div>' : '') + (m2 ? '<div><strong>Year:</strong> ' + m2 + '</div>' : '')) : '<strong>Both correct.</strong> That is a lot of money over a year. Your entry fee will need to cover it.');
+}
+
+// ============================================================
+// STAGE 3: TASK 3 PARK INSPECTOR (Season 1 rubric)
+// ============================================================
+function s1RenderRubric() {
+    const r = s1RubricState(), el = $('s1-rubric'); el.innerHTML = '';
+    [1, 2, 3, 4].forEach(n => {
+        const col = document.createElement('div'); col.className = 'rubric-col' + (s1CatMet(r[n]) ? ' met' : '');
+        let html = '<h3>Price Category ' + n + '</h3><div class="fee num">$' + S1.fees[n] + ' per person</div>';
+        r[n].forEach(cr => {
+            if (cr.partner) html += '<div class="crit"><input type="checkbox" id="s1tick-' + cr.partner + '" ' + (state.s1LayoutTicks[cr.partner] ? 'checked' : '') + ' ' + (state.s1FeeDone ? 'disabled' : '') + ' onchange="s1TickLayout(\'' + cr.partner + '\', this.checked)"><label for="s1tick-' + cr.partner + '">' + cr.text + ' <em style="color:var(--text-light)">(partner decides)</em></label></div>';
+            else html += '<div class="crit"><span class="mark ' + (cr.ok ? 'yes' : 'no') + '">' + (cr.ok ? 'Y' : 'N') + '</span><span>' + cr.text + ' <em style="color:var(--text-light)">(game checked)</em></span></div>';
+        });
+        col.innerHTML = html; el.appendChild(col);
+    });
+    if (state.s1FeeDone) { $('s1-fee-input').value = state.feeS1; $('s1-fee-input').disabled = true; setInput('s1-fee-input', 'ok'); $('s1-btn-finish-fee').disabled = false; if (state.seeded) showFb('s1-fb-fee', 'good', '<strong>Decided in class.</strong> ' + group().name + ' is Price Category ' + state.catS1 + ' and charges ' + money(state.feeS1) + ' per person.'); }
+}
+function s1TickLayout(key, val) { state.s1LayoutTicks[key] = val; if (key === 'c1' && val) state.s1LayoutTicks.c2 = true; s1RenderRubric(); saveNow(false); }
+function s1CheckFee() {
+    if (state.s1FeeDone) return;
+    const given = parseMoney($('s1-fee-input').value), cat = s1ExpectedCategory(), exp = S1.fees[cat];
+    if (given === null || isNaN(given)) { showFb('s1-fb-fee', 'bad', 'Type the entry fee as a number.'); return; }
+    if (![5, 10, 15, 20].includes(given)) { playSound('bad'); setInput('s1-fee-input', 'bad'); showFb('s1-fb-fee', 'bad', 'You entered ' + money(given) + '. The fee must be one of the four price categories.'); logEvent('Task 3 entry fee: wrong', 0, 1, { answer: given }); return; }
+    if (!same(given, exp)) { playSound('bad'); setInput('s1-fee-input', 'bad'); showFb('s1-fb-fee', 'bad', 'You entered ' + money(given) + '. Look again at which column has <strong>every</strong> line ticked or marked Y. ' + (given > exp ? 'Your park does not meet all the lines for that price.' : 'Your park meets the lines for a higher price than that.')); logEvent('Task 3 entry fee: wrong', 0, 1, { answer: given }); return; }
+    playSound('win'); setInput('s1-fee-input', 'ok');
+    state.feeS1 = exp; state.catS1 = cat; state.s1FeeDone = true; $('s1-fee-input').disabled = true;
+    document.querySelectorAll('#s1-rubric input').forEach(i => i.disabled = true);
+    showFb('s1-fb-fee', 'good', '<strong>Agreed.</strong> ' + group().name + ' will charge ' + money(exp) + ' per person. Time to open the gates.');
+    logEvent('Task 3 entry fee: correct', 1, 1, { category: cat, fee: exp });
+    $('s1-btn-finish-fee').disabled = false; renderProgress(); saveNow(false);
+}
+
+// ============================================================
+// STAGE 4: TASKS 4 AND 5, OPEN THE PARK
+// ============================================================
+function renderDayStrip() {
+    const el = $('day-strip'); el.innerHTML = '';
+    for (let d = 1; d <= 30; d++) { const chip = document.createElement('div'); chip.className = 'day-chip' + (state.dayDone[d - 1] ? ' done' : '') + (d === state.day && !state.monthDone ? ' current' : ''); chip.textContent = d; el.appendChild(chip); }
+    const all = state.dayDone.filter(Boolean).length === 30;
+    $('month-total').disabled = !all || state.monthDone; $('btn-month').disabled = !all || state.monthDone;
+    if (state.monthDone) { $('month-total').value = fmtNum(monthExpected()); setInput('month-total', 'ok'); $('btn-finish-month').disabled = false; }
+}
+function loadDay() {
+    const d = state.day, c = counts();
+    if (d <= 10) {
+        $('day-ledger-card').style.display = ''; $('quick-card').style.display = 'none';
+        const v = S1.visitors[d - 1];
+        $('day-title').textContent = 'Day ' + d; $('day-ledger-title').textContent = 'Day ' + d + ' ledger';
+        $('day-visitors-badge').innerHTML = '<span class="num">' + v + '</span> visitors came today';
+        $('day-fee-badge').innerHTML = 'Entry fee <span class="num">' + money(state.feeS1) + '</span>';
+        $('d-sub-adm').innerHTML = '<span class="num">' + v + '</span> visitors x entry fee';
+        $('d-sub-cafe').innerHTML = 'You have <span class="num">' + c.cafe + '</span> cafe' + (c.cafe === 1 ? '' : 's');
+        $('d-sub-shop').innerHTML = 'You have <span class="num">' + c.shop + '</span> shop' + (c.shop === 1 ? '' : 's');
+        $('d-sub-ice').innerHTML = 'You have <span class="num">' + c.ice + '</span> stand' + (c.ice === 1 ? '' : 's');
+        ['d-adm', 'd-cafe', 'd-shop', 'd-ice', 'd-total', 'd-cost', 'd-profit'].forEach(id => { $(id).value = ''; $(id).disabled = false; setInput(id, null); });
+        ['d-f-adm', 'd-f-cafe', 'd-f-shop', 'd-f-ice', 'd-f-total', 'd-f-cost', 'd-f-profit'].forEach(id => miniFb(id, null, ''));
+        miniFb('day-fb', null, ''); $('btn-next-day').disabled = true; $('btn-check-day').disabled = false;
+        if (state.dayDone[d - 1]) {
+            const e = dayExpected(d), vals = { 'd-adm': e.adm, 'd-cafe': e.cafe, 'd-shop': e.shop, 'd-ice': e.ice, 'd-total': e.total, 'd-cost': e.cost, 'd-profit': e.profit };
+            for (const id in vals) { $(id).value = fmtNum(vals[id]); $(id).disabled = true; setInput(id, 'ok'); }
+            $('btn-next-day').disabled = d >= 30; $('btn-check-day').disabled = true;
+        }
+        runVisitors('grid-wrap-days', 15, Math.min(24, Math.max(4, Math.round(v / 12))));
+    } else {
+        $('day-ledger-card').style.display = 'none'; $('quick-card').style.display = '';
+        $('day-title').textContent = 'Days 11 to 30'; $('day-visitors-badge').innerHTML = 'The word is spreading';
+        $('day-fee-badge').innerHTML = 'Entry fee <span class="num">' + money(state.feeS1) + '</span>';
+        renderQuickTable(); runVisitors('grid-wrap-days', 15, 16);
+    }
+    renderDayStrip();
+}
+function checkDay() {
+    const d = state.day, e = dayExpected(d), c = counts();
+    const checks = [
+        ['d-adm', 'd-f-adm', e.adm, { blank: 'Visitors times the entry fee.', wrong: 'Multiply the number of visitors by the entry fee.', special: [{ value: e.v + state.feeS1, msg: 'You added. Multiply the visitors by the fee.' }] }],
+        ['d-cafe', 'd-f-cafe', e.cafe, { blank: c.cafe === 0 ? 'You have no cafes, so 0.' : 'Visitors times $8 times the number of cafes.', wrong: c.cafe === 0 ? 'You have no cafes. Nobody can spend money there.' : 'Every visitor spends $8 at each cafe. Visitors x 8 x cafes.', special: [{ value: e.v * 8, msg: c.cafe === 1 ? 'Check your multiplication.' : 'That is for one cafe. You have ' + c.cafe + '.' }, { value: 8 * c.cafe, msg: 'That is what one visitor spends. Multiply by all the visitors.' }] }],
+        ['d-shop', 'd-f-shop', e.shop, { blank: c.shop === 0 ? 'You have no shops, so 0.' : 'Visitors times $6 times the number of shops.', wrong: c.shop === 0 ? 'You have no shops.' : 'Every visitor spends $6 at each shop. Visitors x 6 x shops.', special: [{ value: e.v * 6, msg: c.shop === 1 ? 'Check your multiplication.' : 'That is for one shop. You have ' + c.shop + '.' }] }],
+        ['d-ice', 'd-f-ice', e.ice, { blank: c.ice === 0 ? 'You have no ice cream stands, so this is 0.' : 'Visitors times $3 times the number of stands.', wrong: c.ice === 0 ? 'You have no ice cream stands. Nobody can spend money there.' : 'Every visitor spends $3 at each stand. Visitors x 3 x stands.', special: [{ value: e.v * 3, msg: c.ice === 1 ? 'Check your multiplication.' : 'That is for one stand. You have ' + c.ice + '.' }] }],
+        ['d-total', 'd-f-total', e.total, { blank: 'Add the four income rows.', wrong: 'Add admission, cafe, shop and ice cream.', special: [{ value: e.adm, msg: 'That is admission only. Add the cafe, shop and ice cream too.' }] }],
+        ['d-cost', 'd-f-cost', e.cost, { blank: 'This is your daily cost from Task 2.', wrong: 'Copy your daily total from Task 2 exactly, cents included.' }],
+        ['d-profit', 'd-f-profit', e.profit, { blank: 'Income minus costs.', wrong: 'Profit is total income (a) minus total costs (b). Line up the cents.', special: [{ value: round2(e.total + e.cost), msg: 'You added the costs. Take them away.' }] }]
+    ];
+    let allOk = true;
+    checks.forEach(([id, fid, exp, ctx]) => { const msg = diagnose(parseMoney($(id).value), exp, ctx); setInput(id, msg ? 'bad' : 'ok'); miniFb(fid, msg ? 'bad' : 'good', msg || 'Correct'); if (msg) allOk = false; });
+    logEvent('Day ' + d + (allOk ? ': correct' : ': wrong'), checks.filter(([id]) => $(id).classList.contains('ok')).length, checks.length, { profit: e.profit });
+    if (allOk) { state.dayDone[d - 1] = true; checks.forEach(([id]) => $(id).disabled = true); $('btn-check-day').disabled = true; $('btn-next-day').disabled = false; miniFb('day-fb', 'good', e.profit >= 0 ? 'A profit today. Well done.' : 'A loss today. Not every day pays. Keep going.'); playSound('good'); }
+    else { miniFb('day-fb', 'bad', 'Fix the red boxes and check again.'); playSound('bad'); }
+    renderDayStrip(); renderProgress(); saveNow(false);
+}
+function nextDay() { if (state.day < 30) state.day++; loadDay(); saveNow(false); }
+function renderQuickTable() {
+    const t = $('quick-table');
+    let html = '<thead><tr><th>Day</th><th>Visitors</th><th>Profit or loss</th><th></th></tr></thead><tbody>';
+    for (let d = 11; d <= 30; d++) { const done = state.dayDone[d - 1]; html += '<tr><td class="num">' + d + '</td><td class="num">' + S1.visitors[d - 1] + '</td><td><input class="ledger-input ' + (done ? 'ok' : '') + '" id="q-' + d + '" value="' + (done ? fmtNum(dayExpected(d).profit) : '') + '" ' + (done ? 'disabled' : '') + ' aria-label="Profit for day ' + d + '"></td><td class="mini-fb" id="qf-' + d + '"></td></tr>'; }
+    t.innerHTML = html + '</tbody>';
+    for (let d = 11; d <= 30; d++) if (state.dayDone[d - 1]) miniFb('qf-' + d, 'good', 'Correct');
+}
+function checkQuick() {
+    let correct = 0, attempted = 0;
+    for (let d = 11; d <= 30; d++) {
+        if (state.dayDone[d - 1]) { correct++; continue; }
+        const e = dayExpected(d), given = parseMoney($('q-' + d).value);
+        if (given === null) { miniFb('qf-' + d, null, ''); setInput('q-' + d, null); continue; }
+        attempted++;
+        const msg = diagnose(given, e.profit, { wrong: 'Visitors x (fee + spending per visitor), then take away the daily cost.', special: [{ value: e.total, msg: 'That is income. Take away the costs.' }, { value: e.adm, msg: 'That is admission only.' }] });
+        if (msg) { setInput('q-' + d, 'bad'); miniFb('qf-' + d, 'bad', msg); }
+        else { setInput('q-' + d, 'ok'); miniFb('qf-' + d, 'good', 'Correct'); $('q-' + d).disabled = true; state.dayDone[d - 1] = true; correct++; }
+    }
+    if (attempted) logEvent('Days 11 to 30' + (correct === 20 ? ': correct' : ': wrong'), correct, 20);
+    playSound(correct === 20 ? 'win' : (attempted ? 'bad' : 'good'));
+    miniFb('quick-fb', correct === 20 ? 'good' : 'bad', correct === 20 ? 'All 20 days correct. Now add up the whole month.' : correct + ' of 20 days correct.');
+    renderDayStrip(); renderProgress(); saveNow(false);
+}
+function checkMonth() {
+    if (state.monthDone) return;
+    const given = parseMoney($('month-total').value), exp = monthExpected();
+    const msg = diagnose(given, exp, { blank: 'Add the 30 daily profits.', wrong: 'Add all 30 days. Try adding in groups of ten and checking each group.' });
+    setInput('month-total', msg ? 'bad' : 'ok');
+    if (msg) { playSound('bad'); showFb('fb-month', 'bad', msg); logEvent('Task 5 month total: wrong', 0, 1); return; }
+    playSound('win'); state.monthDone = true; $('month-total').disabled = true; $('btn-month').disabled = true;
+    showFb('fb-month', 'good', '<strong>Correct.</strong> ' + (exp >= 0 ? 'Your first month made a profit.' : 'Your first month made a loss. Months 2 to 6 will show whether it recovers.') + ' The bank has written to you.');
+    logEvent('Task 5 month total: correct', 1, 1, { monthProfit: exp });
+    $('btn-finish-month').disabled = false; renderDayStrip(); renderProgress(); saveNow(false);
+}
+
+// ============================================================
+// STAGE 5: TASK 6 ANNUAL PROFIT
+// ============================================================
+function restoreAnnual() {
+    $('letter-park-5').textContent = group().name;
+    $('working-annual').value = state.working.annual || '';
+    $('m-bonus').textContent = money(bonusTotal(1));
+    if (state.annualDone) {
+        const a = annualExpected();
+        ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'].forEach((id, i) => { $(id).value = fmtNum(a.m[i]); $(id).disabled = true; setInput(id, 'ok'); miniFb('f-' + id, 'good', 'Correct'); });
+        fillRows({ 'm-year': a.year, 'm-left': a.left, 'm-bank': a.bank });
+        $('btn-finish-annual').disabled = false;
+    }
+}
+function checkAnnual() {
+    if (state.annualDone) return;
+    const a = annualExpected(); let correct = 0, chainBroken = false;
+    ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'].forEach((id, i) => {
+        const given = parseMoney($(id).value);
+        let ctx = { blank: i === 0 ? 'Copy your month total from Task 5.' : 'Add 10% to the month before.', wrong: i === 0 ? 'This is your month total from the previous stage, exactly.' : 'Find 10% of the previous month and add it on.' };
+        if (i > 0) ctx.special = [{ value: round2(a.m[i - 1] * 0.1), msg: 'That is the 10% on its own. Add it to the month before.' }, { value: round2(a.m[0] * (1 + 0.1 * i)), msg: 'You added 10% of Month 1 each time. Each month grows from the month before it.' }, { value: round2(a.m[i - 1] * 1.01), msg: 'That is 1%, not 10%.' }];
+        const msg = diagnose(given, a.m[i], ctx);
+        if (msg && chainBroken) { setInput(id, 'bad'); miniFb('f-' + id, 'bad', 'Fix the month before this one first.'); return; }
+        setInput(id, msg ? 'bad' : 'ok'); miniFb('f-' + id, msg ? 'bad' : 'good', msg || 'Correct');
+        if (msg) chainBroken = true; else correct++;
+    });
+    correct += checkRow('m-year', 'f-m-year', a.year, { blank: 'Add the six months.', wrong: 'Add all six monthly profits together.' });
+    correct += checkRow('m-left', 'f-m-left', a.left, { blank: 'From Task 1: the loan minus what you spent.', wrong: 'This is the money you had left after building, from Task 1.' });
+    correct += checkRow('m-bank', 'f-m-bank', a.bank, { blank: 'First year profit plus the money left over' + (a.bonus ? ', plus bonuses and fines' : '') + '.', wrong: 'Add the first year profit to the money left after building' + (a.bonus ? ', then add the bonuses and fines' : '') + '.', special: [{ value: round2(a.left - a.year), msg: 'You subtracted. A profit is added to the bank.' }, { value: round2(a.year + a.left), msg: a.bonus ? 'You forgot the bonuses and fines from your teacher.' : 'Check your adding.' }] });
+    state.working.annual = $('working-annual').value;
+    logEvent('Task 6 annual profit' + (correct === 9 ? ': correct' : ': wrong'), correct, 9, { bankEndS1: a.bank });
+    if (correct === 9) { state.annualDone = true; state.s1Done = true; document.querySelectorAll('#stage-5 input').forEach(i => i.disabled = true); $('btn-finish-annual').disabled = false; miniFb('annual-fb', 'good', 'All correct. Season 1 is in the books.'); playSound('win'); unlockGoDeeper1(); }
+    else { miniFb('annual-fb', 'bad', correct + ' of 9 correct.'); playSound('bad'); }
+    renderProgress(); updateHeader(); saveNow(false);
+}
+function unlockGoDeeper1() { const card = $('go-deeper-card-1'); if (!card) return; if (state.s1Done) { card.classList.remove('locked'); card.disabled = false; card.querySelector('p').textContent = 'Explore, reason, and think like a mathematician'; } }
+function openGoDeeper1() { if (!state.s1Done) return; $('go-deeper-section-1').style.display = 'block'; $('go-deeper-section-1').scrollIntoView({ behavior: 'smooth' }); }
+
+// ============================================================
 // NAVIGATION
 // ============================================================
-const STAGES = ['Your park', 'Lay it out', 'Task 7 Improve', 'Task 8 Costs', 'Task 9 Fee', 'Task 10 Visitors', 'Task 11 Profit', 'Tasks 12 and 13', 'Season end'];
-function stageDone(i) { return [state.groupId !== null, state.placed, state.stepD, state.costsDone, state.feeDone, state.visDone, state.profitDone, state.taxDone, state.seasonDone][i]; }
+const STAGES = ['Your park', 'T1 Build', 'T2 Costs', 'T3 Fee', 'T4-5 Open', 'T6 Annual', 'T7 Improve', 'T8 Costs', 'T9 Fee', 'T10 Visitors', 'T11 Profit', 'T12-13 Tax', 'Season end'];
+function stageDone(i) { return [state.groupId !== null, state.seeded ? state.placed : state.built, state.s1CostsDone, state.s1FeeDone, state.monthDone, state.annualDone, state.stepD, state.costsDone, state.feeDone, state.visDone, state.profitDone, state.taxDone, state.seasonDone][i]; }
 function renderProgress() {
     const p = $('progress'); p.innerHTML = '';
     STAGES.forEach((name, i) => {
         if (i > 0) { const l = document.createElement('div'); l.className = 'stage-link' + (stageDone(i - 1) ? ' done' : ''); p.appendChild(l); }
+        if (i === 6) { const sep = document.createElement('div'); sep.style.cssText = 'font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);padding:0 8px;white-space:nowrap'; sep.textContent = 'Season 2'; p.appendChild(sep); }
         const pill = document.createElement('div');
         pill.className = 'stage-pill' + (i === currentStage ? ' current' : stageDone(i) ? ' done' : i <= state.unlocked ? ' open' : '');
-        pill.innerHTML = '<span class="n">' + i + '</span>' + name;
+        pill.innerHTML = '<span class="n">' + i + '</span>' + (i === 1 && state.seeded ? 'Lay out' : name);
         if (i <= state.unlocked) pill.onclick = () => goStage(i);
         p.appendChild(pill);
     });
@@ -903,27 +1584,35 @@ function goStage(i) {
     if (i > state.unlocked) state.unlocked = i;
     currentStage = i;
     document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
-    $('stage-' + i).classList.add('active');
+    $('stage-' + (i === 1 && state.seeded ? '1s' : i)).classList.add('active');
     stopVisitors();
     if (i === 0) renderGroupPick();
-    if (i === 1) { renderCrate(); renderGrid('grid-wrap-1', 28, true); renderCrateCounts(); }
-    if (i === 2) { renderShop2(); renderGrid('grid-wrap-2', 28, true); restoreImprove(); }
-    if (i === 3) { renderGrid('mini-park-3', 15, false); restoreCosts(); }
-    if (i === 4) { renderGrid('mini-park-4', 15, false); renderRubric(); if (state.feeDone) { $('fee-input').value = state.fee; $('fee-input').disabled = true; $('btn-finish-fee').disabled = false; } }
-    if (i === 5) { renderGrid('grid-wrap-5', 15, false); renderMonthTable(); runVisitors('grid-wrap-5', 15, 18); $('advert-note').textContent = state.advert && state.advert !== 'none' ? ADVERTS[state.advert].label + ' advertising is bringing extra visitors.' : 'No advertising this season.'; $('working-visitors').value = state.working.visitors || ''; }
-    if (i === 6) { restoreProfit(); }
-    if (i === 7) { restoreTax(); }
-    if (i === 8) { renderCertificate(); }
+    if (i === 1 && state.seeded) { renderCrate(); renderGrid('grid-wrap-1', 28, true); renderCrateCounts(); }
+    if (i === 1 && !state.seeded) { restoreBuild(); }
+    if (i === 2) { renderGrid('mini-park-a2', 15, false); restoreCosts1(); }
+    if (i === 3) { renderGrid('mini-park-a3', 15, false); s1RenderRubric(); }
+    if (i === 4) { renderGrid('grid-wrap-days', 15, false); loadDay(); }
+    if (i === 5) { restoreAnnual(); unlockGoDeeper1(); }
+    if (i === 6) { renderShop2(); renderGrid('grid-wrap-2', 28, true); restoreImprove(); }
+    if (i === 7) { renderGrid('mini-park-3', 15, false); restoreCosts(); }
+    if (i === 8) { renderGrid('mini-park-4', 15, false); renderRubric(); if (state.feeDone) { $('fee-input').value = state.fee; $('fee-input').disabled = true; $('btn-finish-fee').disabled = false; } }
+    if (i === 9) { renderGrid('grid-wrap-5', 15, false); renderMonthTable(); runVisitors('grid-wrap-5', 15, 18); $('advert-note').textContent = state.advert && state.advert !== 'none' ? ADVERTS[state.advert].label + ' advertising is bringing extra visitors.' : 'No advertising this season.'; $('working-visitors').value = state.working.visitors || ''; }
+    if (i === 10) { restoreProfit(); }
+    if (i === 11) { restoreTax(); }
+    if (i === 12) { renderCertificate(); }
+    $('hdr-season').textContent = i >= 6 ? 'Season 2' : 'Season 1';
     renderProgress(); updateHeader(); saveNow(false); window.scrollTo(0, 0);
 }
 function updateHeader() {
     const g = group();
-    $('hdr-park-name').textContent = g ? g.name : '';
+    $('hdr-park-name').textContent = g ? g.name + (state.klass ? ' (' + state.klass + ')' : '') : '';
     let shown = '?';
     if (!g) shown = '?';
     else if (state.taxDone) shown = money(taxExpected().bank);
     else if (state.stepD) shown = money(bankStartS2());
-    else shown = money(bankS1());
+    else if (state.annualDone) shown = money(annualExpected().bank);
+    else if (state.built || state.placed) shown = money(moneyLeft());
+    else if (currentStage === 1 && !state.seeded) shown = money(S1.loan);
     $('hdr-bank').textContent = shown;
 }
 function toggleLearningSection() { $('learningContent').classList.toggle('open'); $('learningToggle').classList.toggle('open'); }
@@ -933,43 +1622,72 @@ function toggleLearningSection() { $('learningContent').classList.toggle('open')
 // ============================================================
 function renderGroupPick() {
     const el = $('group-pick'); el.innerHTML = '';
+    $('class-select').value = state.klass || '';
     GROUPS.forEach(g => {
-        const b = document.createElement('button');
-        b.className = state.groupId === g.id ? 'selected' : '';
-        b.innerHTML = g.name + '<small>' + (g.members || '') + '</small>';
-        b.onclick = () => chooseGroup(g.id);
+        const b = document.createElement('div');
+        b.className = 'card'; b.style.cssText = 'padding:12px 16px;border-top-color:' + (state.groupId === g.id ? 'var(--primary-accent)' : '#dfe6e9');
+        b.innerHTML = '<div style="font-weight:600;font-size:16px">' + g.name + '</div><small style="color:var(--text-light)">' + (g.members || '') + '</small>' +
+            '<div class="row-inline" style="margin-top:8px;gap:6px"><button class="btn btn-primary" style="padding:6px 12px;font-size:13px" onclick="chooseGroup(' + g.id + ', true)">Start from our booklet</button><button class="btn btn-amber" style="padding:4px 12px;font-size:13px" onclick="chooseGroup(' + g.id + ', false)">Play Season 1</button></div>';
         el.appendChild(b);
     });
     renderWelcomeLetter();
 }
-function chooseGroup(id) {
-    if (state.groupId === id) { if (state.unlocked < 1) state.unlocked = 1; renderGroupPick(); renderProgress(); updateHeader(); saveNow(false); return; }
-    saveNow(false);
-    if (!loadSaved(id)) { state = freshState(); state.groupId = id; }
+function setClass(v) { state.klass = v; try { localStorage.setItem('tpm-class', v); } catch (e) {} if (state.groupId) saveNow(false); updateHeader(); }
+function saveKey(id) { return 'tpm-group-' + id; }
+function chooseGroup(id, seeded) {
+    if (!state.klass) { showFb('fb-newgroup', 'hint', 'Choose your class first.'); $('class-select').focus(); return; }
+    const klass = state.klass;
+    if (state.groupId) saveNow(false);
+    if (!loadSaved(id)) {
+        state = freshState(); state.groupId = id; state.seeded = !!seeded; state.klass = klass;
+        const g = GROUPS.find(x => x.id === id);
+        if (seeded && g && g.bonusS1) state.bonuses.push({ season: 1, amount: g.bonusS1, reason: 'From the class tracker', at: new Date().toISOString() });
+    }
+    if (!state.klass) state.klass = klass;
     if (state.unlocked < 1) state.unlocked = 1;
     renderGroupPick(); renderProgress(); updateHeader(); saveNow(false);
+}
+function createGroup() {
+    const name = $('new-park-name').value.trim(), members = $('new-members').value.trim();
+    if (!state.klass) { showFb('fb-newgroup', 'hint', 'Choose your class first.'); return; }
+    if (!name) { showFb('fb-newgroup', 'bad', 'Your park needs a name.'); return; }
+    hideFb('fb-newgroup');
+    const id = 'new-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const klass = state.klass;
+    if (state.groupId) saveNow(false);
+    if (!loadSaved(id)) { state = freshState(); state.groupId = id; state.seeded = false; state.klass = klass; }
+    state.newGroup = { id, name, members };
+    if (state.unlocked < 1) state.unlocked = 1;
+    saveNow(false); goStage(1);
 }
 function renderWelcomeLetter() {
     const g = group(), el = $('welcome-letter');
     if (!g) { el.innerHTML = '<div class="card"><h2>Waiting for a group</h2><p class="lead">Pick your park on the left and the bank will write to you.</p></div>'; return; }
+    if (!state.seeded) {
+        el.innerHTML = '<div class="letter"><div class="from">Commonwealth Bank, Business Lending</div><div class="stamp">APPROVED</div>' +
+            '<p>Dear Owners of ' + g.name + ',</p><p>Your loan of <span class="num">$500 000</span> has been approved. A plot of land, <span class="num">20</span> squares by <span class="num">20</span> squares, is now yours.</p>' +
+            '<p>Build a park that people will love. You will need rides, but also toilets, paths, a car park, somewhere to eat and somewhere to shop. Spend carefully: every dollar you spend now is a dollar you must earn back.</p>' +
+            '<p class="sig">Good luck,<br>The Bank</p></div><div class="stage-footer"><button class="btn btn-primary" onclick="goStage(1)">Open the land</button></div>';
+        return;
+    }
     const inv = inventory();
     const lines = Object.keys(inv).filter(k => inv[k] > 0).map(k => '<li>' + (CATALOG[k].label || k) + ': <span class="num">' + inv[k] + '</span>' + (k === 'path' ? ' squares' : '') + '</li>').join('');
-    el.innerHTML = '<div class="letter"><div class="from">Commonwealth Bank, Business Lending</div><div class="stamp">SEASON 2</div>' +
+    const bonus = bonusTotal(1);
+    el.innerHTML = '<div class="letter"><div class="from">Commonwealth Bank, Business Lending</div><div class="stamp">BOOKLET</div>' +
         '<p>Dear Owners of ' + g.name + ',</p>' +
-        '<p>Your first season is complete. After building, a month of trading, and five months of growth, you have <span class="num">' + money(g.bankEndS1) + '</span> in the bank' + (g.bonusS1 ? ' (your teacher\'s bonuses and fines of <span class="num">' + money(g.bonusS1) + '</span> included)' : '') + '.</p>' +
-        '<p>Before Season 2 can open, we need to see your park laid out on the land. Everything you paid for has been delivered in a crate:</p>' +
+        '<p>Your booklet shows the park you bought, your daily running cost and the entry fee the Park Inspector agreed: <span class="num">' + money(g.feeS1) + '</span> per person' + (bonus ? '. Your teacher has recorded bonuses and fines of <span class="num">' + money(bonus) + '</span> so far' : '') + '.</p>' +
+        '<p>Before the park can open, we need to see it laid out on the land. Everything you paid for has been delivered in a crate:</p>' +
         '<ul class="vocab-list" style="columns:2;font-size:14px">' + lines + '</ul>' +
-        '<p>Place every item, then we will talk about improvements.</p><p class="sig">Regards,<br>The Bank</p></div>' +
+        '<p>Place every item, then the gates open on Day 1.</p><p class="sig">Regards,<br>The Bank</p></div>' +
         '<div class="stage-footer"><button class="btn btn-primary" onclick="goStage(1)">Open the land</button></div>';
 }
-
 // ============================================================
 // GRID (shared by stages 1, 2 and the read-only views)
 // ============================================================
 const GRIDS = {}; // wrapId -> {cellPx, editable}
 function renderGrid(wrapId, cellPx, editable) {
     const wrap = $(wrapId);
-    const editing = editable && (currentStage === 1 || currentStage === 2);
+    const editing = editable && ((isLayoutStage() && !state.placed) || (isBuildStage() && !state.built) || currentStage === 6);
     if (!wrap.dataset.built) {
         if (!wrap.classList.contains('grid-wrap')) wrap.classList.add('grid-wrap');
         wrap.style.setProperty('--cell', cellPx + 'px');
@@ -1028,15 +1746,30 @@ function previewAt(wrapId, x, y) {
     const ok = canPlace(x, y, fp.w, fp.h) && (!fp.def.nearRide || nearRide(x, y, fp.w, fp.h));
     footprintCells(x, y, fp.w, fp.h).forEach(([cx, cy]) => { if (cx >= GRID_W || cy >= GRID_H) return; const c = g.children[cy * GRID_W + cx]; c.classList.add(ok ? 'preview-ok' : 'preview-bad'); hoverCells.push(c); });
 }
-function fbId() { return currentStage === 1 ? 'fb-place' : 'fb-improve-park'; }
+function fbId() { return isLayoutStage() ? 'fb-place' : isBuildStage() ? 'fb-build' : 'fb-improve-park'; }
+function clickCellBuild(x, y) {
+    if (state.built) { showFb('fb-build', 'hint', 'Your park is built. Changes happen in Season 2, Task 7.'); return; }
+    hideFb('fb-build');
+    const key = x + ',' + y;
+    if (mode === 'remove') { const p = state.paint[key]; if (p) { delete state.paint[key]; afterBuildChange(); } return; }
+    if (mode === 'land') { showFb('fb-build', 'hint', 'Extra land goes on sale in Season 2.'); return; }
+    const fp = currentFootprint();
+    if (!fp) { showFb('fb-build', 'hint', 'Pick something from the shop first.'); return; }
+    if (!canPlace(x, y, fp.w, fp.h)) { showFb('fb-build', 'bad', 'That does not fit there. The footprint must be empty and inside the park.'); return; }
+    if (fp.def.price > moneyLeft() + 0.005) { showFb('fb-build', 'bad', '<strong>The bank says no.</strong> You do not have enough of your loan left for that. Check your ledger.'); return; }
+    if (fp.def.paint) state.paint[key] = { t: fp.name, season: 1 };
+    else state.items.push({ id: Date.now() + Math.random(), name: fp.name, x, y, w: fp.w, h: fp.h, season: 1 });
+    afterBuildChange(); previewAt('grid-wrap-build', x, y);
+}
 function clickCell(wrapId, x, y) {
-    if (currentStage === 1 && state.placed) { showFb('fb-place', 'hint', 'Your layout is locked. Changes happen in Task 7.'); return; }
-    if (currentStage === 2 && !state.stepA) { showFb('fb-improve-park', 'hint', 'Work out your 40% in Step A first.'); return; }
-    if (currentStage === 2 && state.stepD) { showFb('fb-improve-park', 'hint', 'Season 2 has started. The park is locked.'); return; }
+    if (isBuildStage()) return clickCellBuild(x, y);
+    if (isLayoutStage() && state.placed) { showFb('fb-place', 'hint', 'Your layout is locked. Changes happen in Task 7.'); return; }
+    if (currentStage === 6 && !state.stepA) { showFb('fb-improve-park', 'hint', 'Work out your 40% in Step A first.'); return; }
+    if (currentStage === 6 && state.stepD) { showFb('fb-improve-park', 'hint', 'Season 2 has started. The park is locked.'); return; }
     hideFb(fbId());
     const key = x + ',' + y;
     if (mode === 'land') {
-        if (currentStage !== 2) return;
+        if (currentStage !== 6) return;
         if (y < BASE_H) { showFb('fb-improve-park', 'hint', 'You already own that square. Land for sale is the striped strip at the bottom.'); return; }
         if (state.land[key]) return;
         if (state.stepC) { showFb('fb-improve-park', 'hint', 'Step C is checked. Only new features can change now.'); return; }
@@ -1045,47 +1778,51 @@ function clickCell(wrapId, x, y) {
     }
     if (mode === 'remove') {
         const p = state.paint[key]; if (!p) return;
-        if (currentStage === 2 && p.season === 1) {
+        if (currentStage === 6 && p.season === 1) {
             if (state.stepC) { showFb('fb-improve-park', 'hint', 'Step C is checked. Only new features can change now.'); return; }
             if (clearingCost() + CATALOG[p.t].clear > budget40() - landCost() - advertCost() + 0.005) { showFb('fb-improve-park', 'bad', '<strong>The bank says no.</strong> Clearing that would take you past your 40%.'); return; }
         }
+        if (currentStage === 6 && p.season === 1) state.cleared[p.t] = (state.cleared[p.t] || 0) + 1;
         delete state.paint[key];
         afterParkChange(p.season === 2 ? 'features' : 'improvements');
         return;
     }
     const fp = currentFootprint();
-    if (!fp) { showFb(fbId(), 'hint', 'Pick something from the ' + (currentStage === 1 ? 'crate' : 'shop') + ' first.'); return; }
-    if (currentStage === 1) {
+    if (!fp) { showFb(fbId(), 'hint', 'Pick something from the ' + (isLayoutStage() ? 'crate' : 'shop') + ' first.'); return; }
+    if (isLayoutStage()) {
         const rem = crateRemaining();
         if (!(rem[fp.name] > 0)) { showFb('fb-place', 'hint', 'There are no more of those in the crate.'); return; }
     }
     if (!canPlace(x, y, fp.w, fp.h)) { showFb(fbId(), 'bad', 'That does not fit there. The footprint must be empty, inside the park, and on land you own.'); return; }
     if (fp.def.nearRide && !nearRide(x, y, fp.w, fp.h)) { showFb(fbId(), 'bad', 'A photo kiosk must be within 2 squares of a ride.'); return; }
-    if (currentStage === 2) {
+    if (currentStage === 6) {
         if (!state.stepC) { showFb('fb-improve-park', 'hint', 'The shop opens after Step C.'); return; }
         if (fp.def.max && counts().restaurant >= fp.def.max && fp.name === 'Restaurant') { showFb('fb-improve-park', 'bad', 'Only one restaurant is allowed.'); return; }
         if (fp.def.price > thirdBudget() - newFeaturesSpend() + 0.005) { showFb('fb-improve-park', 'bad', '<strong>The bank says no.</strong> That would take you past your one third for new features.'); return; }
     }
-    const season = currentStage === 1 ? 1 : 2;
+    const season = isLayoutStage() ? 1 : 2;
     if (fp.def.paint) state.paint[key] = { t: fp.name, season };
     else state.items.push({ id: Date.now() + Math.random(), name: fp.name, x, y, w: fp.w, h: fp.h, season });
     afterParkChange('features'); previewAt(wrapId, x, y);
 }
 function removeItem(it) {
-    if (currentStage === 1 && state.placed) return;
-    if (currentStage === 2 && (!state.stepA || state.stepD)) return;
-    if (mode !== 'remove' && currentStage === 2) { showFb('fb-improve-park', 'hint', 'Choose the Remove tool first. Removing a Season 1 item costs money.'); return; }
-    if (currentStage === 2 && it.season === 1) {
+    if (isBuildStage()) { if (state.built) return; state.items = state.items.filter(i => i.id !== it.id); afterBuildChange(); return; }
+    if (isLayoutStage() && state.placed) return;
+    if (currentStage === 6 && (!state.stepA || state.stepD)) return;
+    if (mode !== 'remove' && currentStage === 6) { showFb('fb-improve-park', 'hint', 'Choose the Remove tool first. Removing a Season 1 item costs money.'); return; }
+    if (currentStage === 6 && it.season === 1) {
         if (state.stepC) { showFb('fb-improve-park', 'hint', 'Step C is checked. Only new features can change now.'); return; }
         const extra = CATALOG[it.name].clear;
         if (clearingCost() + extra > budget40() - landCost() - advertCost() + 0.005) { showFb('fb-improve-park', 'bad', '<strong>The bank says no.</strong> Clearing that costs ' + money(extra) + ' and would take you past your 40%.'); return; }
     }
+    if (currentStage === 6 && it.season === 1) state.cleared[it.name] = (state.cleared[it.name] || 0) + 1;
     state.items = state.items.filter(i => i.id !== it.id);
     afterParkChange(it.season === 2 ? 'features' : 'improvements');
 }
 function afterParkChange(kind) {
-    if (currentStage === 1) { renderGrid('grid-wrap-1', 28, true); renderCrate(); renderCrateCounts(); }
-    if (currentStage === 2) {
+    if (isLayoutStage()) { renderGrid('grid-wrap-1', 28, true); renderCrate(); renderCrateCounts(); }
+    if (isBuildStage()) { afterBuildChange(); return; }
+    if (currentStage === 6) {
         state.stepD = false;
         ['imp-feat', 'imp-start'].forEach(id => { $(id).disabled = false; setInput(id, null); });
         ['f-imp-feat', 'f-imp-start', 'fb-d'].forEach(id => miniFb(id, null, ''));
@@ -1096,7 +1833,7 @@ function afterParkChange(kind) {
             $('step-d').classList.remove('live');
         }
         $('btn-finish-improve').disabled = true;
-        $('imp-removed').textContent = Object.values(removedS1()).reduce((a, b) => a + b, 0);
+        $('imp-removed').textContent = Object.values(state.cleared).reduce((a, b) => a + b, 0);
         $('imp-land').textContent = landSquares();
         renderGrid('grid-wrap-2', 28, true); renderShop2();
     }
@@ -1148,10 +1885,13 @@ function renderCrateCounts() {
 }
 function finishPlacing() {
     const rem = crateRemaining(); if (!Object.values(rem).every(v => v === 0)) return;
-    state.placed = true; playSound('win'); logEvent('Park laid out', 1, 1);
-    renderCrateCounts(); goStage(2);
+    const g = group();
+    state.placed = true; state.built = true; state.buildChecked = true;
+    state.s1CostsDone = true; state.s1FeeDone = true; state.feeS1 = g.feeS1; state.catS1 = g.categoryS1;
+    state.s1LayoutTicks = { c1: g.categoryS1 === 1, c2: g.categoryS1 <= 2 };
+    playSound('win'); logEvent('Park laid out from booklet', 1, 1, { dailyCost: s1DailyCost(), fee: g.feeS1 });
+    renderCrateCounts(); state.unlocked = Math.max(state.unlocked, 4); goStage(4);
 }
-
 // ============================================================
 // STAGE 2: TASK 7
 // ============================================================
@@ -1189,7 +1929,7 @@ function renderShop2() {
 function restoreImprove() {
     $('imp-bank').textContent = money(bankS1());
     $('working-improve').value = state.working.improve || '';
-    $('imp-removed').textContent = Object.values(removedS1()).reduce((a, b) => a + b, 0);
+    $('imp-removed').textContent = Object.values(state.cleared).reduce((a, b) => a + b, 0);
     $('imp-land').textContent = landSquares();
     if (state.advert) document.querySelectorAll('#advert-choice button').forEach(b => b.classList.toggle('selected', b.dataset.ad === state.advert));
     ['step-b', 'step-c'].forEach(id => $(id).classList.toggle('live', state.stepA));
@@ -1400,7 +2140,7 @@ function checkProfit() {
 function restoreTax() {
     $('letter-park-7').textContent = group().name;
     $('t-sub-ins').textContent = 'Price Category ' + state.cat;
-    $('t-bonus').textContent = money(state.bonusS2);
+    $('t-bonus').textContent = money(bonusTotal(2));
     $('working-tax').value = state.working.tax || '';
     if (state.taxDone) { const e = taxExpected(); fillRows({ 't-tax': e.tax, 't-after': e.after, 't-ins': e.ins, 't-final': e.fin, 't-bank': e.bank, 't-loan': e.loan, 't-net': e.net }); $('btn-finish-tax').disabled = false; }
 }
@@ -1410,23 +2150,23 @@ function checkTax() {
     ok += checkRow('t-after', 'f-t-after', e.after, { blank: 'Profit minus tax.', wrong: 'Take the tax away from the Season 2 profit.' });
     ok += checkRow('t-ins', 'f-t-ins', e.ins, { blank: 'Look up your price category.', wrong: 'Insurance for Price Category ' + state.cat + '. See the box on the right.' });
     ok += checkRow('t-final', 'f-t-final', e.fin, { blank: 'After tax, minus insurance.', wrong: 'Take the insurance away from the profit after tax.', special: [{ value: round2((e.p - e.ins) * 0.7), msg: 'You took insurance off before tax. The booklet says tax first.' }] });
-    ok += checkRow('t-bank', 'f-t-bank', e.bank, { blank: 'Start of season bank plus final profit plus bonuses.', wrong: 'Add the final profit (and any bonus or fine) to the bank balance from the start of Season 2.', special: [{ value: round2(bankS1() + e.fin + state.bonusS2), msg: 'You used the end of Season 1 balance. Use the start of Season 2 balance, after improvements.' }] });
+    ok += checkRow('t-bank', 'f-t-bank', e.bank, { blank: 'Start of season bank plus final profit plus bonuses.', wrong: 'Add the final profit (and any bonus or fine) to the bank balance from the start of Season 2.', special: [{ value: round2(bankS1() + e.fin + bonusTotal(2)), msg: 'You used the end of Season 1 balance. Use the start of Season 2 balance, after improvements.' }] });
     ok += checkRow('t-loan', 'f-t-loan', e.loan, { blank: '$500 000 plus 11%.', wrong: '11% of 500 000 is 55 000. Add it to the loan.', special: [{ value: 55000, msg: 'That is the interest only. Add it to the loan.' }, { value: 550000, msg: 'That is 10%. The interest is 11%.' }] });
     ok += checkRow('t-net', 'f-t-net', e.net, { blank: 'Bank minus loan.', wrong: 'Take the loan owed away from the bank balance.' });
     state.working.tax = $('working-tax').value;
     logEvent('Tasks 12 and 13' + (ok === 7 ? ': correct' : ': wrong'), ok, 7, { bankEndS2: e.bank, net: e.net });
-    if (ok === 7) { state.taxDone = true; playSound('win'); document.querySelectorAll('#stage-7 input').forEach(i => i.disabled = true); $('btn-finish-tax').disabled = false; miniFb('tax-fb', 'good', 'Season 2 is in the books.'); }
+    if (ok === 7) { state.taxDone = true; playSound('win'); document.querySelectorAll('#stage-11 input').forEach(i => i.disabled = true); $('btn-finish-tax').disabled = false; miniFb('tax-fb', 'good', 'Season 2 is in the books.'); }
     else { playSound('bad'); miniFb('tax-fb', 'bad', ok + ' of 7 correct.'); }
     renderProgress(); updateHeader(); saveNow(false);
 }
-function finishSeason() { state.seasonDone = true; logEvent('Season 2 finished', 1, 1, leaderboardPayload()); goStage(8); }
+function finishSeason() { state.seasonDone = true; logEvent('Season 2 finished', 1, 1, leaderboardPayload()); goStage(12); }
 
 // ============================================================
 // STAGE 8
 // ============================================================
 function renderCertificate() {
     const g = group(), e = taxExpected();
-    $('cert-park').textContent = g.name; $('cert-members').textContent = g.members || '';
+    $('cert-park').textContent = g.name; $('cert-members').textContent = (g.members || '') + (state.klass ? ' (' + state.klass + ')' : '');
     $('cert-bank').textContent = money(e.bank); $('cert-fee').textContent = money(state.fee) + ' per person';
     $('cert-vis').textContent = fmtInt(totalVisitors()); $('cert-ad').textContent = state.advert ? ADVERTS[state.advert].label : 'None';
     const card = $('go-deeper-card');
@@ -1450,32 +2190,58 @@ function runVisitors(wrapId, px, n) {
 function stopVisitors() { if (visitorTimer) { clearInterval(visitorTimer); visitorTimer = null; } }
 
 // ============================================================
-// TEACHER MODE
+// TEACHER MODE (password protected)
 // ============================================================
-function titleTap() {
-    titleTaps++;
-    if (titleTaps >= 5) { titleTaps = 0; const code = window.prompt ? window.prompt('Teacher code') : null; if (code === TEACHER_CODE) openTeacher(); }
-    setTimeout(() => { titleTaps = 0; }, 3000);
+function openTeacher() {
+    const code = window.prompt ? window.prompt('Teacher password') : null;
+    if (code !== TEACHER_CODE) { if (code !== null) playSound('bad'); return; }
+    $('teacher-panel').classList.add('show'); renderTeacher();
 }
-function openTeacher() { $('teacher-panel').classList.add('show'); renderTeacher(); }
 function renderTeacher() {
     const el = $('teacher-body'), g = group();
     if (!g) { el.innerHTML = '<p>No group chosen.</p><button class="btn btn-amber" onclick="closeTeacher()">Close</button>'; return; }
-    const inv = inventory();
-    let html = '<p><strong>' + g.name + '</strong>, stage ' + currentStage + ', unlocked to ' + state.unlocked + '</p>';
-    html += '<p style="color:var(--text-light)">Season 1 crate (adjust if a booklet count was wrong). Changes take effect before the layout is locked.</p>';
-    for (const k in inv) html += '<div class="row"><span>' + (CATALOG[k].label || k) + (k === 'path' ? ' (squares)' : '') + '</span><button onclick="adjustInv(\'' + k + '\',-1)">-</button><b class="num">' + inv[k] + '</b><button onclick="adjustInv(\'' + k + '\',1)">+</button></div>';
-    html += '<div class="row" style="margin-top:8px"><span>Season 2 bonus or fine (negative for a fine)</span></div><div class="row"><input class="ledger-input" id="teach-bonus" value="' + state.bonusS2 + '" style="font-size:14px;padding:6px"><button style="width:auto;padding:0 10px" onclick="setBonus()">Set</button></div>';
-    html += '<div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap">' +
-        '<button style="width:auto;padding:4px 10px" onclick="state.placed=false;renderCrateCounts();saveNow(false);closeTeacher()">Unlock layout</button>' +
-        '<button style="width:auto;padding:4px 10px" onclick="state.unlocked=8;renderProgress();saveNow(false)">Unlock all stages</button>' +
+    const season = currentStage >= 6 ? 2 : 1;
+    let html = '<p><strong>' + g.name + '</strong>' + (state.klass ? ' (' + state.klass + ')' : '') + ', stage ' + currentStage + ' of 12</p>';
+    html += '<h3 style="margin-top:10px">Bonus or fine</h3><p style="color:var(--text-light);margin:0 0 6px">Positive for a bonus, negative for a fine. It is added to the bank at the end of the chosen season.</p>';
+    html += '<div class="row"><select id="teach-season" class="ledger-input" style="font-size:14px;padding:6px;width:auto"><option value="1"' + (season === 1 ? ' selected' : '') + '>Season 1</option><option value="2"' + (season === 2 ? ' selected' : '') + '>Season 2</option></select><input class="ledger-input" id="teach-amount" placeholder="-5000" style="font-size:14px;padding:6px"></div>';
+    html += '<div class="row"><input class="ledger-input" id="teach-reason" placeholder="Reason (students see this)" style="font-family:Fredoka,sans-serif;font-size:14px;padding:6px"><button style="width:auto;padding:0 12px" onclick="addBonus()">Add</button></div>';
+    if (state.bonuses.length) {
+        html += '<div style="margin-top:8px">' + state.bonuses.map((b, i) => '<div class="row"><span>S' + b.season + ' <b class="num">' + money(b.amount) + '</b> ' + (b.reason || '') + '</span><button title="Remove" onclick="removeBonus(' + i + ')">x</button></div>').join('') + '</div>';
+    }
+    if (state.seeded && !state.placed) {
+        const inv = inventory();
+        html += '<h3 style="margin-top:12px">Crate (fix a booklet count)</h3>';
+        for (const k in inv) html += '<div class="row"><span>' + (CATALOG[k].label || k) + (k === 'path' ? ' (lengths of 5)' : '') + '</span><button onclick="adjustInv(\'' + k + '\',-1)">-</button><b class="num">' + (k === 'path' ? inv[k] / 5 : inv[k]) + '</b><button onclick="adjustInv(\'' + k + '\',1)">+</button></div>';
+    }
+    html += '<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">' +
+        (state.seeded ? '<button style="width:auto;padding:4px 10px" onclick="state.placed=false;saveNow(false);closeTeacher();goStage(1)">Unlock layout</button>' : '<button style="width:auto;padding:4px 10px" onclick="state.built=false;state.buildChecked=false;saveNow(false);closeTeacher();goStage(1)">Unlock building</button>') +
+        '<button style="width:auto;padding:4px 10px" onclick="state.unlocked=12;renderProgress();saveNow(false)">Unlock all stages</button>' +
         '<button style="width:auto;padding:4px 10px;color:#c0392b" onclick="resetGroup()">Reset this group</button>' +
         '<button style="width:auto;padding:4px 10px" onclick="closeTeacher()">Close</button></div>';
     el.innerHTML = html;
 }
-function adjustInv(k, d) { const key = k === 'path' ? 'pathLengths' : k; state.invAdjust[key] = (state.invAdjust[key] || 0) + d; renderTeacher(); if (currentStage === 1) { renderCrate(); renderCrateCounts(); } if (currentStage === 0) renderWelcomeLetter(); saveNow(false); }
-function setBonus() { const v = parseMoney($('teach-bonus').value); if (v === null || isNaN(v)) return; state.bonusS2 = v; if (currentStage === 7) restoreTax(); saveNow(false); renderTeacher(); }
-function resetGroup() { const id = state.groupId; try { localStorage.removeItem('tpm2-group-' + id); } catch (e) {} state = freshState(); state.groupId = id; state.unlocked = 1; closeTeacher(); goStage(0); }
+function addBonus() {
+    const amount = parseMoney($('teach-amount').value), season = Number($('teach-season').value), reason = $('teach-reason').value.trim();
+    if (amount === null || isNaN(amount) || amount === 0) return;
+    state.bonuses.push({ season, amount, reason, at: new Date().toISOString() });
+    logEvent('Teacher ' + (amount > 0 ? 'bonus' : 'fine') + ' S' + season, 1, 1, { amount, reason });
+    afterBonusChange();
+}
+function removeBonus(i) { state.bonuses.splice(i, 1); afterBonusChange(); }
+function afterBonusChange() {
+    if (currentStage === 5) restoreAnnual();
+    if (currentStage === 11) restoreTax();
+    if (currentStage === 0) renderWelcomeLetter();
+    updateHeader(); saveNow(false); renderTeacher();
+}
+function adjustInv(k, d) { const key = k === 'path' ? 'pathLengths' : k; state.invAdjust[key] = (state.invAdjust[key] || 0) + d; renderTeacher(); if (isLayoutStage()) { renderCrate(); renderCrateCounts(); } if (currentStage === 0) renderWelcomeLetter(); saveNow(false); }
+function resetGroup() {
+    if (window.confirm && !window.confirm('Reset ' + group().name + '? Their park and all their answers are wiped.')) return;
+    const id = state.groupId, seeded = state.seeded, ng = state.newGroup, klass = state.klass;
+    try { localStorage.removeItem(saveKey(id)); } catch (e) {}
+    state = freshState(); state.groupId = id; state.seeded = seeded; state.newGroup = ng; state.klass = klass; state.unlocked = 1;
+    closeTeacher(); goStage(0);
+}
 function closeTeacher() { $('teacher-panel').classList.remove('show'); }
 
 // ============================================================
@@ -1483,24 +2249,24 @@ function closeTeacher() { $('teacher-panel').classList.remove('show'); }
 // ============================================================
 function saveNow(announce) {
     if (!state.groupId) return;
-    try { localStorage.setItem('tpm2-group-' + state.groupId, JSON.stringify({ state, currentStage })); localStorage.setItem('tpm2-last', String(state.groupId)); if (announce) { const b = document.querySelectorAll('.save-btn')[1]; const old = b.textContent; b.textContent = 'Saved'; setTimeout(() => b.textContent = old, 1200); } } catch (e) {}
+    try { localStorage.setItem(saveKey(state.groupId), JSON.stringify({ state, currentStage })); localStorage.setItem('tpm-last', String(state.groupId)); if (announce) { const b = document.querySelectorAll('.save-btn')[1]; const old = b.textContent; b.textContent = 'Saved'; setTimeout(() => b.textContent = old, 1200); } } catch (e) {}
 }
 function loadSaved(id) {
-    try { const raw = localStorage.getItem('tpm2-group-' + id); if (!raw) return false; const d = JSON.parse(raw); if (!d || !d.state) return false; state = Object.assign(freshState(), d.state); return true; } catch (e) { return false; }
+    try { const raw = localStorage.getItem(saveKey(id)); if (!raw) return false; const d = JSON.parse(raw); if (!d || !d.state) return false; state = Object.assign(freshState(), d.state); return true; } catch (e) { return false; }
 }
 function downloadPark() {
     const blob = new Blob([JSON.stringify({ state, savedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = ((group() || {}).name || 'theme-park').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-season2.json'; a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = ((group() || {}).name || 'theme-park').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-theme-park.json'; a.click();
 }
 function uploadPark(input) {
     const f = input.files[0]; if (!f) return;
     const r = new FileReader();
-    r.onload = () => { try { const d = JSON.parse(r.result); if (d && d.state && d.state.groupId) { state = Object.assign(freshState(), d.state); saveNow(false); goStage(Math.min(state.unlocked, 8)); } } catch (e) {} };
+    r.onload = () => { try { const d = JSON.parse(r.result); if (d && d.state && d.state.groupId) { state = Object.assign(freshState(), d.state); saveNow(false); goStage(Math.min(state.unlocked, 12)); } } catch (e) {} };
     r.readAsText(f); input.value = '';
 }
 function leaderboardPayload() {
     const g = group(), e = state.taxDone ? taxExpected() : null;
-    return { group: g ? g.name : '', stage: currentStage, fee: state.fee, advert: state.advert, visitors: state.visDone ? totalVisitors() : null, bankEndS2: e ? e.bank : null, at: new Date().toISOString() };
+    return { group: g ? g.name : '', klass: state.klass, stage: currentStage, feeS1: state.feeS1, fee: state.fee, advert: state.advert, bankEndS1: state.annualDone ? annualExpected().bank : null, visitors: state.visDone ? totalVisitors() : null, bankEndS2: e ? e.bank : null, at: new Date().toISOString() };
 }
 
 // ============================================================
@@ -1509,10 +2275,13 @@ function leaderboardPayload() {
 (function init() {
     try { if (localStorage.getItem('tpm2Sound') === '0') { soundOn = false; $('sound-btn').textContent = 'Sound off'; } } catch (e) {}
     $('legend').innerHTML = ['Category 1|var(--red)', 'Category 2|var(--amber)', 'Category 3|var(--purple)', 'Toilets|var(--pink)', 'Bin|var(--orange)|r', 'Tree|var(--green)|r', 'Lake|var(--blue)', 'Bench|var(--brown)', 'Path and car park|var(--grey)'].map(s => { const [l, c, r] = s.split('|'); return '<span><span style="display:inline-block;width:12px;height:12px;background:' + c + ';border-radius:' + (r ? '50%' : '3px') + '"></span> ' + l + '</span>'; }).join('');
-    let last = null; try { last = localStorage.getItem('tpm2-last'); } catch (e) {}
-    if (last && loadSaved(Number(last))) { goStage(Math.min(state.unlocked, 8)); }
+    $('legend-build').innerHTML = $('legend').innerHTML;
+    try { state.klass = localStorage.getItem('tpm-class') || ''; } catch (e) {}
+    let last = null; try { last = localStorage.getItem('tpm-last'); } catch (e) {}
+    const lastId = last && /^new-/.test(last) ? last : Number(last);
+    if (last && loadSaved(lastId)) { goStage(Math.min(state.unlocked, 12)); }
     else { renderGroupPick(); renderProgress(); updateHeader(); }
-    document.addEventListener('keydown', (e) => { if ((currentStage === 1 || currentStage === 2) && (e.key === 'r' || e.key === 'R') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') rotated = !rotated; });
+    document.addEventListener('keydown', (e) => { if ((currentStage === 1 || currentStage === 6) && (e.key === 'r' || e.key === 'R') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') rotated = !rotated; });
 })();
 </script>
 </body>

@@ -77,3 +77,17 @@ Open your Google Sheet anytime. Each **tab** is one skill/activity (e.g. “Plac
 - **Testing locally:** Opening the HTML files directly from your computer (file://) can block the request. Deploy to GitHub Pages (or another host) and test from the real URL.
 - **"Authorization required"** when opening the Web app URL in a browser is normal; the site sends data via `fetch` (POST), not by opening the URL in the address bar.
 - If you change the script or redeploy, the Web app URL might change; update `RESULTS_SCRIPT_URL` in `results-to-sheet.js` if it does.
+
+---
+
+## Theme Park Maths (November 2026)
+
+The Theme Park Maths game posts to the same Web app at every check. Rows land in a tab called **Theme Park Maths** (one row per check: group, class, task, boxes right out of boxes checked, and the wrong boxes with their diagnostic in the Question data column). The script then rebuilds a **Theme Park Summary** tab: one row per group with their furthest stage, attempts per task, the three most common misconceptions, their key figures, and any bonuses or fines.
+
+To get the summary tab you need the updated `google-apps-script.js` from this folder:
+
+1. Open the results sheet, **Extensions → Apps Script**, replace the code with the new file, **Save**.
+2. **Deploy → Manage deployments**, click the pencil, set **Version** to **New version**, **Deploy**. The Web app URL stays the same, so nothing on the site changes.
+3. If the summary ever looks stale, in the editor choose the function **updateThemeParkSummaryNow** and click **Run**.
+
+Teacher controls in the game: the **Teacher** button in the header, password in the file (`TEACHER_CODE`). From there you can add a bonus or fine to a group for either season, fix a seeded group's crate before they lay out, unlock a stage, or reset a group.

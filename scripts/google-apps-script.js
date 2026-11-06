@@ -46,6 +46,7 @@ function doPost(e) {
       if (questionDataStr.length > 50000) questionDataStr = questionDataStr.substring(0, 50000) + '…';
     }
     sheet.appendRow([timestamp, studentName, studentClass, modeOrLevel, score, total, questionDataStr]);
+    if (activityName === 'Theme Park Maths') { try { updateThemeParkSummary(ss, sheet); } catch (e2) { /* summary is best effort */ } }
 
     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -72,4 +73,54 @@ function parsePostBody(raw) {
   } catch (err) {
     return {};
   }
+}
+
+/**
+ * Theme Park Maths: rebuilds the "Theme Park Summary" tab from the log tab after every post.
+ * One row per group: where they are, attempts per task, and the misconceptions that keep coming up.
+ * Run it by hand from the editor (Run > updateThemeParkSummaryNow) if you ever need to rebuild it.
+ */
+function updateThemeParkSummaryNow() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var log = ss.getSheetByName('Theme Park Maths');
+  if (log) updateThemeParkSummary(ss, log);
+}
+function updateThemeParkSummary(ss, log) {
+  var rows = log.getDataRange().getValues();
+  var groups = {};
+  for (var i = 1; i < rows.length; i++) {
+    var r = rows[i];
+    var key = String(r[1]) + '|' + String(r[2]);
+    var g = groups[key] || (groups[key] = { name: r[1], klass: r[2], last: '', lastLabel: '', stage: 0, attempts: {}, wrongCount: 0, miscon: {}, figures: {}, bonuses: 0 });
+    var label = String(r[3] || '');
+    var data = {};
+    try { var arr = JSON.parse(r[6] || '[]'); data = (arr && arr[0]) || {}; } catch (e) { data = {}; }
+    if (String(r[0]) > String(g.last)) { g.last = r[0]; g.lastLabel = label; }
+    if (data.stage != null && Number(data.stage) > g.stage) g.stage = Number(data.stage);
+    if (data.unlocked != null && Number(data.unlocked) > g.stage) g.stage = Number(data.unlocked);
+    var task = label.replace(/:.*$/, '').replace(/^Day \d+$/, 'Days 1 to 10');
+    if (/wrong|correct/.test(label)) g.attempts[task] = (g.attempts[task] || 0) + 1;
+    if (data.wrong && data.wrong.length) {
+      g.wrongCount += data.wrong.length;
+      for (var k = 0; k < data.wrong.length; k++) {
+        var m = String(data.wrong[k].msg || '').replace(/^You answered -?\$?[\d\s.,]+\. /, '').replace(/^Blank\. /, 'Blank: ').slice(0, 90);
+        if (m) g.miscon[m] = (g.miscon[m] || 0) + 1;
+      }
+    }
+    ['dailyCost', 'fee', 'feeS1', 'bankEndS1', 'visitors', 'profit', 'bankEndS2'].forEach(function (f) { if (data[f] != null && data[f] !== '') g.figures[f] = data[f]; });
+    if (/^Teacher (bonus|fine)/.test(label) && data.amount != null) g.bonuses += Number(data.amount);
+  }
+  var stageNames = ['Choosing group', 'Task 1 Build', 'Task 2 Costs', 'Task 3 Fee', 'Tasks 4-5 Open', 'Task 6 Annual', 'Task 7 Improve', 'Task 8 Costs', 'Task 9 Fee', 'Task 10 Visitors', 'Task 11 Profit', 'Tasks 12-13 Tax', 'Season 2 finished'];
+  var out = [['Group', 'Class', 'Furthest stage', 'Last seen', 'Last event', 'Attempts per task', 'Wrong boxes', 'Top misconceptions', 'Daily cost', 'Fee S1', 'Bank end S1', 'Visitors S2', 'Profit S2', 'Bank end S2', 'Bonuses and fines']];
+  Object.keys(groups).sort().forEach(function (key) {
+    var g = groups[key];
+    var att = Object.keys(g.attempts).map(function (t) { return t + ': ' + g.attempts[t]; }).join('; ');
+    var top = Object.keys(g.miscon).sort(function (a, b) { return g.miscon[b] - g.miscon[a]; }).slice(0, 3).map(function (m) { return m + ' (' + g.miscon[m] + ')'; }).join(' | ');
+    out.push([g.name, g.klass, stageNames[g.stage] || g.stage, g.last, g.lastLabel, att, g.wrongCount, top, g.figures.dailyCost || '', g.figures.feeS1 || '', g.figures.bankEndS1 || '', g.figures.visitors || '', g.figures.profit || '', g.figures.bankEndS2 || '', g.bonuses]);
+  });
+  var sum = ss.getSheetByName('Theme Park Summary') || ss.insertSheet('Theme Park Summary');
+  sum.clearContents();
+  sum.getRange(1, 1, out.length, out[0].length).setValues(out);
+  sum.getRange(1, 1, 1, out[0].length).setFontWeight('bold');
+  sum.setFrozenRows(1);
 }
