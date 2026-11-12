@@ -1041,7 +1041,7 @@ function freshState() {
         stepA: false, stepC: false, stepD: false, advert: null,
         costsDone: false, feeDone: false, fee: null, cat: null, layoutTicks: { c1: false, c2: false },
         visDone: false, profitDone: false, taxDone: false, seasonDone: false,
-        working: {}
+        working: {}, drafts: {}
     };
 }
 let state = freshState();
@@ -1489,7 +1489,7 @@ function checkDay() {
     else { miniFb('day-fb', 'bad', 'Fix the red boxes and check again.'); playSound('bad'); }
     renderDayStrip(); renderProgress(); saveNow(false);
 }
-function nextDay() { if (state.day < 30) state.day++; loadDay(); saveNow(false); }
+function nextDay() { if (state.day < 30) state.day++; loadDay(); applyDrafts(); saveNow(false); }
 function renderQuickTable() {
     const t = $('quick-table');
     let html = '<thead><tr><th>Day</th><th>Visitors</th><th>Profit or loss</th><th></th></tr></thead><tbody>';
@@ -1564,6 +1564,26 @@ function unlockGoDeeper1() { const card = $('go-deeper-card-1'); if (!card) retu
 function openGoDeeper1() { if (!state.s1Done) return; $('go-deeper-section-1').style.display = 'block'; $('go-deeper-section-1').scrollIntoView({ behavior: 'smooth' }); }
 
 // ============================================================
+// DRAFTS: anything typed but not yet checked survives moving between stages
+// ============================================================
+function draftKey(id) { return currentStage + '|' + (currentStage === 4 ? state.day + '|' : '') + id; }
+function applyDrafts() {
+    const stageEl = $('stage-' + (currentStage === 1 && state.seeded ? '1s' : currentStage)); if (!stageEl) return;
+    stageEl.querySelectorAll('input[id], textarea[id]').forEach(el => {
+        if (el.disabled || el.type === 'checkbox' || el.type === 'file') return;
+        const v = state.drafts[draftKey(el.id)];
+        if (v !== undefined && el.value === '') el.value = v;
+    });
+}
+function rememberDraft(e) {
+    const el = e.target; if (!el || !el.id || el.closest('#teacher-panel')) return;
+    if (!(el.tagName === 'INPUT' && (el.type === 'text' || !el.type)) && el.tagName !== 'TEXTAREA') return;
+    if (!state.groupId) return;
+    state.drafts[draftKey(el.id)] = el.value;
+    clearTimeout(rememberDraft.t); rememberDraft.t = setTimeout(() => saveNow(false), 400);
+}
+
+// ============================================================
 // NAVIGATION
 // ============================================================
 const STAGES = ['Your park', 'T1 Build', 'T2 Costs', 'T3 Fee', 'T4-5 Open', 'T6 Annual', 'T7 Improve', 'T8 Costs', 'T9 Fee', 'T10 Visitors', 'T11 Profit', 'T12-13 Tax', 'Season end'];
@@ -1601,6 +1621,7 @@ function goStage(i) {
     if (i === 11) { restoreTax(); }
     if (i === 12) { renderCertificate(); }
     $('hdr-season').textContent = i >= 6 ? 'Season 2' : 'Season 1';
+    applyDrafts();
     renderProgress(); updateHeader(); saveNow(false); window.scrollTo(0, 0);
 }
 function updateHeader() {
@@ -2293,6 +2314,7 @@ function leaderboardPayload() {
     if (last && loadSaved(lastId)) { goStage(Math.min(state.unlocked, 12)); }
     else { renderGroupPick(); renderProgress(); updateHeader(); }
     document.addEventListener('mouseup', () => { dragging = false; });
+    document.addEventListener('input', rememberDraft);
     document.addEventListener('keydown', (e) => { if ((currentStage === 1 || currentStage === 6) && (e.key === 'r' || e.key === 'R') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') rotated = !rotated; });
 })();
 </script>
