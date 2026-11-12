@@ -1638,7 +1638,12 @@ function chooseGroup(id, seeded) {
     if (!state.klass) { showFb('fb-newgroup', 'hint', 'Choose your class first.'); $('class-select').focus(); return; }
     const klass = state.klass;
     if (state.groupId) saveNow(false);
-    if (!loadSaved(id)) {
+    let fresh = !loadSaved(id);
+    if (!fresh && state.seeded !== !!seeded) {
+        const progress = state.built || state.placed || state.items.length || Object.keys(state.paint).length;
+        if (!progress || !window.confirm || window.confirm('This group already has a park started the other way. Start again ' + (seeded ? 'from the booklet' : 'playing Season 1') + '? Their current park will be wiped.')) { try { localStorage.removeItem(saveKey(id)); } catch (e) {} fresh = true; }
+    }
+    if (fresh) {
         state = freshState(); state.groupId = id; state.seeded = !!seeded; state.klass = klass;
         const g = GROUPS.find(x => x.id === id);
         if (seeded && g && g.bonusS1) state.bonuses.push({ season: 1, amount: g.bonusS1, reason: 'From the class tracker', at: new Date().toISOString() });
@@ -2243,9 +2248,9 @@ function afterBonusChange() {
 function adjustInv(k, d) { const key = k === 'path' ? 'pathLengths' : k; state.invAdjust[key] = (state.invAdjust[key] || 0) + d; renderTeacher(); if (isLayoutStage()) { renderCrate(); renderCrateCounts(); } if (currentStage === 0) renderWelcomeLetter(); saveNow(false); }
 function resetGroup() {
     if (window.confirm && !window.confirm('Reset ' + group().name + '? Their park and all their answers are wiped.')) return;
-    const id = state.groupId, seeded = state.seeded, ng = state.newGroup, klass = state.klass;
-    try { localStorage.removeItem(saveKey(id)); } catch (e) {}
-    state = freshState(); state.groupId = id; state.seeded = seeded; state.newGroup = ng; state.klass = klass; state.unlocked = 1;
+    const id = state.groupId, klass = state.klass;
+    try { localStorage.removeItem(saveKey(id)); localStorage.removeItem('tpm-last'); } catch (e) {}
+    state = freshState(); state.klass = klass;
     closeTeacher(); goStage(0);
 }
 function closeTeacher() { $('teacher-panel').classList.remove('show'); }
