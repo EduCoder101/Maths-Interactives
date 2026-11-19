@@ -227,6 +227,16 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
 #teacher-panel .row span { flex: 1; }
 #teacher-panel .row button { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #dfe6e9; background: #fff; font-weight: 700; }
 .month-table td input { min-width: 120px; }
+.day-layout { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: start; }
+.day-layout > * { min-width: 0; }
+@media (max-width: 1200px) { .day-layout { grid-template-columns: 1fr; } }
+.day-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.day-chip { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 13px; background: #f1e6d6; color: var(--text-light); transition: all 0.2s ease; }
+.day-chip.done { background: var(--correct-color); color: #fff; }
+.day-chip.current { background: var(--primary-accent); color: var(--text-dark); outline: 3px solid var(--text-dark); }
+.day-chip.openable { cursor: pointer; }
+.day-chip.openable:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.quick-table td input { width: 150px; }
 </style>
 </head>
 <body>
@@ -478,7 +488,7 @@ input, textarea, select { font-family: 'Fredoka', sans-serif; }
 
             <div class="card" style="border-top-color:var(--blue);display:none" id="quick-card">
                 <h2 style="font-size:18px">Days 11 to 30: the quick ledger</h2>
-                <p class="lead">You know the pattern now. For each day, work out the profit and type it in. The visitor numbers are given.</p>
+                <p class="lead">You know the pattern now. For each day, work out the profit and type it in. The visitor numbers are given. To look back at Days 1 to 10, click a green day below.</p>
                 <table class="ledger-table quick-table" id="quick-table"></table>
                 <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
                     <button class="btn btn-primary" onclick="checkQuick()">Check these days</button>
@@ -1437,12 +1447,21 @@ function s1CheckFee() {
 // ============================================================
 function renderDayStrip() {
     const el = $('day-strip'); el.innerHTML = '';
-    for (let d = 1; d <= 30; d++) { const chip = document.createElement('div'); chip.className = 'day-chip' + (state.dayDone[d - 1] ? ' done' : '') + (d === state.day && !state.monthDone ? ' current' : ''); chip.textContent = d; el.appendChild(chip); }
+    for (let d = 1; d <= 30; d++) {
+        const chip = document.createElement('div');
+        const canOpen = d <= 10 ? (state.dayDone[d - 1] || d === state.day || d === firstUndoneDay()) : state.dayDone.slice(0, 10).every(Boolean);
+        chip.className = 'day-chip' + (state.dayDone[d - 1] ? ' done' : '') + (d === state.day && !state.monthDone ? ' current' : '') + (canOpen ? ' openable' : '');
+        chip.textContent = d; chip.title = canOpen ? (d <= 10 ? 'Open Day ' + d : 'Open Days 11 to 30') : 'Finish the earlier days first';
+        if (canOpen) chip.onclick = () => { state.day = d <= 10 ? d : Math.max(11, state.day); loadDay(); applyDrafts(); saveNow(false); };
+        el.appendChild(chip);
+    }
     const all = state.dayDone.filter(Boolean).length === 30;
     $('month-total').disabled = !all || state.monthDone; $('btn-month').disabled = !all || state.monthDone;
     if (state.monthDone) { $('month-total').value = fmtNum(monthExpected()); setInput('month-total', 'ok'); $('btn-finish-month').disabled = false; }
 }
+function firstUndoneDay() { for (let d = 1; d <= 30; d++) if (!state.dayDone[d - 1]) return d; return 31; }
 function loadDay() {
+    if (state.day > 10 && firstUndoneDay() <= 10) state.day = firstUndoneDay();
     const d = state.day, c = counts();
     if (d <= 10) {
         $('day-ledger-card').style.display = ''; $('quick-card').style.display = 'none';
