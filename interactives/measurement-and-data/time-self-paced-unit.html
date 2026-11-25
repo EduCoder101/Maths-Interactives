@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time: 12-hour and 24-hour · Self-paced unit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --primary-accent: #4ECDC4; --teal-dark: #2a9d94; --bg-cream: #FFF8F0;
+    --text-dark: #2D3436; --text-light: #636E72;
+    --card-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --level1-color: #4ECDC4; --level2-color: #FF6B6B; --level3-color: #9B5DE5;
+    --amber: #FFD93D; --blue: #3498DB; --blue-dark: #2176ae;
+    --correct-color: #27AE60; --incorrect-color: #E74C3C;
+    --radius: 20px;
+}
+* { box-sizing: border-box; }
+html { font-size: clamp(16px, 0.95vw + 6px, 27px); }
+body { margin: 0; background: var(--bg-cream); color: var(--text-dark); font-family: 'Fredoka', sans-serif; line-height: 1.45; }
+button, input, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+button { cursor: pointer; }
+.n, .ext-numbers { font-family: 'Space Mono', monospace; font-weight: 700; white-space: nowrap; }
+.wrap { width: 100%; padding: 1.1rem clamp(0.9rem, 3vw, 3.5rem) 3rem; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: #fff; border-radius: var(--radius); box-shadow: var(--card-shadow); border-top: 5px solid var(--primary-accent); padding: 1.6rem; animation: fadeIn 0.3s ease; }
+svg { display: block; max-width: 100%; }
+
+/* Buttons */
+.btn { border: none; border-radius: 30px; padding: 0.6rem 1.4rem; font-weight: 600; background: #eef1f2; transition: all 0.3s ease; }
+.btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.14); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--text-dark); color: #fff; }
+.btn-reveal { background: var(--blue); color: #fff; }
+.btn-ghost { background: transparent; border: 2px solid #d5dbde; }
+.btn-teal { background: var(--primary-accent); }
+.btn svg { width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.18em; }
+
+/* Hub */
+.hub-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; }
+.hub-head p { max-width: none !important; }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; font-size: 0.8rem; color: var(--teal-dark); }
+h1 { font-size: clamp(2rem, 3.4vw, 3.6rem); line-height: 1.05; margin: 0.15rem 0 0.3rem; font-weight: 700; }
+.hub-head p { margin: 0; font-size: 1.15rem; color: var(--text-light); max-width: 46ch; }
+.floors-card { display: grid; grid-template-columns: minmax(7rem, 10.5rem) 1fr; gap: 1.6rem; align-items: center; margin-bottom: 1.2rem; border-top-color: var(--amber); padding: 1rem 1.6rem; }
+.floors-card h2 { margin: 0 0 0.4rem; font-size: 1.5rem; }
+.floors-card p { margin: 0 0 0.8rem; font-size: 1.1rem; }
+.floor-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.chip { border-radius: 30px; padding: 0.3rem 0.95rem; font-weight: 600; font-size: 0.95rem; }
+.chip.entry, .tab.entry.on, .floor-badge.entry { background: var(--level1-color); }
+.chip.first, .tab.first.on, .floor-badge.first { background: var(--level2-color); }
+.chip.second, .tab.second.on, .floor-badge.second { background: var(--level3-color); color: #fff; }
+.act-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.2rem, 1fr)); gap: 1.1rem; }
+.act-card { text-align: left; border: none; display: flex; flex-direction: column; gap: 0.55rem; padding: 1.2rem; transition: all 0.3s ease; }
+.act-card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.18); }
+.act-card .pic { background: #f4fbfa; border-radius: 14px; padding: 0.6rem; }
+.act-card .pic svg { width: 100%; height: auto; }
+.act-card .lesson { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
+.act-card h3 { margin: 0; font-size: 1.35rem; line-height: 1.15; }
+.act-card p { margin: 0; color: var(--text-light); font-size: 1rem; flex: 1; }
+.mini-floors { display: flex; gap: 0.35rem; }
+.mini-floors span { flex: 1; height: 0.55rem; border-radius: 6px; background: #e6eaec; }
+.mini-floors span.done.entry { background: var(--level1-color); }
+.mini-floors span.done.first { background: var(--level2-color); }
+.mini-floors span.done.second { background: var(--level3-color); }
+details.teacher { margin-top: 1.6rem; background: #fff; border-radius: var(--radius); padding: 0.9rem 1.3rem; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+details.teacher summary { font-weight: 600; cursor: pointer; }
+details.teacher table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.9rem; }
+details.teacher th, details.teacher td { border: 1px solid #e3e7e9; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+details.teacher th { background: #f6f8f9; }
+details.teacher li { margin-bottom: 0.3rem; }
+
+/* Activity chrome */
+.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.2rem; margin-bottom: 0.8rem; }
+.topbar h2 { margin: 0; font-size: clamp(1.4rem, 2.2vw, 2.2rem); flex: 1; line-height: 1.1; }
+.topbar h2 small { display: block; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal-dark); font-weight: 600; }
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.tab { border: none; border-radius: 16px; padding: 0.55rem 1.1rem; background: #fff; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: left; line-height: 1.15; }
+.tab small { display: block; font-weight: 400; font-size: 0.72rem; color: var(--text-light); max-width: 20ch; }
+.tab.on small { color: inherit; opacity: 0.85; }
+.tab.learn.on { background: var(--amber); }
+.tab.deeper.on { background: var(--text-dark); color: #fff; }
+.tab svg { width: 0.95em; height: 0.95em; display: inline-block; vertical-align: -0.1em; }
+
+/* LISC */
+.learning-card { background: #fff; border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-top: 5px solid var(--primary-accent); margin: 0 0 1rem; overflow: hidden; }
+.learning-card h2 { cursor: pointer; padding: 0.7rem 1.3rem; margin: 0; font-size: 1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-dark); }
+.learning-card h2:hover { background: #f8f9fa; }
+.toggle-icon { transition: transform 0.3s ease; font-size: 0.8rem; }
+.learning-content { display: none; padding: 0 1.3rem 1.2rem; }
+.learning-content.open { display: block; }
+.learning-content h3 { font-size: 1rem; font-weight: 600; margin: 0.6rem 0 0.3rem; color: var(--text-dark); }
+.learning-content p { margin: 0; font-size: 1.05rem; }
+.success-criteria { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 0.2rem 1.5rem; }
+.success-criteria li { padding: 0.25rem 0 0.25rem 1.5rem; position: relative; font-size: 1.02rem; }
+.success-criteria li::before { content: '\2713'; position: absolute; left: 0; color: var(--teal-dark); font-weight: 700; }
+
+/* Teach cards */
+.teach { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.6rem; align-items: stretch; border-top-color: var(--amber); min-height: 58vh; }
+.teach-pic { background: #fdfaf3; border-radius: 16px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; min-width: 0; }
+.teach-txt { display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
+.teach-txt h3 { margin: 0; font-size: clamp(1.5rem, 2.3vw, 2.4rem); line-height: 1.1; }
+.teach-txt .body { font-size: 1.25rem; margin: 0; }
+.note { border-radius: 16px; padding: 0.8rem 1rem; display: grid; grid-template-columns: 2.3rem 1fr; gap: 0.8rem; align-items: start; font-size: 1.08rem; }
+.note svg { width: 2.2rem; height: 2.2rem; }
+.note b.lab { display: block; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; margin-bottom: 0.1rem; }
+.note.learn { background: #e8f8f5; border: 2px solid var(--primary-accent); }
+.note.learn b.lab { color: var(--teal-dark); }
+.note.book { background: #fff7d6; border: 2px dashed #e0b030; }
+.note.book b.lab { color: #9a7400; }
+.teach-nav { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.dots { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.dot { width: 0.9rem; height: 0.9rem; border-radius: 50%; background: #dfe4e6; border: none; padding: 0; transition: all 0.3s ease; }
+.dot.active { background: var(--level2-color); transform: scale(1.3); }
+.dot.visited { background: #f3b4b4; }
+.choose { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.choose b { margin-right: 0.2rem; }
+.floor-btn { border: none; border-radius: 30px; padding: 0.55rem 1.2rem; font-weight: 600; transition: all 0.3s ease; }
+.floor-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.16); }
+.floor-btn.entry { background: var(--level1-color); } .floor-btn.first { background: var(--level2-color); } .floor-btn.second { background: var(--level3-color); color: #fff; }
+
+/* Visuals */
+.vis-row { display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: center; align-items: center; width: 100%; }
+.vis-item { min-width: 0; text-align: center; }
+.vis-clock, .vis-pie { flex: 0 1 15rem; }
+.vis-line, .vis-strip, .vis-table, .vis-bar10, .vis-rows, .vis-bubbles { flex: 1 1 100%; }
+.clock-num { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 22px; fill: #2D3436; stroke: #fff; stroke-width: 5px; paint-order: stroke; stroke-linejoin: round; }
+.vis-cap { margin-top: 0.4rem; font-weight: 600; font-size: 1.15rem; display: flex; gap: 0.4rem; justify-content: center; align-items: center; }
+.vis-cap svg { width: 1.6rem; height: 1.6rem; }
+.lcd { display: inline-flex; align-items: baseline; gap: 0.4rem; background: #2D3436; color: #9ff3ea; border-radius: 14px; padding: 0.5rem 1.2rem; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 2.6rem; box-shadow: inset 0 0 0 3px #1c2123; }
+.lcd small { font-size: 1.1rem; color: #ffe27a; }
+.vis-digital { flex: 0 0 auto; }
+.strip { width: 100%; }
+.strip-band { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 4px; font-weight: 600; font-size: 0.85rem; }
+.strip-band span { border-radius: 8px; padding: 0.15rem 0.4rem; }
+.strip-band .am, .cell.am { background: #FFF1B8; }
+.strip-band .pm, .cell.pm { background: #E4D7FA; }
+.strip-cells { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; }
+.cell { border-radius: 6px; padding: 0.25rem 0; display: flex; flex-direction: column; align-items: center; line-height: 1.15; position: relative; }
+.cell b { font-weight: 600; font-size: clamp(0.55rem, 1vw, 1rem); }
+.cell i { font-style: normal; font-family: 'Space Mono', monospace; font-weight: 700; font-size: clamp(0.5rem, 0.9vw, 0.95rem); color: #5b3fa6; }
+.cell.am i { color: #8a6500; }
+.strip.stage-0 .cell.pm, .strip.stage-0 .strip-band .pm { opacity: 0.12; }
+.strip.stage-0 .cell.pm b { visibility: hidden; }
+.strip.stage-0 .cell i, .strip.stage-1 .cell i { visibility: hidden; }
+.cell.mark { outline: 4px solid var(--text-dark); z-index: 1; }
+.strip-ends { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem; }
+.strip-key { font-size: 0.85rem; color: var(--text-light); margin-top: 0.3rem; text-align: left; }
+.nline { width: 100%; height: auto; }
+.nline text { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 30px; fill: #2D3436; }
+.nline .jl { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 28px; }
+.teach .nline text, .teach table.tt td { font-family: 'Fredoka', sans-serif; font-weight: 600; }
+.nline-total { display: inline-block; margin-top: 0.3rem; background: #e8f8f5; border: 2px solid var(--primary-accent); border-radius: 30px; padding: 0.25rem 1.1rem; font-size: 1.2rem; }
+table.tt { border-collapse: separate; border-spacing: 0; width: 100%; font-size: clamp(0.8rem, 1.25vw, 1.25rem); background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 2px #dfe6e9; }
+table.tt caption { caption-side: top; font-weight: 600; text-align: left; padding: 0 0 0.4rem; font-size: 1.05rem; }
+table.tt th { background: var(--text-dark); color: #fff; font-weight: 600; padding: 0.45rem 0.5rem; text-align: center; }
+table.tt td { padding: 0.4rem 0.5rem; text-align: center; border-top: 1px solid #edf0f1; font-family: 'Space Mono', monospace; font-weight: 700; }
+table.tt td:first-child { font-family: 'Fredoka', sans-serif; font-weight: 600; text-align: left; }
+table.tt tr.hl td { background: #fff7d6; }
+table.tt td.hlc { background: #ffe27a !important; box-shadow: inset 0 0 0 3px #e0b030; }
+table.tt td.hlcol { background: #e8f8f5; }
+.tt-note { font-size: 0.85rem; color: var(--text-light); text-align: left; margin-top: 0.35rem; }
+.vis-table.narrow table.tt { max-width: 24rem; margin: 0 auto; }
+.rows { display: flex; flex-direction: column; gap: 0.6rem; align-items: center; }
+.rows .row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: center; animation: fadeIn 0.3s ease; }
+.pill { background: #fff; border: 2px solid #dfe6e9; border-radius: 12px; padding: 0.3rem 0.9rem; font-weight: 700; font-size: 1.5rem; }
+.pill.b { background: #e8f8f5; border-color: var(--primary-accent); }
+.rows .arrow { font-weight: 700; color: var(--teal-dark); font-size: 1.4rem; }
+.rows .why { background: #f1ecfd; border-radius: 8px; padding: 0.2rem 0.6rem; font-size: 0.95rem; font-weight: 600; color: #5b3fa6; }
+.bubbles { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+.bubble { flex: 1 1 13rem; max-width: 24rem; background: #fff; border: 3px solid #dfe6e9; border-radius: 18px; padding: 0.8rem 1rem; text-align: left; position: relative; }
+.bubble .who { font-weight: 700; font-size: 1.3rem; display: flex; align-items: center; gap: 0.4rem; }
+.bubble .who svg { width: 1.4rem; height: 1.4rem; }
+.bubble .say { font-size: 1.15rem; }
+.bubble.good { border-color: var(--correct-color); background: #f0fbf4; }
+.bubble.bad { border-color: #f0a8a0; background: #fff6f5; }
+.bar10 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; width: 100%; }
+.bar10 div { height: 3rem; background: #fff; border: 2px solid #b9c3c7; border-radius: 6px; }
+.bar10 div.on { background: var(--primary-accent); border-color: var(--teal-dark); }
+.bar10-lab { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.85rem; margin-top: 0.2rem; }
+
+/* Questions */
+.q-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-bottom: 0.8rem; }
+.floor-badge { border-radius: 30px; padding: 0.3rem 1rem; font-weight: 700; }
+.q-count { font-weight: 600; color: var(--text-light); }
+.qdot { width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 2px solid #cfd6d9; background: #fff; padding: 0; font-size: 0.7rem; font-weight: 700; display: grid; place-items: center; color: var(--text-light); }
+.qdot.cur { border-color: var(--text-dark); box-shadow: 0 0 0 3px rgba(45,52,54,0.18); color: var(--text-dark); }
+.qdot.solo { background: var(--correct-color); border-color: var(--correct-color); color: #fff; }
+.qdot.help { background: var(--amber); border-color: #e0b030; color: var(--text-dark); }
+.q-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 1.3rem; align-items: start; }
+.q-card .prompt { font-size: clamp(1.3rem, 1.9vw, 2rem); line-height: 1.3; margin: 0 0 1rem; font-weight: 500; }
+.q-card.entry { border-top-color: var(--level1-color); } .q-card.first { border-top-color: var(--level2-color); } .q-card.second { border-top-color: var(--level3-color); }
+.a-card { border-top-color: var(--text-dark); display: flex; flex-direction: column; gap: 0.9rem; }
+.ans-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.ans-row label { font-weight: 600; }
+.ans-in { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 1.7rem; border: 3px solid #cfd6d9; border-radius: 14px; padding: 0.35rem 0.6rem; width: 7.5rem; text-align: center; background: #fff; }
+.ans-in.sm { width: 5rem; } .ans-in.lg { width: 9.5rem; }
+.ans-in:focus { outline: none; border-color: var(--text-dark); }
+.ans-in:disabled { background: #f0fbf4; border-color: var(--correct-color); color: var(--text-dark); }
+.seg { display: inline-flex; border: 3px solid #cfd6d9; border-radius: 14px; overflow: hidden; }
+.seg button { border: none; background: #fff; padding: 0.45rem 1rem; font-weight: 700; font-size: 1.2rem; }
+.seg button.on { background: var(--text-dark); color: #fff; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.6rem; width: 100%; }
+.opt { border: 3px solid #cfd6d9; background: #fff; border-radius: 14px; padding: 0.6rem 0.8rem; font-weight: 600; font-size: 1.15rem; transition: all 0.2s ease; }
+.opt:hover:not(:disabled) { border-color: var(--text-dark); }
+.opt.wrong { border-color: #f0a8a0; background: #fff6f5; color: #9aa3a6; text-decoration: line-through; }
+.opt.right { border-color: var(--correct-color); background: #f0fbf4; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.fb { border-radius: 14px; padding: 0.7rem 1rem; font-size: 1.08rem; animation: fadeIn 0.3s ease; }
+.fb.ok { background: #eafaf0; border: 2px solid var(--correct-color); }
+.fb.no { background: #fff3f1; border: 2px solid #f0a8a0; }
+.fb.helped { background: #fff7d6; border: 2px solid #e0b030; }
+.hint-box { background: #eef6fd; border: 2px solid #b9d9f3; border-radius: 14px; padding: 0.7rem 1rem; animation: fadeIn 0.3s ease; }
+.hint-box b.lab { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; color: var(--blue-dark); display: block; }
+.hint-box .vis-row { margin-top: 0.6rem; }
+.sol { background: #f7f9fa; border-radius: 14px; padding: 0.8rem 1rem; }
+.sol b.lab { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; color: var(--text-light); display: block; margin-bottom: 0.4rem; }
+.sol-steps { display: flex; flex-direction: column; gap: 0.45rem; }
+.sol-step { display: grid; grid-template-columns: 1.7rem 1fr; gap: 0.6rem; align-items: start; font-size: 1.08rem; }
+.sol-step i { font-style: normal; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--primary-accent); display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; }
+.summary { text-align: center; padding: 2.2rem 1.6rem; }
+.summary h3 { font-size: 2.1rem; margin: 0 0 0.3rem; }
+.summary p { font-size: 1.2rem; margin: 0.2rem auto 1rem; max-width: 46ch; }
+.tally { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; margin: 1rem 0 1.4rem; }
+.tally div { background: #f7f9fa; border-radius: 16px; padding: 0.8rem 1.4rem; min-width: 9rem; }
+.tally b { display: block; font-family: 'Space Mono', monospace; font-size: 2.2rem; }
+.summary .btn-row { justify-content: center; }
+
+/* Go Deeper */
+.go-deeper-card { background: #fff; border-radius: var(--radius); box-shadow: var(--card-shadow); border-top: 5px solid #4ECDC4; padding: 1.6rem; }
+.go-deeper-card > h2 { margin: 0 0 0.3rem; font-size: 1.7rem; display: flex; align-items: center; gap: 0.5rem; }
+.go-deeper-card > h2 svg { width: 1.6rem; height: 1.6rem; }
+.go-deeper-card > p { font-size: 1.1rem; margin: 0 0 1rem; }
+.ext-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1.2rem; align-items: start; }
+.ext-task { background: #f0fdfa; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.ext-task-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--teal-dark); }
+.ext-task-prompt { font-size: 1.12rem; font-weight: 500; }
+.ext-task-sub { font-style: italic; color: var(--text-light); }
+.ext-thinking-area { width: 100%; min-height: 6.5rem; border: 2px solid #cfe9e5; border-radius: 12px; padding: 0.6rem 0.8rem; resize: vertical; background: #fff; }
+.ext-thinking-area:focus { outline: none; border-color: #4ECDC4; }
+.ext-reveal-btn { align-self: flex-start; background: #fff; border: 2px solid #4ECDC4; color: var(--teal-dark); border-radius: 30px; padding: 0.45rem 1.1rem; font-weight: 600; transition: all 0.3s ease; }
+.ext-reveal-btn:hover { background: #4ECDC4; color: var(--text-dark); }
+.ext-model-response { display: none; background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e0e0e0; }
+.ext-model-response.visible { display: block; animation: fadeIn 0.3s ease; }
+.ext-model-response p { margin: 0 0 0.6rem; }
+.model-label { font-weight: 700; margin-bottom: 0.4rem; }
+.mathematician-box { border: 2px dashed #4ECDC4; border-radius: 12px; padding: 0.8rem 1rem; background: linear-gradient(135deg, #f0fdfa 0%, #e8f8f5 100%); font-size: 0.98rem; }
+.locked-card { text-align: center; padding: 2.4rem 1.6rem; opacity: 0.85; }
+.locked-card svg { width: 3.2rem; height: 3.2rem; margin: 0 auto 0.6rem; }
+.locked-card h3 { margin: 0 0 0.3rem; font-size: 1.6rem; }
+.deeper-vis { margin-bottom: 1.2rem; max-width: 60rem; }
+
+@media (max-width: 900px) {
+    .teach, .q-grid, .floors-card { grid-template-columns: 1fr; }
+    .teach { min-height: 0; }
+}
+@media (max-width: 600px) {
+    .card { padding: 1.1rem; }
+    .lcd { font-size: 2rem; }
+    .pill { font-size: 1.2rem; }
+}
+
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+// ===== Time helpers and question builders (no DOM) =====
+const pad = n => String(n).padStart(2, '0');
+const mod = (a, n) => ((a % n) + n) % n;
+const r3 = x => Math.round(x * 1000) / 1000;
+const N = s => '<span class="n">' + s + '</span>';
+
+// Parse "6:45 pm", "18:45", "06:10" into minutes after midnight
+function T(s) {
+    const m = /^(\d{1,2}):(\d{2})\s*(am|pm)?$/i.exec(String(s).trim());
+    if (!m) throw new Error('Bad time: ' + s);
+    let h = +m[1];
+    const mi = +m[2];
+    const ap = m[3] && m[3].toLowerCase();
+    if (ap) { if (h === 12) h = 0; if (ap === 'pm') h += 12; }
+    return h * 60 + mi;
+}
+const f24 = m => { m = mod(m, 1440); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+const f12 = m => {
+    m = mod(m, 1440);
+    const h = Math.floor(m / 60);
+    return (h % 12 || 12) + ':' + pad(m % 60) + ' ' + (h < 12 ? 'am' : 'pm');
+};
+const is12 = s => /am|pm/i.test(s);
+const fmtLike = (m, sample) => is12(sample) ? f12(m) : f24(m);
+// Minutes between two clock times, wrapping past midnight
+const gap = (a, b) => mod(T(b) - T(a), 1440);
+
+function durWords(mins) {
+    const h = Math.floor(mins / 60), m = mins % 60, out = [];
+    if (h) out.push(h + (h === 1 ? ' hour' : ' hours'));
+    if (m || !h) out.push(m + (m === 1 ? ' minute' : ' minutes'));
+    return out.join(' ');
+}
+function durShort(mins) {
+    const h = Math.floor(mins / 60), m = mins % 60, out = [];
+    if (h) out.push(h + ' h');
+    if (m || !h) out.push(m + ' min');
+    return out.join(' ');
+}
+
+// Bridging jumps along an empty number line (s and e in minutes, e > s)
+function jumps(s, e) {
+    const out = [];
+    let cur = s;
+    if (Math.floor(s / 60) === Math.floor(e / 60)) return [{ from: s, to: e, len: e - s }];
+    if (cur % 60 !== 0) { const nx = cur + 60 - (cur % 60); out.push({ from: cur, to: nx, len: nx - cur }); cur = nx; }
+    const eh = e - (e % 60);
+    if (eh > cur) { out.push({ from: cur, to: eh, len: eh - cur }); cur = eh; }
+    if (e > cur) out.push({ from: cur, to: e, len: e - cur });
+    return out;
+}
+function lineSpec(a, b, show, withTotal) {
+    const s = T(a);
+    const e = s + gap(a, b);
+    const js = jumps(s, e);
+    const pts = [a];
+    js.forEach((j, i) => pts.push(i === js.length - 1 ? b : fmtLike(j.to, a)));
+    return { k: 'line', pts: pts, jumps: js.map(j => '+' + durShort(j.len)), show: show, total: withTotal ? durShort(e - s) : null };
+}
+
+const QUARTERS = { 0: ['no extra part', '0'], 15: ['one quarter', '0.25'], 30: ['one half', '0.5'], 45: ['three quarters', '0.75'] };
+
+// ----- Builders -----
+function qClock(str) {
+    const t = T(str + ' am');
+    const h = Math.floor(t / 60) % 12 || 12, m = t % 60;
+    const nxt = h % 12 + 1;
+    return {
+        type: 'clock', p: 'What time does this clock show?', vis: [{ k: 'clock', t: t }], ans: t % 720, show: str,
+        book: 'Write the time in your book using digits, like 7:30.',
+        hints: [
+            'The short hand shows the hour. The long hand shows the minutes.',
+            m === 0 ? 'The long hand points straight up to the 12, so this is an o\'clock time.'
+                : 'The long hand points to the ' + (m / 5) + '. Count in fives from the top to get ' + m + ' minutes.',
+            m > 30 ? 'The short hand has passed the ' + h + ' but has not reached the ' + nxt + ' yet. The hour is still ' + h + '.'
+                : 'The short hand is at, or just past, the ' + h + '.'
+        ],
+        sol: ['Hour hand: ' + (m ? 'just past ' : 'on ') + h, 'Minute hand: ' + m + ' minutes', 'Time: ' + str],
+        diag: function (v) {
+            const vh = Math.floor(v / 60) % 12 || 12, vm = v % 60;
+            if (m > 30 && vh === nxt && vm === m) return 'The hour hand is close to the ' + nxt + ', but it has not arrived yet. The hour is still ' + h + '.';
+            if (m && vh === (m / 5) && vm === (h * 5) % 60) return 'Check which hand is which. The short hand shows the hour and the long hand shows the minutes.';
+            if (vh === h && vm === m / 5) return 'You wrote the number the long hand points to. Count in fives to find the minutes.';
+            return null;
+        }
+    };
+}
+
+function qChoice(p, opts, correct, extra) {
+    return Object.assign({ type: 'choice', p: p, opts: opts, ans: correct, show: opts[correct], hints: [], sol: [] }, extra || {});
+}
+
+function qTo24(s12, lead, extra) {
+    const t = T(s12), h = Math.floor(t / 60), h12 = h % 12 || 12, pm = h >= 12, mm = pad(t % 60);
+    let h2, steps;
+    if (pm && h !== 12) { h2 = 'It is a pm time after midday, so add 12 to the hours. ' + h12 + ' + 12 = ?'; steps = ['pm time, so add 12 to the hours', h12 + ' + 12 = ' + h, 'Minutes stay the same: ' + mm]; }
+    else if (pm) { h2 = '12 pm is midday. The hour stays as 12.'; steps = ['12 pm is the midday hour, so the hour stays 12', 'Minutes stay the same: ' + mm]; }
+    else if (h === 0) { h2 = '12 am is the very first hour of the day. In 24-hour time that hour is written 00.'; steps = ['12 am is the first hour of the day: 00', 'Minutes stay the same: ' + mm]; }
+    else { h2 = 'It is an am time, so the hour stays the same. Use two digits for the hour' + (h < 10 ? ', with a zero at the front.' : '.'); steps = ['am time, so the hour stays the same', 'Write the hour with two digits: ' + pad(h), 'Minutes stay the same: ' + mm]; }
+    steps.push(s12 + ' = ' + f24(t));
+    return Object.assign({
+        type: 'time24', p: lead + ' ' + N(s12) + '. Write this in 24-hour time.', vis: [{ k: 'digital', s: s12 }], ans: t, show: f24(t),
+        book: 'Write both times in your book: ' + s12 + ' = __:__',
+        hints: [{ t: 'Is it am or pm? Find the hour on the day strip.', vis: { k: 'strip', t: t, stage: 1 } }, h2, 'The minutes never change. Your answer ends in :' + mm + '.'],
+        sol: steps,
+        diag: function (v) {
+            if (v === mod(t - 720, 1440) && pm) return 'That is the morning time. This is a pm time, so add 12 to the hours.';
+            if (v === mod(t + 720, 1440) && !pm && h !== 0) return 'You added 12, but this is an am time. The hour stays the same.';
+            if (h === 0 && v === t + 720) return '12 am is just after midnight, at the very start of the day. The hour is 00, not 12.';
+            return null;
+        }
+    }, extra || {});
+}
+
+function qTo12(s24, lead, extra) {
+    const t = T(s24), h = Math.floor(t / 60), h12 = h % 12 || 12, pm = h >= 12, mm = pad(t % 60);
+    let h2, steps;
+    if (h > 12) { h2 = 'The hour is bigger than 12, so subtract 12. ' + h + ' − 12 = ?'; steps = ['Hour is more than 12, so it is pm', h + ' − 12 = ' + h12]; }
+    else if (h === 12) { h2 = 'The 12 hour is the midday hour. It stays as 12 and it is pm.'; steps = ['Hour 12 is the midday hour: 12 pm']; }
+    else if (h === 0) { h2 = 'Hour 00 is the first hour after midnight. On a 12-hour clock that hour is 12 am.'; steps = ['Hour 00 is the first hour after midnight: 12 am']; }
+    else { h2 = 'The hour is less than 12, so it is a morning time. The hour stays the same.'; steps = ['Hour is less than 12, so it is am', 'The hour stays ' + h]; }
+    steps.push('Minutes stay the same: ' + mm, s24 + ' = ' + f12(t));
+    return Object.assign({
+        type: 'time12', p: lead + ' ' + N(s24) + '. Write this in 12-hour time.', vis: [{ k: 'digital', s: s24 }], ans: t, show: f12(t),
+        book: 'Write both times in your book: ' + s24 + ' = __:__ am or pm',
+        hints: ['Look at the hour. Hours 00 to 11 are am times. Hours 12 to 23 are pm times.', h2, 'The minutes stay as :' + mm + '. Remember to choose am or pm.'],
+        sol: steps,
+        diag: function (v, raw) {
+            if (v === mod(t + 720, 1440)) return 'The digits are right. Check am or pm. Hours 00 to 11 are am. Hours 12 to 23 are pm.';
+            if (raw && raw.h === h && h > 12) return 'You kept the 24-hour hour. Subtract 12 from the hours to get the 12-hour time.';
+            return null;
+        }
+    }, extra || {});
+}
+
+// Any question whose answer is a clock time. fmt is '24' or '12'.
+function qTime(o) {
+    return Object.assign({ type: o.fmt === '12' ? 'time12' : 'time24', show: o.fmt === '12' ? f12(o.ans) : f24(o.ans), hints: [], sol: [] }, o, { ans: mod(o.ans, 1440) });
+}
+
+// Duration between two clock times on an empty number line
+function qDur(a, b, ctx, extra) {
+    const mins = gap(a, b), s = T(a), e = s + mins, js = jumps(s, e);
+    const hints = [{ t: 'Draw an empty number line. Put ' + a + ' at the start and ' + b + ' at the end.', vis: lineSpec(a, b, 0, false) }];
+    if (js.length === 1) {
+        hints.push(js[0].len % 60 === 0 ? 'Count on in whole hours from ' + a + ' until you reach ' + b + '. How many jumps did you make?'
+            : 'Count on in fives or tens from ' + a + ' until you reach ' + b + '.');
+    } else {
+        hints.push({ t: 'Make your first jump from ' + a + ' to ' + fmtLike(js[0].to, a) + '. How big is that jump?', vis: lineSpec(a, b, 1, false) });
+        hints.push({ t: 'Here are all the jumps. Add them together.', vis: lineSpec(a, b, js.length, false) });
+    }
+    const sol = js.map(j => fmtLike(j.from, a) + ' → ' + fmtLike(j.to, a) + ' is ' + durShort(j.len));
+    sol.push('Total: ' + durWords(mins));
+    const sn = +f24(s).replace(':', ''), en = +f24(e).replace(':', '');
+    return Object.assign({
+        type: 'dur', units: ['h', 'min'], p: ctx(N(a), N(b)), vis: [lineSpec(a, b, 0, false)], ans: mins, show: durWords(mins),
+        book: 'Draw the empty number line in your book and show your jumps.',
+        hints: hints, sol: sol, solVis: lineSpec(a, b, js.length, true),
+        diag: function (v) {
+            if (en > sn) { const d = en - sn; if (v === Math.floor(d / 100) * 60 + d % 100 && v !== mins) return 'It looks like you subtracted the times like ordinary numbers. There are 60 minutes in an hour, not 100. Use jumps on a number line instead.'; }
+            if (Math.abs(v - mins) === 60) return 'Your minutes are right. Check your hour jumps, because you are one hour out.';
+            if (Math.abs(v - mins) === 720) return 'Check am and pm. You are 12 hours out.';
+            if (js.length > 1 && v === mins - js[0].len && js[0].len < 60) return 'You may have forgotten the first small jump to the next hour.';
+            return null;
+        }
+    }, extra || {});
+}
+
+// Any duration question with a computed answer. units: ['h','min'] or ['min','s']
+function qDurX(o) {
+    const u = o.units || ['h', 'min'];
+    const big = Math.floor(o.ans / 60), small = o.ans % 60;
+    const show = (big ? big + ' ' + u[0] + ' ' : '') + (small || !big ? small + ' ' + u[1] : '');
+    return Object.assign({ type: 'dur', units: u, show: show.trim(), hints: [], sol: [] }, o);
+}
+
+function qNum(o) {
+    const a = r3(o.ans);
+    return Object.assign({ type: 'num', unit: '', prefix: '', hints: [], sol: [] }, o, { ans: a, show: (o.prefix || '') + a.toLocaleString('en-AU') + (o.unit ? ' ' + o.unit : '') });
+}
+
+function partHint(m) {
+    if (QUARTERS[m]) return { name: QUARTERS[m][0], dec: QUARTERS[m][1], vis: { k: 'pie', min: m } };
+    return { name: m === 6 ? 'one tenth' : (m / 6) + ' tenths', dec: String(r3(m / 60)), vis: { k: 'bar10', n: m / 6 } };
+}
+
+// Hours and minutes written as a decimal number of hours
+function qToDec(h, m, lead, extra) {
+    const ans = r3(h + m / 60), ph = partHint(m), wrong = r3(h + m / 100);
+    const label = N(h + ' h' + (m ? ' ' + m + ' min' : ''));
+    return Object.assign(qNum({
+        p: (lead || 'Write') + ' ' + label + ' as a decimal number of hours.', ans: ans, unit: 'hours', vis: [{ k: 'rows', rows: [[h + ' h' + (m ? ' ' + m + ' min' : ''), '? hours']] }],
+        book: 'Write it in your book: ' + h + ' h ' + m + ' min = ___ hours',
+        hints: m ? ['The whole hours stay the same. Think only about the ' + m + ' minutes.',
+            { t: 'What part of an hour is ' + m + ' minutes? Use the picture.', vis: ph.vis },
+            m % 15 === 0 ? ph.name.charAt(0).toUpperCase() + ph.name.slice(1) + ' as a decimal is ' + ph.dec + '. Join it to the ' + h + ' whole hours.'
+                : 'One tenth of an hour is 6 minutes. ' + m + ' ÷ 6 = ' + (m / 6) + ', so that is ' + ph.name + ', or ' + ph.dec + '.']
+            : ['There are no extra minutes, so the decimal part is zero.', 'You can write ' + h + ' or ' + h + '.0'],
+        sol: m ? [m + ' minutes is ' + ph.name + ' of an hour', ph.name + ' = ' + ph.dec, h + ' + ' + ph.dec + ' = ' + ans + ' hours'] : [h + ' hours and no minutes = ' + h + '.0 hours'],
+        diag: function (v) {
+            if (m && Math.abs(v - wrong) < 1e-9) return 'You put the minutes straight after the decimal point. The decimal part counts parts of an hour, not minutes. ' + m + ' minutes is ' + ph.name + ' of an hour.';
+            if (m && Math.abs(v - (h * 60 + m)) < 1e-9) return 'That is the total number of minutes. The question asks for hours as a decimal.';
+            return null;
+        }
+    }), extra || {});
+}
+
+// A decimal number of hours written as hours and minutes
+function qFromDec(x, lead, extra) {
+    const mins = Math.round(x * 60), h = Math.floor(mins / 60), m = mins % 60, ph = partHint(m);
+    const decDigits = String(x).split('.')[1] || '0';
+    return Object.assign(qDurX({
+        p: (lead || 'Write') + ' ' + N(x + ' hours') + ' as hours and minutes.', ans: mins, vis: [{ k: 'rows', rows: [[x + ' hours', '? h ? min']] }],
+        book: 'Write it in your book: ' + x + ' hours = __ h __ min',
+        hints: ['The whole number tells you the hours. The decimal part is a part of one hour.',
+            { t: 'The decimal part is ' + ph.dec + '. That is ' + ph.name + ' of an hour.', vis: ph.vis },
+            m % 15 === 0 ? 'Find ' + ph.name + ' of 60 minutes.' : 'One tenth of an hour is 6 minutes. ' + (m / 6) + ' × 6 = ?'],
+        sol: ['Whole hours: ' + h, ph.dec + ' of an hour is ' + ph.name + ' of 60 minutes', 'That is ' + m + ' minutes', x + ' hours = ' + durShort(mins)],
+        diag: function (v, raw) {
+            if (!raw || v === mins) return null;
+            if (raw.big === h && (raw.small === +decDigits || raw.small === +(decDigits + '0').slice(0, 2))) return 'The digits after the decimal point are not minutes. ' + ph.dec + ' of an hour means ' + ph.name + ' of 60 minutes.';
+            return null;
+        }
+    }), extra || {});
+}
+
+// A decimal or fraction of an hour changed into minutes
+function qToMin(x, label, lead, extra) {
+    const mins = r3(x * 60), whole = Math.floor(x + 1e-9), pm = r3(mins - whole * 60);
+    const ph = partHint(pm % 1 === 0 && (pm % 15 === 0 || pm % 6 === 0) ? pm : 0);
+    const usePic = pm % 1 === 0 && (pm % 15 === 0 || pm % 6 === 0) && pm > 0;
+    const hints = [];
+    if (whole) hints.push('Split it up. ' + whole + ' whole ' + (whole === 1 ? 'hour is' : 'hours are') + ' ' + whole + ' × 60 minutes.');
+    hints.push(usePic ? { t: 'What part of an hour is the rest? Use the picture.', vis: ph.vis } : 'To change hours into minutes, multiply by 60.');
+    hints.push(usePic ? 'The part is worth ' + pm + ' minutes.' + (whole ? ' Add it to the whole hours.' : '') : 'Work out ' + label + ' × 60.');
+    const sol = [];
+    if (whole) sol.push(whole + ' × 60 = ' + whole * 60 + ' minutes');
+    if (pm) sol.push('The extra part of an hour is ' + pm + ' minutes');
+    sol.push(label + ' hours = ' + mins + ' minutes');
+    return Object.assign(qNum({
+        p: (lead || 'How many minutes is') + ' ' + N(label + (x === 1 ? ' hour' : (x < 1 ? ' of an hour' : ' hours'))) + '?', ans: mins, unit: 'minutes', vis: [{ k: 'rows', rows: [[label + (x <= 1 ? ' hour' : ' hours'), '? min']] }],
+        book: 'Write it in your book: ' + label + ' h = ___ min',
+        hints: hints, sol: sol,
+        diag: function (v) {
+            if (Math.abs(v - x * 100) < 1e-9 && Math.abs(v - mins) > 1e-9) return 'You treated one hour as 100 minutes. One hour is 60 minutes, so find the part of 60.';
+            return null;
+        }
+    }), extra || {});
+}
+
+// Minutes changed into a decimal number of hours
+function qMinToDec(mins, lead, extra) {
+    const h = Math.floor(mins / 60), m = mins % 60, ph = partHint(m), ans = r3(mins / 60);
+    return Object.assign(qNum({
+        p: (lead || 'Write') + ' ' + N(mins + ' minutes') + ' as a decimal number of hours.', ans: ans, unit: 'hours', vis: [{ k: 'rows', rows: [[mins + ' min', '? hours']] }],
+        book: 'Write it in your book: ' + mins + ' min = ___ hours',
+        hints: ['How many whole 60s fit into ' + mins + '? Those are the whole hours.',
+            { t: 'After taking out ' + h + ' × 60, there are ' + m + ' minutes left. What part of an hour is that?', vis: ph.vis },
+            ph.name.charAt(0).toUpperCase() + ph.name.slice(1) + ' of an hour is ' + ph.dec + ' as a decimal.'],
+        sol: [mins + ' = ' + (h ? h + ' × 60 + ' : '') + m, m + ' minutes is ' + ph.name + ' of an hour = ' + ph.dec, mins + ' minutes = ' + ans + ' hours'],
+        diag: function (v) {
+            if (Math.abs(v - r3(h + m / 100)) < 1e-9 && Math.abs(v - ans) > 1e-9) return 'You wrote the leftover minutes after the decimal point. ' + m + ' minutes is ' + ph.name + ' of an hour, which is ' + ph.dec + '.';
+            if (Math.abs(v - mins / 100) < 1e-9 && Math.abs(v - ans) > 1e-9) return 'You divided by 100. There are 60 minutes in an hour, so count how many 60s fit.';
+            return null;
+        }
+    }), extra || {});
+}
+
+
+// ===== Unit content: timetables, teach cards, questions, Go Deeper =====
+const ZOO = [
+    ['Koala talk', '9:30 am', '10:00 am'], ['Seal show', '10:30 am', '11:00 am'], ['Giraffe feeding', '11:30 am', '12:00 pm'],
+    ['Bird show', '1:00 pm', '1:30 pm'], ['Reptile talk', '2:00 pm', '2:30 pm'], ['Elephant bath', '3:00 pm', '4:00 pm']
+];
+const FL = {
+    'WR 101': ['06:30', '08:40', '09:25', '12:45'],
+    'WR 205': ['09:15', '11:20', '12:30', '15:55'],
+    'WR 318': ['13:50', '16:05', '16:35', '19:50'],
+    'WR 422': ['17:40', '19:45', '21:10', '00:35']
+};
+const TRAIN = [['Sydney Central', '07:10'], ['Broadmeadow', '09:40'], ['Taree', '12:10'], ['Wauchope', '13:55'], ['Kempsey', '14:25'], ['Coffs Harbour', '16:10'], ['Grafton', '17:25'], ['Casino', '18:55']];
+const stn = name => TRAIN.find(r => r[0] === name)[1];
+const zoo = name => ZOO.find(r => r[0] === name);
+
+const TABLES = {
+    zoo: { title: 'Zoo day timetable', head: ['Event', 'Starts', 'Ends'], rows: ZOO },
+    flights: { title: 'Wren Air: Sydney to Perth via Adelaide', head: ['Flight', 'Depart Sydney', 'Arrive Adelaide', 'Depart Adelaide', 'Arrive Perth'], rows: Object.keys(FL).map(k => [k].concat(FL[k])), note: 'All times on this timetable are shown in Sydney time.' },
+    train: { title: 'North Coast train: Sydney to Casino', head: ['Station', 'Time'], rows: TRAIN }
+};
+const tFl = hl => ({ k: 'table', id: 'flights', hl: hl || null });
+const tZoo = hl => ({ k: 'table', id: 'zoo', hl: hl || null });
+const tTr = hl => ({ k: 'table', id: 'train', hl: hl || null });
+
+// Flight helpers (minutes)
+const leg1 = f => gap(FL[f][0], FL[f][1]);
+const lay = f => gap(FL[f][1], FL[f][2]);
+const leg2 = f => gap(FL[f][2], FL[f][3]);
+const whole = f => gap(FL[f][0], FL[f][3]);
+const trainGap = (a, b) => gap(stn(a), stn(b));
+
+// Timetable duration question that reuses the number line builder
+const qTT = (a, b, text, vis, extra) => qDur(a, b, () => text, Object.assign({ vis: [vis], book: 'Write the two times from the timetable in your book. Then show your jumps on a number line.' }, extra || {}));
+// Train leg written as a decimal
+const qLeg = (a, b, extra) => {
+    const mins = trainGap(a, b), h = Math.floor(mins / 60), m = mins % 60;
+    const base = qToDec(h, m);
+    return Object.assign(base, {
+        p: 'How long is the trip from ' + N(a) + ' to ' + N(b) + '? Write your answer as a decimal number of hours.',
+        vis: [tTr([a, b])],
+        book: 'In your book: write the two times, find the duration, then write it as a decimal.',
+        hints: ['Find both stations on the timetable: ' + stn(a) + ' and ' + stn(b) + '.', { t: 'Use a number line to find the duration first.', vis: lineSpec(stn(a), stn(b), 9, false) }].concat(base.hints.slice(1)),
+        sol: [stn(a) + ' to ' + stn(b) + ' is ' + durShort(mins)].concat(base.sol)
+    }, extra || {});
+};
+
+// Number line that builds one jump at a time under the reader's control
+function lineStages(a, b, firstLabel) {
+    const n = lineSpec(a, b, 0, false).jumps.length, out = [{ label: firstLabel || 'Draw the number line', vis: [lineSpec(a, b, 0, false)] }];
+    for (let i = 1; i <= n; i++) out.push({ label: i === 1 ? 'Show the first jump' : 'Show the next jump', vis: [lineSpec(a, b, i, false)] });
+    out.push({ label: 'Add the jumps', vis: [lineSpec(a, b, n, true)] });
+    return out;
+}
+
+const ACTIVITIES = [
+    // ------------------------------------------------------------------ 1
+    {
+        id: 'clocks', num: 1, lesson: 'Period 1', icon: 'clocks', title: 'Two Clocks, One Day',
+        blurb: 'Read, say and swap between 12-hour and 24-hour time.',
+        li: 'We are learning to read, say and convert between 12-hour time and 24-hour time.',
+        sc: ['I can read a time on a clock and say whether it is am or pm.', 'I can write a 12-hour time in 24-hour time, using four digits.', 'I can change a 24-hour time back into 12-hour time with am or pm.', 'I can explain why 24-hour time avoids confusion and use it to solve problems.'],
+        teach: [
+            {
+                title: 'Seven o\'clock happens twice', body: 'Both of these clocks show <strong>7:00</strong>. One is breakfast time. One is dinner time. In 12-hour time we need <strong>am</strong> or <strong>pm</strong> to tell them apart.',
+                learn: '24-hour time gives every minute of the day its own number, so morning and night can never be mixed up. Ambulance crews, pilots and train drivers use it.',
+                book: 'Heading: <strong>12-hour and 24-hour time</strong>. Copy: 24-hour time avoids confusion between am and pm.',
+                stages: [{ vis: [{ k: 'clock', t: 420, cap: '7:00 am', icon: 'sun' }, { k: 'clock', t: 420, cap: '7:00 pm', icon: 'moon' }] }]
+            },
+            {
+                title: 'One day is 24 hours', body: 'A day starts at midnight. A 12-hour clock goes around <strong>twice</strong> in one day. A 24-hour clock just keeps counting.',
+                learn: 'The am hours are <strong>00 to 11</strong>. The pm hours are <strong>12 to 23</strong>. Midnight is 00:00 and midday is 12:00.',
+                book: 'Copy: midnight = <strong>00:00</strong>, midday = <strong>12:00</strong>, last minute of the day = <strong>23:59</strong>.',
+                stages: [{ vis: [{ k: 'strip', stage: 0 }] }, { label: 'Add the pm half', vis: [{ k: 'strip', stage: 1 }] }, { label: 'Keep counting past 12', vis: [{ k: 'strip', stage: 2 }] }]
+            },
+            {
+                title: 'Morning times: keep the hour', body: 'For am times the hour <strong>stays the same</strong>. Always write <strong>four digits</strong>, so put a zero in front of hours 1 to 9.',
+                learn: 'am time: same hour, four digits.',
+                book: 'Copy both examples: <strong>8:30 am = 08:30</strong> and <strong>11:55 am = 11:55</strong>.',
+                stages: [{ vis: [{ k: 'rows', rows: [['8:30 am', '08:30'], ['11:55 am', '11:55']] }] }]
+            },
+            {
+                title: 'Afternoon times: add 12', body: 'For pm times, <strong>add 12 to the hours</strong>. The minutes never change. To go back to 12-hour time, <strong>subtract 12</strong>.',
+                learn: 'pm time: add 12 to the hour. The midday hour is special: 12:45 pm stays as <strong>12:45</strong>.',
+                book: 'Copy: <strong>1:10 pm = 13:10</strong> and <strong>6:45 pm = 18:45</strong>. Rule: pm, add 12 (except the 12 o\'clock hour).',
+                stages: [{ vis: [{ k: 'rows', rows: [['1:10 pm', '13:10', '1 + 12 = 13']] }] }, { label: 'Show another one', vis: [{ k: 'rows', rows: [['1:10 pm', '13:10', '1 + 12 = 13'], ['6:45 pm', '18:45', '6 + 12 = 18']] }] }, { label: 'Show the special case', vis: [{ k: 'rows', rows: [['1:10 pm', '13:10', '1 + 12 = 13'], ['6:45 pm', '18:45', '6 + 12 = 18'], ['12:45 pm', '12:45', 'midday hour stays 12']] }] }]
+            },
+            {
+                title: 'Say it like a pilot', body: 'We say 24-hour times as two pairs of digits, then the word <strong>hours</strong>.',
+                learn: '<strong>08:55</strong> is "zero eight fifty-five hours". <strong>13:10</strong> is "thirteen ten hours". <strong>11:20</strong> is "eleven twenty hours".',
+                book: 'Write three bell times from your school day in 24-hour time. Say each one aloud to a partner.',
+                stages: [{ vis: [{ k: 'bubbles', items: [{ who: '08:55', text: 'zero eight fifty-five hours' }, { who: '13:10', text: 'thirteen ten hours' }, { who: '18:45', text: 'eighteen forty-five hours' }] }] }]
+            }
+        ],
+        floors: {
+            entry: [
+                qClock('3:00'), qClock('7:30'), qClock('9:15'), qClock('4:45'),
+                qChoice('You eat breakfast and then walk into school. Is this time <strong>am</strong> or <strong>pm</strong>?', ['am', 'pm'], 0, { vis: [{ k: 'strip', stage: 1 }], book: 'Write in your book: am = morning, pm = afternoon and night.', hints: ['am is the half of the day from midnight until midday.', 'Breakfast is in the morning.'], sol: ['Breakfast is in the morning', 'Morning times are am'], why: [null, 'pm starts at midday. Breakfast before school is in the morning.'] }),
+                qChoice('The sun has set and your family is eating dinner. Is this time <strong>am</strong> or <strong>pm</strong>?', ['am', 'pm'], 1, { vis: [{ k: 'strip', stage: 1 }], hints: ['pm is the half of the day from midday until midnight.', 'Dinner is in the evening, after midday.'], sol: ['Dinner is after midday', 'Times after midday are pm'], why: ['am is the morning half of the day. Dinner is after midday.', null] }),
+                qTo24('8:30 am', 'School begins at'), qTo24('6:05 am', 'The alarm rings at'),
+                qTo24('1:00 pm', 'Lunch ends at', { vis: [{ k: 'digital', s: '1:00 pm' }, { k: 'strip', t: 780, stage: 2 }] }),
+                qTo24('3:00 pm', 'The bell rings at', { vis: [{ k: 'digital', s: '3:00 pm' }, { k: 'strip', t: 900, stage: 2 }] })
+            ],
+            first: [
+                qTo24('12:45 pm', 'Lunch begins at'), qTo24('6:45 pm', 'Netball training starts at'), qTo24('5:50 am', 'The first bus leaves at'), qTo24('9:20 pm', 'The film finishes at'),
+                qTo12('13:10', 'The train timetable says'), qTo12('16:40', 'The ferry leaves at'), qTo12('07:05', 'A flight boards at'), qTo12('22:15', 'The airport sign says'),
+                qChoice('How do we say ' + N('08:30') + ' in 24-hour time?', ['zero eight thirty hours', 'eight thirty pm', 'eighty-three hours', 'zero eight three hours'], 0, { book: 'Write 08:30 in your book and write how to say it.', hints: ['Say the first two digits, then the last two digits, then the word hours.', 'The first pair is 08. We say "zero eight".'], sol: ['First pair: 08 is "zero eight"', 'Second pair: 30 is "thirty"', 'Finish with the word "hours"'], why: [null, '08:30 is a morning time, and in 24-hour time we do not say am or pm.', 'Say the digits in two pairs: 08 and 30.', 'The second pair is 30, which we say as "thirty".'] }),
+                qTo12('21:35', 'An ambulance is called at')
+            ],
+            second: [
+                qTo24('12:20 am', 'A night train leaves at'), qTo12('00:05', 'A baby is born at'), qTo12('12:30', 'A meeting starts at'),
+                qTime({ p: 'A film starts at ' + N('18:50') + ' and runs for ' + N('135 minutes') + '. What time does it finish? Answer in 24-hour time.', ans: T('18:50') + 135, fmt: '24', book: 'Show your jumps on a number line in your book.', hints: ['135 minutes is 2 hours and 15 minutes.', '18:50 plus 2 hours is 20:50.', 'Now add 15 minutes. Use 10 minutes to reach 21:00, then add the last 5.'], sol: ['135 minutes = 2 h 15 min', '18:50 + 2 h = 20:50', '20:50 + 10 min = 21:00', '21:00 + 5 min = 21:05'] }),
+                qTime({ p: 'A night bus leaves at ' + N('23:40') + '. The trip takes ' + N('45 minutes') + '. What time does it arrive? Answer in 24-hour time.', ans: T('23:40') + 45, fmt: '24', book: 'Show how you bridged through midnight in your book.', hints: ['Bridge to midnight first. 23:40 to 00:00 is 20 minutes.', '45 − 20 = 25 minutes still to add.', 'After 23:59 the clock starts again at 00:00.'], sol: ['23:40 + 20 min = 00:00', '45 − 20 = 25 minutes left', '00:00 + 25 min = 00:25'], diag: v => v === T('12:25') ? 'Just after midnight the hour is 00, not 12.' : null }),
+                qTime({ p: 'A plane lands at ' + N('06:15') + ' after flying for ' + N('9 hours 30 minutes') + ' in the same time zone. What time did it take off? Answer in 24-hour time.', ans: T('06:15') - 570, fmt: '24', book: 'Draw a number line and jump backwards from 06:15.', hints: ['Work backwards. Going back 6 hours 15 minutes takes you to midnight.', '9 h 30 min − 6 h 15 min = 3 h 15 min still to go back.', 'Go back 3 hours 15 minutes from midnight. Think of midnight as 24:00.'], sol: ['06:15 − 6 h 15 min = 00:00', '9 h 30 min − 6 h 15 min = 3 h 15 min left', '24:00 − 3 h 15 min = 20:45', 'It took off at 20:45 the evening before'] }),
+                qTime({ p: 'In summer, clocks in Perth are ' + N('3 hours') + ' behind clocks in Sydney. It is ' + N('14:30') + ' in Sydney. What time is it in Perth?', ans: T('14:30') - 180, fmt: '24', book: 'Write both cities and their times in your book.', hints: ['"Behind" means earlier, so subtract.', '14:30 − 3 hours = ?'], sol: ['Perth is behind, so subtract 3 hours', '14:30 − 3 h = 11:30'], diag: v => v === T('17:30') ? 'You added 3 hours. Perth is behind Sydney, so its clocks show an earlier time.' : null }),
+                qTime({ p: 'Auckland is ' + N('2 hours') + ' ahead of Sydney. It is ' + N('22:45') + ' on Friday in Sydney. What time is it in Auckland?', ans: T('22:45') + 120, fmt: '24', note: 'In Auckland it is already Saturday.', book: 'Write the time and the day for both cities.', hints: ['"Ahead" means later, so add.', '22:45 plus 2 hours goes past midnight. 22:45 to 00:00 is 1 hour 15 minutes.', 'You still have 45 minutes to add after midnight.'], sol: ['Auckland is ahead, so add 2 hours', '22:45 + 1 h 15 min = 00:00', '00:00 + 45 min = 00:45 on Saturday'] }),
+                qTime({ p: 'In December, London is ' + N('11 hours') + ' behind Sydney. A football match starts at ' + N('19:30') + ' in London. What time is that in Sydney?', ans: T('19:30') + 660, fmt: '24', note: 'In Sydney it is the next morning.', book: 'Write which city is ahead before you calculate.', hints: ['If London is behind Sydney, then Sydney is ahead of London. Add 11 hours.', '19:30 + 4 h 30 min = 00:00. How many hours and minutes are left from the 11 hours?', '11 h − 4 h 30 min = 6 h 30 min after midnight.'], sol: ['Sydney is 11 hours ahead of London', '19:30 + 4 h 30 min = 00:00', '11 h − 4 h 30 min = 6 h 30 min', 'Sydney time: 06:30 the next day'], diag: v => v === T('08:30') ? 'You subtracted 11 hours. London is behind, so Sydney must be ahead. Add 11 hours.' : null }),
+                qTime({ p: 'New York is ' + N('UTC−5') + ' and Sydney is ' + N('UTC+11') + ' in December. It is ' + N('17:00') + ' on Monday in New York. What time is it in Sydney?', ans: T('17:00') + 16 * 60, fmt: '24', note: 'In Sydney it is Tuesday morning.', book: 'Work out the gap between the two time zones first.', hints: ['From −5 up to +11 is a gap of 16 hours. Sydney is ahead.', '17:00 + 7 hours = 00:00 (midnight).', '16 − 7 = 9 hours after midnight.'], sol: ['Gap: 5 + 11 = 16 hours, Sydney ahead', '17:00 + 7 h = 00:00', '16 − 7 = 9 hours left', 'Sydney time: 09:00 on Tuesday'] })
+            ]
+        },
+        deeper: {
+            topic: 'Clock Investigations',
+            tasks: [
+                { level: 'Specialising', prompt: 'Choose five different times spread across a whole day. Write each one in 12-hour time and in 24-hour time. For which of your times are the digits the same in both?', sub: 'Try morning, afternoon and night times. What do you notice?', model: ['I started with 9:15 am. In 24-hour time that is 09:15. Apart from the zero at the front, the digits are the same.', 'Next I tried 3:40 pm, which is 15:40. The digits changed. I tried 11:05 am (11:05, the same) and 8:30 pm (20:30, different).', 'At first I thought the rule was simply "am times match and pm times change". Then I tried 12:10 am, just after midnight. That is 00:10, so the digits changed even though it is an am time.', 'My first rule was not quite right. I need to keep testing times near midnight and midday.'], box: 'You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.' },
+                { level: 'Conjecturing', prompt: 'A 12-hour digital clock and a 24-hour digital clock sit side by side. For how many hours of each day do they show the same hour number? Write a conjecture, then test it.', sub: 'Think carefully about the hour after midnight and the hour after midday.', model: ['My first conjecture was 12 hours, because I thought all the am hours would match.', 'Then I checked the hour after midnight. The 12-hour clock shows 12 and the 24-hour clock shows 00, so that hour does not match. That leaves 1 am to 11 am, which is 11 matching hours. I nearly stopped there.', 'Then I checked the hour after midday. 12:30 pm is 12:30 on both clocks, so that hour matches too. 11 + 1 = 12.', 'My conjecture is that the clocks agree for exactly 12 hours each day, from 1:00 am until 12:59 pm. My first number was right, but my first reason was wrong.'], box: 'You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be tested.' },
+                { level: 'Justifying', prompt: 'Zara says: "To change any pm time into 24-hour time, you always add 12 to the hours." Is Zara\'s rule always true, sometimes true or never true? Explain your reasoning.', sub: 'Can you find a pm time that breaks the rule?', model: ['I tested Zara\'s rule with 1:10 pm. 1 + 12 = 13, so 13:10. Correct. I tested 6:45 pm. 6 + 12 = 18, so 18:45. Correct again. I was ready to say "always true".', 'Then I tried 12:45 pm. Zara\'s rule gives 12 + 12 = 24, so 24:45. That cannot be right, because a 24-hour clock only goes up to 23:59. The real answer is 12:45.', 'So the rule is <strong>sometimes true</strong>. It works from 1:00 pm to 11:59 pm and it breaks for the midday hour.', 'A better rule: add 12 to the hours for pm times, unless the hour is 12.'], box: 'You are <em>justifying</em>. That means you are not just saying whether a rule works. You are testing it and explaining exactly when and why it works.' }
+            ]
+        }
+    },
+    // ------------------------------------------------------------------ 2
+    {
+        id: 'number-line', num: 2, lesson: 'Period 1', icon: 'line', title: 'Jump the Number Line',
+        blurb: 'Find how long something lasts by bridging to the next hour.',
+        li: 'We are learning to find how long an event lasts by making jumps along an empty number line.',
+        sc: ['I can jump in hours and half-hours to find a duration.', 'I can bridge to the next hour, then jump on to the finish time.', 'I can add my jumps to find the total, using 12-hour or 24-hour time.', 'I can solve problems that cross midday or midnight and explain my strategy.'],
+        teach: [
+            {
+                title: 'Duration means how long', body: 'A netball game starts at <strong>4:00 pm</strong> and ends at <strong>5:00 pm</strong>. The time in between is called the <strong>duration</strong>, or the elapsed time.',
+                learn: 'Duration = the time from the start to the finish.',
+                book: 'Heading: <strong>Duration</strong>. Copy: duration means how long something lasts.',
+                stages: [{ vis: [{ k: 'line', pts: ['4:00 pm', '5:00 pm'], jumps: ['+1 h'], show: 0 }] }, { label: 'Show the jump', vis: [{ k: 'line', pts: ['4:00 pm', '5:00 pm'], jumps: ['+1 h'], show: 1, total: '1 h' }] }]
+            },
+            {
+                title: 'Bridge to the next hour', body: 'A bushwalk starts at <strong>9:40 am</strong> and finishes at <strong>12:15 pm</strong>. Draw an <strong>empty number line</strong>. Make a small jump to the next o\'clock, jump the whole hours, then jump the leftover minutes.',
+                learn: 'Three jumps: <strong>bridge</strong> to the hour, jump the <strong>hours</strong>, jump the <strong>leftover minutes</strong>. Then add the jumps.',
+                book: 'Draw this number line in your book and label every jump.',
+                stages: [{ vis: [lineSpec('9:40 am', '12:15 pm', 0, false)] }, { label: 'Bridge to 10:00', vis: [lineSpec('9:40 am', '12:15 pm', 1, false)] }, { label: 'Jump the whole hours', vis: [lineSpec('9:40 am', '12:15 pm', 2, false)] }, { label: 'Jump the leftover minutes', vis: [lineSpec('9:40 am', '12:15 pm', 3, false)] }, { label: 'Add the jumps', vis: [lineSpec('9:40 am', '12:15 pm', 3, true)] }]
+            },
+            {
+                title: '24-hour times work the same way', body: 'A train leaves at <strong>13:25</strong> and arrives at <strong>16:10</strong>. The jumps are exactly the same idea.',
+                learn: 'It does not matter which notation the times use. Bridge, jump the hours, jump the rest.',
+                book: 'Copy the finished number line. Write: <strong>13:25 to 16:10 = 2 h 45 min</strong>.',
+                stages: lineStages('13:25', '16:10')
+            },
+            {
+                title: 'Watch out: 60, not 100', body: 'Time does not work like ordinary numbers. You <strong>cannot</strong> find 9:40 to 12:15 by doing 1215 − 940 on paper.',
+                learn: 'There are <strong>60 minutes</strong> in an hour, not 100. That is why we jump along a number line.',
+                book: 'Copy: 1 hour = 60 minutes. Never subtract times like ordinary numbers.',
+                stages: [{ vis: [{ k: 'bubbles', items: [{ who: 'Not this', text: '1215 − 940 = 275, so 2 hours 75 minutes', tone: 'bad' }, { who: 'This', text: '20 min + 2 h + 15 min = 2 hours 35 minutes', tone: 'good' }] }] }]
+            }
+        ],
+        floors: {
+            entry: [
+                qDur('3:00 pm', '5:00 pm', (a, b) => 'A swimming lesson starts at ' + a + ' and ends at ' + b + '. How long is the lesson?'),
+                qDur('9:00 am', '12:00 pm', (a, b) => 'The zoo trip starts at ' + a + ' and ends at ' + b + '. How long is the trip?'),
+                qDur('10:00 am', '10:30 am', (a, b) => 'Recess starts at ' + a + ' and ends at ' + b + '. How long is recess?'),
+                qDur('1:00 pm', '3:30 pm', (a, b) => 'A birthday party starts at ' + a + ' and ends at ' + b + '. How long is the party?'),
+                qDur('8:30 am', '11:30 am', (a, b) => 'Art class starts at ' + a + ' and ends at ' + b + '. How long is art class?'),
+                qDur('2:15 pm', '2:45 pm', (a, b) => 'A cartoon starts at ' + a + ' and ends at ' + b + '. How long is the cartoon?'),
+                qDur('4:30 pm', '6:00 pm', (a, b) => 'Dance practice starts at ' + a + ' and ends at ' + b + '. How long is practice?'),
+                qTime({ p: 'A film starts at ' + N('2:00 pm') + ' and goes for ' + N('2 hours') + '. What time does it finish?', ans: T('2:00 pm') + 120, fmt: '12', vis: [{ k: 'line', pts: ['2:00 pm', '?'], jumps: ['+2 h'], show: 1 }], book: 'Draw the number line with one jump of 2 hours.', hints: ['Start at 2:00 pm and count on two hours.', '2:00, then 3:00, then ...'], sol: ['2:00 pm + 1 hour = 3:00 pm', '3:00 pm + 1 hour = 4:00 pm'] })
+            ],
+            first: [
+                qDur('9:40 am', '11:15 am', (a, b) => 'A maths test starts at ' + a + ' and ends at ' + b + '. How long is the test?', { vis: [lineSpec('9:40 am', '11:15 am', 0, false)] }),
+                qDur('7:50 am', '10:20 am', (a, b) => 'The bus leaves at ' + a + ' and arrives at ' + b + '. How long is the trip?'),
+                qDur('10:45 am', '2:20 pm', (a, b) => 'A cricket match starts at ' + a + ' and finishes at ' + b + '. How long is the match?'),
+                qDur('13:25', '15:05', (a, b) => 'A ferry leaves at ' + a + ' and arrives at ' + b + '. How long is the crossing?'),
+                qDur('08:35', '15:10', (a, b) => 'The school day starts at ' + a + ' and ends at ' + b + '. How long is the school day?'),
+                qDur('11:55', '12:45', (a, b) => 'Recess ends at ' + a + ' and lunch begins at ' + b + '. How long is the lesson in between?'),
+                qDur('6:45 pm', '9:10 pm', (a, b) => 'A concert starts at ' + a + ' and ends at ' + b + '. How long is the concert?'),
+                qDur('11:30 am', '14:05', (a, b) => 'A hike starts at ' + a + ' and ends at ' + b + '. Careful, the two times use different notation. How long is the hike?', { hints: ['Write both times the same way first. 14:05 is 2:05 pm.', { t: 'Now draw the number line from 11:30 am to 2:05 pm.', vis: lineSpec('11:30 am', '2:05 pm', 1, false) }, { t: 'Here are all the jumps. Add them together.', vis: lineSpec('11:30 am', '2:05 pm', 3, false) }], vis: [{ k: 'digital', s: '11:30 am' }, { k: 'digital', s: '14:05' }], solVis: lineSpec('11:30 am', '2:05 pm', 3, true) }),
+                qTime({ p: 'A train leaves at ' + N('14:48') + '. The trip takes ' + N('1 hour 25 minutes') + '. What time does it arrive? Answer in 24-hour time.', ans: T('14:48') + 85, fmt: '24', book: 'Draw a number line starting at 14:48 and jump forwards.', hints: ['Jump the hour first. 14:48 + 1 hour = 15:48.', 'Now add 25 minutes. 12 minutes takes you to 16:00.', '25 − 12 = 13 minutes still to add.'], sol: ['14:48 + 1 h = 15:48', '15:48 + 12 min = 16:00', '16:00 + 13 min = 16:13'] }),
+                qTime({ p: 'A concert ended at ' + N('21:15') + ' and lasted ' + N('2 hours 40 minutes') + '. What time did it start? Answer in 24-hour time.', ans: T('21:15') - 160, fmt: '24', book: 'Draw a number line and jump backwards from 21:15.', hints: ['Work backwards. Go back 2 hours first: 21:15 − 2 hours = 19:15.', 'Now go back 40 minutes. 15 minutes takes you back to 19:00.', '40 − 15 = 25 minutes still to go back from 19:00.'], sol: ['21:15 − 2 h = 19:15', '19:15 − 15 min = 19:00', '19:00 − 25 min = 18:35'] })
+            ],
+            second: [
+                qDur('22:35', '06:10', (a, b) => 'An overnight train leaves at ' + a + ' and arrives at ' + b + ' the next morning. How long is the journey?'),
+                qDur('19:48', '01:23', (a, b) => 'A night shift starts at ' + a + ' and ends at ' + b + '. How long is the shift?'),
+                qDurX({ p: 'A traveller takes three flights lasting ' + N('1 h 50 min') + ', ' + N('2 h 35 min') + ' and ' + N('4 h 45 min') + '. What is the total flying time?', ans: 110 + 155 + 285, book: 'Add the hours and the minutes separately in your book.', hints: ['Add the hours: 1 + 2 + 4.', 'Add the minutes: 50 + 35 + 45 = 130 minutes.', '130 minutes is 2 hours 10 minutes. Add that to your hours.'], sol: ['Hours: 1 + 2 + 4 = 7 h', 'Minutes: 50 + 35 + 45 = 130 min', '130 min = 2 h 10 min', '7 h + 2 h 10 min = 9 h 10 min'], diag: v => v === 7 * 60 + 130 ? 'You are nearly there. 130 minutes is more than an hour, so rename it as hours and minutes.' : null }),
+                qTime({ p: 'A ship arrives at ' + N('05:20') + ' after sailing for ' + N('8 hours 45 minutes') + '. What time did it leave? Answer in 24-hour time.', ans: T('05:20') - 525, fmt: '24', book: 'Jump backwards through midnight on a number line.', hints: ['Go back 5 hours 20 minutes to reach midnight.', '8 h 45 min − 5 h 20 min = 3 h 25 min still to go back.', 'Go back 3 hours 25 minutes from 24:00.'], sol: ['05:20 − 5 h 20 min = 00:00', '8 h 45 min − 5 h 20 min = 3 h 25 min', '24:00 − 3 h 25 min = 20:35', 'It left at 20:35 the evening before'] }),
+                qDurX({ p: 'A runner starts at ' + N('10:15:40') + ' and finishes at ' + N('10:42:15') + ' (hours : minutes : seconds). How long did she run?', units: ['min', 's'], ans: (42 * 60 + 15) - (15 * 60 + 40), book: 'Use a number line. Bridge to the next whole minute first.', hints: ['Bridge to the next minute. 10:15:40 to 10:16:00 is 20 seconds.', '10:16:00 to 10:42:00 is 26 minutes.', 'Add the last 15 seconds. 20 s + 15 s = 35 s.'], sol: ['10:15:40 → 10:16:00 is 20 s', '10:16:00 → 10:42:00 is 26 min', '10:42:00 → 10:42:15 is 15 s', 'Total: 26 min 35 s'], diag: v => v === 26 * 60 + 75 ? 'There are 60 seconds in a minute, not 100. Bridge to the next minute.' : null }),
+                qDurX({ p: 'A ferry leaves on Monday at ' + N('21:30') + ' and arrives on Wednesday at ' + N('06:15') + '. How long is the voyage?', ans: 1440 + gap('21:30', '06:15'), book: 'Draw a number line with Monday, Tuesday and Wednesday marked.', hints: ['Monday 21:30 to Tuesday 21:30 is exactly 24 hours.', 'Tuesday 21:30 to Wednesday 06:15 is the extra part. Bridge through midnight.', '2 h 30 min to midnight, then 6 h 15 min more. Add this to 24 hours.'], sol: ['Mon 21:30 → Tue 21:30 is 24 h', 'Tue 21:30 → Wed 00:00 is 2 h 30 min', 'Wed 00:00 → 06:15 is 6 h 15 min', 'Total: 32 h 45 min'], diag: v => v === gap('21:30', '06:15') ? 'That is the time to Tuesday morning. The ferry arrives on Wednesday, one whole day later.' : null }),
+                qDurX({ p: 'A flight leaves Sydney at ' + N('10:05') + ' Sydney time. It lands in Perth at ' + N('12:10') + ' Perth time. Perth clocks are ' + N('3 hours') + ' behind Sydney. How long is the flight?', ans: gap('10:05', '12:10') + 180, book: 'Change both times to Sydney time before you find the duration.', hints: ['Both times must be in the same time zone before you compare them.', 'Perth is 3 hours behind, so 12:10 in Perth is 15:10 in Sydney.', 'Now find 10:05 to 15:10.'], sol: ['12:10 Perth time = 15:10 Sydney time', '10:05 → 15:05 is 5 h', '15:05 → 15:10 is 5 min', 'Flight time: 5 h 5 min'], diag: v => v === gap('10:05', '12:10') ? 'You compared a Sydney time with a Perth time. Change the landing time to Sydney time first.' : null }),
+                qDurX({ p: 'Mia swims four laps in ' + N('1 min 48 s') + ', ' + N('1 min 52 s') + ', ' + N('2 min 5 s') + ' and ' + N('1 min 55 s') + '. What is her total time?', units: ['min', 's'], ans: 108 + 112 + 125 + 115, book: 'Add the minutes and the seconds separately.', hints: ['Add the minutes: 1 + 1 + 2 + 1.', 'Add the seconds: 48 + 52 + 5 + 55 = 160 seconds.', '160 seconds is 2 minutes 40 seconds.'], sol: ['Minutes: 1 + 1 + 2 + 1 = 5 min', 'Seconds: 48 + 52 + 5 + 55 = 160 s', '160 s = 2 min 40 s', 'Total: 7 min 40 s'] })
+            ]
+        },
+        deeper: {
+            topic: 'Number Line Investigations',
+            tasks: [
+                { level: 'Specialising', prompt: 'Find the time from 9:40 am to 12:15 pm in three different ways. Way 1: bridge forward to the next hour first. Way 2: jump the whole hours first. Way 3: start at the finish and jump backwards.', sub: 'Draw a number line for each way. What do you notice about your three answers?', model: ['Way 1: 9:40 to 10:00 is 20 minutes, 10:00 to 12:00 is 2 hours, and 12:00 to 12:15 is 15 minutes. Total: 2 hours 35 minutes.', 'Way 2: I jumped whole hours first. 9:40 to 10:40 to 11:40 is 2 hours. I tried a third hour jump, which took me to 12:40. That overshoots 12:15, so I went back to 11:40. From 11:40 to 12:15 is 20 minutes plus 15 minutes, which is 35 minutes. Total: 2 hours 35 minutes.', 'Way 3: going backwards from 12:15, a jump of 15 minutes takes me to 12:00, 2 hours takes me to 10:00, and 20 minutes takes me to 9:40. Total: 2 hours 35 minutes again.', 'All three ways give the same duration. The order of the jumps does not change the total.'], box: 'You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.' },
+                { level: 'Justifying', prompt: 'Kiah typed 12.15 − 9.40 into a calculator. It showed 2.75, so she said the answer is 2 hours 75 minutes. Explain what went wrong.', sub: 'Is 2 hours 75 minutes a sensible answer? What is the calculator assuming about time?', model: ['First I checked whether Kiah\'s answer could be right. 75 minutes is more than one hour, so "2 hours 75 minutes" is a strange answer.', 'I wondered if it just needed tidying up. 2 hours 75 minutes is the same as 3 hours 15 minutes. That is not right either, because the number line gives 2 hours 35 minutes. So tidying up does not fix it.', 'The real problem is the calculator. It treats .15 and .40 as hundredths, as if an hour had 100 minutes. To take 40 from 15 it borrowed 100 from the hours, when it should only have borrowed 60.', '75 − 35 = 40. That is exactly the 40 extra minutes that were borrowed by mistake. Time is not a decimal system, so ordinary subtraction does not work on it.'], box: 'You are <em>justifying</em>. That means you are not just checking whether an answer is right. You are explaining <em>why</em> the method works or fails.' },
+                { level: 'Generalising', prompt: 'Kiah\'s calculator method does give the right answer for some pairs of times. For example, 9:10 to 11:45 gives 11.45 − 9.10 = 2.35, and the real answer is 2 hours 35 minutes. When does the method work and when does it fail? Write a rule.', sub: 'Test at least four pairs of times. Look closely at the minutes each time.', model: ['I tested some pairs. 9:10 to 11:45 gives 2.35. Correct. 8:20 to 10:50 gives 2.30, and the real answer is 2 hours 30 minutes. Correct.', '9:40 to 12:15 gives 2.75. Wrong. Then I tried 7:55 to 9:05 and wrote down 1.10, which looked right. I checked it again and found I had slipped: 9.05 − 7.55 is really 1.50. The real answer is 1 hour 10 minutes, so the method is wrong here too.', 'Now I can see the pattern. The method works when the finish minutes are the same as or bigger than the start minutes (45 is bigger than 10, and 50 is bigger than 20). It fails when the finish minutes are smaller than the start minutes (15 is smaller than 40, and 5 is smaller than 55).', 'My rule: the calculator shortcut only works when you do not need to bridge through an hour.'], box: 'You are <em>generalising</em>. That means you are making a rule that works every time, not just for the examples you tried.' }
+            ]
+        }
+    },
+    // ------------------------------------------------------------------ 3
+    {
+        id: 'timetables', num: 3, lesson: 'Period 1', icon: 'table', title: 'Timetable Detective',
+        blurb: 'Read real-life timetables and work out trips and waiting times.',
+        li: 'We are learning to read and use timetables written in 12-hour and 24-hour time.',
+        sc: ['I can find a start, departure or arrival time on a timetable.', 'I can work out how long a trip takes from a timetable.', 'I can work out the waiting time between two parts of a journey.', 'I can plan a journey from a timetable and justify my choice.'],
+        teach: [
+            {
+                title: 'How to read a timetable', body: 'A timetable is a table of times. Read <strong>across a row</strong> to follow one flight. Read <strong>down a column</strong> to compare all the flights at one place.',
+                learn: '<strong>Depart</strong> means leave. <strong>Arrive</strong> means get there.',
+                book: 'Heading: <strong>Timetables</strong>. Copy: depart = leave, arrive = get there.',
+                stages: [{ vis: [tFl()] }, { label: 'Follow one flight', vis: [tFl({ row: 'WR 101' })] }, { label: 'Compare one column', vis: [tFl({ col: 2 })] }]
+            },
+            {
+                title: 'How long is the flight?', body: 'Flight <strong>WR 101</strong> leaves Sydney at <strong>06:30</strong> and lands in Adelaide at <strong>08:40</strong>. Put the two times on a number line and jump.',
+                learn: 'Flight time = from the <strong>depart</strong> time to the <strong>arrive</strong> time.',
+                book: 'Copy the number line. Write: <strong>06:30 to 08:40 = 2 h 10 min</strong>.',
+                stages: [{ vis: [tFl({ row: 'WR 101', cells: [1, 2] })] }].concat(lineStages('06:30', '08:40'))
+            },
+            {
+                title: 'Waiting time is called a layover', body: 'WR 101 lands in Adelaide at <strong>08:40</strong> and takes off again at <strong>09:25</strong>. The wait on the ground is the <strong>layover</strong>.',
+                learn: 'Layover = from <strong>arrive</strong> to the next <strong>depart</strong>.',
+                book: 'Copy: layover = waiting time. <strong>08:40 to 09:25 = 45 min</strong>.',
+                stages: [{ vis: [tFl({ row: 'WR 101', cells: [2, 3] })] }].concat(lineStages('08:40', '09:25'))
+            },
+            {
+                title: 'Why timetables use 24-hour time', body: 'A timetable has no room for mistakes. With 24-hour time nobody turns up at 7 in the morning for a flight that leaves at 7 at night.',
+                learn: '24-hour time is short, clear and never needs am or pm.',
+                book: 'Write one sentence: why is 24-hour time useful on a timetable?',
+                stages: [{ vis: [{ k: 'bubbles', items: [{ who: '7:00', text: 'Morning or night? Nobody knows.', tone: 'bad' }, { who: '19:00', text: 'It can only be the evening.', tone: 'good' }] }] }]
+            }
+        ],
+        floors: {
+            entry: [
+                qTime({ p: 'What time does the <strong>seal show</strong> start?', ans: T(zoo('Seal show')[1]), fmt: '12', vis: [tZoo({ row: 'Seal show' })], book: 'Write in your book: Seal show starts at __:__', hints: ['Find the row that says Seal show.', 'Slide your finger across to the Starts column.'], sol: ['Row: Seal show', 'Column: Starts', 'Time: ' + zoo('Seal show')[1]] }),
+                qChoice('Which event starts at ' + N('1:00 pm') + '?', ZOO.map(r => r[0]), 3, { vis: [tZoo({ col: 1 })], book: 'Write the event and its start time in your book.', hints: ['Look down the Starts column until you find 1:00 pm.', 'Slide your finger back along that row to read the event.'], sol: ['Find 1:00 pm in the Starts column', 'That row is the Bird show'] }),
+                qTT(zoo('Elephant bath')[1], zoo('Elephant bath')[2], 'How long is the <strong>elephant bath</strong>?', tZoo({ row: 'Elephant bath' })),
+                qTT(zoo('Koala talk')[1], zoo('Koala talk')[2], 'How long is the <strong>koala talk</strong>?', tZoo({ row: 'Koala talk' })),
+                qTime({ p: 'What time does the <strong>giraffe feeding</strong> end?', ans: T(zoo('Giraffe feeding')[2]), fmt: '12', vis: [tZoo({ row: 'Giraffe feeding' })], book: 'Write in your book: Giraffe feeding ends at __:__', hints: ['Find the Giraffe feeding row.', 'Use the Ends column, not the Starts column.', '12 o\'clock in the middle of the day is 12:00 pm.'], sol: ['Row: Giraffe feeding', 'Column: Ends', 'Time: 12:00 pm (midday)'] }),
+                qTT(zoo('Koala talk')[2], zoo('Seal show')[1], 'How long do you wait from the <strong>end of the koala talk</strong> to the <strong>start of the seal show</strong>?', tZoo({ rows: ['Koala talk', 'Seal show'] })),
+                qChoice('You arrive at the zoo at ' + N('12:15 pm') + '. Which is the next event you can watch from the very start?', ZOO.map(r => r[0]), 3, { vis: [tZoo({ col: 1 })], book: 'Write the event and how long you will wait for it.', hints: ['Which events have already started before 12:15 pm?', 'Look for the first start time that comes after 12:15 pm.'], sol: ['Giraffe feeding ended at 12:00 pm', 'The next start time after 12:15 pm is 1:00 pm', 'That is the Bird show'] }),
+                qTT(zoo('Koala talk')[1], zoo('Reptile talk')[1], 'How long is it from the <strong>start of the koala talk</strong> to the <strong>start of the reptile talk</strong>?', tZoo({ rows: ['Koala talk', 'Reptile talk'] })),
+                qTo24(zoo('Bird show')[1], 'The bird show starts at', { vis: [tZoo({ row: 'Bird show' })] })
+            ],
+            first: [
+                qTo12(FL['WR 205'][0], 'Flight WR 205 leaves Sydney at', { vis: [tFl({ row: 'WR 205', cells: [1] })] }),
+                qChoice('Which flight arrives in Adelaide at ' + N('16:05') + '?', Object.keys(FL), 2, { vis: [tFl({ col: 2 })], book: 'Write the flight name and the time in your book.', hints: ['Look down the Arrive Adelaide column.', 'Slide back along that row to read the flight name.'], sol: ['Find 16:05 in the Arrive Adelaide column', 'That row is flight WR 318'] }),
+                qTT(FL['WR 205'][0], FL['WR 205'][1], 'How long is the flight from <strong>Sydney to Adelaide</strong> on <strong>WR 205</strong>?', tFl({ row: 'WR 205', cells: [1, 2] })),
+                qTT(FL['WR 318'][0], FL['WR 318'][1], 'How long is the flight from <strong>Sydney to Adelaide</strong> on <strong>WR 318</strong>?', tFl({ row: 'WR 318', cells: [1, 2] })),
+                qTT(FL['WR 205'][2], FL['WR 205'][3], 'How long is the flight from <strong>Adelaide to Perth</strong> on <strong>WR 205</strong>?', tFl({ row: 'WR 205', cells: [3, 4] })),
+                qTT(FL['WR 205'][1], FL['WR 205'][2], 'How long is the <strong>layover in Adelaide</strong> on <strong>WR 205</strong>?', tFl({ row: 'WR 205', cells: [2, 3] })),
+                qTT(FL['WR 318'][1], FL['WR 318'][2], 'How long is the <strong>layover in Adelaide</strong> on <strong>WR 318</strong>?', tFl({ row: 'WR 318', cells: [2, 3] })),
+                qTT(FL['WR 205'][0], FL['WR 205'][3], 'How long is the <strong>whole journey</strong> from leaving Sydney to landing in Perth on <strong>WR 205</strong>?', tFl({ row: 'WR 205', cells: [1, 4] })),
+                qChoice('Which of these flights has the <strong>shortest whole journey</strong> from Sydney to Perth?', ['WR 101', 'WR 205', 'WR 318'], 2, { vis: [tFl()], book: 'Work out all three journey times in your book and compare them.', hints: ['Find the time from Depart Sydney to Arrive Perth for each flight.', 'WR 101 takes ' + durShort(whole('WR 101')) + '. Now work out the other two.'], sol: ['WR 101: ' + durShort(whole('WR 101')), 'WR 205: ' + durShort(whole('WR 205')), 'WR 318: ' + durShort(whole('WR 318')), 'Shortest: WR 318'], why: ['WR 101 takes ' + durShort(whole('WR 101')) + '. One flight is quicker than that.', 'WR 205 takes ' + durShort(whole('WR 205')) + '. That is the longest of the three.', null] }),
+                qChoice('You must be in Perth by ' + N('4:00 pm') + ' Sydney time. Which is the <strong>latest</strong> flight you can take?', Object.keys(FL), 1, { vis: [tFl({ col: 4 })], book: 'Write 4:00 pm in 24-hour time first.', hints: ['4:00 pm is 16:00 in 24-hour time.', 'Look down the Arrive Perth column. Which times are before 16:00?', 'Choose the latest one that is still before 16:00.'], sol: ['4:00 pm = 16:00', 'Arrive Perth before 16:00: WR 101 (12:45) and WR 205 (15:55)', 'The latest of these is WR 205'], why: ['WR 101 gets you there in time, but a later flight also arrives before 16:00.', null, 'WR 318 lands at 19:50, which is after 16:00.', 'WR 422 lands after midnight, long after 16:00.'] })
+            ],
+            second: [
+                qTT(FL['WR 422'][2], FL['WR 422'][3], 'How long is the flight from <strong>Adelaide to Perth</strong> on <strong>WR 422</strong>? It lands after midnight.', tFl({ row: 'WR 422', cells: [3, 4] })),
+                qTT(FL['WR 422'][0], FL['WR 422'][3], 'How long is the <strong>whole journey</strong> on <strong>WR 422</strong>?', tFl({ row: 'WR 422', cells: [1, 4] })),
+                qDurX({ p: 'How much time does <strong>WR 205</strong> spend <strong>in the air</strong>? Do not count the layover.', ans: leg1('WR 205') + leg2('WR 205'), vis: [tFl({ row: 'WR 205' })], book: 'Find both flight times, then add them.', hints: ['There are two flights: Sydney to Adelaide and Adelaide to Perth.', 'Sydney to Adelaide is ' + durShort(leg1('WR 205')) + '.', 'Adelaide to Perth is ' + durShort(leg2('WR 205')) + '. Add the two.'], sol: ['Sydney → Adelaide: ' + durShort(leg1('WR 205')), 'Adelaide → Perth: ' + durShort(leg2('WR 205')), 'In the air: ' + durShort(leg1('WR 205') + leg2('WR 205'))], diag: v => v === whole('WR 205') ? 'That is the whole journey, including the wait in Adelaide. Leave out the layover.' : null }),
+                qTime({ p: 'Perth clocks are ' + N('3 hours') + ' behind Sydney. <strong>WR 101</strong> lands at ' + N(FL['WR 101'][3]) + ' Sydney time. What do the clocks in Perth show?', ans: T(FL['WR 101'][3]) - 180, fmt: '24', vis: [tFl({ row: 'WR 101', cells: [4] })], book: 'Write the landing time in Sydney time and in Perth time.', hints: ['Behind means earlier, so subtract 3 hours.'], sol: [FL['WR 101'][3] + ' − 3 h = ' + f24(T(FL['WR 101'][3]) - 180)] }),
+                qTime({ p: 'Adelaide clocks are ' + N('30 minutes') + ' behind Sydney. <strong>WR 318</strong> leaves Adelaide at ' + N(FL['WR 318'][2]) + ' Sydney time. What do the clocks in Adelaide show?', ans: T(FL['WR 318'][2]) - 30, fmt: '24', vis: [tFl({ row: 'WR 318', cells: [3] })], book: 'Write the time in Sydney time and in Adelaide time.', hints: ['Behind means earlier, so subtract 30 minutes.'], sol: [FL['WR 318'][2] + ' − 30 min = ' + f24(T(FL['WR 318'][2]) - 30)] }),
+                qTime({ p: '<strong>WR 205</strong> is delayed by ' + N('10 minutes') + ' in Sydney and by a further ' + N('25 minutes') + ' in Adelaide. What is its new arrival time in Perth, in Sydney time?', ans: T(FL['WR 205'][3]) + 35, fmt: '24', vis: [tFl({ row: 'WR 205', cells: [4] })], book: 'Add the delays first, then add them to the arrival time.', hints: ['Total delay: 10 + 25 = 35 minutes.', 'The timetable arrival is ' + FL['WR 205'][3] + '. 5 minutes takes you to 16:00.', '35 − 5 = 30 minutes still to add.'], sol: ['Total delay: 10 + 25 = 35 min', FL['WR 205'][3] + ' + 5 min = 16:00', '16:00 + 30 min = 16:30'] }),
+                qDurX({ p: 'Add the <strong>Sydney to Adelaide</strong> flight times for all four flights. What is the total?', ans: Object.keys(FL).reduce((s, f) => s + leg1(f), 0), vis: [tFl({ cols: [1, 2] })], book: 'List the four flight times in your book, then add them.', hints: ['The four flight times are ' + Object.keys(FL).map(f => durShort(leg1(f))).join(', ') + '.', 'Add the hours, then add the minutes.', 'If the minutes come to more than 60, rename them as hours and minutes.'], sol: Object.keys(FL).map(f => f + ': ' + durShort(leg1(f))).concat(['Total: ' + durShort(Object.keys(FL).reduce((s, f) => s + leg1(f), 0))]) }),
+                qNum({ p: 'What is the <strong>mean (average) layover</strong> in Adelaide across the four flights? Answer in minutes.', ans: Object.keys(FL).reduce((s, f) => s + lay(f), 0) / 4, unit: 'minutes', vis: [tFl({ cols: [2, 3] })], book: 'List the four layovers in minutes, add them and divide by 4.', hints: ['The four layovers are ' + Object.keys(FL).map(f => lay(f) + ' min').join(', ') + '.', 'Add them to get ' + Object.keys(FL).reduce((s, f) => s + lay(f), 0) + ' minutes.', 'Divide the total by 4.'], sol: Object.keys(FL).map(f => f + ': ' + lay(f) + ' min').concat(['Total: ' + Object.keys(FL).reduce((s, f) => s + lay(f), 0) + ' min', 'Mean: ' + Object.keys(FL).reduce((s, f) => s + lay(f), 0) + ' ÷ 4 = ' + Object.keys(FL).reduce((s, f) => s + lay(f), 0) / 4 + ' min']) }),
+                qTime({ p: 'You land in Perth on <strong>WR 318</strong> and take ' + N('40 minutes') + ' to reach your hotel. Perth is ' + N('3 hours') + ' behind Sydney. What is the <strong>Perth time</strong> when you reach the hotel?', ans: T(FL['WR 318'][3]) + 40 - 180, fmt: '24', vis: [tFl({ row: 'WR 318', cells: [4] })], book: 'Do it in two steps: add the travel time, then change the time zone.', hints: ['WR 318 lands at ' + FL['WR 318'][3] + ' Sydney time. Add 40 minutes first.', FL['WR 318'][3] + ' + 40 min = ' + f24(T(FL['WR 318'][3]) + 40) + ' Sydney time.', 'Now subtract 3 hours to get Perth time.'], sol: [FL['WR 318'][3] + ' + 40 min = ' + f24(T(FL['WR 318'][3]) + 40) + ' (Sydney time)', f24(T(FL['WR 318'][3]) + 40) + ' − 3 h = ' + f24(T(FL['WR 318'][3]) + 40 - 180) + ' (Perth time)'] }),
+                qNum({ p: 'The flight path from Adelaide to Perth is ' + N('2,145 km') + '. <strong>WR 318</strong> flies it in ' + N(durShort(leg2('WR 318'))) + '. What is its average speed in kilometres per hour?', ans: 2145 / (leg2('WR 318') / 60), unit: 'km/h', vis: [tFl({ row: 'WR 318', cells: [3, 4] })], book: 'Write: speed = distance ÷ time. Change the time to a decimal first.', hints: ['Speed = distance ÷ time, with the time in hours.', '3 h 15 min is 3 and a quarter hours, which is 3.25 hours.', 'Work out 2,145 ÷ 3.25.'], sol: ['3 h 15 min = 3.25 h', 'Speed = 2,145 ÷ 3.25', 'Speed = 660 km/h'] })
+            ]
+        },
+        deeper: {
+            topic: 'Timetable Investigations', vis: tFl(),
+            tasks: [
+                { level: 'Specialising', prompt: 'Use the Wren Air timetable. Work out the whole journey time from Sydney to Perth for all four flights. Which flight is quickest? Which has the longest layover?', sub: 'Set your working out neatly, one flight at a time. What do you notice?', model: ['WR 101: 06:30 to 12:45 is 6 hours 15 minutes. WR 205: 09:15 to 15:55 is 6 hours 40 minutes. WR 318: 13:50 to 19:50 is exactly 6 hours.', 'For WR 422 I first tried to take 17:40 away from 00:35 and got stuck, because 00:35 looks smaller than 17:40. Then I realised the flight lands after midnight.', 'So I jumped instead. 17:40 to 18:00 is 20 minutes, 18:00 to 00:00 is 6 hours and 00:00 to 00:35 is 35 minutes. That makes 6 hours 55 minutes.', 'WR 318 is the quickest. The layovers are 45 minutes, 1 hour 10 minutes, 30 minutes and 1 hour 25 minutes, so WR 422 waits the longest in Adelaide.'], box: 'You are <em>specialising</em>. That means you are working through specific examples to gather evidence, looking for a pattern before you make any claims.' },
+                { level: 'Conjecturing', prompt: 'Ella says: "The flight with the shortest layover is always the quickest journey." Is this always true, sometimes true or never true? Write your conjecture. Then try to invent a new flight that breaks Ella\'s rule.', sub: 'A journey has three parts: a flight, a layover and another flight.', model: ['In our timetable, WR 318 has the shortest layover (30 minutes) and the quickest journey (6 hours). WR 422 has the longest layover and the slowest journey. So at first I thought Ella was right and the answer was "always".', 'Then I remembered that a journey has three parts. A short layover only helps if the two flights are not slow.', 'I invented flight WR 500. It leaves Sydney at 10:00, arrives in Adelaide at 12:40, leaves Adelaide at 13:00 and arrives in Perth at 16:50. Its layover is only 20 minutes, the shortest of all. Its whole journey is 6 hours 50 minutes, which is slower than WR 318.', 'My conjecture is <strong>sometimes true</strong>. The layover matters, but so do the two flying times.'], box: 'You are <em>conjecturing</em>. That means you are making a claim based on your evidence, then testing it by hunting for an example that breaks it.' },
+                { level: 'Justifying', prompt: 'A printed timetable uses 12-hour time, but the am and pm labels have been left off. It says a train departs at 7:15 and arrives at 9:30. The trip takes less than one day. List every possible duration. Then explain why 24-hour time fixes the problem.', sub: 'How many different trips could those two times describe?', model: ['My first answer was 2 hours 15 minutes, because 7:15 to 9:30 looks like a morning trip.', 'Then I thought about the missing labels. The train could leave at 7:15 am and arrive at 9:30 pm. That is 14 hours 15 minutes. It could leave at 7:15 pm and arrive at 9:30 pm, which is 2 hours 15 minutes again. It could even leave at 7:15 pm and arrive at 9:30 am the next morning, which is 14 hours 15 minutes.', 'So there are four possible trips and two possible durations: 2 hours 15 minutes or 14 hours 15 minutes.', 'In 24-hour time each trip looks different: 07:15 to 09:30, 07:15 to 21:30, 19:15 to 21:30 and 19:15 to 09:30. Every time of day has its own number, so there is only one way to read it.'], box: 'You are <em>justifying</em>. That means you are building an argument that covers every case, not just the first answer you thought of.' }
+            ]
+        }
+    },
+    // ------------------------------------------------------------------ 4
+    {
+        id: 'decimals', num: 4, lesson: 'Period 2', icon: 'pie', title: 'Time as a Decimal',
+        blurb: 'Write hours and minutes as decimals, like 6.75 hours.',
+        li: 'We are learning to write time intervals using decimal notation.',
+        sc: ['I can say how many minutes are in a quarter, a half and three quarters of an hour.', 'I can write hours and minutes as a decimal number of hours.', 'I can change a decimal number of hours back into hours and minutes.', 'I can solve duration problems and record my answers as decimals.'],
+        teach: [
+            {
+                title: 'Who is right?', body: 'A film lasts <strong>2 hours 30 minutes</strong>. Asha and Zoe each write it as a decimal. Talk to a partner: who is right, and why?',
+                learn: 'Zoe is right. The decimal part counts <strong>parts of an hour</strong>, not minutes. 30 minutes is half an hour, and a half is <strong>0.5</strong>.',
+                book: 'Copy: <strong>2 h 30 min = 2.5 hours</strong> (not 2.30 hours).',
+                stages: [{ vis: [{ k: 'bubbles', items: [{ who: 'Asha', text: '2 hours 30 minutes is 2.30 hours' }, { who: 'Zoe', text: '2 hours 30 minutes is 2.5 hours' }] }] }, { label: 'Show who is right', vis: [{ k: 'bubbles', items: [{ who: 'Asha', text: '2 hours 30 minutes is 2.30 hours', tone: 'bad' }, { who: 'Zoe', text: '2 hours 30 minutes is 2.5 hours', tone: 'good' }] }, { k: 'pie', min: 30 }] }]
+            },
+            {
+                title: 'An hour in quarters', body: 'Cut the clock face into <strong>four equal parts</strong>. Each part is a quarter of an hour, which is <strong>15 minutes</strong>.',
+                learn: '15 min = ¼ = <strong>0.25</strong>. 30 min = ½ = <strong>0.5</strong>. 45 min = ¾ = <strong>0.75</strong>.',
+                book: 'Draw the three clock faces and label each one with its minutes, fraction and decimal.',
+                stages: [{ vis: [{ k: 'pie', min: 15 }] }, { label: 'Shade half an hour', vis: [{ k: 'pie', min: 15 }, { k: 'pie', min: 30 }] }, { label: 'Shade three quarters', vis: [{ k: 'pie', min: 15 }, { k: 'pie', min: 30 }, { k: 'pie', min: 45 }] }]
+            },
+            {
+                title: 'Hours and minutes to a decimal', body: 'Keep the <strong>whole hours</strong>. Change the <strong>minutes</strong> into a decimal part of an hour. Join them together.',
+                learn: 'Whole hours first, then the decimal for the minutes.',
+                book: 'Copy the four examples into your book.',
+                stages: [{ vis: [{ k: 'rows', rows: [['3 h', '3.0 h', 'no extra minutes']] }] }, { label: 'Add a half', vis: [{ k: 'rows', rows: [['3 h', '3.0 h', 'no extra minutes'], ['5 h 30 min', '5.5 h', '30 min = 0.5']] }] }, { label: 'Add three quarters', vis: [{ k: 'rows', rows: [['3 h', '3.0 h', 'no extra minutes'], ['5 h 30 min', '5.5 h', '30 min = 0.5'], ['9 h 45 min', '9.75 h', '45 min = 0.75']] }] }, { label: 'Add a quarter', vis: [{ k: 'rows', rows: [['3 h', '3.0 h', 'no extra minutes'], ['5 h 30 min', '5.5 h', '30 min = 0.5'], ['9 h 45 min', '9.75 h', '45 min = 0.75'], ['1 h 15 min', '1.25 h', '15 min = 0.25']] }] }]
+            },
+            {
+                title: 'Kylie\'s train trip', body: 'Kylie travels from <strong>Sydney</strong> to <strong>Wauchope</strong>. How long is the journey? How could we write it as a decimal?',
+                learn: 'Find the duration first, then change it. <strong>6 h 45 min = 6.75 hours</strong>, because 45 minutes is three quarters of an hour.',
+                book: 'Copy the number line and write: <strong>6 h 45 min = 6.75 h</strong>.',
+                stages: [{ vis: [tTr(['Sydney Central', 'Wauchope'])] }].concat(lineStages(stn('Sydney Central'), stn('Wauchope')), [{ label: 'Change to a decimal', vis: [lineSpec(stn('Sydney Central'), stn('Wauchope'), 3, true), { k: 'rows', rows: [[durShort(trainGap('Sydney Central', 'Wauchope')), '6.75 h', '45 min = 0.75']] }] }])
+            }
+        ],
+        floors: {
+            entry: [
+                qNum({ p: 'How many minutes are there in <strong>one hour</strong>?', ans: 60, unit: 'minutes', vis: [{ k: 'pie', min: 60 }], book: 'Write in your book: 1 hour = ___ minutes', hints: ['The minute hand goes all the way around the clock in one hour.', 'Count in fives around the clock: 5, 10, 15 ... until you are back at the top.'], sol: ['12 numbers on the clock, 5 minutes each', '12 × 5 = 60 minutes'], diag: v => v === 100 ? 'An hour is not 100 minutes. Count in fives all the way around the clock face.' : null }),
+                qToMin(0.5, '½', 'How many minutes is', { hints: ['Half means two equal parts.', { t: 'Half of the clock face is shaded. Count the minutes.', vis: { k: 'pie', min: 30 } }, 'Half of 60 is ?'], sol: ['1 hour = 60 minutes', 'Half of 60 = 30 minutes'] }),
+                qToMin(0.25, '¼', 'How many minutes is', { hints: ['A quarter means four equal parts.', { t: 'One quarter of the clock face is shaded.', vis: { k: 'pie', min: 15 } }, '60 ÷ 4 = ?'], sol: ['1 hour = 60 minutes', '60 ÷ 4 = 15 minutes'] }),
+                qToMin(0.75, '¾', 'How many minutes is', { hints: ['Three quarters is three lots of a quarter.', { t: 'Three quarters of the clock face are shaded.', vis: { k: 'pie', min: 45 } }, 'One quarter is 15 minutes. 15 + 15 + 15 = ?'], sol: ['One quarter of an hour = 15 minutes', '3 × 15 = 45 minutes'] }),
+                qToMin(1.5, '1½', 'How many minutes is', { hints: ['Split it into 1 whole hour and half an hour.', '1 hour is 60 minutes. Half an hour is 30 minutes.', '60 + 30 = ?'], sol: ['1 hour = 60 minutes', 'Half an hour = 30 minutes', '60 + 30 = 90 minutes'] }),
+                qToMin(2, '2', 'How many minutes is', { hints: ['One hour is 60 minutes.', '60 + 60 = ?'], sol: ['1 hour = 60 minutes', '60 + 60 = 120 minutes'] }),
+                qChoice(N('30 minutes') + ' is what fraction of an hour?', ['one quarter', 'one half', 'three quarters'], 1, { vis: [{ k: 'pie', min: 30 }], book: 'Draw the clock face and shade 30 minutes.', hints: ['Look at how much of the clock face is shaded.', '30 + 30 = 60. Two equal parts make the whole hour.'], sol: ['30 + 30 = 60', 'Two equal parts, so 30 minutes is one half'], why: ['One quarter of an hour is 15 minutes.', null, 'Three quarters of an hour is 45 minutes.'] }),
+                qChoice('Which decimal means <strong>one half</strong>?', ['0.2', '0.5', '0.12'], 1, { vis: [{ k: 'bar10', n: 5 }], book: 'Write in your book: one half = 0.__', hints: ['The bar is cut into 10 equal parts. Half of the bar is shaded.', 'How many tenths are shaded?'], sol: ['Half of 10 tenths is 5 tenths', '5 tenths = 0.5'], why: ['0.2 is 2 tenths. A half is 5 tenths.', null, '0.12 is 12 hundredths, which is much less than a half.'] }),
+                qToDec(2, 30, 'Write', { hints: ['The 2 whole hours stay as 2.', { t: '30 minutes is half an hour.', vis: { k: 'pie', min: 30 } }, 'One half as a decimal is 0.5. Join it to the 2.'] })
+            ],
+            first: [
+                qToDec(4, 0), qToDec(4, 30), qToDec(2, 15), qToDec(7, 45),
+                qFromDec(1.5), qFromDec(3.25), qFromDec(8.75),
+                qLeg('Sydney Central', 'Broadmeadow'), qLeg('Taree', 'Wauchope'), qLeg('Coffs Harbour', 'Grafton'), qLeg('Broadmeadow', 'Coffs Harbour')
+            ],
+            second: [
+                qLeg('Sydney Central', 'Casino'),
+                qNum({ p: 'The train is delayed by ' + N('10 minutes') + ' at each of the ' + N('6') + ' stations between Sydney and Casino. What is the new total journey time, as a decimal number of hours?', ans: (trainGap('Sydney Central', 'Casino') + 60) / 60, unit: 'hours', vis: [tTr(['Sydney Central', 'Casino'])], book: 'Find the normal journey time, add the delays, then write a decimal.', hints: ['6 delays of 10 minutes is 60 minutes, which is 1 hour.', 'The normal journey takes ' + durShort(trainGap('Sydney Central', 'Casino')) + '. Add 1 hour.', '45 minutes is three quarters of an hour, or 0.75.'], sol: ['Delays: 6 × 10 = 60 min = 1 h', durShort(trainGap('Sydney Central', 'Casino')) + ' + 1 h = ' + durShort(trainGap('Sydney Central', 'Casino') + 60), '45 min = 0.75 h', 'New journey time: ' + (trainGap('Sydney Central', 'Casino') + 60) / 60 + ' hours'] }),
+                qToDec(2, 6), qToDec(3, 12), qFromDec(2.4), qFromDec(0.9), qToDec(4, 36),
+                qNum({ p: 'Ruby works from ' + N('10:15') + ' to ' + N('14:45') + ' and earns ' + N('$18') + ' per hour. How much does she earn?', ans: gap('10:15', '14:45') / 60 * 18, prefix: '$', book: 'Find the duration, write it as a decimal, then multiply.', hints: ['10:15 to 14:45 is 4 hours 30 minutes.', '4 hours 30 minutes is 4.5 hours.', '4.5 × 18. Try 4 × 18, then add half of 18.'], sol: ['10:15 → 14:45 is 4 h 30 min', '4 h 30 min = 4.5 h', '4 × 18 = 72 and 0.5 × 18 = 9', '72 + 9 = $81'], diag: v => Math.abs(v - 4.3 * 18) < 1e-9 ? 'You used 4.3 hours. 4 hours 30 minutes is 4.5 hours, because 30 minutes is half an hour.' : null }),
+                qNum({ p: 'A train travels at a steady ' + N('80 km/h') + ' for ' + N('2 hours 45 minutes') + '. How far does it travel?', ans: 80 * 2.75, unit: 'km', book: 'Write: distance = speed × time. Change the time to a decimal first.', hints: ['Distance = speed × time, with the time in hours.', '2 hours 45 minutes is 2.75 hours.', '80 × 2 = 160. 80 × 0.75 = 60.'], sol: ['2 h 45 min = 2.75 h', '80 × 2 = 160 km', '80 × 0.75 = 60 km', '160 + 60 = 220 km'], diag: v => Math.abs(v - 80 * 2.45) < 1e-9 ? 'You used 2.45 hours. 45 minutes is three quarters of an hour, so the time is 2.75 hours.' : null }),
+                qChoice('Which of these is the same as ' + N('1 hour 20 minutes') + '?', ['1.2 hours', '1⅓ hours', '1.02 hours'], 1, { book: 'Write 20 minutes as a fraction of 60 minutes and simplify it.', hints: ['20 minutes out of 60 minutes is the fraction 20/60.', '20/60 simplifies to 1/3.', 'One third as a decimal is 0.333..., which never stops. So 1.2 cannot be right.'], sol: ['20 min out of 60 min = 20/60', '20/60 = 1/3', '1 hour 20 minutes = 1⅓ hours'], why: ['1.2 hours is 1 hour and 2 tenths of an hour. Two tenths of an hour is 12 minutes, not 20.', null, '1.02 hours is 1 hour and 2 hundredths of an hour, which is only about 1 minute extra.'] })
+            ]
+        },
+        deeper: {
+            topic: 'Decimal Time Investigations',
+            tasks: [
+                { level: 'Specialising', prompt: 'Change each of these into a decimal number of hours by dividing by 60: 6 minutes, 12 minutes, 15 minutes, 20 minutes, 30 minutes, 40 minutes and 45 minutes. Which decimals stop? Which go on forever?', sub: 'You may use a calculator. Sort your answers into two groups. What do you notice?', model: ['6 ÷ 60 = 0.1 and 12 ÷ 60 = 0.2. Then 15 ÷ 60 = 0.25, 30 ÷ 60 = 0.5 and 45 ÷ 60 = 0.75. These all stop.', 'I expected 20 minutes to be 0.2, because of the 2. That was wrong, because 0.2 hours is 12 minutes. When I divided, 20 ÷ 60 = 0.3333... and it never stops.', '40 ÷ 60 = 0.6666... also goes on forever.', 'So five of my times make tidy decimals and two do not. I notice that 20 minutes and 40 minutes are thirds of an hour.'], box: 'You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.' },
+                { level: 'Conjecturing', prompt: 'Which whole numbers of minutes, from 1 to 59, make a decimal of an hour that stops? Test some more numbers and write a conjecture.', sub: 'Try at least five more numbers. Look for something the "tidy" numbers have in common.', model: ['I tested more numbers. 3 ÷ 60 = 0.05, which stops. 9 ÷ 60 = 0.15, which stops. 21 ÷ 60 = 0.35, which stops.', 'My first idea was that multiples of 5 would work, because clocks count in fives. Then I tried 10 ÷ 60 = 0.1666... and 25 ÷ 60 = 0.41666... Neither of them stops, so that idea was wrong.', 'I looked again at my list of numbers that work: 3, 6, 9, 12, 15, 21, 30 and 45. They are all multiples of 3.', 'My conjecture: a number of minutes makes a decimal that stops exactly when it is a multiple of 3.'], box: 'You are <em>conjecturing</em>. That means you are making a claim that you believe is true, based on your evidence, but you know it still needs to be proved.' },
+                { level: 'Justifying', prompt: 'Explain why a multiple of 3 minutes always makes a decimal that stops. Start by writing 3 minutes as a decimal of an hour.', sub: 'Can you also explain why the other numbers never work?', model: ['3 minutes is 3 ÷ 60 = 0.05 hours. That is 5 hundredths.', 'Every multiple of 3 minutes is just a number of lots of 0.05. For example, 21 minutes is 7 lots of 3 minutes, so it is 7 × 0.05 = 0.35. Adding 0.05 again and again can never make a decimal that goes on forever. That explains why multiples of 3 work.', 'I also wanted to know why the other numbers fail. At first I thought I would have to test every one of them. There is a quicker way. 1 minute is 1 ÷ 60 = 0.01666..., which never stops.', 'A number like 20 is 18 + 2. The 18 minutes is a tidy 0.3, but the leftover 2 minutes is 0.0333..., which never stops. Any number that is not a multiple of 3 has a leftover of 1 or 2 minutes, so its decimal never stops.'], box: 'You are <em>justifying</em>. That means you are explaining <em>why</em> your conjecture is true, so that someone else could not argue with it.' }
+            ]
+        }
+    },
+    // ------------------------------------------------------------------ 5
+    {
+        id: 'minutes', num: 5, lesson: 'Period 2', icon: 'tri', title: 'Fractions, Decimals and Minutes',
+        blurb: 'Swap between fractions, decimals and minutes of an hour.',
+        li: 'We are learning to convert fractions and decimals of an hour into minutes, and back again.',
+        sc: ['I can match halves and quarters of an hour to minutes.', 'I can change a decimal number of hours into minutes.', 'I can change minutes into a decimal number of hours.', 'I can choose the most useful form of a time to solve a problem.'],
+        teach: [
+            {
+                title: 'Three names for the same time', body: 'Half an hour can be written as a <strong>fraction</strong>, a <strong>decimal</strong> or in <strong>minutes</strong>. They all mean exactly the same amount of time.',
+                learn: '½ hour = <strong>0.5 hours</strong> = <strong>30 minutes</strong>.',
+                book: 'Draw a table with three columns: fraction, decimal, minutes. Fill in ¼, ½ and ¾.',
+                stages: [{ vis: [{ k: 'pie', min: 30 }, { k: 'rows', eq: true, rows: [['½ hour', '0.5 h', '30 min']] }] }, { label: 'Add the quarters', vis: [{ k: 'rows', eq: true, rows: [['¼ hour', '0.25 h', '15 min'], ['½ hour', '0.5 h', '30 min'], ['¾ hour', '0.75 h', '45 min']] }] }]
+            },
+            {
+                title: 'Hours into minutes', body: 'To change hours into minutes, work out the <strong>whole hours</strong> first (60 minutes each), then add the minutes for the <strong>part</strong>.',
+                learn: 'Each whole hour is 60 minutes. Then add the part: 0.25 is 15, 0.5 is 30, 0.75 is 45.',
+                book: 'Copy the worked example: <strong>2.25 hours = 135 minutes</strong>.',
+                stages: [{ vis: [{ k: 'rows', rows: [['2.25 hours', '?', 'split it up']] }] }, { label: 'Do the whole hours', vis: [{ k: 'rows', rows: [['2.25 hours', '?', 'split it up'], ['2 hours', '120 min', '2 × 60']] }] }, { label: 'Do the decimal part', vis: [{ k: 'rows', rows: [['2.25 hours', '?', 'split it up'], ['2 hours', '120 min', '2 × 60'], ['0.25 hours', '15 min', 'one quarter of 60']] }] }, { label: 'Add them', vis: [{ k: 'rows', rows: [['2 hours', '120 min', '2 × 60'], ['0.25 hours', '15 min', 'one quarter of 60'], ['2.25 hours', '135 min', '120 + 15']] }] }]
+            },
+            {
+                title: 'Minutes into hours', body: 'To change minutes into hours, count how many <strong>whole 60s</strong> fit. The leftover minutes become the decimal part.',
+                learn: 'Take out the 60s first. What is left is a part of an hour.',
+                book: 'Copy the worked example: <strong>105 minutes = 1.75 hours</strong>.',
+                stages: [{ vis: [{ k: 'rows', rows: [['105 min', '?', 'take out the 60s']] }] }, { label: 'Take out one 60', vis: [{ k: 'rows', rows: [['105 min', '?', 'take out the 60s'], ['60 min', '1 h', 'one whole hour'], ['45 min left', '0.75 h', 'three quarters']] }] }, { label: 'Join them', vis: [{ k: 'rows', rows: [['60 min', '1 h', 'one whole hour'], ['45 min left', '0.75 h', 'three quarters'], ['105 min', '1.75 h', '1 + 0.75']] }, { k: 'pie', min: 45 }] }]
+            },
+            {
+                title: 'Tenths of an hour', body: 'Cut one hour into <strong>ten equal parts</strong>. Each part is one tenth of an hour, or <strong>0.1 hours</strong>.',
+                learn: '0.1 hours = <strong>6 minutes</strong>, because 60 ÷ 10 = 6. So 0.3 hours is 3 × 6 = 18 minutes.',
+                book: 'Draw the bar of ten parts. Write: <strong>0.1 h = 6 min</strong>. You will need this on the Second floor.',
+                stages: [{ vis: [{ k: 'bar10', n: 1 }] }, { label: 'Shade three tenths', vis: [{ k: 'bar10', n: 3 }] }]
+            }
+        ],
+        floors: {
+            entry: [
+                qToMin(0.5, '½', 'How many minutes is', { hints: ['Half means two equal parts.', { t: 'Half of the clock face is shaded.', vis: { k: 'pie', min: 30 } }, 'Half of 60 is ?'], sol: ['1 hour = 60 minutes', 'Half of 60 = 30 minutes'] }),
+                qToMin(0.25, '¼', 'How many minutes is', { hints: ['A quarter means four equal parts.', { t: 'One quarter of the clock face is shaded.', vis: { k: 'pie', min: 15 } }, '60 ÷ 4 = ?'], sol: ['1 hour = 60 minutes', '60 ÷ 4 = 15 minutes'] }),
+                qToMin(0.75, '¾', 'How many minutes is', { hints: ['Three quarters is three lots of a quarter.', { t: 'Three quarters of the clock face are shaded.', vis: { k: 'pie', min: 45 } }, '15 + 15 + 15 = ?'], sol: ['One quarter of an hour = 15 minutes', '3 × 15 = 45 minutes'] }),
+                qNum({ p: 'How many <strong>quarter hours</strong> fit into one whole hour?', ans: 4, unit: 'quarters', vis: [{ k: 'pie', min: 15 }], book: 'Draw a clock face and cut it into quarters.', hints: ['A quarter of an hour is 15 minutes.', 'Count in 15s until you reach 60: 15, 30, 45, 60.'], sol: ['15, 30, 45, 60', 'That is 4 jumps, so 4 quarters make one hour'] }),
+                qNum({ p: 'A trip takes ' + N('1 hour 15 minutes') + '. How many minutes is that altogether?', ans: 75, unit: 'minutes', book: 'Write in your book: 1 h 15 min = ___ min', hints: ['One hour is 60 minutes.', '60 + 15 = ?'], sol: ['1 hour = 60 minutes', '60 + 15 = 75 minutes'], diag: v => v === 115 ? 'One hour is 60 minutes, not 100 minutes. Work out 60 + 15.' : null }),
+                qToMin(1.5, '1½', 'How many minutes is', { hints: ['Split it into 1 whole hour and half an hour.', '1 hour is 60 minutes. Half an hour is 30 minutes.', '60 + 30 = ?'], sol: ['1 hour = 60 minutes', 'Half an hour = 30 minutes', '60 + 30 = 90 minutes'] }),
+                qChoice(N('45 minutes') + ' is what fraction of an hour?', ['one quarter', 'one half', 'three quarters'], 2, { vis: [{ k: 'pie', min: 45 }], book: 'Draw the clock face and shade 45 minutes.', hints: ['Count the shaded quarters on the clock face.', '15 + 15 + 15 = 45. That is three lots of a quarter.'], sol: ['One quarter of an hour = 15 minutes', '45 = 3 × 15', '45 minutes is three quarters of an hour'], why: ['One quarter of an hour is 15 minutes.', 'One half of an hour is 30 minutes.', null] }),
+                qNum({ p: 'Lunch lasts <strong>half an hour</strong>. Recess lasts <strong>a quarter of an hour</strong>. How many minutes of break is that altogether?', ans: 45, unit: 'minutes', vis: [{ k: 'pie', min: 30 }, { k: 'pie', min: 15 }], book: 'Write each break in minutes, then add them.', hints: ['Half an hour is 30 minutes.', 'A quarter of an hour is 15 minutes.', '30 + 15 = ?'], sol: ['Half an hour = 30 minutes', 'A quarter of an hour = 15 minutes', '30 + 15 = 45 minutes'] }),
+                qChoice('Which is the same as ' + N('150 minutes') + '?', ['1½ hours', '2 hours', '2½ hours'], 2, { book: 'Count on in 60s in your book: 60, 120 ...', hints: ['How many whole 60s fit into 150?', '60 + 60 = 120. There are 30 minutes left over.'], sol: ['60 + 60 = 120 minutes = 2 hours', '150 − 120 = 30 minutes = half an hour', '150 minutes = 2½ hours'], why: ['1½ hours is 60 + 30 = 90 minutes.', '2 hours is 120 minutes. There are 30 minutes still left over.', null] })
+            ],
+            first: [
+                qToMin(0.5, '0.5'), qToMin(0.25, '0.25'), qToMin(0.75, '0.75'), qToMin(1.5, '1.5'), qToMin(2.25, '2.25'), qToMin(3.75, '3.75'),
+                qMinToDec(90), qMinToDec(105), qMinToDec(150), qMinToDec(195),
+                qTime({ p: 'A film runs for ' + N('1.75 hours') + '. It starts at ' + N('14:30') + '. What time does it finish? Answer in 24-hour time.', ans: T('14:30') + 105, fmt: '24', book: 'Change 1.75 hours into hours and minutes first.', hints: ['1.75 hours is 1 hour and three quarters of an hour.', 'Three quarters of an hour is 45 minutes. So add 1 hour 45 minutes.', '14:30 + 1 hour = 15:30. Then 30 minutes takes you to 16:00.'], sol: ['1.75 h = 1 h 45 min', '14:30 + 1 h = 15:30', '15:30 + 30 min = 16:00', '16:00 + 15 min = 16:15'], diag: v => v === T('14:30') + 135 ? 'You added 1 hour 75 minutes. 0.75 of an hour is 45 minutes, not 75.' : null })
+            ],
+            second: [
+                qToMin(0.1, '0.1'), qToMin(0.2, '0.2'), qToMin(1.7, '1.7'),
+                qToMin(0.35, '0.35', 'How many minutes is', { hints: ['To change hours into minutes, multiply by 60.', '0.35 × 60 is the same as 35 hundredths of 60. One tenth of 60 is 6.', '0.3 of an hour is 18 minutes. 0.05 of an hour is 3 minutes.'], sol: ['0.3 × 60 = 18 minutes', '0.05 × 60 = 3 minutes', '18 + 3 = 21 minutes'] }),
+                qToMin(2 / 3, '⅔', 'How many minutes is', { hints: ['Find one third of 60 minutes first.', '60 ÷ 3 = 20 minutes.', 'Two thirds is 2 × 20.'], sol: ['One third of 60 = 20 minutes', 'Two thirds = 2 × 20 = 40 minutes'] }),
+                qChoice(N('50 minutes') + ' is what fraction of an hour, in simplest form?', ['½', '⅚', '⅗', '⅘'], 1, { book: 'Write 50/60 and simplify it.', hints: ['Write it as 50 out of 60: 50/60.', 'Divide the top and the bottom by 10.'], sol: ['50 minutes out of 60 minutes = 50/60', '50/60 = 5/6'], why: ['One half of an hour is 30 minutes.', null, 'Three fifths of an hour is 36 minutes.', 'Four fifths of an hour is 48 minutes.'] }),
+                qMinToDec(138, 'Write', { hints: ['How many whole 60s fit into 138? Those are the whole hours.', '138 − 120 = 18 minutes left over.', 'One tenth of an hour is 6 minutes. 18 ÷ 6 = 3 tenths.'] }),
+                qNum({ p: 'How many hours is ' + N('0.75 of a day') + '?', ans: 0.75 * 24, unit: 'hours', book: 'Write: 1 day = 24 hours. Then find three quarters of it.', hints: ['One day is 24 hours.', 'One quarter of 24 is 6.', 'Three quarters is 3 × 6.'], sol: ['1 day = 24 hours', 'One quarter of 24 = 6 hours', '3 × 6 = 18 hours'], diag: v => v === 45 ? 'That is three quarters of 60. A day has 24 hours, so find three quarters of 24.' : null }),
+                qNum({ p: 'How many seconds is ' + N('2.5 minutes') + '?', ans: 150, unit: 'seconds', book: 'Write: 1 minute = 60 seconds.', hints: ['One minute is 60 seconds, so 2 minutes is 120 seconds.', 'Half a minute is 30 seconds.'], sol: ['2 × 60 = 120 seconds', '0.5 × 60 = 30 seconds', '120 + 30 = 150 seconds'], diag: v => v === 250 ? 'One minute is 60 seconds, not 100 seconds.' : null }),
+                qDurX({ p: 'A song lasts ' + N('4.6 minutes') + '. Write this in minutes and seconds.', units: ['min', 's'], ans: 4 * 60 + 36, book: 'Split 4.6 into the whole minutes and the decimal part.', hints: ['The 4 is the whole minutes.', 'One tenth of a minute is 6 seconds.', '0.6 is 6 tenths. 6 × 6 = ?'], sol: ['Whole minutes: 4', '0.1 minute = 6 seconds', '0.6 minute = 6 × 6 = 36 seconds', '4.6 minutes = 4 min 36 s'], diag: v => v === 4 * 60 + 6 || v === 5 * 60 ? 'The .6 is not 6 seconds or 60 seconds. It is 6 tenths of a minute.' : null }),
+                qNum({ p: 'A cyclist rides at ' + N('24 km/h') + ' for ' + N('50 minutes') + '. How far does she ride?', ans: 24 * 50 / 60, unit: 'km', book: 'Write 50 minutes as a fraction of an hour first.', hints: ['50 minutes is 50/60 of an hour, which simplifies to 5/6.', 'One sixth of 24 km is 4 km.', 'Five sixths is 5 × 4.'], sol: ['50 min = 5/6 of an hour', '24 ÷ 6 = 4 km', '5 × 4 = 20 km'] }),
+                qDurX({ p: 'How long is ' + N('1,000 seconds') + ' in minutes and seconds?', units: ['min', 's'], ans: 1000, book: 'Count how many whole 60s fit into 1,000.', hints: ['10 minutes is 600 seconds.', '6 more minutes is 360 seconds. 600 + 360 = 960.', '1,000 − 960 = 40 seconds left over.'], sol: ['16 × 60 = 960 seconds', '1,000 − 960 = 40 seconds', '1,000 seconds = 16 min 40 s'], diag: v => v === 10 * 60 ? 'One minute is 60 seconds, not 100 seconds. Count in 60s.' : null })
+            ]
+        },
+        deeper: {
+            topic: 'What If Investigations',
+            tasks: [
+                { level: 'Specialising', prompt: 'Imagine a new kind of clock where one hour is split into 100 "new minutes". On this clock, how many new minutes are in half an hour? In a quarter of an hour? In three quarters of an hour? Compare each one with ordinary minutes.', sub: 'Set your answers out in a table. What do you notice?', model: ['Half of 100 is 50, so half an hour is 50 new minutes. A quarter of 100 is 25 new minutes and three quarters is 75 new minutes.', 'On an ordinary clock those are 30, 15 and 45 minutes.', 'I noticed something straight away. 50, 25 and 75 look exactly like the decimals 0.5, 0.25 and 0.75. I was not sure if that was just luck, so I tried one tenth of an hour.', 'One tenth of 100 is 10 new minutes, and the decimal is 0.1, which is the same as 0.10. It matches again.'], box: 'You are <em>specialising</em>. That means you are trying specific examples to gather evidence, looking for a pattern before you make any claims.' },
+                { level: 'Conjecturing', prompt: 'On the 100-minute clock, would writing times as decimals be easier or harder than on an ordinary clock? Write a conjecture. Test it with 2 hours 50 new minutes and 4 hours 75 new minutes.', sub: 'Is the new clock better for everything? Try thirds of an hour too.', model: ['My conjecture: it would be easier, because you could read the decimal straight off the clock. 2 hours 50 new minutes would be 2.50 hours and 4 hours 75 new minutes would be 4.75 hours.', 'I tested whether these are really correct. 50 new minutes out of 100 is one half, and 0.50 is one half. 75 out of 100 is three quarters, and 0.75 is three quarters. Both work.', 'At first I thought this made the new clock better in every way. Then I tried splitting a new hour into thirds. 100 ÷ 3 = 33.333... new minutes, which never stops. On an ordinary clock a third of an hour is exactly 20 minutes.', 'So the new clock is easier for decimals and harder for thirds. I think that is one reason we still use 60.'], box: 'You are <em>conjecturing</em>. That means you are making a claim that you believe is true, then testing it to see where it holds and where it breaks.' },
+                { level: 'Generalising', prompt: 'Write a rule that changes ordinary minutes into new minutes. Test your rule with 30, 45, 12 and 6 ordinary minutes.', sub: 'You know that 60 ordinary minutes = 100 new minutes. Does your rule work every time?', model: ['I know that 60 ordinary minutes = 100 new minutes. My first rule was "add 40", because 60 + 40 = 100.', 'I tested it. 30 + 40 = 70. That is wrong, because half an hour should be 50 new minutes. Adding does not work, so I tried dividing and multiplying instead.', '30 ordinary minutes is half of 60, and 50 is half of 100. I need the same fraction of 100. Rule: divide the ordinary minutes by 60, then multiply by 100.', '30 ÷ 60 × 100 = 50. 45 ÷ 60 × 100 = 75. 12 ÷ 60 × 100 = 20. 6 ÷ 60 × 100 = 10. A quicker version is divide by 6, then multiply by 10. This is exactly what we do when we write minutes as a decimal of an hour.'], box: 'You are <em>generalising</em>. That means you are making a rule that works every time, not just for the examples you tried.' }
+            ]
+        }
+    }
+];
+
+// Two periods only: keep each floor to 8 questions (indexes removed from the full bank above)
+const DROP = {
+    'clocks': { entry: [4, 9], first: [3, 5], second: [5, 8] },
+    'number-line': { first: [1, 6] },
+    'timetables': { entry: [3], first: [3, 6], second: [4, 6] },
+    'decimals': { entry: [5], first: [6, 8, 10], second: [3, 5] },
+    'minutes': { entry: [0], first: [0, 3, 8], second: [1, 3, 7, 11] }
+};
+ACTIVITIES.forEach(a => Object.keys(DROP[a.id] || {}).forEach(f => { a.floors[f] = a.floors[f].filter((q, i) => DROP[a.id][f].indexOf(i) < 0); }));
+const FLOOR_INFO = {
+    'clocks': { entry: 'Read clocks, am and pm, first 24-hour times', first: 'Swap between 12-hour and 24-hour time', second: 'Midnight, adding time and time zones' },
+    'number-line': { entry: 'Jumps of hours and half-hours', first: 'Bridging through the hour', second: 'Past midnight, seconds and time zones' },
+    'timetables': { entry: 'A zoo timetable in 12-hour time', first: 'A flight timetable in 24-hour time', second: 'Midnight flights, delays and time zones' },
+    'decimals': { entry: 'Halves and quarters of an hour', first: 'Hours and minutes as decimals', second: 'Tenths of an hour, pay and speed' },
+    'minutes': { entry: 'Halves and quarters in minutes', first: 'Decimals of an hour in minutes', second: 'Tenths, thirds and seconds' }
+};
+
+
+// ===== Interface =====
+const app = document.getElementById('app');
+const FLOORS = [{ id: 'entry', name: 'Entry' }, { id: 'first', name: 'First floor' }, { id: 'second', name: 'Second floor' }];
+const STORE = 'time-unit-v1';
+const HOME_LINK = '<a class="btn btn-ghost back-link" href="../../index.html" style="text-decoration:none;"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg> Back to Interactives</a>';
+
+const ICON = {
+    book: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 10c6-3 12-3 18 1v28c-6-4-12-4-18-1z" fill="#fff" stroke="#9a7400" stroke-width="3" stroke-linejoin="round"/><path d="M42 10c-6-3-12-3-18 1v28c6-4 12-4 18-1z" fill="#fff" stroke="#9a7400" stroke-width="3" stroke-linejoin="round"/><path d="M11 17h8M11 23h8M29 17h8M29 23h8" stroke="#e0b030" stroke-width="2.5" stroke-linecap="round"/></svg>',
+    bulb: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5c-8 0-14 6-14 13 0 5 3 9 6 11v5h16v-5c3-2 6-6 6-11 0-7-6-13-14-13z" fill="#fff" stroke="#2a9d94" stroke-width="3" stroke-linejoin="round"/><path d="M18 40h12M20 45h8" stroke="#2a9d94" stroke-width="3" stroke-linecap="round"/><path d="M24 14v8M20 18h8" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="3" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>',
+    unlock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="3" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 7.5-2" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+    tick: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#27AE60"/><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    cross: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#E74C3C"/><path d="M8 8l8 8M16 8l-8 8" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
+    back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    sun: '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="7" fill="#FFD93D" stroke="#e0b030" stroke-width="2"/><g stroke="#e0b030" stroke-width="2.5" stroke-linecap="round"><path d="M16 2v4M16 26v4M2 16h4M26 16h4M6 6l3 3M23 23l3 3M26 6l-3 3M9 23l-3 3"/></g></svg>',
+    moon: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M22 20A11 11 0 0 1 12 5a11 11 0 1 0 15 14 10 10 0 0 1-5 1z" fill="#9B5DE5" stroke="#5b3fa6" stroke-width="2" stroke-linejoin="round"/><circle cx="24" cy="7" r="1.5" fill="#5b3fa6"/><circle cx="28" cy="13" r="1" fill="#5b3fa6"/></svg>'
+};
+
+const HUB_PIC = {
+    clocks: '<svg viewBox="0 0 240 120"><circle cx="60" cy="60" r="44" fill="#fff" stroke="#2D3436" stroke-width="5"/><path d="M60 60V28" stroke="#3498DB" stroke-width="5" stroke-linecap="round"/><path d="M60 60l-20 14" stroke="#2D3436" stroke-width="7" stroke-linecap="round"/><circle cx="60" cy="60" r="5" fill="#2D3436"/><rect x="124" y="36" width="104" height="48" rx="10" fill="#2D3436"/><text x="176" y="70" text-anchor="middle" font-family="Space Mono, monospace" font-weight="700" font-size="30" fill="#9ff3ea">20:00</text></svg>',
+    line: '<svg viewBox="0 0 240 120"><path d="M16 84h208" stroke="#2D3436" stroke-width="5" stroke-linecap="round"/><path d="M30 80Q55 30 80 80" fill="none" stroke="#2a9d94" stroke-width="4"/><path d="M80 80Q130 10 180 80" fill="none" stroke="#3498DB" stroke-width="4"/><path d="M180 80Q195 46 210 80" fill="none" stroke="#9B5DE5" stroke-width="4"/><g fill="#2D3436"><circle cx="30" cy="84" r="6"/><circle cx="80" cy="84" r="6"/><circle cx="180" cy="84" r="6"/><circle cx="210" cy="84" r="6"/></g><text x="130" y="36" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="18" fill="#2176ae">+2 h</text></svg>',
+    table: '<svg viewBox="0 0 240 120"><rect x="24" y="14" width="192" height="92" rx="10" fill="#fff" stroke="#2D3436" stroke-width="4"/><rect x="24" y="14" width="192" height="24" rx="10" fill="#2D3436"/><path d="M24 60h192M24 83h192M88 38v68M152 38v68" stroke="#dfe6e9" stroke-width="3"/><rect x="92" y="63" width="56" height="17" rx="4" fill="#ffe27a"/><g font-family="Space Mono, monospace" font-weight="700" font-size="13" fill="#2D3436"><text x="120" y="54" text-anchor="middle">06:30</text><text x="120" y="76" text-anchor="middle">09:15</text><text x="120" y="99" text-anchor="middle">13:50</text><text x="184" y="54" text-anchor="middle">08:40</text><text x="184" y="76" text-anchor="middle">11:20</text><text x="184" y="99" text-anchor="middle">16:05</text></g></svg>',
+    pie: '<svg viewBox="0 0 240 120"><circle cx="62" cy="60" r="44" fill="#fff" stroke="#2D3436" stroke-width="5"/><path d="M62 60V16A44 44 0 1 1 18 60z" fill="#4ECDC4" opacity="0.6"/><path d="M62 16v88M18 60h88" stroke="#2D3436" stroke-width="2" stroke-dasharray="5 5"/><text x="172" y="56" text-anchor="middle" font-family="Space Mono, monospace" font-weight="700" font-size="34" fill="#2D3436">0.75</text><text x="172" y="84" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="18" fill="#636E72">of an hour</text></svg>',
+    tri: '<svg viewBox="0 0 240 120"><g font-family="Fredoka, sans-serif" font-weight="700" font-size="24" text-anchor="middle"><rect x="10" y="38" width="62" height="44" rx="12" fill="#FFF1B8" stroke="#e0b030" stroke-width="3"/><text x="41" y="69" fill="#2D3436">½</text><rect x="89" y="38" width="62" height="44" rx="12" fill="#E4D7FA" stroke="#9B5DE5" stroke-width="3"/><text x="120" y="68" fill="#2D3436">0.5</text><rect x="168" y="38" width="62" height="44" rx="12" fill="#d7f5f1" stroke="#2a9d94" stroke-width="3"/><text x="199" y="68" fill="#2D3436">30</text><text x="80" y="68" fill="#636E72">=</text><text x="160" y="68" fill="#636E72">=</text></g></svg>'
+};
+
+const BUILDING = '<svg viewBox="0 0 220 230" role="img" aria-label="A building with three floors"><path d="M20 62L110 14l90 48z" fill="#2D3436"/><rect x="30" y="62" width="160" height="50" fill="#9B5DE5"/><rect x="30" y="112" width="160" height="50" fill="#FF6B6B"/><rect x="30" y="162" width="160" height="56" fill="#4ECDC4"/><g fill="#fff" opacity="0.85"><rect x="37" y="74" width="14" height="26" rx="3"/><rect x="169" y="74" width="14" height="26" rx="3"/><rect x="37" y="124" width="14" height="26" rx="3"/><rect x="169" y="124" width="14" height="26" rx="3"/><rect x="37" y="176" width="14" height="26" rx="3"/></g><rect x="150" y="178" width="28" height="40" rx="3" fill="#2D3436"/><circle cx="172" cy="199" r="2.5" fill="#FFD93D"/><g font-family="Fredoka, sans-serif" font-weight="700" font-size="15" text-anchor="middle"><text x="110" y="92" fill="#fff">Second floor</text><text x="110" y="142" fill="#2D3436">First floor</text><text x="98" y="196" fill="#2D3436">Entry</text></g><path d="M10 219h200" stroke="#2D3436" stroke-width="5" stroke-linecap="round"/></svg>';
+
+// ---------- State ----------
+const S = { route: 'hub', tab: 'learn', teach: 0, stage: 0, pos: {}, summary: false, lisc: false };
+let cur = null;
+let PROG = {};
+try { PROG = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { PROG = {}; }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(PROG)); } catch (e) { /* storage not available */ } }
+const act = () => ACTIVITIES.find(a => a.id === S.route);
+function prog(id, f) {
+    PROG[id] = PROG[id] || {};
+    const n = ACTIVITIES.find(a => a.id === id).floors[f].length;
+    if (!Array.isArray(PROG[id][f]) || PROG[id][f].length !== n) PROG[id][f] = new Array(n).fill(null);
+    return PROG[id][f];
+}
+const floorDone = (id, f) => prog(id, f).every(x => x);
+const deeperOpen = id => PROG._all || floorDone(id, 'first') || floorDone(id, 'second');
+
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// Wrap numbers in the monospaced number style, leaving tags and existing spans alone
+function mono(html, cls) {
+    return String(html).split(/(<span class="n">.*?<\/span>|<[^>]+>)/).map(part =>
+        part.charAt(0) === '<' ? part : part.replace(/\$?\d+(?:,\d{3})*(?:[:.]\d+)*(?:\s?(?:am|pm)\b)?/g, (m, off, str) => str.substr(off + m.length, 5) === '-hour' ? m : '<span class="' + (cls || 'n') + '">' + m + '</span>')
+    ).join('');
+}
+
+// ---------- Visuals ----------
+const P = (cx, cy, r, deg) => { const a = (deg - 90) * Math.PI / 180; return [(cx + r * Math.cos(a)).toFixed(1), (cy + r * Math.sin(a)).toFixed(1)]; };
+function face(inner) {
+    let s = '<svg class="clock" viewBox="0 0 220 220" role="img" aria-label="Clock face"><circle cx="110" cy="110" r="103" fill="#fff" stroke="#2D3436" stroke-width="6"/>' + (inner.under || '');
+    for (let i = 0; i < 60; i++) { const a = P(110, 110, 97, i * 6), b = P(110, 110, i % 5 ? 92 : 87, i * 6); s += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#2D3436" stroke-width="' + (i % 5 ? 1.5 : 3.5) + '"/>'; }
+    s += (inner.over || '');
+    for (let i = 1; i <= 12; i++) { const p = P(110, 110, 71, i * 30); s += '<text class="clock-num" x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central">' + i + '</text>'; }
+    return s + (inner.top || '') + '</svg>';
+}
+function clockSVG(v) {
+    const m = v.t % 60, h = (v.t / 60) % 12;
+    const mh = P(110, 110, 80, m * 6), hh = P(110, 110, 50, h * 30);
+    const over = '<line x1="110" y1="110" x2="' + hh[0] + '" y2="' + hh[1] + '" stroke="#2D3436" stroke-width="9" stroke-linecap="round"/><line x1="110" y1="110" x2="' + mh[0] + '" y2="' + mh[1] + '" stroke="#3498DB" stroke-width="5.5" stroke-linecap="round"/>';
+    return face({ over: over, top: '<circle cx="110" cy="110" r="7" fill="#2D3436"/>' }) + (v.cap ? '<div class="vis-cap">' + (v.icon ? ICON[v.icon] : '') + '<strong>' + v.cap + '</strong></div>' : '');
+}
+const PIE_CAP = { 15: '15 min = ¼ = 0.25', 30: '30 min = ½ = 0.5', 45: '45 min = ¾ = 0.75', 60: '60 min = 1 whole hour' };
+function pieSVG(v, ctx) {
+    let under;
+    if (v.min >= 60) under = '<circle cx="110" cy="110" r="100" fill="#4ECDC4" opacity="0.45"/>';
+    else { const e = P(110, 110, 100, v.min * 6); under = '<path d="M110 110V10A100 100 0 ' + (v.min > 30 ? 1 : 0) + ' 1 ' + e[0] + ' ' + e[1] + 'z" fill="#4ECDC4" opacity="0.5"/>'; }
+    under += '<path d="M110 10v200M10 110h200" stroke="#2D3436" stroke-width="2" stroke-dasharray="6 6"/>';
+    return face({ under: under }) + (ctx === 'teach' && PIE_CAP[v.min] ? '<div class="vis-cap"><strong>' + PIE_CAP[v.min] + '</strong></div>' : '');
+}
+function stripHTML(v) {
+    const st = v.stage === undefined ? 2 : v.stage, mark = v.t === undefined ? -1 : Math.floor(mod(v.t, 1440) / 60);
+    let s = '<div class="strip stage-' + st + '"><div class="strip-band"><span class="am">am: midnight to midday</span><span class="pm">pm: midday to midnight</span></div><div class="strip-cells">';
+    for (let h = 0; h < 24; h++) s += '<div class="cell ' + (h < 12 ? 'am' : 'pm') + (h === mark ? ' mark' : '') + '"><b>' + (h % 12 || 12) + '</b><i>' + pad(h) + '</i></div>';
+    s += '</div><div class="strip-ends"><span>midnight</span><span>midday</span><span>midnight</span></div>';
+    if (st === 2) s += '<div class="strip-key">Top number: the hour on a 12-hour clock. Bottom number: the same hour in 24-hour time.</div>';
+    return s + '</div>';
+}
+const ARC = ['#2a9d94', '#3498DB', '#9B5DE5', '#e0762f'];
+function lineSVG(v) {
+    const n = v.pts.length, x0 = 110, x1 = 890, y = 150;
+    const xs = v.pts.map((_, i) => n === 1 ? x0 : x0 + (x1 - x0) * i / (n - 1));
+    let s = '<svg class="nline" viewBox="0 0 1000 215" role="img" aria-label="Empty number line"><line x1="30" y1="' + y + '" x2="970" y2="' + y + '" stroke="#2D3436" stroke-width="5" stroke-linecap="round"/>';
+    v.jumps.forEach((j, i) => {
+        if (i >= v.show) return;
+        const a = xs[i], b = xs[i + 1], mid = (a + b) / 2, w = j.length * 15 + 26;
+        s += '<path d="M' + a + ' ' + (y - 9) + 'Q' + mid + ' ' + (y - 150) + ' ' + b + ' ' + (y - 9) + '" fill="none" stroke="' + ARC[i % 4] + '" stroke-width="5" stroke-linecap="round"/>';
+        s += '<rect x="' + (mid - w / 2) + '" y="' + (y - 128) + '" width="' + w + '" height="40" rx="20" fill="#fff" stroke="' + ARC[i % 4] + '" stroke-width="3"/><text class="jl" x="' + mid + '" y="' + (y - 107) + '" text-anchor="middle" dominant-baseline="central" fill="' + ARC[i % 4] + '">' + j + '</text>';
+    });
+    v.pts.forEach((p, i) => {
+        if (!(i === 0 || i === n - 1 || i <= v.show)) return;
+        s += '<line x1="' + xs[i] + '" y1="' + (y - 14) + '" x2="' + xs[i] + '" y2="' + (y + 14) + '" stroke="#2D3436" stroke-width="5" stroke-linecap="round"/><text x="' + xs[i] + '" y="' + (y + 46) + '" text-anchor="middle">' + p + '</text>';
+    });
+    return s + '</svg>' + (v.total ? '<div class="nline-total">Total: <strong>' + v.total + '</strong></div>' : '');
+}
+function tableHTML(v) {
+    const tb = TABLES[v.id], hl = v.hl || {};
+    const rowsHL = Array.isArray(hl) ? hl : (hl.rows || (hl.row ? [hl.row] : []));
+    const cols = hl.cols || (hl.col !== undefined ? [hl.col] : []);
+    let s = '<table class="tt"><caption>' + tb.title + '</caption><thead><tr>' + tb.head.map(h => '<th>' + h + '</th>').join('') + '</tr></thead><tbody>';
+    tb.rows.forEach(r => {
+        const on = rowsHL.indexOf(r[0]) >= 0;
+        s += '<tr class="' + (on ? 'hl' : '') + '">' + r.map((c, i) => {
+            const cls = (on && hl.cells && hl.cells.indexOf(i) >= 0) || (on && Array.isArray(hl) && i === 1) ? 'hlc' : (cols.indexOf(i) >= 0 ? 'hlcol' : '');
+            return '<td class="' + cls + '">' + c + '</td>';
+        }).join('') + '</tr>';
+    });
+    return s + '</tbody></table>' + (tb.note ? '<div class="tt-note">' + tb.note + '</div>' : '');
+}
+function rowsHTML(v) {
+    return '<div class="rows">' + v.rows.map(r => '<div class="row"><span class="pill">' + r[0] + '</span><span class="arrow">' + (v.eq ? '=' : '→') + '</span><span class="pill b">' + r[1] + '</span>' + (r[2] ? (v.eq ? '<span class="arrow">=</span><span class="pill b">' + r[2] + '</span>' : '<span class="why">' + r[2] + '</span>') : '') + '</div>').join('') + '</div>';
+}
+function bubblesHTML(v) {
+    return '<div class="bubbles">' + v.items.map(b => '<div class="bubble ' + (b.tone || '') + '"><div class="who">' + (b.tone === 'good' ? ICON.tick : b.tone === 'bad' ? ICON.cross : '') + b.who + '</div><div class="say">' + b.text + '</div></div>').join('') + '</div>';
+}
+function bar10HTML(v, ctx) {
+    let s = '<div class="bar10">';
+    for (let i = 0; i < 10; i++) s += '<div class="' + (i < v.n ? 'on' : '') + '"></div>';
+    s += '</div><div class="bar10-lab">' + [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map(x => '<span>' + x + '</span>').join('') + '</div>';
+    if (ctx === 'teach') s += '<div class="vis-cap"><strong>One hour cut into 10 parts. ' + r3(v.n / 10) + ' h = ' + v.n * 6 + ' min</strong></div>';
+    return s;
+}
+function lcdHTML(v) { const m = /^(\S+)\s*(am|pm)?$/i.exec(v.s); return '<div class="lcd"><span>' + m[1] + '</span>' + (m[2] ? '<small>' + m[2] + '</small>' : '') + '</div>'; }
+function visOne(v, ctx) {
+    switch (v.k) {
+        case 'clock': return clockSVG(v);
+        case 'pie': return pieSVG(v, ctx);
+        case 'strip': return stripHTML(v);
+        case 'line': return lineSVG(v);
+        case 'table': return tableHTML(v);
+        case 'rows': return rowsHTML(v);
+        case 'bubbles': return bubblesHTML(v);
+        case 'bar10': return bar10HTML(v, ctx);
+        case 'digital': return lcdHTML(v);
+    }
+    return '';
+}
+const visRow = (arr, ctx) => arr && arr.length ? '<div class="vis-row">' + arr.map(v => '<div class="vis-item vis-' + v.k + (v.k === 'table' && TABLES[v.id].head.length < 4 ? ' narrow' : '') + '">' + visOne(v, ctx) + '</div>').join('') + '</div>' : '';
+
+// ---------- Views ----------
+function hubView() {
+    const cards = ACTIVITIES.map(a => '<button class="card act-card" data-a="go" data-id="' + a.id + '"><div class="pic">' + HUB_PIC[a.icon] + '</div><div class="lesson">' + a.lesson + ' · Activity ' + a.num + '</div><h3>' + a.title + '</h3><p>' + a.blurb + '</p><div class="mini-floors" title="Floors finished">' + FLOORS.map(f => '<span class="' + f.id + (floorDone(a.id, f.id) ? ' done' : '') + '"></span>').join('') + '</div></button>').join('');
+    const rows = ACTIVITIES.map(a => '<tr><td>' + a.num + '. ' + a.title + '<br>' + a.lesson + '</td>' + FLOORS.map(f => '<td>' + FLOOR_INFO[a.id][f.id] + '</td>').join('') + '</tr>').join('');
+    return '<div class="wrap"><header class="hub-head"><div><div class="eyebrow">Year 5 Maths · Non-spatial measure</div><h1>Time: 12-hour and 24-hour</h1><p>Five self-paced activities over two periods. Work in your book, then check your answers here.</p></div>' + HOME_LINK + '</header>' +
+        '<section class="card floors-card"><div>' + BUILDING + '</div><div><h2>Choose your floor</h2><p>Every activity has three floors. It does not matter which floor you enter on. What matters is where you finish. You can change floors at any time.</p><div class="floor-chips"><span class="chip entry">Entry</span><span class="chip first">First floor</span><span class="chip second">Second floor</span></div><p style="margin-top:0.9rem;"><strong>Period 1:</strong> Activities 1, 2 and 3. <strong>Period 2:</strong> Activities 4 and 5. Finished a floor early? Climb to the next floor or try Go Deeper.</p></div></section>' +
+        '<section class="act-grid">' + cards + '</section>' +
+        '<details class="teacher"><summary>Teacher notes</summary><p>Each activity opens with a short set of Learn cards, then the same idea at three levels. As a guide, Entry draws on Year 2 to 3 content, First floor on Year 4 to 5 content (the Stage 3 target, MA3-NSM-02) and Second floor on Year 6 to 8 content. Students never see year labels.</p><table><thead><tr><th>Activity</th><th>Entry</th><th>First floor</th><th>Second floor</th></tr></thead><tbody>' + rows + '</tbody></table><ul><li>Each floor has 8 questions. Students work in their books and type answers in to check.</li><li>A hint appears after two wrong tries. "Show me how" appears after three wrong tries, or once the hints are used.</li><li>Green dots are questions solved independently. Yellow dots are questions where the worked solution was shown.</li><li>Go Deeper unlocks when a student finishes the First floor or the Second floor of that activity.</li><li>Progress is saved in this browser on this device only.</li></ul><div class="btn-row"><button class="btn btn-ghost" data-a="unlock-all">' + (PROG._all ? 'Go Deeper is unlocked on this device' : 'Unlock every Go Deeper on this device') + '</button><button class="btn btn-ghost" data-a="reset">Clear all progress on this device</button></div></details></div>';
+}
+
+function chrome(a, inner) {
+    const tabs = '<button class="tab learn' + (S.tab === 'learn' ? ' on' : '') + '" data-a="tab" data-t="learn">Learn<small>Start here</small></button>' +
+        FLOORS.map(f => '<button class="tab ' + f.id + (S.tab === f.id ? ' on' : '') + '" data-a="tab" data-t="' + f.id + '">' + f.name + '<small>' + FLOOR_INFO[a.id][f.id] + '</small></button>').join('') +
+        '<button class="tab deeper' + (S.tab === 'deeper' ? ' on' : '') + '" data-a="tab" data-t="deeper">' + (deeperOpen(a.id) ? ICON.unlock : ICON.lock) + ' Go Deeper<small>' + (deeperOpen(a.id) ? 'Think like a mathematician' : 'Finish First or Second floor') + '</small></button>';
+    const lisc = '<div class="learning-card"><h2 data-a="lisc">Learning Intention &amp; Success Criteria <span class="toggle-icon" id="learningToggle" style="transform:rotate(' + (S.lisc ? 180 : 0) + 'deg)">&#9660;</span></h2><div class="learning-content' + (S.lisc ? ' open' : '') + '" id="learningContent"><h3>Learning Intention</h3><p>' + a.li + '</p><h3>Success Criteria</h3><ul class="success-criteria">' + a.sc.map(x => '<li>' + x + '</li>').join('') + '</ul></div></div>';
+    return '<div class="wrap"><div class="topbar"><button class="btn btn-ghost" data-a="go" data-id="hub">' + ICON.back + ' All activities</button><h2><small>' + a.lesson + ' · Activity ' + a.num + ' of ' + ACTIVITIES.length + '</small>' + a.title + '</h2></div><nav class="tabs">' + tabs + '</nav>' + lisc + '<main>' + inner + '</main></div>';
+}
+
+function teachView(a) {
+    const c = a.teach[S.teach], last = S.teach === a.teach.length - 1, st = c.stages[S.stage], more = S.stage < c.stages.length - 1;
+    const dots = a.teach.map((_, i) => '<button class="dot' + (i === S.teach ? ' active' : i < S.teach ? ' visited' : '') + '" data-a="teach-dot" data-i="' + i + '" aria-label="Card ' + (i + 1) + '"></button>').join('');
+    let nav = '<button class="btn btn-ghost" data-a="teach-back"' + (S.teach === 0 && S.stage === 0 ? ' disabled' : '') + '>Back</button><div class="dots">' + dots + '</div>';
+    if (more) nav += '<button class="btn btn-reveal" data-a="teach-next">' + c.stages[S.stage + 1].label + '</button>';
+    else if (!last) nav += '<button class="btn btn-primary" data-a="teach-next">Next card</button>';
+    else nav += '<div class="choose"><b>Now choose your floor:</b>' + FLOORS.map(f => '<button class="floor-btn ' + f.id + '" data-a="tab" data-t="' + f.id + '">' + f.name + '</button>').join('') + '</div>';
+    const choose = '';
+    return '<section class="card teach"><div class="teach-pic">' + visRow(st.vis, 'teach') + '</div><div class="teach-txt"><div class="eyebrow">Learn · Card ' + (S.teach + 1) + ' of ' + a.teach.length + '</div><h3>' + c.title + '</h3><p class="body">' + c.body + '</p><div class="note learn">' + ICON.bulb + '<div><b class="lab">Learn this</b>' + c.learn + '</div></div><div class="note book">' + ICON.book + '<div><b class="lab">In your book</b>' + c.book + '</div></div></div><div class="teach-nav">' + nav + '</div>' + choose + '</section>';
+}
+
+function inputHTML(q, done) {
+    const dis = done ? ' disabled' : '';
+    if (q.type === 'choice') return '<div class="opts">' + q.opts.map((o, i) => '<button class="opt' + (done && i === q.ans ? ' right' : cur.wrongOpts.indexOf(i) >= 0 ? ' wrong' : '') + '" data-a="opt" data-i="' + i + '"' + (done || cur.wrongOpts.indexOf(i) >= 0 ? ' disabled' : '') + '>' + mono(o) + '</button>').join('') + '</div>';
+    if (q.type === 'time24') return '<input class="ans-in lg" id="in1" inputmode="numeric" autocomplete="off" placeholder="00:00" maxlength="5" aria-label="24-hour time" value="' + (done ? q.show : '') + '"' + dis + '>';
+    if (q.type === 'clock') return '<input class="ans-in lg" id="in1" inputmode="numeric" autocomplete="off" placeholder="0:00" maxlength="5" aria-label="Time" value="' + (done ? q.show : '') + '"' + dis + '>';
+    if (q.type === 'time12') {
+        const sh = done ? q.show.split(' ') : ['', ''], ap = done ? sh[1] : cur.ampm;
+        return '<input class="ans-in lg" id="in1" inputmode="numeric" autocomplete="off" placeholder="0:00" maxlength="5" aria-label="12-hour time" value="' + sh[0] + '"' + dis + '><div class="seg" role="group" aria-label="am or pm"><button data-a="ampm" data-v="am" class="' + (ap === 'am' ? 'on' : '') + '"' + dis + '>am</button><button data-a="ampm" data-v="pm" class="' + (ap === 'pm' ? 'on' : '') + '"' + dis + '>pm</button></div>';
+    }
+    if (q.type === 'dur') {
+        const names = { h: 'hours', min: 'minutes', s: 'seconds' }, b = Math.floor(q.ans / 60), sm = q.ans % 60;
+        return '<input class="ans-in sm" id="in1" inputmode="numeric" autocomplete="off" aria-label="' + names[q.units[0]] + '" value="' + (done ? b : '') + '"' + dis + '><label for="in1">' + names[q.units[0]] + '</label><input class="ans-in sm" id="in2" inputmode="numeric" autocomplete="off" aria-label="' + names[q.units[1]] + '" value="' + (done ? sm : '') + '"' + dis + '><label for="in2">' + names[q.units[1]] + '</label>';
+    }
+    return (q.prefix ? '<label for="in1" class="n">' + q.prefix + '</label>' : '') + '<input class="ans-in" id="in1" inputmode="decimal" autocomplete="off" aria-label="Answer" value="' + (done ? q.ans : '') + '"' + dis + '>' + (q.unit ? '<label for="in1">' + q.unit + '</label>' : '');
+}
+const solHTML = q => '<div class="sol"><b class="lab">Worked solution</b>' + (q.solVis ? visRow([q.solVis], 'q') : '') + '<div class="sol-steps">' + q.sol.map((s, i) => '<div class="sol-step"><i>' + (i + 1) + '</i><div>' + mono(s) + '</div></div>').join('') + '</div></div>';
+
+function dynHTML(q, st, isLast) {
+    if (st) {
+        const fb = st === 'solo' ? '<div class="fb ok"><strong>Correct.</strong> The answer is ' + mono(q.show) + '.' + (q.note ? ' ' + q.note : '') + (cur.tip ? '<br>' + cur.tip : '') + '</div>'
+            : '<div class="fb helped"><strong>Worked solution shown.</strong> The answer is ' + mono(q.show) + '.' + (q.note ? ' ' + q.note : '') + ' Copy the steps into your book, then try the next one on your own.</div>';
+        return fb + solHTML(q) + '<div class="btn-row"><button class="btn btn-primary" data-a="q-next">' + (isLast ? 'Finish this floor' : 'Next question') + '</button></div>';
+    }
+    const left = q.hints.length - cur.hints;
+    let s = '<div class="btn-row">' + (q.type === 'choice' ? '' : '<button class="btn btn-primary" data-a="q-check">Check answer</button>') + (left > 0 ? '<button class="btn btn-reveal" data-a="q-hint">Show a hint (' + left + ' left)</button>' : '') + (cur.tries >= 3 || left === 0 ? '<button class="btn btn-ghost" data-a="q-reveal">Show me how</button>' : '') + '</div>';
+    if (cur.fb) s += '<div class="fb no">' + cur.fb + '</div>';
+    for (let i = cur.hints - 1; i >= 0; i--) { const h = q.hints[i]; s += '<div class="hint-box"><b class="lab">Hint ' + (i + 1) + '</b>' + mono(h.t || h) + (h.vis ? visRow([h.vis], 'q') : '') + '</div>'; }
+    return s;
+}
+
+function floorView(a) {
+    const f = S.tab, qs = a.floors[f], pr = prog(a.id, f), fl = FLOORS.find(x => x.id === f), key = a.id + '/' + f;
+    if (S.summary) {
+        const solo = pr.filter(x => x === 'solo').length, help = pr.filter(x => x === 'help').length, up = FLOORS[FLOORS.findIndex(x => x.id === f) + 1];
+        return '<section class="card summary q-card ' + f + '"><div class="eyebrow">' + a.title + '</div><h3>' + fl.name + ' finished</h3><p>Well done. Remember, it is where you finish that matters.</p><div class="tally"><div><b>' + solo + '</b>solved on your own</div><div><b>' + help + '</b>with the worked solution</div></div><div class="btn-row">' +
+            (up ? '<button class="btn btn-primary" data-a="tab" data-t="' + up.id + '">Climb to the ' + up.name + '</button>' : '') +
+            (deeperOpen(a.id) ? '<button class="btn btn-teal" data-a="tab" data-t="deeper">' + ICON.unlock + ' Go Deeper</button>' : '') +
+            '<button class="btn btn-ghost" data-a="floor-again">Do this floor again</button><button class="btn btn-ghost" data-a="go" data-id="hub">All activities</button></div></section>';
+    }
+    if (S.pos[key] === undefined) { const nx = pr.findIndex(x => !x); S.pos[key] = nx < 0 ? 0 : nx; }
+    const i = S.pos[key], q = qs[i], st = pr[i];
+    if (!cur || cur.key !== key + '/' + i) cur = { key: key + '/' + i, tries: 0, hints: 0, ampm: null, fb: '', tip: '', wrongOpts: [] };
+    const dots = qs.map((_, j) => '<button class="qdot ' + (pr[j] || '') + (j === i ? ' cur' : '') + '" data-a="q-dot" data-i="' + j + '" aria-label="Question ' + (j + 1) + '">' + (j + 1) + '</button>').join('');
+    return '<div class="q-head"><span class="floor-badge ' + f + '">' + fl.name + '</span><span class="q-count">Question ' + (i + 1) + ' of ' + qs.length + '</span><div class="dots">' + dots + '</div></div>' +
+        '<div class="q-grid"><section class="card q-card ' + f + '"><p class="prompt">' + mono(q.p) + '</p>' + visRow(q.vis, 'q') + '</section>' +
+        '<section class="card a-card"><div class="note book">' + ICON.book + '<div><b class="lab">In your book</b>' + (q.book || 'Work it out in your book first. Then type your answer.') + '</div></div><div class="ans-row" id="ans-row">' + inputHTML(q, !!st) + '</div><div id="q-dyn" style="display:flex;flex-direction:column;gap:0.9rem;">' + dynHTML(q, st, pr.every((x, j) => x || j === i)) + '</div></section></div>';
+}
+
+function deeperView(a) {
+    if (!deeperOpen(a.id)) return '<section class="card locked-card">' + ICON.lock + '<h3>Go Deeper: ' + a.deeper.topic + '</h3><p>Finish the First floor or the Second floor to unlock.</p></section>';
+    const tasks = a.deeper.tasks.map(t => '<div class="ext-task"><div class="ext-task-label">' + t.level + '</div><div class="ext-task-prompt">' + mono(t.prompt, 'ext-numbers') + '</div><div class="ext-task-sub">' + t.sub + '</div><textarea class="ext-thinking-area" placeholder="Show your thinking here..."></textarea><button class="ext-reveal-btn" data-a="ext-reveal">See how a mathematician thought about this</button><div class="ext-model-response"><div class="model-label">A mathematician\'s response</div>' + t.model.map(p => '<p>' + mono(p, 'ext-numbers') + '</p>').join('') + '</div><div class="mathematician-box"><strong>Mathematician\'s thinking:</strong> ' + t.box + '</div></div>').join('');
+    return '<section class="go-deeper-card" id="go-deeper-section"><h2>' + ICON.unlock + ' Go Deeper: ' + a.deeper.topic + '</h2><p>These tasks push your thinking beyond finding answers. Explore, make conjectures and reason like a mathematician. Write your thinking in your book or in the boxes.</p>' + (a.deeper.vis ? '<div class="deeper-vis">' + visRow([a.deeper.vis], 'q') + '</div>' : '') + '<div class="ext-grid">' + tasks + '</div></section>';
+}
+
+function render(keepScroll) {
+    const a = act();
+    if (!a) { S.route = 'hub'; app.innerHTML = hubView(); }
+    else app.innerHTML = chrome(a, S.tab === 'learn' ? teachView(a) : S.tab === 'deeper' ? deeperView(a) : floorView(a));
+    document.title = a ? a.title + ' · Time unit' : 'Time: 12-hour and 24-hour · Self-paced unit';
+    if (!keepScroll) window.scrollTo(0, 0);
+    const inp = document.getElementById('in1');
+    if (inp && !inp.disabled && window.matchMedia('(min-width: 900px)').matches) inp.focus({ preventScroll: true });
+}
+
+// ---------- Answer checking ----------
+function readClock(str, max) {
+    str = str.trim();
+    if (!str) return { blank: true };
+    let h, m;
+    const mt = /^(\d{1,2})\s*[:.\s]\s*(\d{2})$/.exec(str);
+    if (mt) { h = +mt[1]; m = +mt[2]; }
+    else if (/^\d{3,4}$/.test(str)) { h = +str.slice(0, -2); m = +str.slice(-2); }
+    else return { bad: 'Write the time with hours and minutes, like ' + (max === 24 ? '08:30' : '8:30') + '.' };
+    if (m > 59) return { bad: 'The minutes must be between 00 and 59.' };
+    if (h > 23) return { bad: 'The hour cannot be more than 23.' };
+    return { h: h, m: m, raw: str };
+}
+function evaluate(q) {
+    const v1 = (document.getElementById('in1') || {}).value || '', v2 = (document.getElementById('in2') || {}).value || '';
+    if (q.type === 'time24' || q.type === 'clock' || q.type === 'time12') {
+        const r = readClock(v1, q.type === 'time24' ? 24 : 12);
+        if (r.blank) return { blank: true };
+        if (r.bad) return { said: v1, msg: r.bad };
+        if (q.type === 'time24') {
+            const v = r.h * 60 + r.m;
+            if (v === q.ans) return { ok: true, tip: r.raw.replace(/\D/g, '').length === 4 ? '' : 'Remember to write 24-hour time with four digits and a colon: ' + mono(q.show) + '.' };
+            return { said: r.raw, v: v, raw: r };
+        }
+        if (q.type === 'clock') {
+            if (r.h < 1 || r.h > 12) return { said: r.raw, msg: 'The hour on this clock is a number from 1 to 12.' };
+            const v = (r.h % 12) * 60 + r.m;
+            return v === q.ans ? { ok: true } : { said: r.raw, v: v, raw: r };
+        }
+        if (!cur.ampm) return { said: r.raw, msg: 'Choose am or pm as well.', soft: true };
+        if (r.h < 1 || r.h > 12) return { said: r.raw + ' ' + cur.ampm, v: NaN, raw: r, fallback: 'In 12-hour time the hour is a number from 1 to 12.' };
+        const v = ((r.h % 12) + (cur.ampm === 'pm' ? 12 : 0)) * 60 + r.m;
+        return v === q.ans ? { ok: true } : { said: r.raw + ' ' + cur.ampm, v: v, raw: r };
+    }
+    if (q.type === 'dur') {
+        if (!v1.trim() && !v2.trim()) return { blank: true };
+        const b = v1.trim() === '' ? 0 : Number(v1), s = v2.trim() === '' ? 0 : Number(v2);
+        const said = b + ' ' + q.units[0] + ' ' + s + ' ' + q.units[1];
+        if (isNaN(b) || isNaN(s) || b < 0 || s < 0 || b % 1 || s % 1) return { said: (v1 + ' ' + v2).trim(), msg: 'Use whole numbers in both boxes.' };
+        const v = b * 60 + s;
+        if (v === q.ans && s >= 60) return { said: said, msg: 'Your total is right. Now rename it so the ' + (q.units[1] === 's' ? 'seconds are' : 'minutes are') + ' less than 60.' };
+        return v === q.ans ? { ok: true } : { said: said, v: v, raw: { big: b, small: s } };
+    }
+    const t = v1.replace(/[$,\s]/g, '');
+    if (!t) return { blank: true };
+    const v = Number(t);
+    if (isNaN(v)) return { said: v1, msg: 'Type your answer as a number.' };
+    return Math.abs(v - q.ans) < 1e-6 ? { ok: true } : { said: v1.trim(), v: v, raw: null };
+}
+function finish(q, how, tip) {
+    const a = act(), pr = prog(a.id, S.tab), i = S.pos[a.id + '/' + S.tab];
+    if (!pr[i]) pr[i] = how;
+    cur.tip = tip || '';
+    save();
+    render(true);
+}
+function wrong(q, res) {
+    cur.tries++;
+    let msg = '<strong>Not yet.</strong> You answered ' + mono(esc(res.said)) + '. ';
+    let d = res.msg || null;
+    if (!d && q.diag && res.v !== undefined) { try { d = q.diag(res.v, res.raw); } catch (e) { d = null; } }
+    msg += mono(d || res.fallback || 'Check your working in your book and try again.');
+    if (cur.tries >= 2 && cur.hints < q.hints.length && cur.hints < cur.tries - 1) { cur.hints++; msg += ' A hint has been added below.'; }
+    cur.fb = msg;
+    document.getElementById('q-dyn').innerHTML = dynHTML(q, null, false);
+}
+function check() {
+    const a = act(); if (!a || S.tab === 'learn' || S.tab === 'deeper' || S.summary) return;
+    const i = S.pos[a.id + '/' + S.tab], q = a.floors[S.tab][i];
+    if (prog(a.id, S.tab)[i] || q.type === 'choice') return;
+    const res = evaluate(q);
+    if (res.blank) { cur.fb = 'You answered (blank). Work it out in your book, then type your answer.'; document.getElementById('q-dyn').innerHTML = dynHTML(q, null, false); return; }
+    if (res.ok) return finish(q, 'solo', res.tip);
+    if (res.soft) { cur.fb = res.msg; document.getElementById('q-dyn').innerHTML = dynHTML(q, null, false); return; }
+    wrong(q, res);
+}
+
+// ---------- Events ----------
+function go(id) { S.route = id; S.tab = 'learn'; S.teach = 0; S.stage = 0; S.summary = false; S.lisc = false; cur = null; const h = '#' + (id === 'hub' ? 'home' : id); if (location.hash !== h) { try { location.hash = h; } catch (e) { /* hash not available */ } } render(); }
+app.addEventListener('click', e => {
+    const b = e.target.closest('[data-a]'); if (!b) return;
+    const a = act(), d = b.dataset;
+    switch (d.a) {
+        case 'go': go(d.id); break;
+        case 'tab': S.tab = d.t; S.summary = false; cur = null; if (d.t !== 'learn' && d.t !== 'deeper') { const pr = prog(a.id, d.t); delete S.pos[a.id + '/' + d.t]; if (pr.every(x => x)) S.summary = true; } render(); break;
+        case 'lisc': S.lisc = !S.lisc; document.getElementById('learningContent').classList.toggle('open', S.lisc); document.getElementById('learningToggle').style.transform = 'rotate(' + (S.lisc ? 180 : 0) + 'deg)'; break;
+        case 'teach-next': if (S.stage < a.teach[S.teach].stages.length - 1) S.stage++; else if (S.teach < a.teach.length - 1) { S.teach++; S.stage = 0; } render(true); break;
+        case 'teach-back': if (S.stage > 0) S.stage--; else if (S.teach > 0) { S.teach--; S.stage = a.teach[S.teach].stages.length - 1; } render(true); break;
+        case 'teach-dot': S.teach = +d.i; S.stage = 0; render(true); break;
+        case 'q-dot': S.pos[a.id + '/' + S.tab] = +d.i; cur = null; render(true); break;
+        case 'q-check': check(); break;
+        case 'q-hint': { const q = a.floors[S.tab][S.pos[a.id + '/' + S.tab]]; if (cur.hints < q.hints.length) cur.hints++; document.getElementById('q-dyn').innerHTML = dynHTML(q, null, false); break; }
+        case 'q-reveal': finish(a.floors[S.tab][S.pos[a.id + '/' + S.tab]], 'help'); break;
+        case 'q-next': { const key = a.id + '/' + S.tab, pr = prog(a.id, S.tab); let nx = -1; for (let k = 1; k <= pr.length; k++) { const j = (S.pos[key] + k) % pr.length; if (!pr[j]) { nx = j; break; } } cur = null; if (nx < 0) S.summary = true; else S.pos[key] = nx; render(); break; }
+        case 'ampm': cur.ampm = d.v; b.parentNode.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); break;
+        case 'opt': { const q = a.floors[S.tab][S.pos[a.id + '/' + S.tab]], i = +d.i; if (i === q.ans) finish(q, 'solo'); else { cur.wrongOpts.push(i); b.classList.add('wrong'); b.disabled = true; wrong(q, { said: b.textContent, msg: (q.why && q.why[i]) || 'That one does not fit. Look again and choose another.' }); } break; }
+        case 'floor-again': PROG[a.id][S.tab] = null; save(); S.summary = false; delete S.pos[a.id + '/' + S.tab]; cur = null; render(); break;
+        case 'ext-reveal': { const m = b.nextElementSibling; m.classList.toggle('visible'); b.textContent = m.classList.contains('visible') ? 'Hide mathematician\'s response' : 'See how a mathematician thought about this'; break; }
+        case 'unlock-all': PROG._all = true; save(); render(true); break;
+        case 'reset': if (b.dataset.sure) { PROG = {}; save(); render(true); } else { b.dataset.sure = '1'; b.textContent = 'Click again to clear all progress'; } break;
+    }
+});
+app.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('ans-in')) { e.preventDefault(); check(); } });
+function fromHash() { const id = (location.hash || '').replace('#', ''); const ok = ACTIVITIES.some(a => a.id === id); if ((ok ? id : 'hub') !== S.route) { S.route = ok ? id : 'hub'; S.tab = 'learn'; S.teach = 0; S.stage = 0; S.summary = false; cur = null; render(); } }
+window.addEventListener('hashchange', fromHash);
+(function () { const id = (location.hash || '').replace('#', ''); if (ACTIVITIES.some(a => a.id === id)) S.route = id; render(); })();
+
+    </script>
+</body>
+</html>
